@@ -389,10 +389,11 @@ Read in three steps, exactly as the header documents:
   (`test_armgate_disarms_on_switch_off_and_requires_neutral_again`.) **VERIFIED.**
 - **Failsafe recovery requires fresh neutral (finding A3).** Armed and driving at 900; a
   failsafe episode (`forceDisarm=true`) disarms; when the link recovers **with the stick
-  still at 900**, the gate stays disarmed until the stick returns to neutral — so throttle
-  can't "snap on" mid-drive. (`test_armgate_failsafe_recovery_requires_fresh_neutral`.)
-  **VERIFIED (ran).** This is the same fresh-neutral rule chapter 10 §2 described, now in
-  code.
+  still at 900**, the gate stays disarmed until the stick returns to neutral — so, *once C10
+  gates throttle on this bool*, the motor can't "snap on" mid-drive (the gate itself only
+  reports disarmed). (`test_armgate_failsafe_recovery_requires_fresh_neutral`.) **VERIFIED
+  (ran)** for the gate's report; the motor-side outcome is **PROVISIONAL** until C10. This is
+  the same fresh-neutral rule chapter 10 §2 described, now in code.
 - **Neutral while disarmed does NOT pre-arm.** Observing neutral while the switch is OFF
   doesn't set the latch (step 2 only runs when the switch is ON and not force-disarmed);
   turning the switch on later with a displaced stick is still blocked.

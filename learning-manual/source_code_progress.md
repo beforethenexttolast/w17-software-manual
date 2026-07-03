@@ -4,7 +4,7 @@ Status values: `not started` → `explained` → `needs review` (you flagged que
 `reviewed` (you confirmed understanding). Priority = batch order from
 `source_code_explanation_plan.md`. Updated after every batch.
 
-**Last updated: 2026-07-03 — C5 explained (tests run + passing). Next: C6.**
+**Last updated: 2026-07-03 — C5 reviewed (1 minimal fix). Next: C6.**
 
 Batch log:
 - **C1** → `code_explained/control_fw/01_foundations_pins_hal_failsafe.md`. Ran
@@ -68,6 +68,16 @@ Batch log:
   update()→bool; all "blocks throttle / steering live disarmed / forceDisarm=Safe" wiring is
   PROVISIONAL until C10. Default channel indices PROVISIONAL (open q #5, D8-4); brake meaning
   of negative throttle is C2/ESC (open q #29). No new open questions.
+- **C5 review (2026-07-03):** audited against the C5 sources. Verified ArmGate polarity
+  (`!armSwitchOn || forceDisarm`→disarm; `|thr|≤60` inclusive arms; once-armed-stays), the
+  valid() policed-index list (steering/throttle/arm/DRS/gearUp/gearDown + threshold order;
+  pan/tilt/boost/overtake/driveMode unpoliced = safe-degrade), Controls defaults
+  (driveMode=1, rest 0/false), tri-state strict ±333, and all test line-ranges — all
+  correct. No throttle/brake, polarity, or default-value errors; C5-commands-no-output
+  framing sound. One minimal fix: the A3 bullet said "so throttle can't 'snap on' mid-drive"
+  as a VERIFIED motor outcome, but the gate only reports disarmed — reworded to make the
+  motor-side outcome conditional on C10 (PROVISIONAL), keeping VERIFIED on the gate's bool.
+  Status: reviewed.
 
 ## w17-control-fw
 
@@ -99,9 +109,9 @@ Batch log:
 | `lib/crsf/include/crsf/CrsfFrameBuilder.hpp` | C4 | reviewed | header-only |
 | `lib/crsf_hal_esp32/include/.../Esp32CrsfUart.hpp` + `src/Esp32CrsfUart.cpp` | C4 | reviewed | |
 | `test/test_crsf/test_main.cpp` | C4 | reviewed | 541 lines; key tests deep, rest catalogued |
-| `lib/channels/include/channels/ChannelDecoder.hpp` + `src/ChannelDecoder.cpp` | C5 | explained | |
-| `lib/channels/include/channels/ArmGate.hpp` + `src/ArmGate.cpp` | C5 | explained | header read during ch10 |
-| `test/test_channels/test_main.cpp` | C5 | explained | |
+| `lib/channels/include/channels/ChannelDecoder.hpp` + `src/ChannelDecoder.cpp` | C5 | reviewed | |
+| `lib/channels/include/channels/ArmGate.hpp` + `src/ArmGate.cpp` | C5 | reviewed | header read during ch10 |
+| `test/test_channels/test_main.cpp` | C5 | reviewed | |
 | `lib/gearbox/include/gearbox/Gearbox.hpp` + `src/Gearbox.cpp` | C6 | not started | header read during ch10 |
 | `lib/ers/include/ers/ErsSystem.hpp` + `src/ErsSystem.cpp` | C6 | not started | header read during ch10 |
 | `test/test_gearbox/test_main.cpp` | C6 | not started | |
