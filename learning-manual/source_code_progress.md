@@ -4,7 +4,7 @@ Status values: `not started` → `explained` → `needs review` (you flagged que
 `reviewed` (you confirmed understanding). Priority = batch order from
 `source_code_explanation_plan.md`. Updated after every batch.
 
-**Last updated: 2026-07-03 — C5 reviewed (1 minimal fix). Next: C6.**
+**Last updated: 2026-07-03 — C6 explained (tests run + passing). Next: C7.**
 
 Batch log:
 - **C1** → `code_explained/control_fw/01_foundations_pins_hal_failsafe.md`. Ran
@@ -78,6 +78,18 @@ Batch log:
   as a VERIFIED motor outcome, but the gate only reports disarmed — reworded to make the
   motor-side outcome conditional on C10 (PROVISIONAL), keeping VERIFIED on the gate's bool.
   Status: reviewed.
+- **C6** → `code_explained/control_fw/06_feel_gearbox_and_ers.md`. Ran
+  `pio test -e native -f test_gearbox -f test_ers` → 28/28 PASSED (14+14). Covered Gearbox
+  (expo blend endpoint-exact then scale-to-maxOutput; brake/reverse x≤0 passes through
+  unshaped in EVERY gear — safe only if ESC is forward/brake, open q #29; saturating shifts
+  bounded by numGears; gear survives failsafe at module level; monotonicity guard in valid())
+  and ERS (micro-permille store so drain/harvest = rate×dtMs exactly; freeze+clock-reseed
+  when !ersActive; 100ms stall clamp; deploy needs held-switch AND +throttle AND energy>0,
+  overtake wins; harvest needs motion + brake/coast band; applyBoost multiplies +bonus,
+  clamps 1000, HARD INVARIANT applyBoost(0)==0 / negatives pass — can't move a disarmed car).
+  KEY: neither module reads driveMode; the 3 modes are realized by C10 wiring (PROVISIONAL,
+  ROADMAP B2.2). Clarified the confusing "failsafe is Active" naming (FSM Active = link
+  healthy = NOT failsafe). No new open questions.
 
 ## w17-control-fw
 
@@ -112,10 +124,10 @@ Batch log:
 | `lib/channels/include/channels/ChannelDecoder.hpp` + `src/ChannelDecoder.cpp` | C5 | reviewed | |
 | `lib/channels/include/channels/ArmGate.hpp` + `src/ArmGate.cpp` | C5 | reviewed | header read during ch10 |
 | `test/test_channels/test_main.cpp` | C5 | reviewed | |
-| `lib/gearbox/include/gearbox/Gearbox.hpp` + `src/Gearbox.cpp` | C6 | not started | header read during ch10 |
-| `lib/ers/include/ers/ErsSystem.hpp` + `src/ErsSystem.cpp` | C6 | not started | header read during ch10 |
-| `test/test_gearbox/test_main.cpp` | C6 | not started | |
-| `test/test_ers/test_main.cpp` | C6 | not started | |
+| `lib/gearbox/include/gearbox/Gearbox.hpp` + `src/Gearbox.cpp` | C6 | explained | header read during ch10 |
+| `lib/ers/include/ers/ErsSystem.hpp` + `src/ErsSystem.cpp` | C6 | explained | header read during ch10 |
+| `test/test_gearbox/test_main.cpp` | C6 | explained | |
+| `test/test_ers/test_main.cpp` | C6 | explained | |
 | `lib/telemetry/include/telemetry/BatteryMonitor.hpp` + `src/BatteryMonitor.cpp` | C7 | not started | |
 | `lib/telemetry/include/telemetry/WheelSpeed.hpp` + `src/WheelSpeed.cpp` | C7 | not started | |
 | `lib/telemetry_hal_esp32/include/.../Esp32BatteryAdc.hpp` + `src/Esp32BatteryAdc.cpp` | C7 | not started | |
