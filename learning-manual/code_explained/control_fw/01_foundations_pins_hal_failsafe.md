@@ -17,7 +17,7 @@ later batch reuses.
 | `lib/hal/include/hal/IVoltageSensor.hpp` | 20 | Interface: read calibrated millivolts |
 | `lib/hal/include/hal/IWheelPulseSensor.hpp` | 28 | Interface + a small data struct: read wheel pulses |
 | `lib/hal/include/hal/ISettingsStore.hpp` | 25 | Interface: load/save a blob to flash |
-| `lib/hal/library.json` (+ comparison of all 19) | 7 | PlatformIO library metadata |
+| `lib/hal/library.json` (+ comparison of all 17 in this repo) | 7 | PlatformIO library metadata |
 | `lib/failsafe/include/failsafe/FailsafeStateMachine.hpp` | 68 | The safety state machine — declaration |
 | `lib/failsafe/src/FailsafeStateMachine.cpp` | 42 | The safety state machine — implementation |
 | `test/mocks/FakeClock.hpp` | 17 | A fake `IClock` for tests |
@@ -187,7 +187,7 @@ Two things worth noticing as *facts about the code*, not just the table:
 
 ---
 
-## 2. Interlude — `library.json` (and all 19 of them)
+## 2. Interlude — `library.json` (and all 17 in this repo)
 
 Before the interfaces, the one-time explanation of the little `library.json` that sits
 in every `lib/<module>/` folder. Here is `lib/hal/library.json` in full:
@@ -216,8 +216,9 @@ in every `lib/<module>/` folder. Here is `lib/hal/library.json` in full:
 
 ### Why this file matters: the pure-vs-HAL split is visible in JSON
 
-I scanned all 19 `library.json` files. They fall into exactly two shapes, and the shape
-tells you instantly whether a library is pure logic or hardware-bound:
+I scanned all 17 `library.json` files **in w17-control-fw** (soundlight's 8 come in the
+S-batches). They fall into exactly two shapes, and the shape tells you instantly whether
+a library is pure logic or hardware-bound:
 
 | Shape | `frameworks` / `platforms` | Which libraries | Meaning |
 |---|---|---|---|
@@ -239,7 +240,7 @@ declare it. From the scan:
 
 So: `library.json` is not glamorous, but reading its five lines tells you a library's
 *entire external contract* — pure or chip-bound, and what it leans on. We won't quote
-the other 18 individually; this table is their explanation. (The `settings_hal_esp32`
+the other 16 individually; this table is their explanation. (The `settings_hal_esp32`
 one has no `dependencies` key in the scan, which is mildly surprising for a HAL lib;
 noted for batch C9 to check against its actual `#include`s.) **VERIFIED** table;
 the C9 note is a flagged **PROVISIONAL** curiosity.
@@ -342,11 +343,18 @@ New syntax:
 - **`size_t len`** — `size_t` (from `<cstddef>`) is the unsigned type used for sizes and
   counts; `len` is how many bytes `data` points to.
 - The comment is a small masterclass in *deliberate omission*: there is **no
-  backpressure API** (no way to say "slow down, buffer full") because a 12-byte link2
+  backpressure API** (no way to say "slow down, buffer full") because a small link2
   frame sent every 50 ms drains from the UART's 128-byte hardware buffer in ~1 ms, so a
   write can never block. The interface is kept minimal because the usage regime
   guarantees it's safe. **VERIFIED** (the reasoning is stated); the "~1 ms" timing is a
   design calculation, **INFERRED** by the author (plausible, bench-checkable).
+- **Caveat on the source comment's "12 bytes":** the comment literally says "link2
+  frames (12 bytes)", but the actual **v1 frame is 14 bytes** (`kFrameLen = 3 + 11`, see
+  `Link2Frame.hpp` in batch C8 and manual chapter 09 §2). The "12" is a **stale comment**
+  — it predates the v1 payload growing from 9→11 bytes (the amendment in ROADMAP B2.2).
+  The *argument* still holds (14 ≪ 128, still ~1 ms), only the number is out of date.
+  **VERIFIED** discrepancy (source comment 12 vs `Link2Frame.hpp` frame 14). Flagged so
+  it doesn't contradict chapter 09.
 
 **`ICharIO.hpp`** — console character I/O (UART0 in hardware; a scripted buffer in tests;
 batch C9):

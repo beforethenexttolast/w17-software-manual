@@ -4,36 +4,48 @@ Status values: `not started` → `explained` → `needs review` (you flagged que
 `reviewed` (you confirmed understanding). Priority = batch order from
 `source_code_explanation_plan.md`. Updated after every batch.
 
-**Last updated: 2026-07-03 — C1 explained (tests run + passing). Next: C2.**
+**Last updated: 2026-07-03 — C2 explained (tests run + passing). Next: C3.**
 
 Batch log:
 - **C1** → `code_explained/control_fw/01_foundations_pins_hal_failsafe.md`. Ran
   `pio test -e native -f test_failsafe` → 8/8 PASSED. No new open questions; two
   PROVISIONAL curiosities noted (settings_hal_esp32 deps; FakeClock usage) for C9/C2.
+- **C1 review (2026-07-03):** audited against the C1 sources. Two minimal fixes applied:
+  (1) library.json count corrected 19→17 (scan was w17-control-fw only; soundlight's 8
+  come in S-batches); (2) flagged that `IByteSink.hpp`'s "12 bytes" comment is stale —
+  the real v1 frame is 14 bytes (`Link2Frame.hpp`), matching the 9→11 payload growth in
+  ROADMAP B2.2. Rest of the doc verified accurate (syntax, line refs, VERIFIED/INFERRED/
+  PROVISIONAL labels, failsafe walkthrough, test readings). Status: reviewed.
+- **C2** → `code_explained/control_fw/02_outputs_commands_to_microseconds.md`. Ran
+  `pio test -e native -f test_outputs` → 10/10 PASSED. Covered the two-sided µs scaler
+  (endpoints/centre exact), ESC boot-arm hold (A5, first-call anchor, inclusive `>=`),
+  DRS binary output, and the LEDC µs→duty math (`µs·65535/20000`, verified by hand;
+  file excluded from native tests). No new open questions; noted only ServoConfig has a
+  valid() (A11); ESC brake-not-reverse mapping is hardware-dependent (open q #29, D8-7).
 
 ## w17-control-fw
 
 | File | Batch | Status | Notes |
 |---|---|---|---|
-| `lib/config/include/config/PinMap.hpp` | C1 | explained | §1 |
-| `lib/hal/include/hal/IClock.hpp` | C1 | explained | §3.1 (specimen interface) |
-| `lib/hal/include/hal/IPwmOutput.hpp` | C1 | explained | §3.2 |
-| `lib/hal/include/hal/IByteSink.hpp` | C1 | explained | §3.2 |
-| `lib/hal/include/hal/ICharIO.hpp` | C1 | explained | §3.2 |
-| `lib/hal/include/hal/IVoltageSensor.hpp` | C1 | explained | §3.2 (seam-placement note) |
-| `lib/hal/include/hal/IWheelPulseSensor.hpp` | C1 | explained | §3.2 (WheelPulseSnapshot struct) |
-| `lib/hal/include/hal/ISettingsStore.hpp` | C1 | explained | §3.2 |
-| `lib/*/library.json` (control repo, all 17 scanned) | C1 | explained | §2 (exemplar + 2-shape comparison table); soundlight library.json still pending in S-batches |
-| `lib/failsafe/include/failsafe/FailsafeStateMachine.hpp` | C1 | explained | §4 |
-| `lib/failsafe/src/FailsafeStateMachine.cpp` | C1 | explained | §5 |
-| `test/mocks/FakeClock.hpp` | C1 | explained | §6 |
-| `test/test_failsafe/test_main.cpp` | C1 | explained | §7 — ran, 8/8 PASSED |
-| `lib/outputs/include/outputs/ServoOutput.hpp` + `src/ServoOutput.cpp` | C2 | not started | |
-| `lib/outputs/include/outputs/EscOutput.hpp` + `src/EscOutput.cpp` | C2 | not started | |
-| `lib/outputs/include/outputs/DrsOutput.hpp` + `src/DrsOutput.cpp` | C2 | not started | |
-| `lib/outputs_hal_esp32/include/.../Esp32LedcPwm.hpp` + `src/Esp32LedcPwm.cpp` | C2 | not started | |
-| `test/mocks/MockPwmOutput.hpp` | C2 | not started | |
-| `test/test_outputs/test_main.cpp` | C2 | not started | |
+| `lib/config/include/config/PinMap.hpp` | C1 | reviewed | §1 |
+| `lib/hal/include/hal/IClock.hpp` | C1 | reviewed | §3.1 (specimen interface) |
+| `lib/hal/include/hal/IPwmOutput.hpp` | C1 | reviewed | §3.2 |
+| `lib/hal/include/hal/IByteSink.hpp` | C1 | reviewed | §3.2 |
+| `lib/hal/include/hal/ICharIO.hpp` | C1 | reviewed | §3.2 |
+| `lib/hal/include/hal/IVoltageSensor.hpp` | C1 | reviewed | §3.2 (seam-placement note) |
+| `lib/hal/include/hal/IWheelPulseSensor.hpp` | C1 | reviewed | §3.2 (WheelPulseSnapshot struct) |
+| `lib/hal/include/hal/ISettingsStore.hpp` | C1 | reviewed | §3.2 |
+| `lib/*/library.json` (control repo, all 17 scanned) | C1 | reviewed | §2 (exemplar + 2-shape comparison table); soundlight library.json still pending in S-batches |
+| `lib/failsafe/include/failsafe/FailsafeStateMachine.hpp` | C1 | reviewed | §4 |
+| `lib/failsafe/src/FailsafeStateMachine.cpp` | C1 | reviewed | §5 |
+| `test/mocks/FakeClock.hpp` | C1 | reviewed | §6 |
+| `test/test_failsafe/test_main.cpp` | C1 | reviewed | §7 — ran, 8/8 PASSED |
+| `lib/outputs/include/outputs/ServoOutput.hpp` + `src/ServoOutput.cpp` | C2 | explained | |
+| `lib/outputs/include/outputs/EscOutput.hpp` + `src/EscOutput.cpp` | C2 | explained | |
+| `lib/outputs/include/outputs/DrsOutput.hpp` + `src/DrsOutput.cpp` | C2 | explained | |
+| `lib/outputs_hal_esp32/include/.../Esp32LedcPwm.hpp` + `src/Esp32LedcPwm.cpp` | C2 | explained | |
+| `test/mocks/MockPwmOutput.hpp` | C2 | explained | |
+| `test/test_outputs/test_main.cpp` | C2 | explained | |
 | `lib/crsf/include/crsf/CrsfFrame.hpp` | C3 | not started | header read during ch09 |
 | `lib/crsf/include/crsf/CrsfFrameAssembler.hpp` + `src/CrsfFrameAssembler.cpp` | C3 | not started | |
 | `lib/crsf/include/crsf/CrsfParser.hpp` + `src/CrsfParser.cpp` | C3 | not started | 11-bit unpacking |
