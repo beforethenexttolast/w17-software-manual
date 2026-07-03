@@ -387,6 +387,24 @@ void IRAM_ATTR onEdge() {
   edge and double-count. This is the software layer of the layered EMI defense (chapter 03 §10,
   ROADMAP D5). **VERIFIED** (the lockout code) / real EMI rejection is a bench item (open q #31,
   D8 Phase 8 — scope the line at full throttle, add 1–10 nF if ugly).
+  > **The lockout and the plausibility clamp are two *different* thresholds — and neither is a
+  > verified EMI guarantee (PROVISIONAL / hardware).** Convert each to a pulse *period* (1
+  > magnet):
+  > - The `5000` rpm plausibility clamp (WheelSpeed, §3) corresponds to a period of
+  >   `60,000,000 / 5000 = 12,000 µs = 12 ms`, and **5000 rpm = ~83.3 rev/s**.
+  > - The source comment separately estimates the car's **real top speed at ~55 rev/s ≈ 3300
+  >   rpm** (~18 ms period). So the top-speed estimate (~55 rev/s) and the clamp value (5000 rpm
+  >   = ~83.3 rev/s) are **not the same physical threshold** — the clamp sits *above* top speed.
+  > - The **2 ms ISR lockout is much looser than the 5000 rpm clamp**: 2 ms =
+  >   `60,000,000 / 2000 = 30,000` rpm-equivalent, so the ISR only *hard-rejects* edges implying
+  >   **> 30,000 rpm** (closer than 2 ms). An EMI edge landing **2–12 ms** after a real one
+  >   *passes* the lockout and is counted as a real pulse; WheelSpeed then only caps the
+  >   *reported* rpm at 5000 — it does **not** un-count the spurious edge or restore the true
+  >   period. So **the 2 ms lockout does not by itself reject all EMI edges between the clamp
+  >   period (12 ms) and the lockout period (2 ms)**; those two layers overlap only partially.
+  > - Treat this as a **hardware-validation item, not a verified physical guarantee** — whether
+  >   such residual EMI actually occurs, and whether a snubber cap is needed, is bench-only
+  >   (open q #31, D8 Phase 8; the layered defense in chapter 03 §10).
 - **Period then count.** If a previous edge exists, store `nowUs − lastEdgeUs_` as the period;
   then update `lastEdgeUs_`, and `fetch_add(1)` the count. `fetch_add` is an atomic
   read-modify-write increment. **VERIFIED** (code).
