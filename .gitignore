@@ -1,0 +1,21 @@
+.DS_Store
+
+# Source repositories are sibling inputs with their own Git history.
+# Do not track them in the manual repo.
+w17-control-fw/
+w17-ground-station/
+w17-soundlight-fw/
+
+# Common generated files
+node_modules/
+dist/
+build/
+out/
+coverage/
+.cache/
+.vscode/
+.idea/
+*.log
+*.tmp
+.env
+.env.*
