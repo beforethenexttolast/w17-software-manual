@@ -4,25 +4,30 @@ Status values: `not started` → `explained` → `needs review` (you flagged que
 `reviewed` (you confirmed understanding). Priority = batch order from
 `source_code_explanation_plan.md`. Updated after every batch.
 
-**Last updated: 2026-07-03 — campaign planned, no batches explained yet.**
+**Last updated: 2026-07-03 — C1 explained (tests run + passing). Next: C2.**
+
+Batch log:
+- **C1** → `code_explained/control_fw/01_foundations_pins_hal_failsafe.md`. Ran
+  `pio test -e native -f test_failsafe` → 8/8 PASSED. No new open questions; two
+  PROVISIONAL curiosities noted (settings_hal_esp32 deps; FakeClock usage) for C9/C2.
 
 ## w17-control-fw
 
 | File | Batch | Status | Notes |
 |---|---|---|---|
-| `lib/config/include/config/PinMap.hpp` | C1 | not started | |
-| `lib/hal/include/hal/IClock.hpp` | C1 | not started | |
-| `lib/hal/include/hal/IPwmOutput.hpp` | C1 | not started | quoted in full in ch04 §9 |
-| `lib/hal/include/hal/IByteSink.hpp` | C1 | not started | |
-| `lib/hal/include/hal/ICharIO.hpp` | C1 | not started | |
-| `lib/hal/include/hal/IVoltageSensor.hpp` | C1 | not started | |
-| `lib/hal/include/hal/IWheelPulseSensor.hpp` | C1 | not started | |
-| `lib/hal/include/hal/ISettingsStore.hpp` | C1 | not started | |
-| `lib/*/library.json` (19 files, both fw repos) | C1 | not started | one exemplar + comparison table |
-| `lib/failsafe/include/failsafe/FailsafeStateMachine.hpp` | C1 | not started | header read during ch10 |
-| `lib/failsafe/src/FailsafeStateMachine.cpp` | C1 | not started | |
-| `test/mocks/FakeClock.hpp` | C1 | not started | |
-| `test/test_failsafe/test_main.cpp` | C1 | not started | |
+| `lib/config/include/config/PinMap.hpp` | C1 | explained | §1 |
+| `lib/hal/include/hal/IClock.hpp` | C1 | explained | §3.1 (specimen interface) |
+| `lib/hal/include/hal/IPwmOutput.hpp` | C1 | explained | §3.2 |
+| `lib/hal/include/hal/IByteSink.hpp` | C1 | explained | §3.2 |
+| `lib/hal/include/hal/ICharIO.hpp` | C1 | explained | §3.2 |
+| `lib/hal/include/hal/IVoltageSensor.hpp` | C1 | explained | §3.2 (seam-placement note) |
+| `lib/hal/include/hal/IWheelPulseSensor.hpp` | C1 | explained | §3.2 (WheelPulseSnapshot struct) |
+| `lib/hal/include/hal/ISettingsStore.hpp` | C1 | explained | §3.2 |
+| `lib/*/library.json` (control repo, all 17 scanned) | C1 | explained | §2 (exemplar + 2-shape comparison table); soundlight library.json still pending in S-batches |
+| `lib/failsafe/include/failsafe/FailsafeStateMachine.hpp` | C1 | explained | §4 |
+| `lib/failsafe/src/FailsafeStateMachine.cpp` | C1 | explained | §5 |
+| `test/mocks/FakeClock.hpp` | C1 | explained | §6 |
+| `test/test_failsafe/test_main.cpp` | C1 | explained | §7 — ran, 8/8 PASSED |
 | `lib/outputs/include/outputs/ServoOutput.hpp` + `src/ServoOutput.cpp` | C2 | not started | |
 | `lib/outputs/include/outputs/EscOutput.hpp` + `src/EscOutput.cpp` | C2 | not started | |
 | `lib/outputs/include/outputs/DrsOutput.hpp` + `src/DrsOutput.cpp` | C2 | not started | |
