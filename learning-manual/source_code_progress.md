@@ -4,7 +4,7 @@ Status values: `not started` → `explained` → `needs review` (you flagged que
 `reviewed` (you confirmed understanding). Priority = batch order from
 `source_code_explanation_plan.md`. Updated after every batch.
 
-**Last updated: 2026-07-03 — C6 explained (tests run + passing). Next: C7.**
+**Last updated: 2026-07-03 — C7 reviewed (1 minimal fix). Next: C8.**
 
 Batch log:
 - **C1** → `code_explained/control_fw/01_foundations_pins_hal_failsafe.md`. Ran
@@ -90,6 +90,41 @@ Batch log:
   KEY: neither module reads driveMode; the 3 modes are realized by C10 wiring (PROVISIONAL,
   ROADMAP B2.2). Clarified the confusing "failsafe is Active" naming (FSM Active = link
   healthy = NOT failsafe). No new open questions.
+- **C6 review (2026-07-03):** audited against the C6 sources. Independently re-derived all
+  math — gearbox expo blend + scale-to-maxOutput (endpoint-exact, x3=125 at half-cubic),
+  brake x≤0 passthrough, saturating shifts; ERS energyPercent (÷10000), micro-permille
+  "two 1000s cancel", deploy 26%/s→74%, overtake 40%→60%, coast 6%→54% (vs 53% truncated),
+  stall clamp→97%, freeze reactivation→73%, full applyBoost table (472/944/1000, overtake
+  800→1000, applyBoost(0)=0, applyBoost(−600)=−600): ALL correct, no math errors.
+  "Gear survives failsafe" properly hedged (module-level VERIFIED, C10 PROVISIONAL);
+  drive-mode PROVISIONAL framing and the "failsafe is Active" naming note both sound. One
+  minimal fix (same pattern as C5): §4 stated "a disarmed car has shaped throttle 0" as a
+  bare fact in a VERIFIED bullet — but that premise needs C10 to gate throttle when disarmed
+  (§3 already hedges it). Reworded to scope VERIFIED to the applyBoost invariant and mark the
+  disarmed⇒0 step PROVISIONAL. Status: reviewed.
+- **C7** → `code_explained/control_fw/07_telemetry_sensors.md`. Ran
+  `pio test -e native -f test_telemetry` → 16/16 PASSED. Covered BatteryMonitor (divider
+  ×37/10 + ppt trim in one round-half-up division → 8399mV @ 2270 pin; scaled-accumulator
+  EMA seeded from 1st sample, converges EXACTLY upward unlike naive form; warning latch =
+  3s-sustained-below-7000 + hysteresis-clear-above-7400; overflow-guarded valid();
+  MONITORING ONLY, never cuts) and WheelSpeed (rpm = 60,000,000/periodµs — period-based not
+  count; mm/s = rpm×circ/60; plausibility clamp 5000; graceful-decay ceiling 60,000/elapsedMs
+  — NOTE the µs vs ms constant difference; 1500ms hard-zero). Hall HAL = the concurrency
+  deep-end: std::atomic<uint32_t> relaxed for ISR↔loop count/period (NOT volatile — explained
+  why), IRAM_ATTR, trampoline+this, 2ms debounce (9× margin). ADC = analogReadMilliVolts
+  (eFuse-cal, below the seam) 11dB + 4-read burst avg. Both HAL files excluded from native
+  tests → all electrical/timing behavior PROVISIONAL (open q #30 ADC cal, #31 Hall EMI, D8-8).
+  No current sensor (CRSF current field = 0). No new open questions.
+- **C7 review (2026-07-03):** audited against the C7 sources. Re-verified ADC/battery math
+  (2270→8399, trim→8483, EMA seed/converge, warn latch 3s + hysteresis 7400), WheelSpeed
+  (rpm=60,000,000/periodµs, decay=60,000/elapsedMs — µs-vs-ms constants correct; clamp,
+  timeout, decay table), and the concurrency section. ATOMIC/RELAXED explanation is careful
+  and correct — explicitly says the count/period PAIR "may rarely be torn" and needs no
+  cross-variable ordering, so it does NOT falsely imply snapshot consistency; volatile-vs-
+  atomic (no atomicity, data race = UB) is accurate. No current-sensor implication (denied
+  twice). One factual fix: §3 misread the maxPlausibleRpm comment — it said "~55 rev/s is
+  PAST the car's top speed," but the source puts ~55 rev/s AT top speed (≈3300 rpm) with the
+  clamp set higher at 5000 rpm (≈83 rev/s). Corrected. Status: reviewed.
 
 ## w17-control-fw
 
@@ -124,16 +159,16 @@ Batch log:
 | `lib/channels/include/channels/ChannelDecoder.hpp` + `src/ChannelDecoder.cpp` | C5 | reviewed | |
 | `lib/channels/include/channels/ArmGate.hpp` + `src/ArmGate.cpp` | C5 | reviewed | header read during ch10 |
 | `test/test_channels/test_main.cpp` | C5 | reviewed | |
-| `lib/gearbox/include/gearbox/Gearbox.hpp` + `src/Gearbox.cpp` | C6 | explained | header read during ch10 |
-| `lib/ers/include/ers/ErsSystem.hpp` + `src/ErsSystem.cpp` | C6 | explained | header read during ch10 |
-| `test/test_gearbox/test_main.cpp` | C6 | explained | |
-| `test/test_ers/test_main.cpp` | C6 | explained | |
-| `lib/telemetry/include/telemetry/BatteryMonitor.hpp` + `src/BatteryMonitor.cpp` | C7 | not started | |
-| `lib/telemetry/include/telemetry/WheelSpeed.hpp` + `src/WheelSpeed.cpp` | C7 | not started | |
-| `lib/telemetry_hal_esp32/include/.../Esp32BatteryAdc.hpp` + `src/Esp32BatteryAdc.cpp` | C7 | not started | |
-| `lib/telemetry_hal_esp32/include/.../Esp32HallPulseCounter.hpp` + `src/Esp32HallPulseCounter.cpp` | C7 | not started | ISR + atomics |
-| `test/mocks/FakeVoltageSensor.hpp`, `FakeWheelPulseSensor.hpp` | C7 | not started | |
-| `test/test_telemetry/test_main.cpp` | C7 | not started | |
+| `lib/gearbox/include/gearbox/Gearbox.hpp` + `src/Gearbox.cpp` | C6 | reviewed | header read during ch10 |
+| `lib/ers/include/ers/ErsSystem.hpp` + `src/ErsSystem.cpp` | C6 | reviewed | header read during ch10 |
+| `test/test_gearbox/test_main.cpp` | C6 | reviewed | |
+| `test/test_ers/test_main.cpp` | C6 | reviewed | |
+| `lib/telemetry/include/telemetry/BatteryMonitor.hpp` + `src/BatteryMonitor.cpp` | C7 | reviewed | |
+| `lib/telemetry/include/telemetry/WheelSpeed.hpp` + `src/WheelSpeed.cpp` | C7 | reviewed | |
+| `lib/telemetry_hal_esp32/include/.../Esp32BatteryAdc.hpp` + `src/Esp32BatteryAdc.cpp` | C7 | reviewed | |
+| `lib/telemetry_hal_esp32/include/.../Esp32HallPulseCounter.hpp` + `src/Esp32HallPulseCounter.cpp` | C7 | reviewed | ISR + atomics |
+| `test/mocks/FakeVoltageSensor.hpp`, `FakeWheelPulseSensor.hpp` | C7 | reviewed | |
+| `test/test_telemetry/test_main.cpp` | C7 | reviewed | |
 | `lib/link2/include/link2/Link2Frame.hpp` | C8 | not started | header read during ch09 |
 | `lib/link2/include/link2/Link2Codec.hpp` + `src/Link2Codec.cpp` | C8 | not started | |
 | `lib/link2/include/link2/Link2Sender.hpp` + `src/Link2Sender.cpp` | C8 | not started | |

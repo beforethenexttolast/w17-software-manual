@@ -391,9 +391,11 @@ int16_t ErsSystem::applyBoost(int16_t shapedThrottle) const {
 - **The HARD INVARIANT (test-pinned):** if there's no active bonus **or** `shapedThrottle ≤
   0`, it returns the input unchanged. So `applyBoost(0) == 0` and negatives pass through —
   "the boost is purely multiplicative, so it can never bypass the arm gate or touch
-  braking." This is the safety keystone: a disarmed car has shaped throttle 0, and boost
-  can't turn 0 into anything but 0. **VERIFIED** (`test_apply_boost_zero_and_negative_
-  invariant`: `applyBoost(0)==0`, `applyBoost(-600)==-600`).
+  braking." This is the safety keystone: *given* that a disarmed car's throttle is gated to
+  0 upstream (C5 ArmGate → C10), the shaped throttle is 0 and boost can't turn 0 into
+  anything but 0 — so ERS can never move a disarmed car. **VERIFIED** for the invariant
+  (`test_apply_boost_zero_and_negative_invariant`: `applyBoost(0)==0`, `applyBoost(-600)==
+  -600`); the "disarmed ⇒ throttle 0" step is **PROVISIONAL** (C10 wiring, as in §3).
 - **The multiply + clamp.** `boosted = shaped × (1000 + bonus)/1000`, clamped to 1000.
   Worked (boost bonus 180 = +18%, **VERIFIED** `test_apply_boost_multiplies_and_clamps`):
 
