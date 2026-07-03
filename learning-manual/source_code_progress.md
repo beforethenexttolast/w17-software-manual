@@ -4,7 +4,7 @@ Status values: `not started` → `explained` → `needs review` (you flagged que
 `reviewed` (you confirmed understanding). Priority = batch order from
 `source_code_explanation_plan.md`. Updated after every batch.
 
-**Last updated: 2026-07-03 — C4 explained (tests run + passing). Next: C5.**
+**Last updated: 2026-07-03 — C5 explained (tests run + passing). Next: C6.**
 
 Batch log:
 - **C1** → `code_explained/control_fw/01_foundations_pins_hal_failsafe.md`. Ran
@@ -48,6 +48,26 @@ Batch log:
   builders (big-endian battery/GPS — RESOLVES the C3 PROVISIONAL; flight-mode NUL string),
   and Esp32CrsfUart (no hal:: interface, unlike Esp32LedcPwm). No new open questions;
   forward-links to C10 (rxSignalsFailsafe→FSM wiring; available()-guarded read()).
+- **C4 review (2026-07-03):** audited against the C4 sources. Independently re-verified all
+  frame-builder byte math (battery 79→00 4F, cap 0x0004D2→00 04 D2 at frame[7..9], GPS
+  speed 0x0169 at frame[11..12], altitude 0x03E8 at frame[15..16], flightmode NUL/trunc):
+  all correct, big-endian claims sound. LQ-latch explanation accurate (persistence of
+  linkStats_, no timer, clears only on LQ>0); reporting-vs-authority separation correct
+  (FSM wiring properly marked C10). One minimal fix: the Esp32CrsfUart `begin()` bullet
+  over-claimed "VERIFIED (matches PinMap.hpp)" for GPIO16/17 — but the file takes rxPin_/
+  txPin_ as constructor args and never references PinMap; only baud + 8N1 are hardcoded.
+  Softened to: baud/8N1 VERIFIED here, pins injected by main.cpp (PROVISIONAL until C10).
+  Status: reviewed.
+- **C5** → `code_explained/control_fw/05_channels_mapping_and_arm_gate.md`. Ran
+  `pio test -e native -f test_channels` → 21/21 PASSED. Covered ChannelDecoder
+  (piecewise-linear 820/819 normalization exact at 172/992/1811, ±250 switch hysteresis,
+  first-decode seeding, OFF→ON gear edges consume-on-read, tri-state drive mode w/ strict
+  ±333, valid() polices safety indices but not optional ones = safe-degrade) and ArmGate
+  (disarm-priority, |throttle|≤60 arms, once-armed-stays, fresh-neutral after any disarm
+  incl. failsafe A3). KEY SAFETY FRAMING: neither class commands outputs — decode()→Controls,
+  update()→bool; all "blocks throttle / steering live disarmed / forceDisarm=Safe" wiring is
+  PROVISIONAL until C10. Default channel indices PROVISIONAL (open q #5, D8-4); brake meaning
+  of negative throttle is C2/ESC (open q #29). No new open questions.
 
 ## w17-control-fw
 
@@ -75,13 +95,13 @@ Batch log:
 | `lib/crsf/include/crsf/CrsfFrame.hpp` | C3 | reviewed | header read during ch09 |
 | `lib/crsf/include/crsf/CrsfFrameAssembler.hpp` + `src/CrsfFrameAssembler.cpp` | C3 | reviewed | |
 | `lib/crsf/include/crsf/CrsfParser.hpp` + `src/CrsfParser.cpp` | C3 | reviewed | 11-bit unpacking |
-| `lib/crsf/include/crsf/CrsfReceiver.hpp` + `src/CrsfReceiver.cpp` | C4 | explained | LQ latch |
-| `lib/crsf/include/crsf/CrsfFrameBuilder.hpp` | C4 | explained | header-only |
-| `lib/crsf_hal_esp32/include/.../Esp32CrsfUart.hpp` + `src/Esp32CrsfUart.cpp` | C4 | explained | |
-| `test/test_crsf/test_main.cpp` | C4 | explained | 541 lines; key tests deep, rest catalogued |
-| `lib/channels/include/channels/ChannelDecoder.hpp` + `src/ChannelDecoder.cpp` | C5 | not started | |
-| `lib/channels/include/channels/ArmGate.hpp` + `src/ArmGate.cpp` | C5 | not started | header read during ch10 |
-| `test/test_channels/test_main.cpp` | C5 | not started | |
+| `lib/crsf/include/crsf/CrsfReceiver.hpp` + `src/CrsfReceiver.cpp` | C4 | reviewed | LQ latch |
+| `lib/crsf/include/crsf/CrsfFrameBuilder.hpp` | C4 | reviewed | header-only |
+| `lib/crsf_hal_esp32/include/.../Esp32CrsfUart.hpp` + `src/Esp32CrsfUart.cpp` | C4 | reviewed | |
+| `test/test_crsf/test_main.cpp` | C4 | reviewed | 541 lines; key tests deep, rest catalogued |
+| `lib/channels/include/channels/ChannelDecoder.hpp` + `src/ChannelDecoder.cpp` | C5 | explained | |
+| `lib/channels/include/channels/ArmGate.hpp` + `src/ArmGate.cpp` | C5 | explained | header read during ch10 |
+| `test/test_channels/test_main.cpp` | C5 | explained | |
 | `lib/gearbox/include/gearbox/Gearbox.hpp` + `src/Gearbox.cpp` | C6 | not started | header read during ch10 |
 | `lib/ers/include/ers/ErsSystem.hpp` + `src/ErsSystem.cpp` | C6 | not started | header read during ch10 |
 | `test/test_gearbox/test_main.cpp` | C6 | not started | |

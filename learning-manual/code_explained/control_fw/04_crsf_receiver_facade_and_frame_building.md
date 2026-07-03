@@ -334,9 +334,11 @@ void Esp32CrsfUart::write(const uint8_t* data, size_t len) { Serial2.write(data,
 ```
 - Includes `<Arduino.h>` → the marker of a HAL file (like `Esp32LedcPwm` in C2); builds
   only for the ESP32, excluded from `native` tests.
-- **`begin()`** configures **UART2 (`Serial2`)** for CRSF: `kCrsfBaud` (420000), `SERIAL_
-  8N1`, with the RX pin (GPIO16) and TX pin (GPIO17) remapped — exactly the pin-map
-  constants from C1. **VERIFIED** (matches `PinMap.hpp`).
+- **`begin()`** configures **UART2 (`Serial2`)** for CRSF: `kCrsfBaud` (420000) and
+  `SERIAL_8N1` are **hardcoded here** (**VERIFIED**), while the RX/TX pins are the
+  `rxPin_`/`txPin_` the constructor was *given* — this file does **not** reference
+  `PinMap.hpp`. That `main.cpp` passes the pin-map's GPIO16 (RX) / GPIO17 (TX) is a
+  **C10 wiring claim** (**PROVISIONAL** until C10), not something this file guarantees.
 - **`available()`/`read()`** are the byte source `main.cpp` drains into the receiver. Note
   the header contract: **"Caller must check `available() > 0` first."** `Serial2.read()`
   returns `int` (−1 if empty); the unconditional `static_cast<uint8_t>` would turn −1 into
