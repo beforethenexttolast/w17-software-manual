@@ -4,7 +4,7 @@ Status values: `not started` → `explained` → `needs review` (you flagged que
 `reviewed` (you confirmed understanding). Priority = batch order from
 `source_code_explanation_plan.md`. Updated after every batch.
 
-**Last updated: 2026-07-03 — C2 explained (tests run + passing). Next: C3.**
+**Last updated: 2026-07-03 — C3 explained (tests run + passing). Next: C4.**
 
 Batch log:
 - **C1** → `code_explained/control_fw/01_foundations_pins_hal_failsafe.md`. Ran
@@ -22,6 +22,14 @@ Batch log:
   DRS binary output, and the LEDC µs→duty math (`µs·65535/20000`, verified by hand;
   file excluded from native tests). No new open questions; noted only ServoConfig has a
   valid() (A11); ESC brake-not-reverse mapping is hardware-dependent (open q #29, D8-7).
+- **C3** → `code_explained/control_fw/03_crsf_framing_and_channel_decoding.md`. Explained
+  CrsfFrame constants, the 3-state assembler (framing+CRC, type-agnostic A7, resync A9),
+  and CrsfParser (bit-by-bit CRC-8/0xD5, the 11-bit little-endian channel unpacker, frame
+  decode, link-stats copy). Full worked bit example: all-992 payload = E0 03 1F F8…,
+  channels 0 and 1 decoded by hand → 992. Ran `pio test -e native -f test_crsf` → 29/29
+  PASSED (the 15 C3-relevant cases directly back the VERIFIED labels; CRC correctness
+  rests on the known-answer test, not the hand trace). `test_crsf` line-by-line is C4.
+  No new open questions.
 
 ## w17-control-fw
 
@@ -46,9 +54,9 @@ Batch log:
 | `lib/outputs_hal_esp32/include/.../Esp32LedcPwm.hpp` + `src/Esp32LedcPwm.cpp` | C2 | explained | |
 | `test/mocks/MockPwmOutput.hpp` | C2 | explained | |
 | `test/test_outputs/test_main.cpp` | C2 | explained | |
-| `lib/crsf/include/crsf/CrsfFrame.hpp` | C3 | not started | header read during ch09 |
-| `lib/crsf/include/crsf/CrsfFrameAssembler.hpp` + `src/CrsfFrameAssembler.cpp` | C3 | not started | |
-| `lib/crsf/include/crsf/CrsfParser.hpp` + `src/CrsfParser.cpp` | C3 | not started | 11-bit unpacking |
+| `lib/crsf/include/crsf/CrsfFrame.hpp` | C3 | explained | header read during ch09 |
+| `lib/crsf/include/crsf/CrsfFrameAssembler.hpp` + `src/CrsfFrameAssembler.cpp` | C3 | explained | |
+| `lib/crsf/include/crsf/CrsfParser.hpp` + `src/CrsfParser.cpp` | C3 | explained | 11-bit unpacking |
 | `lib/crsf/include/crsf/CrsfReceiver.hpp` + `src/CrsfReceiver.cpp` | C4 | not started | LQ latch |
 | `lib/crsf/include/crsf/CrsfFrameBuilder.hpp` | C4 | not started | header-only |
 | `lib/crsf_hal_esp32/include/.../Esp32CrsfUart.hpp` + `src/Esp32CrsfUart.cpp` | C4 | not started | |
