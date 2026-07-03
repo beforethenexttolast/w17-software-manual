@@ -4,7 +4,7 @@ Status values: `not started` → `explained` → `needs review` (you flagged que
 `reviewed` (you confirmed understanding). Priority = batch order from
 `source_code_explanation_plan.md`. Updated after every batch.
 
-**Last updated: 2026-07-03 — C3 explained (tests run + passing). Next: C4.**
+**Last updated: 2026-07-03 — C4 explained (tests run + passing). Next: C5.**
 
 Batch log:
 - **C1** → `code_explained/control_fw/01_foundations_pins_hal_failsafe.md`. Ran
@@ -30,6 +30,24 @@ Batch log:
   PASSED (the 15 C3-relevant cases directly back the VERIFIED labels; CRC correctness
   rests on the known-answer test, not the hand trace). `test_crsf` line-by-line is C4.
   No new open questions.
+- **C3 review (2026-07-03):** audited against the C3 sources; spot-checked cited tests in
+  test_crsf (allowed for verification only). Re-derived all critical arithmetic — CRC span
+  (`length−1`=23), buffer indexes (`buffer_[25]` CRC, `buffer_+3` payload, 64-byte bound),
+  little-endian bit order, and the all-992 unpack worked example (channels 0/1 → 992):
+  ALL correct, no off-by-one / index / endianness / unpacking errors. VERIFIED-vs-protocol
+  separation sound (CRC correctness rests on the known-answer test `"123456789"`→0xBC,
+  confirmed present in test_crsf:155). One minimal fix: the CRC hand-example showed
+  `(0xB0<<1)=0x60` (post-truncation), mildly contradicting the doc's own `<<1`-is-9-bit
+  lesson; corrected to show `0x160 → ^0xD5 → 0x1B5 → cast → 0xB5`. Status: reviewed.
+- **C4** → `code_explained/control_fw/04_crsf_receiver_facade_and_frame_building.md`. Ran
+  `pio test -e native -f test_crsf` → 29/29 PASSED. Walked the full 541-line test file
+  (C3 tests summarized, C4 receiver+builder tests detailed with byte math). Explained the
+  CrsfReceiver facade (owned copies A6, per-type length check A7, `lastRcFrameMs_` only on
+  RC frames), the LQ-failsafe latch (mechanism = persistence of `linkStats_`; no timer;
+  clears only on LQ>0 stats — A8), `linkUp()` as reporting-not-authority, the frame
+  builders (big-endian battery/GPS — RESOLVES the C3 PROVISIONAL; flight-mode NUL string),
+  and Esp32CrsfUart (no hal:: interface, unlike Esp32LedcPwm). No new open questions;
+  forward-links to C10 (rxSignalsFailsafe→FSM wiring; available()-guarded read()).
 
 ## w17-control-fw
 
@@ -54,13 +72,13 @@ Batch log:
 | `lib/outputs_hal_esp32/include/.../Esp32LedcPwm.hpp` + `src/Esp32LedcPwm.cpp` | C2 | explained | |
 | `test/mocks/MockPwmOutput.hpp` | C2 | explained | |
 | `test/test_outputs/test_main.cpp` | C2 | explained | |
-| `lib/crsf/include/crsf/CrsfFrame.hpp` | C3 | explained | header read during ch09 |
-| `lib/crsf/include/crsf/CrsfFrameAssembler.hpp` + `src/CrsfFrameAssembler.cpp` | C3 | explained | |
-| `lib/crsf/include/crsf/CrsfParser.hpp` + `src/CrsfParser.cpp` | C3 | explained | 11-bit unpacking |
-| `lib/crsf/include/crsf/CrsfReceiver.hpp` + `src/CrsfReceiver.cpp` | C4 | not started | LQ latch |
-| `lib/crsf/include/crsf/CrsfFrameBuilder.hpp` | C4 | not started | header-only |
-| `lib/crsf_hal_esp32/include/.../Esp32CrsfUart.hpp` + `src/Esp32CrsfUart.cpp` | C4 | not started | |
-| `test/test_crsf/test_main.cpp` | C4 | not started | 541 lines; key tests deep, rest catalogued |
+| `lib/crsf/include/crsf/CrsfFrame.hpp` | C3 | reviewed | header read during ch09 |
+| `lib/crsf/include/crsf/CrsfFrameAssembler.hpp` + `src/CrsfFrameAssembler.cpp` | C3 | reviewed | |
+| `lib/crsf/include/crsf/CrsfParser.hpp` + `src/CrsfParser.cpp` | C3 | reviewed | 11-bit unpacking |
+| `lib/crsf/include/crsf/CrsfReceiver.hpp` + `src/CrsfReceiver.cpp` | C4 | explained | LQ latch |
+| `lib/crsf/include/crsf/CrsfFrameBuilder.hpp` | C4 | explained | header-only |
+| `lib/crsf_hal_esp32/include/.../Esp32CrsfUart.hpp` + `src/Esp32CrsfUart.cpp` | C4 | explained | |
+| `test/test_crsf/test_main.cpp` | C4 | explained | 541 lines; key tests deep, rest catalogued |
 | `lib/channels/include/channels/ChannelDecoder.hpp` + `src/ChannelDecoder.cpp` | C5 | not started | |
 | `lib/channels/include/channels/ArmGate.hpp` + `src/ArmGate.cpp` | C5 | not started | header read during ch10 |
 | `test/test_channels/test_main.cpp` | C5 | not started | |
