@@ -63,8 +63,17 @@ the camera duct is PETG, not PLA. (05)
 carrying RC channels (0x16), link stats (0x14), telemetry (0x08/0x02/0x21).
 `lib/crsf`. (09)
 
+**Console (tuning)** — the bench-only command interface (`lib/console`): a *pure* `Console`
+parses a typed line (`get/set/save/load/reset/status/help`) and returns a `Result`, while
+`ConsoleRunner` does the actual serial I/O and flash storage. Compiled out of the gift firmware
+(`W17_TUNING_CONSOLE`). (09b)
+
 **Dead-man (audio)** — soundlight rule: synth params not refreshed ~500 ms ⇒ volume
 ramps to 0. (07)
+
+**DISARMED gating** — the tuning console refuses all *mutating* commands (`set`/`save`/`load`/
+`reset`) while the car is armed; `get`/`status`/`help` stay allowed. Tuning is a "pit-lane"
+activity — you can inspect a live car but never re-tune it. (09b)
 
 **DRS** — Drag Reduction System; here, a wing flap on an MG90S servo toggled by a
 switch. (01, 06)
@@ -215,6 +224,10 @@ tooth size. Both must be 48-pitch or they won't mesh — "the one mesh-killer." 
 **POM (acetal/Delrin)** — slippery, wear-resistant engineering plastic; the spur gear's
 material. (05)
 
+**Preferences (Arduino)** — the Arduino-ESP32 library wrapping **NVS** as a simple named
+key→blob store; `Esp32NvsStore` uses it to persist the settings blob (namespace `w17tune`, key
+`settings`). Hardware-only; not exercised by native tests. (09b)
+
 **Potentiometer (pot)** — a knob-adjustable voltage divider; the Wokwi stand-in for the
 battery divider (preset 69% ≈ 2.27 V ≈ 8.4 V pack). (05, 11)
 
@@ -281,6 +294,11 @@ frames (0x08 battery, 0x02 GPS/speed, 0x21 flight-mode string, 0x14 LQ). (09)
 **Toe** — the inward/outward angle of the front wheels seen from above; set by
 adjusting the turnbuckle lengths. (05)
 
+**Trial-copy validation** — the console's `set` writes the new value onto a *copy* of the
+settings (`next = s`), validates it (`next.valid()`), and commits (`s = next`) only if valid —
+so an invalid value never touches the live RAM settings. The runtime cousin of C9a's
+deserialize guard. (09b)
+
 **Turnbuckle** — a rod threaded oppositely at each end: rotating it lengthens/shortens
 the link without disconnecting it. Sets toe; sacrificial in crashes. (05)
 
@@ -306,6 +324,10 @@ overtake, mode) instead of a physical output wire. Atlas ELEC-04. (05, 06)
 `lib/gearbox`. (10)
 
 **vitest** — the JS test runner in the ground station. (08)
+
+**W17_TUNING_CONSOLE** — the build flag that compiles in the serial tuning console + NVS store
+(`esp32dev_tuning` env). The delivered gift firmware (plain `esp32dev`) is built *without* it —
+no console surface — though NVS-saved tuning still loads. (09b)
 
 **WHEP** — HTTP handshake standard for *receiving* WebRTC streams; `renderer/whep.js`.
 (08)

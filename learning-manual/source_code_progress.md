@@ -4,7 +4,7 @@ Status values: `not started` → `explained` → `needs review` (you flagged que
 `reviewed` (you confirmed understanding). Priority = batch order from
 `source_code_explanation_plan.md`. Updated after every batch.
 
-**Last updated: 2026-07-03 — C9a explained (tests run + passing). Next: C9b.**
+**Last updated: 2026-07-03 — C9b explained (tests run + passing). Next: C10.**
 
 C9 split (APPROVED; C9a done, C9b pending):
 - **C9a — Settings persistence** → `09a_settings_persistence.md`. **DONE.** Files: `lib/settings/
@@ -187,6 +187,24 @@ Batch log:
   MockSettingsStore confirmed unused by test_settings → deferred to C9b. No new open questions
   (C1 settings_hal_esp32 library.json curiosity still open → C9b). Recovered after a token-limit
   interruption: doc was complete; only bookkeeping (progress/glossary) remained.
+- **C9a teaching aid (2026-07-03):** wrote `09a_concept_teaching_notes.md` (a beginner concept
+  companion — 17 concepts + 20-question quiz + answer key + readiness checklist) at user request.
+  No source read beyond already-explained C9a files; no new claims.
+- **C9b** → `code_explained/control_fw/09b_console_tuning_and_settings_store.md`. Ran
+  `pio test -e native -f test_console` → 15/15 PASSED. Covered the pure `Console` (grammar
+  help/status/get/set/save/load/reset; tokenizer + parsers `tokEq`/`tokenize`/`parseInt`/
+  `parseGearIndex`; string fns strlen/strncmp/strtol/snprintf/strstr explained), the DISARMED gate
+  (set/save/load/reset refused while armed; get/status/help always), **per-set validation on a
+  TRIAL COPY** (`next = s` → `next.valid()` → commit only if valid — invalid never reaches live
+  RAM), and the set/save/load/reset semantics table (set=RAM; save=serialize+store.save;
+  load=store.load+deserialize; reset=RAM→kDefaults, no persist; failed save/load leave RAM
+  untouched). `ConsoleRunner` = boot-load w/ defaults fallback + non-blocking CRLF line assembly +
+  flood guard + save/load plumbing. Esp32NvsStore (Preferences/NVS, read-only load / rw-in-save)
+  and Esp32SerialConsole (UART0, tuning-build-only) are HAL → excluded from native tests →
+  flash/serial PROVISIONAL (open q #34a, #34b). RESOLVED the C1 curiosity: settings_hal_esp32
+  library.json has no deps key — benign PlatformIO LDF auto-discovery of `hal`. PROVISIONAL/C10:
+  main.cpp wiring (real seams, poll cadence, true arm state, setConfig apply loop) + how the
+  console-free gift firmware loads persisted settings.
 
 ## w17-control-fw
 
@@ -239,12 +257,12 @@ Batch log:
 | `test/test_link2/test_main.cpp` | C8 | reviewed | golden frame |
 | `lib/settings/include/settings/Settings.hpp` + `src/Settings.cpp` | C9a | explained | blob format + never-brick guard chain |
 | `test/test_settings/test_main.cpp` | C9a | explained | 7 tests, all guard classes |
-| `lib/console/include/console/Console.hpp` + `src/Console.cpp` | C9b | not started | largest pure lib |
-| `lib/console/include/console/ConsoleRunner.hpp` + `src/ConsoleRunner.cpp` | C9b | not started | |
-| `lib/settings_hal_esp32/include/.../Esp32NvsStore.hpp` + `src/Esp32NvsStore.cpp` | C9b | not started | |
-| `lib/settings_hal_esp32/include/.../Esp32SerialConsole.hpp` + `src/Esp32SerialConsole.cpp` | C9b | not started | |
-| `test/mocks/MockCharIO.hpp`, `MockSettingsStore.hpp` | C9b | not started | MockSettingsStore confirmed unused by test_settings |
-| `test/test_console/test_main.cpp` | C9b | not started | |
+| `lib/console/include/console/Console.hpp` + `src/Console.cpp` | C9b | explained | grammar + per-set trial-copy validation + DISARMED gate |
+| `lib/console/include/console/ConsoleRunner.hpp` + `src/ConsoleRunner.cpp` | C9b | explained | boot-load, non-blocking line assembly, save/load plumbing |
+| `lib/settings_hal_esp32/include/.../Esp32NvsStore.hpp` + `src/Esp32NvsStore.cpp` | C9b | explained | NVS/Preferences; excluded from native tests (PROVISIONAL) |
+| `lib/settings_hal_esp32/include/.../Esp32SerialConsole.hpp` + `src/Esp32SerialConsole.cpp` | C9b | explained | UART0, tuning-build-only; excluded from native tests |
+| `test/mocks/MockCharIO.hpp`, `MockSettingsStore.hpp` | C9b | explained | both used by test_console |
+| `test/test_console/test_main.cpp` | C9b | explained | 15 tests (console + runner + module setConfig) |
 | `src/main.cpp` | C10 | not started | the conductor, 403 lines |
 | `src/SimCrsfFeeder.hpp` + `src/SimCrsfFeeder.cpp` | C10 | not started | answers open question #48 |
 | `platformio.ini` | C10 | not started | context already in ch11 §1 |

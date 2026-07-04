@@ -96,7 +96,13 @@ These mirror the repos' own checklists — listed here so the manual tracks them
     (a) edit-over-console → `save` → power-cycle actually preserves `steer.trim`/`batt.ppt`/gear
     table, and (b) a firmware **version bump + reflash** makes a device with an *old* blob in NVS
     correctly fall back to defaults (the whole point of `kBlobVersion`). D8 Phase 6/8; depends on
-    C9b (`Esp32NvsStore`).
+    C9b (`Esp32NvsStore`). **Now unblocked by C9b** (console + store side is explained/tested via
+    mocks); the remaining gap is purely the real-flash proof.
+34b. **UART0 tuning console on the bench (C9b → hardware).** `Esp32SerialConsole` (UART0, 115200)
+    is excluded from native tests. Verify on a real ESP32 (`esp32dev_tuning` build) that typed
+    lines read/write correctly, CRLF is tolerated, and the flood guard trips on an over-long line.
+    Also confirm the **console-free gift firmware** (plain `esp32dev`) still loads NVS-saved tuning
+    at boot (the load path in the console-less build is a C10/main.cpp question). D8 Phase 6/8.
 
 ## For the simulator first run (Wokwi platform facts, from SIMULATION.md's checklist)
 
