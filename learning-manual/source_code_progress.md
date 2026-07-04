@@ -125,6 +125,13 @@ Batch log:
   twice). One factual fix: §3 misread the maxPlausibleRpm comment — it said "~55 rev/s is
   PAST the car's top speed," but the source puts ~55 rev/s AT top speed (≈3300 rpm) with the
   clamp set higher at 5000 rpm (≈83 rev/s). Corrected. Status: reviewed.
+- **C7 narrow correction (2026-07-03):** per user request, added an explicit note in §4
+  (Hall lockout) tying the two thresholds together: 5000 rpm = ~83.3 rev/s = 12 ms period;
+  ~55 rev/s ≈ 3300 rpm ≈ 18 ms (top-speed estimate ≠ clamp value); the 2 ms ISR lockout only
+  hard-rejects edges > 30,000 rpm-equiv, so it is much looser than the 5000 rpm clamp — an EMI
+  edge 2–12 ms after a real one slips through the lockout and is counted (only reported rpm is
+  capped). Marked PROVISIONAL / hardware-validation (open q #31, D8 Phase 8). Verified present
+  in 07 doc lines 223 + 394–406.
 
 ## w17-control-fw
 
