@@ -4,7 +4,7 @@ Status values: `not started` → `explained` → `needs review` (you flagged que
 `reviewed` (you confirmed understanding). Priority = batch order from
 `source_code_explanation_plan.md`. Updated after every batch.
 
-**Last updated: 2026-07-03 — C7 reviewed (1 minimal fix). Next: C8.**
+**Last updated: 2026-07-03 — C8 reviewed (1 minimal fix). Next: C9.**
 
 Batch log:
 - **C1** → `code_explained/control_fw/01_foundations_pins_hal_failsafe.md`. Ran
@@ -132,6 +132,29 @@ Batch log:
   edge 2–12 ms after a real one slips through the lockout and is counted (only reported rpm is
   capped). Marked PROVISIONAL / hardware-validation (open q #31, D8 Phase 8). Verified present
   in 07 doc lines 223 + 394–406.
+- **C8** → `code_explained/control_fw/08_link2_outbound_protocol.md`. Ran
+  `pio test -e native -f test_link2` → 13/13 PASSED. Covered the 14-byte frame (A5 · len=11 ·
+  11-byte payload · crc8), LITTLE-endian rpm/battery (contrast C4's big-endian CRSF telemetry),
+  the golden frame (A5 0B 01 2A E7 4C 03 DC 05 DC 1E 3C 02 CE — same as docs + ch09), CRC =
+  crsf's (duplicated for lib-portability, cross-checked by test), decode validation order
+  start→length→CRC→version (so BadVersion = well-formed newer frame), assembler hard-rejects
+  non-11 length immediately + resyncs (incl. 0xA5-in-payload via throttle −91), and Link2Sender
+  (±1000→±100 /10 clamp; brake-light hysteresis −40 on/−20 off latched; always sends in
+  failsafe; output == golden). Esp32Link2Uart implements IByteSink (unlike Esp32CrsfUart — seam
+  needed because sender combines build+write); TX-only rx=-1; pin injected (PROVISIONAL C10);
+  excluded from native tests. KEY: cross-repo compatibility with soundlight is PROVISIONAL until
+  S1 diff-verifies the verbatim lib/link2 copy (only control-repo files read here). Re-flagged
+  the stale "12-byte" comment (real frame = 14, B2.2 payload growth). No new open questions.
+- **C8 review (2026-07-03):** audited against the C8 sources. Verified the 14-byte frame /
+  11-byte payload / CRC-over-[1..12] span, the frame-absolute vs payload-relative index table,
+  little-endian rpm/battery (DC 05 = 1500), CRC-before-version order, 0xA5-in-payload resync
+  (throttle −91 = 0xA5), and consistent PROVISIONAL framing for cross-repo soundlight
+  compatibility (no VERIFIED-before-S1 leak). One minimal fix: §2 claimed CRC correctness was
+  "VERIFIED transitively... pinned by the `"123456789"→0xBC` known-answer test" — but the
+  cross-check test uses the golden payload, a DIFFERENT input from the known-answer, so it
+  doesn't literally transfer. Reworded to rest VERIFIED on three legs: identical source code +
+  golden-frame test pinning link2's own CRC (0xCE) + the cross-check, with the known-answer
+  noted as a separate-input crsf check. Status: reviewed.
 
 ## w17-control-fw
 
@@ -176,12 +199,12 @@ Batch log:
 | `lib/telemetry_hal_esp32/include/.../Esp32HallPulseCounter.hpp` + `src/Esp32HallPulseCounter.cpp` | C7 | reviewed | ISR + atomics |
 | `test/mocks/FakeVoltageSensor.hpp`, `FakeWheelPulseSensor.hpp` | C7 | reviewed | |
 | `test/test_telemetry/test_main.cpp` | C7 | reviewed | |
-| `lib/link2/include/link2/Link2Frame.hpp` | C8 | not started | header read during ch09 |
-| `lib/link2/include/link2/Link2Codec.hpp` + `src/Link2Codec.cpp` | C8 | not started | |
-| `lib/link2/include/link2/Link2Sender.hpp` + `src/Link2Sender.cpp` | C8 | not started | |
-| `lib/link2_hal_esp32/include/.../Esp32Link2Uart.hpp` + `src/Esp32Link2Uart.cpp` | C8 | not started | |
-| `test/mocks/MockByteSink.hpp` | C8 | not started | |
-| `test/test_link2/test_main.cpp` | C8 | not started | golden frame |
+| `lib/link2/include/link2/Link2Frame.hpp` | C8 | reviewed | header read during ch09 |
+| `lib/link2/include/link2/Link2Codec.hpp` + `src/Link2Codec.cpp` | C8 | reviewed | |
+| `lib/link2/include/link2/Link2Sender.hpp` + `src/Link2Sender.cpp` | C8 | reviewed | |
+| `lib/link2_hal_esp32/include/.../Esp32Link2Uart.hpp` + `src/Esp32Link2Uart.cpp` | C8 | reviewed | |
+| `test/mocks/MockByteSink.hpp` | C8 | reviewed | |
+| `test/test_link2/test_main.cpp` | C8 | reviewed | golden frame |
 | `lib/settings/include/settings/Settings.hpp` + `src/Settings.cpp` | C9 | not started | |
 | `lib/console/include/console/Console.hpp` + `src/Console.cpp` | C9 | not started | largest pure lib |
 | `lib/console/include/console/ConsoleRunner.hpp` + `src/ConsoleRunner.cpp` | C9 | not started | |
