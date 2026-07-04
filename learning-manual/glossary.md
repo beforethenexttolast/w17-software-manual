@@ -33,6 +33,10 @@ rail from the battery. Two here: Rail A clean, Rail B servos. (03)
 **Bind phrase** — ExpressLRS pairing secret; TX modules and receivers flashed with the
 same phrase (and same major.minor version) auto-bind. (01, 05)
 
+**Blob (settings)** — the versioned, checksummed byte buffer a `Settings` struct is packed
+into for flash: `[version][raw struct bytes][crc8]`. Not a portable wire format — the struct
+bytes are a raw copy, meaningful only to the same firmware build. (09a)
+
 **Boot arm hold** — `EscOutput` holds neutral ~2 s from the first throttle command so
 the ESC's own arming succeeds; anchored to first use after finding A5. (06, 10)
 
@@ -183,6 +187,12 @@ frames won). (08, 09)
 Position", which keeps sending hold frames and would defeat the firmware's timeout —
 finding A8). RP1 must be set to No Pulses. (05, 06)
 
+**Never-brick chain** — the `Settings::deserialize` guard order **length → CRC → version →
+valid()**: a stored blob is applied only if all four pass, else the firmware keeps the
+compiled-in `kDefaults`. Means "a bad blob can never make the car run invalid settings"; does
+NOT mean the flash worked, the lifecycle is wired, or the firmware is un-brickable in general
+(those are C9b/C10/hardware). (09a)
+
 **NVS** — ESP32 non-volatile storage (flash key-value); persists tuning settings via
 the never-brick guard chain. (06)
 
@@ -220,12 +230,22 @@ position/throttle. (03)
 **Rectilinear (infill)** — straight-line fill pattern; used here only at 100% density.
 (05)
 
+**Raw struct copy (serialization)** — packing a blob by `memcpy`-ing a struct's whole memory
+image (members + alignment padding) rather than field-by-field. Deterministic only within one
+build; `lib/settings` uses it (safe because the same build reads it back), unlike the portable
+field-by-field wire formats of CRSF/link2. (09a)
+
 **Regression test** — a test added after a bug so it can never silently return; A1's
 fix added "no frame ever ⇒ Safe at every timestamp." (05)
 
 **RTSP** — classic IP-camera streaming protocol; the camera's native output. (08)
 
 **Sensored** — see Brushless motor.
+
+**Serialize / deserialize (settings)** — `serialize` packs a `Settings` into a blob (version +
+raw struct + CRC); `deserialize` runs the never-brick guard chain and returns the values only
+if every guard passes, leaving the caller's settings untouched on any failure. Pure functions
+over byte buffers — no flash, no store. (09a)
 
 **Servo horn (25T)** — the arm on a servo's output shaft; "25T" = 25 splines, which
 must match the servo. The DS3235SG ships one. (05)
@@ -271,6 +291,10 @@ and 8.4 V) to correct both offset and slope; D8 Phase 8's battery ADC procedure.
 link2 115200, console 115200). (03)
 
 **Unity** — the C unit-test framework used by `pio test`. (04, 11)
+
+**Version byte / versioned blob** — the first byte of a settings blob (`kBlobVersion`). On any
+layout change the version is bumped, so an old persisted blob fails the version guard and the
+firmware falls back to defaults — the flash analogue of link2's `BadVersion`. (09a)
 
 **VIN** — the DevKit pin accepting ~5 V input power. The Wokwi diagram wires virtual
 servos to it (cosmetic — real servos are powered from Rail B, never the DevKit). (05)

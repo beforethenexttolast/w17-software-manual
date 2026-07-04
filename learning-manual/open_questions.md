@@ -91,6 +91,12 @@ These mirror the repos' own checklists — listed here so the manual tracks them
 34. **WiFi module tuning values** (`bitrate_max=12, bitrate_min=2,
     dbm_threshold=-52`, BOM) — semantics live in the OpenIPC ecosystem; verify effect
     on the real link.
+34a. **Settings persistence end-to-end (C9a → hardware).** The pure `serialize`/`deserialize`
+    guard chain is native-test-proven, but flash behaviour is not: verify on a real ESP32 that
+    (a) edit-over-console → `save` → power-cycle actually preserves `steer.trim`/`batt.ppt`/gear
+    table, and (b) a firmware **version bump + reflash** makes a device with an *old* blob in NVS
+    correctly fall back to defaults (the whole point of `kBlobVersion`). D8 Phase 6/8; depends on
+    C9b (`Esp32NvsStore`).
 
 ## For the simulator first run (Wokwi platform facts, from SIMULATION.md's checklist)
 

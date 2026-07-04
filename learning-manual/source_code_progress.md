@@ -4,7 +4,23 @@ Status values: `not started` → `explained` → `needs review` (you flagged que
 `reviewed` (you confirmed understanding). Priority = batch order from
 `source_code_explanation_plan.md`. Updated after every batch.
 
-**Last updated: 2026-07-03 — C8 reviewed (1 minimal fix). Next: C9.**
+**Last updated: 2026-07-03 — C9a explained (tests run + passing). Next: C9b.**
+
+C9 split (APPROVED; C9a done, C9b pending):
+- **C9a — Settings persistence** → `09a_settings_persistence.md`. **DONE.** Files: `lib/settings/
+  Settings.{hpp,cpp}` + `test/test_settings/test_main.cpp`. **`MockSettingsStore.hpp` confirmed
+  NOT used by test_settings → moved to C9b.** Test: `pio test -e native -f test_settings`.
+  Risk findings resolved: checksum IS the same 0xD5 CRC-8 as crsf/link2 (a THIRD self-contained
+  copy — source-identical + cross-check test on "123456789", so proven not assumed); blob =
+  [version][RAW struct memcpy][crc8], CRC over [version+struct]; guard chain length→CRC→version→
+  valid(), out untouched on failure; kDefaults constexpr + static_assert(kDefaults.valid()).
+- **C9b — Console + tuning HAL** → `09b_console_and_tuning_hal.md`. Files: `lib/console/
+  Console.{hpp,cpp}` + `ConsoleRunner.{hpp,cpp}` + `lib/settings_hal_esp32/*` (Esp32NvsStore
+  + Esp32SerialConsole) + `MockCharIO.hpp` (+ MockSettingsStore if not in C9a) +
+  `test/test_console/test_main.cpp`. Test: `pio test -e native -f test_console`. Risks: C++
+  string parsing (cstdio/cstdlib/cstring); DISARMED gating + per-set valid(); set=RAM-only vs
+  save=NVS; both HAL files excluded from native tests (PROVISIONAL); resolves the C1
+  settings_hal_esp32 library.json-deps curiosity. Depends on C9a (console → settings).
 
 Batch log:
 - **C1** → `code_explained/control_fw/01_foundations_pins_hal_failsafe.md`. Ran
@@ -155,6 +171,22 @@ Batch log:
   doesn't literally transfer. Reworded to rest VERIFIED on three legs: identical source code +
   golden-frame test pinning link2's own CRC (0xCE) + the cross-check, with the known-answer
   noted as a separate-input crsf check. Status: reviewed.
+- **C9a** → `code_explained/control_fw/09a_settings_persistence.md`. Ran
+  `pio test -e native -f test_settings` → 7/7 PASSED. First half of the approved C9 split
+  (persistence FORMAT only; console/NVS/serial are C9b). Covered the `Settings` struct
+  (aggregates C2 ServoConfig + C6 GearboxConfig + C7 BatteryConfig; composed valid() = && of
+  sub-valid()s), `kDefaults` constexpr + `static_assert(kDefaults.valid())`, blob layout
+  `[version][RAW struct memcpy][crc8]` with CRC over `[version+struct]`, and the never-brick
+  guard chain length→CRC→version→valid() (out untouched on failure). KEY FINDINGS: (1) the
+  checksum is the SAME 0xD5 CRC-8 as crsf/link2 — a third self-contained copy, PROVEN by
+  identical source + the `"123456789"` cross-check test, not assumed; (2) blob uses a RAW
+  struct memcpy (deterministic same-build only; NOT portable like link2 — so no golden-blob,
+  and I claim no numeric sizeof(Settings)); (3) valid() (guard 4) catches CRC-valid-but-out-of-
+  range blobs — integrity ≠ correctness. "Never-brick" carefully bounded (means: never applies
+  invalid settings → defaults; does NOT mean flash/lifecycle proven — that's C9b/C10/hardware).
+  MockSettingsStore confirmed unused by test_settings → deferred to C9b. No new open questions
+  (C1 settings_hal_esp32 library.json curiosity still open → C9b). Recovered after a token-limit
+  interruption: doc was complete; only bookkeeping (progress/glossary) remained.
 
 ## w17-control-fw
 
@@ -205,14 +237,14 @@ Batch log:
 | `lib/link2_hal_esp32/include/.../Esp32Link2Uart.hpp` + `src/Esp32Link2Uart.cpp` | C8 | reviewed | |
 | `test/mocks/MockByteSink.hpp` | C8 | reviewed | |
 | `test/test_link2/test_main.cpp` | C8 | reviewed | golden frame |
-| `lib/settings/include/settings/Settings.hpp` + `src/Settings.cpp` | C9 | not started | |
-| `lib/console/include/console/Console.hpp` + `src/Console.cpp` | C9 | not started | largest pure lib |
-| `lib/console/include/console/ConsoleRunner.hpp` + `src/ConsoleRunner.cpp` | C9 | not started | |
-| `lib/settings_hal_esp32/include/.../Esp32NvsStore.hpp` + `src/Esp32NvsStore.cpp` | C9 | not started | |
-| `lib/settings_hal_esp32/include/.../Esp32SerialConsole.hpp` + `src/Esp32SerialConsole.cpp` | C9 | not started | |
-| `test/mocks/MockCharIO.hpp`, `MockSettingsStore.hpp` | C9 | not started | |
-| `test/test_settings/test_main.cpp` | C9 | not started | |
-| `test/test_console/test_main.cpp` | C9 | not started | |
+| `lib/settings/include/settings/Settings.hpp` + `src/Settings.cpp` | C9a | explained | blob format + never-brick guard chain |
+| `test/test_settings/test_main.cpp` | C9a | explained | 7 tests, all guard classes |
+| `lib/console/include/console/Console.hpp` + `src/Console.cpp` | C9b | not started | largest pure lib |
+| `lib/console/include/console/ConsoleRunner.hpp` + `src/ConsoleRunner.cpp` | C9b | not started | |
+| `lib/settings_hal_esp32/include/.../Esp32NvsStore.hpp` + `src/Esp32NvsStore.cpp` | C9b | not started | |
+| `lib/settings_hal_esp32/include/.../Esp32SerialConsole.hpp` + `src/Esp32SerialConsole.cpp` | C9b | not started | |
+| `test/mocks/MockCharIO.hpp`, `MockSettingsStore.hpp` | C9b | not started | MockSettingsStore confirmed unused by test_settings |
+| `test/test_console/test_main.cpp` | C9b | not started | |
 | `src/main.cpp` | C10 | not started | the conductor, 403 lines |
 | `src/SimCrsfFeeder.hpp` + `src/SimCrsfFeeder.cpp` | C10 | not started | answers open question #48 |
 | `platformio.ini` | C10 | not started | context already in ch11 §1 |
