@@ -4,17 +4,26 @@ Status values: `not started` → `explained` → `needs review` (you flagged que
 `reviewed` (you confirmed understanding). Priority = batch order from
 `source_code_explanation_plan.md`. Updated after every batch.
 
-**Last updated: 2026-07-05 — S2 explained (EngineSim, the virtual engine).
-`pio test -e native -f test_enginesim` → 9/9 PASSED. Ignition FSM (Off/Cranking/Running,
-armed-driven), linear throttle→rpm map (3500–15000, endpoint-exact), asymmetric inertia
-(12%/6% of gap per 20 ms tick), wobble/blips/limiter/overrun all verified. KEY: engine rpm
-is synthesized from throttle — `VehicleState.rpm` (wheel rpm) has NO consumer on board #2
-(grep-verified; new note #51). Ch07 §3 confirmed exact. Next: S3 (soundsynth — budget a
-full session).**
+**Last updated: 2026-07-05 — S3 explained (EngineSynth, the synthesizer/DSP).
+`pio test -e native -f test_soundsynth` → 9/9 PASSED, plus a scratchpad harness compiled
+against the real source to measure the integer-truncation subtleties. Full DSP path
+verified: 32-bit phase accumulators → 256-entry ±256 sine table, 6-partial additive stack
+at the firing frequency (5×rpm/60), rpm-scaled xorshift32 noise + 1-in-4 ×3 overrun
+bursts, 3×-pitch ERS whine w/ 23 ms ramp, 18 Hz/50% limiter gate, headroom budget
+(peakSum 24,600 ≤ 30,000; measured peak 17,944), saturating clamp, mono→stereo. **#43
+ANSWERED** (packed word: rpm 0–15 · volume 16–23 · whine/limiter/overrun 24–26). KEY
+FINDINGS: repo CLAUDE.md's "per-rev AM" is NOT in the code and its "throttle-correlated"
+noise is rpm-correlated (new note #52; ch07 §4/§6 corrected); the `>> 6` param smoother
+contradicts its comment and PARKS below target — full volume 255 plays at 192 (~75%),
+volumes 1–63 from silence stay silent (new question #53). Synth has NO throttle/ignition
+input — silence-when-Off must arrive as volume=0 from main.cpp (PROVISIONAL → S5).
+Next: S4 (lights).**
 
-Prior: S1 explained same day (link2 receiver + cross-repo compatibility; 40/40 native;
-`lib/link2` md5-identical to control; C8's cross-repo PROVISIONAL → VERIFIED at
-source/test level). All C1–C10 remain `reviewed`.
+Prior: S2 explained same day (EngineSim; 9/9; ignition FSM, throttle→rpm map, asymmetric
+inertia; wheel rpm has no consumer on board #2 — note #51; ch07 §3 confirmed exact) and
+S1 (link2 receiver + cross-repo compatibility; 40/40 native; `lib/link2` md5-identical to
+control; C8's cross-repo PROVISIONAL → VERIFIED at source/test level). All C1–C10 remain
+`reviewed`.
 
 Prior milestone: 2026-07-05 — C10 explained + C2 review pass (all C1–C10 `reviewed`;
 147/147 control native tests, all 3 control firmware envs build SUCCESS). The
