@@ -101,8 +101,9 @@ These mirror the repos' own checklists — listed here so the manual tracks them
 34b. **UART0 tuning console on the bench (C9b → hardware).** `Esp32SerialConsole` (UART0, 115200)
     is excluded from native tests. Verify on a real ESP32 (`esp32dev_tuning` build) that typed
     lines read/write correctly, CRLF is tolerated, and the flood guard trips on an over-long line.
-    Also confirm the **console-free gift firmware** (plain `esp32dev`) still loads NVS-saved tuning
-    at boot (the load path in the console-less build is a C10/main.cpp question). D8 Phase 6/8.
+    D8 Phase 6/8. *The second half of this item ("confirm the console-free gift firmware still
+    loads NVS-saved tuning") was ANSWERED NEGATIVELY by C10 (2026-07-05): the plain `esp32dev`
+    build has **no load path at all** — superseded by #49.*
 
 ## For the simulator first run (Wokwi platform facts, from SIMULATION.md's checklist)
 
@@ -133,7 +134,25 @@ These mirror the repos' own checklists — listed here so the manual tracks them
 43. Exact bit layout of the soundlight cross-core atomic parameter word.
 44. Exact integer rounding in `shapeThrottle` (the ±1 question from chapter 10 §3).
 45. `main.cpp` ordering details beyond ROADMAP's summary (the line-by-line pass).
+    — **ANSWERED by C10** (2026-07-05): `code_explained/control_fw/10_main_integration.md` §4.
 46. Contents of the two `ci.yml` workflows (currently described from ROADMAP only).
+    — **Control-fw's ANSWERED by C10 §9** (push/PR triggers, cached PlatformIO, native tests +
+    esp32dev + esp32dev_sim builds; note: `esp32dev_tuning` is NOT built by CI). Soundlight's
+    diff remains for S5.
 47. The HUD's exact widget-by-widget telemetry-vs-simulation precedence in
     `renderer/hud.js`.
 48. `SimCrsfFeeder.cpp`'s script structure (phase timing table vs implementation).
+    — **ANSWERED by C10 §5.4** (2026-07-05): the 10-phase implementation matches
+    SIMULATION.md's demo table exactly; neither drifted.
+
+## For you (project owner) — new, found by C10 (2026-07-05)
+
+49. **How should bench tuning reach the delivered gift firmware?** C10 found that the plain
+    `esp32dev` build compiles out the *entire* settings subsystem (every include and call sits
+    behind `#ifdef W17_TUNING_CONSOLE` in `main.cpp`) — the NVS blob saved during bench tuning
+    **persists in flash but is never read** by the delivered firmware, which runs compiled-in
+    defaults. D8 Phase 11's "reflash plain `esp32dev` — the NVS-saved tuning persists" is
+    literally true but functionally **discards the tuning**. Options: (a) transcribe the tuned
+    values into the source-code defaults and rebuild plain; (b) deliver the `esp32dev_tuning`
+    build (accepting an open UART0 console); (c) add a load-only NVS path to the plain build
+    (a code change). Which is intended? (C10 §8; supersedes the load half of #34b.)

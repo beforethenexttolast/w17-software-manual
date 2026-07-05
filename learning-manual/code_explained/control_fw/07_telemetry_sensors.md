@@ -8,6 +8,13 @@ latching low-voltage warning, and a wheel RPM computed from pulse *periods*. It'
 concurrency deep-end of the control firmware: the Hall input runs in an **interrupt** and
 crosses into the main loop through **atomics**.
 
+> **C10 resolution note (2026-07-05).** The wiring items are now source-verified in
+> `main.cpp` (see `10_main_integration.md` §2.7, §4.6, §4.8, §11): ADC on GPIO34 / Hall on
+> GPIO35 as designed; `sample()` called at exactly 100 ms (the cadence the EMA-shift tau math
+> assumes) and `update()` once per 50 Hz tick; and "monitoring only" is now a **whole-program**
+> fact — the low-voltage warning's sole consumer is the link2 `lowBattery` flag; no code path
+> reduces or cuts throttle. Electrical claims (eFuse cal #30, Hall EMI #31) remain hardware.
+
 **Two framing points to hold:**
 1. *These modules are monitoring-only.* `BatteryMonitor` never cuts power (CLAUDE.md §6.4:
    "warn, never cut"); `WheelSpeed` just reports a number. Neither commands an output. The

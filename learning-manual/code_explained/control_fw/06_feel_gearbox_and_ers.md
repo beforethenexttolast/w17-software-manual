@@ -14,6 +14,17 @@ C10. So "boost raises the ceiling" really means "returns a bigger number that C1
 sends to the ESC." Real vehicle behaviour stays **PROVISIONAL** unless a test or the C2
 output path backs it.
 
+> **C10 resolution note (2026-07-05).** The C10 wiring claims of this doc are now
+> source-verified in `main.cpp` (see `10_main_integration.md` §2.4, §4.5, §4.8, §11): the
+> three drive modes are wired exactly as the §2 table anticipated — 0 = fixed
+> `shapeThrottle({400, 50})` (Training), 1/2 = `virtualGearbox.apply()`, with **no raw
+> pass-through** (the main.cpp comment: top gear already IS full power; authority stays
+> monotone along the switch); `ersActive = (FSM Active) && driveMode == 2`, updated **every**
+> tick with the post-arm-gate pre-boost throttle; boost applied **after** the gate; shifts run
+> on decode edges un-gated by failsafe, and nothing ever resets the gear ("gear survives
+> failsafe" is now system-level). One nuance: shifts also run **in Training mode** — output
+> unaffected, but gearbox state (and the displayed gear) changes.
+
 ## Scope (files explained here)
 
 | File | Lines | What it is |

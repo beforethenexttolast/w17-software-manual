@@ -8,6 +8,14 @@ the sender (which scales control-loop units into the wire format and applies bra
 hysteresis), and the ESP32 UART. It reuses the *exact CRC-8 algorithm* from C3/C4 — on
 purpose.
 
+> **C10 resolution note (2026-07-05).** The C10 wiring claims are now source-verified in
+> `main.cpp` (see `10_main_integration.md` §2.8, §4.8, §4.9, §11): GPIO25 **is** the pin
+> injected into `Esp32Link2Uart`; the sender runs at exactly 20 Hz (50 ms) **unconditionally**
+> — the Safe branch has no early return, so frames keep flowing during failsafe; and the
+> snapshot's `commandedThrottle` is literally the value passed to `esc.setThrottle()` (sound
+> tracks the motor, not the stick). Cross-repo compatibility with the sound/light board
+> remains PROVISIONAL until S1's diff-verify.
+
 **A compatibility note up front (the brief stresses this).** The link2 spec is *owned by
 this repo*; the sound/light board is documented to copy `lib/link2` **verbatim**. But
 this batch reads **only the control-repo files**, so I can VERIFY the format + round-trip

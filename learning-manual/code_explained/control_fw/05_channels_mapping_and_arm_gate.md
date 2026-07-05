@@ -13,6 +13,15 @@ results. So everywhere below, "blocks throttle" really means "reports disarmed, 
 must act on it." I mark the wiring **PROVISIONAL** wherever a safety outcome depends on
 C10, hardware, or the ESC.
 
+> **C10 resolution note (2026-07-05).** C10 read `main.cpp` and the wiring PROVISIONALs of
+> this doc are now source-verified (see `10_main_integration.md` §11): decode runs on every
+> new frame **including during failsafe**; gear edges are consumed in the same pass;
+> `ArmGate.update` runs every control tick with `forceDisarm = (state == Safe)`; disarmed ⇒
+> `baseCommanded = 0` ⇒ ESC commanded neutral (the A3 motor-side outcome); steering stays
+> live while disarmed; and the firmware uses the **default** `ChannelMapConfig{}`,
+> `static_assert`-ed at its definition site. Still open: whether those defaults match the
+> real transmitter (open question #5, D8 Phase 4) — that's bench, not wiring.
+
 ## Scope (files explained here)
 
 | File | Lines | What it is |

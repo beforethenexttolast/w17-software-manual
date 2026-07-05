@@ -526,7 +526,11 @@ the rest.
 
 **Phase 11 — on the car.** Mount with mass central, re-confirm Phase 5 *on the car*,
 short low-gear shakedown, re-trim over the console, and — before gifting — optionally
-reflash plain `esp32dev` (console-free; NVS tuning persists). **[C]**
+reflash plain `esp32dev` (console-free; NVS tuning persists). **[C]** *C10 note
+(2026-07-05): "persists" means the blob survives in flash — but the plain `esp32dev`
+build contains **no code that loads it** (all settings code is behind
+`W17_TUNING_CONSOLE`), so this reflash **discards the bench tuning functionally**; the
+delivered car runs compiled-in defaults. See C10 §8 + open question #49.*
 
 ### 4.3 Connections to source code
 

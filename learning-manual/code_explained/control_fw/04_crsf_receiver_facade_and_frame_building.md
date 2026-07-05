@@ -10,6 +10,13 @@ The two headline behaviours to watch (task brief): the **LQ-failsafe latch** (ho
 receiver decides the RX is signalling link loss) and the **big-endian telemetry frame
 building** (which resolves a PROVISIONAL item left open in C3).
 
+> **C10 resolution note (2026-07-05).** The wiring items this doc marked PROVISIONAL are now
+> source-verified in `main.cpp` (see `10_main_integration.md` §11): GPIO16/17 **are** injected
+> from `PinMap.hpp` (§2.2 there); `rxSignalsFailsafe()` **is** fed into the FSM's
+> `rxFailsafeFlag` every control tick (§4.8); and `read()` **is** guarded by
+> `available() > 0` in the loop's drain (§4.3). "VERIFIED (source + build)" — the composition
+> itself has no automated test.
+
 ## Scope (files explained here)
 
 | File | Lines | What it is |

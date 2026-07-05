@@ -133,8 +133,12 @@ compiled defaults (the "never-brick chain"). `Console` implements
 `get/set/save/load/reset/status/help` over dotted keys (`steer.trim`, `batt.ppt`,
 `gear.2.max`); `set` mutations are only allowed while DISARMED and re-run the module's
 `valid()` rules. `save` alone touches flash. The delivered gift firmware (`esp32dev`)
-contains none of this — but the NVS-saved tuning persists and still loads. **[C]**
-ROADMAP B2.6.
+contains none of this — the NVS-saved tuning persists *in flash*, **but (C10 correction,
+2026-07-05) the plain build has no load path: every settings include and call in `main.cpp`
+sits inside `#ifdef W17_TUNING_CONSOLE`, so the delivered firmware runs compiled-in defaults
+and never reads NVS.** The earlier "and still loads" claim here was wrong — an over-reading
+of D8's "the NVS-saved tuning persists". See `code_explained/control_fw/10_main_integration.md`
+§8 and open question #49. **[C]** ROADMAP B2.6.
 
 ## 3. `src/main.cpp` — the conductor
 

@@ -68,6 +68,16 @@ parses a typed line (`get/set/save/load/reset/status/help`) and returns a `Resul
 `ConsoleRunner` does the actual serial I/O and flash storage. Compiled out of the gift firmware
 (`W17_TUNING_CONSOLE`). (09b)
 
+**Conductor (`main.cpp`)** — the control firmware's composition file: constructs every module,
+injects the pins from `PinMap.hpp`, and schedules all cadences (50/20/10/5 Hz). Wiring and
+scheduling only — no mechanisms of its own; excluded from native tests (`test_build_src = no`),
+so its claims are source+build-verified, never test-verified. (C10)
+
+**ControlSnapshot** — the struct the conductor fills with what the control tick *actually
+commanded* (plus gear/rpm/battery/ERS at send time) and hands to `Link2Sender` at 20 Hz.
+Boot-safe defaults (`failsafe = true`) so the first frame can never report a phantom Active.
+(09, C10)
+
 **Dead-man (audio)** — soundlight rule: synth params not refreshed ~500 ms ⇒ volume
 ramps to 0. (07)
 
@@ -120,6 +130,14 @@ frame *without* emitting edges, so boot can't fire phantom gear shifts. (05, 06)
 
 **Fresh-neutral rule** — after *any* disarm or failsafe episode, throttle must be seen
 at neutral again before power flows (closes finding A3). (10)
+
+**Function-local static** — a variable declared `static` inside a function: initialized once
+(the first time execution reaches it) and keeping its value across calls — static storage, not
+the stack. Used for the sim status-print and feeder timestamps. (C10)
+
+**GitHub Actions (CI)** — the hosted service running `.github/workflows/ci.yml` on every
+push/PR: native tests + the `esp32dev` and `esp32dev_sim` builds (`esp32dev_tuning` is not in
+CI). No hardware attached — proves logic + compilation only. (C10)
 
 **Golden test / golden vector** — a test asserting exact bytes, duplicated on both ends
 of a protocol so implementations can't drift. (09)
@@ -291,6 +309,11 @@ required. (05)
 **Telemetry backchannel** — car→ground data over the ELRS downlink as standard CRSF
 frames (0x08 battery, 0x02 GPS/speed, 0x21 flight-mode string, 0x14 LQ). (09)
 
+**Tick guard (phase-accumulating)** — the `now - last >= period` cadence check with
+`last = now`: time lost to a stall is dropped, never "caught up." The alternative
+(`last += period`) would fire a burst of make-up ticks after a stall — rejected in the
+conductor because nothing integrates tick count. (C10)
+
 **Toe** — the inward/outward angle of the front wheels seen from above; set by
 adjusting the turnbuckle lengths. (05)
 
@@ -325,9 +348,15 @@ overtake, mode) instead of a physical output wire. Atlas ELEC-04. (05, 06)
 
 **vitest** — the JS test runner in the ground station. (08)
 
+**W17_SIM_CRSF_FEEDER** — the build flag (env `esp32dev_sim`) compiling in the scripted CRSF
+self-feeder + serial narration for Wokwi Stage 2; the whole module vanishes from the real
+firmware. (C10, 11)
+
 **W17_TUNING_CONSOLE** — the build flag that compiles in the serial tuning console + NVS store
 (`esp32dev_tuning` env). The delivered gift firmware (plain `esp32dev`) is built *without* it —
-no console surface — though NVS-saved tuning still loads. (09b)
+no console surface, **and (C10 correction) no settings code at all**: the NVS-saved tuning
+persists in flash but the plain build never reads it and runs compiled-in defaults (open
+question #49). (09b, C10)
 
 **WHEP** — HTTP handshake standard for *receiving* WebRTC streams; `renderer/whep.js`.
 (08)

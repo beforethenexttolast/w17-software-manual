@@ -4,9 +4,10 @@ Status values: `not started` → `explained` → `needs review` (you flagged que
 `reviewed` (you confirmed understanding). Priority = batch order from
 `source_code_explanation_plan.md`. Updated after every batch.
 
-**Last updated: 2026-07-03 — C9b explained (tests run + passing). Next: C10.**
+**Last updated: 2026-07-05 — C10 explained (147/147 native tests + all 3 firmware envs build
+SUCCESS). The w17-control-fw campaign's explanation phase is COMPLETE (C1–C10). Next: S1.**
 
-C9 split (APPROVED; C9a done, C9b pending):
+C9 split (APPROVED; both halves done):
 - **C9a — Settings persistence** → `09a_settings_persistence.md`. **DONE.** Files: `lib/settings/
   Settings.{hpp,cpp}` + `test/test_settings/test_main.cpp`. **`MockSettingsStore.hpp` confirmed
   NOT used by test_settings → moved to C9b.** Test: `pio test -e native -f test_settings`.
@@ -205,6 +206,37 @@ Batch log:
   library.json has no deps key — benign PlatformIO LDF auto-discovery of `hal`. PROVISIONAL/C10:
   main.cpp wiring (real seams, poll cadence, true arm state, setConfig apply loop) + how the
   console-free gift firmware loads persisted settings.
+- **C10** → `code_explained/control_fw/10_main_integration.md`. Verification (2026-07-05):
+  `pio test -e native` → **147/147 PASSED** (all ten suites) + **all three firmware envs build
+  SUCCESS** (esp32dev, esp32dev_sim, esp32dev_tuning — CI builds only the first two; tuning
+  verified locally). main.cpp has NO automated test (`test_build_src = no`) → wiring claims are
+  "VERIFIED (source + build)"; the composition's runtime is PROVISIONAL until the Wokwi first
+  run (#35–39) / bench (D8). Covered: static-init globals + per-config static_asserts (channel
+  map's promised definition-site assert included); setup() boot order (A4 safe initial pulses;
+  `esc.setThrottle(0)` anchors the 2 s hold, A5; boot-safety timeline incl. reset/brownout —
+  gear→1, ERS refills); loop() = unconditional UART drain (~6 ms buffer math, `available()`
+  guard), event-driven decode (runs during failsafe; edges consumed same pass; shifts un-gated =
+  gear survives; Training-mode shifts still change state), 50 Hz tick (FSM fed rcFrameSinceTick
+  + rxSignalsFailsafe; ArmGate every tick w/ forceDisarm=Safe; `baseCommanded=(Active&&armed)?
+  shaped:0` — the one line both authorities gate; ERS every tick, ersActive=Active&&mode2,
+  post-gate/pre-boost throttle; boost applied post-gate (applyBoost(0)==0); Safe branch
+  no-early-return; steering+DRS live while disarmed; gimbal ungated, holds aim in failsafe),
+  20 Hz link2 (reports commanded throttle; lowBattery = the warning's ONLY consumer →
+  monitoring-only is now whole-program), 10 Hz battery (the EMA-tau cadence), 5 Hz CRSF
+  telemetry (mV→dV, mm/s→0.1 km/h = ×36/1000, FLIGHTMODE "G%u M%u E%u"); ≈540 ms worst-case
+  failsafe detection derived; drive modes wired (Training = fixed {400,50} shape via free fn;
+  NO raw pass-through by design); tuning-build wiring (runner + real seams; loadAtBoot +
+  applyTuning in setup; per-pass poll(armGate.isArmed()) = TRUE arm state; applyTuning = 3
+  setConfigs). SimCrsfFeeder's 10-phase script **matches SIMULATION.md's table** (resolves
+  #48); platformio.ini names the native-exclusion mechanism (test_build_src=no + lib_ignore ×5);
+  ci.yml resolved (#46 control half; #45 answered). **RESOLVED 20+ PROVISIONALs from C4–C9b**
+  (resolution notes added to docs 04–08 and 09b). **KEY FINDING:** the plain esp32dev gift
+  build has **NO NVS load path** — the entire settings subsystem is behind W17_TUNING_CONSOLE,
+  so bench tuning never reaches the delivered firmware (runs compiled defaults); corrected
+  glossary + ch05 + ch06 + C9b docs ("persists" ≠ "loads"); NEW open question #49 (delivery
+  options: bake into defaults / ship tuning build / add loader). Stale comments flagged:
+  ChannelDecoder.hpp "pan/tilt unwired" (gimbal is wired now); FailsafeStateMachine.hpp
+  "main.cpp carries a minimal neutral-latch" (ArmGate long since exists).
 
 ## w17-control-fw
 
@@ -263,10 +295,10 @@ Batch log:
 | `lib/settings_hal_esp32/include/.../Esp32SerialConsole.hpp` + `src/Esp32SerialConsole.cpp` | C9b | explained | UART0, tuning-build-only; excluded from native tests |
 | `test/mocks/MockCharIO.hpp`, `MockSettingsStore.hpp` | C9b | explained | both used by test_console |
 | `test/test_console/test_main.cpp` | C9b | explained | 15 tests (console + runner + module setConfig) |
-| `src/main.cpp` | C10 | not started | the conductor, 403 lines |
-| `src/SimCrsfFeeder.hpp` + `src/SimCrsfFeeder.cpp` | C10 | not started | answers open question #48 |
-| `platformio.ini` | C10 | not started | context already in ch11 §1 |
-| `.github/workflows/ci.yml` | C10 | not started | answers open question #46 |
+| `src/main.cpp` | C10 | explained | the conductor; no native test — source+build verified; NVS-gap finding (#49) |
+| `src/SimCrsfFeeder.hpp` + `src/SimCrsfFeeder.cpp` | C10 | explained | 10-phase script matches SIMULATION.md (#48 answered) |
+| `platformio.ini` | C10 | explained | 4 envs; native exclusion = test_build_src=no + lib_ignore |
+| `.github/workflows/ci.yml` | C10 | explained | #46 answered (control half); tuning env not built by CI |
 | `wokwi.toml` | — | explained | ch05 §9 (line-level: 6 lines, fully covered) |
 | `diagram.json` | — | explained | ch05 §9 (part-by-part + netlist) |
 | `docs/f1_hud.html` | — | summarize only | historical mockup; ch05 §10 |

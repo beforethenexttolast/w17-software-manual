@@ -14,6 +14,17 @@ and the console/settings tests.
 stand in for them in tests. **Whether `main.cpp` actually constructs any of this, and passes the
 real arm-state, is C10** — marked PROVISIONAL throughout.
 
+> **C10 resolution note (2026-07-05).** `main.cpp` was read in C10 (`10_main_integration.md`
+> §2.12, §3.3, §4.4, §8). Now source-verified: `ConsoleRunner(serialConsole, nvsStore)` **is**
+> constructed with the real seams (tuning build only); `setup()` calls `loadAtBoot()` then
+> `applyTuning()` before the loop; `poll()` runs every loop pass, non-blocking, outside the
+> control tick, and the `armed` flag **is** `armGate.isArmed()` — the true arm state; a change
+> immediately re-applies via exactly three `setConfig()` calls (steering/gearbox/battery).
+> **One correction:** the gift-firmware load-path question resolved *negatively* — the plain
+> `esp32dev` build compiles out the **entire** settings subsystem and has **no NVS load path**;
+> the passages below saying ROADMAP implies "tuning still loads" over-read D8's "persists".
+> See §8 of the C10 doc and open question #49.
+
 ## Scope (files explained here)
 
 | File | Lines | What it is |
@@ -531,7 +542,9 @@ void Esp32SerialConsole::write(const char* text) { Serial.print(text); }
   gift firmware (plain `esp32dev`) has no console surface at all** (matching ROADMAP B2.6 /
   chapter 05: the gift build is console-free, but NVS-saved tuning still persists). **VERIFIED**
   (the comment) — *how* the plain gift firmware loads persisted settings without `ConsoleRunner`
-  is a **C10 / main.cpp** question, not shown in C9b.
+  is a **C10 / main.cpp** question, not shown in C9b. *C10 answer: it doesn't —
+  no load path exists in the plain build; "persists" means the blob survives in flash, unread
+  (C10 §8, open question #49).*
 - **PROVISIONAL / hardware:** includes `<Arduino.h>`, excluded from native tests; serial timing and
   UART0 behaviour are bench items.
 
@@ -683,7 +696,9 @@ The brief asks for precision here, so, consolidated (all **VERIFIED** from sourc
   each module's `setConfig()` when `poll` reports a change.
 - **The gift-firmware load path:** the console is compiled out of plain `esp32dev`
   (`W17_TUNING_CONSOLE`), yet ROADMAP says NVS-saved tuning still loads — *how* the console-free
-  build loads settings is a **C10 / main.cpp** question, not shown in C9b.
+  build loads settings is a **C10 / main.cpp** question, not shown in C9b. *C10 correction
+  (2026-07-05): ROADMAP actually says only "persists"; main.cpp shows the plain build has NO
+  load path at all — resolved negatively (C10 §8, open question #49).*
 
 ---
 
@@ -775,7 +790,8 @@ One new tracking item was added to `open_questions.md` (see §11.4).
   edits* (trial-copy validation) and *failed I/O* (RAM untouched). A single diagram tying C9a+C9b
   "no path applies bad settings" would be a strong capstone.
 - **Build-flag-gated features** (`W17_TUNING_CONSOLE`) — the idea that a whole subsystem is compiled
-  out of the shipped firmware while its saved data still loads. Best taught with C10's `platformio.ini`.
+  out of the shipped firmware (*C10 correction: including its load path — the saved data persists
+  in flash but goes unread by the plain build*). Best taught with C10's `platformio.ini`.
 
 ---
 
