@@ -169,6 +169,21 @@ decode (±250), battery warning (7.0/7.4 V), brake flag. (06, 10)
 **Infill** — the interior fill percentage/pattern of a 3D print; walls usually matter
 more for strength. See Gyroid, Rectilinear, Perimeters. (05)
 
+**Idle wobble** — EngineSim's ±120 rpm, 400 ms-period triangle added to the *audible*
+rpm at idle (fading linearly to zero at full throttle) so the idle sounds like a machine
+hunting, not a test tone. Perceptual only — the internal `rpm_` never wobbles. (07, S2)
+
+**Ignition state machine (Off/Cranking/Running)** — EngineSim's aliveness FSM, driven
+*only* by the effective `armed` flag: disarm/failsafe/stale-link/boot all mean Off
+(silence, rpm reported 0 immediately); arming plays 600 ms of starter whir at 1,800 rpm
+(Cranking) before the engine "catches" (rpm snapped to idle, Running). Every return from
+Off replays the crank. (07, S2)
+
+**Inertia (asymmetric, EngineSim)** — rpm chases its throttle target by a *fraction of
+the remaining gap* per tick (`rpm += gap·rate·dtMs/1000`): 6 ‰/ms up, 3 ‰/ms down
+(12 %/6 % per 20 ms tick) — engines spin up harder than they wind down. ≈0.5 s idle→max,
+≈1 s+ back. The exponential-approach cousin of C7's EMA. (07, S2)
+
 **IPC (Electron)** — messages between main and renderer processes; carries telemetry to
 the HUD. (08)
 
@@ -254,6 +269,11 @@ the never-brick guard chain. (06)
 
 **Open-collector** — output that can only pull low; needs a pull-up. The Hall output.
 (03)
+
+**Overrun (crackle window)** — the race-engine pop-and-bang after a sharp lift from high
+revs. EngineSim *detects* it (throttle drop ≥ 40 points in one tick from ≥ 10,400 rpm)
+and opens a 900 ms eligibility flag (`overrunActive`); the synth adds the actual gated
+noise bursts. Hard braking counts as a lift (signed math: drop 100−(−100) = 200). (07, S2)
 
 **Parasitic powering** — driving a signal into an unpowered chip leaks current through
 its protection diodes, half-powering it; why the link2 spec warns against driving the

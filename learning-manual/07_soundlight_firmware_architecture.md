@@ -78,6 +78,16 @@ simulated 3500–15,000 — the range was chosen so the fundamental frequency la
 tiny speaker can actually reproduce it. **[C]** soundlight `CLAUDE.md` (soundsynth
 bullet).
 
+> **[C] S2 verified this section in code**
+> (`soundlight_fw/02_engine_simulation.md`, 9/9 tests pass): every constant above is
+> exact (idle 3,500 / redline 15,000 / crank 600 ms @ 1,800 / wobble ±120 / blips
+> 1,400 × 130 ms / limiter 250-band / overrun 900 ms), and the "~0.5 s / ~1.2 s"
+> inertia figures check out against the 6 ‰/3 ‰ rates. Two refinements: engine rpm is
+> derived from **commanded throttle only** — the received wheel rpm is not read by
+> EngineSim (or, per grep, by anything else on this board yet; open q **#51**); and on
+> any return of `armed` (including failsafe recovery) the FSM **replays the full
+> cranking sequence** — the engine audibly restarts.
+
 ## 4. `EngineSynth` — the DSP (concepts only here)
 
 `EngineSynth` renders audio samples: a stack of harmonic partials at the engine's

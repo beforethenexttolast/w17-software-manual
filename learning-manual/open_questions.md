@@ -172,3 +172,14 @@ These mirror the repos' own checklists — listed here so the manual tracks them
     ci.yml). It is arguably *intentional* — editing `library.json` would violate the do-not-fork
     rule; the cost of byte-identical copy discipline is one harmless stale metadata line. Low
     stakes; no action unless S5's build proves otherwise. (S1 §1.4)
+
+51. **`VehicleState.rpm` (wheel rpm) has no consumer on board #2 — found by S2 (2026-07-05).**
+    EngineSim derives engine rpm from *commanded throttle* (the spec's `Link2Frame.hpp` comment
+    explicitly offers "derive engine revs from throttlePercent or scale this" — the former was
+    taken), and a repo-wide grep finds **nothing** outside the link2 codec/monitor reading the
+    received wheel-rpm field. Consequences: (a) the field is carried on the wire but presently
+    decorative on the receiving end; (b) `Link2Monitor`'s "a stale rpm would drive the engine
+    sound and speed readout" comment is defensive/forward-looking, not descriptive — the
+    rpm-zeroing on staleness is still correct design (future consumers inherit safety). Not a
+    defect; logged so S3–S5 walkthroughs confirm it in context and so a future feature (e.g. a
+    speed-linked light effect) knows the field is free. (S2 §2.1, §11-observation)

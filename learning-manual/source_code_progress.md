@@ -4,11 +4,17 @@ Status values: `not started` → `explained` → `needs review` (you flagged que
 `reviewed` (you confirmed understanding). Priority = batch order from
 `source_code_explanation_plan.md`. Updated after every batch.
 
-**Last updated: 2026-07-05 — S1 explained (soundlight link2 receiver + cross-repo
-compatibility). Soundlight `pio test -e native` → 40/40 PASSED (test_link2 5/5,
-test_link2monitor 6/6). `lib/link2` diff-verified byte-identical to control (md5 on all
-4 shared files); C8's cross-repo-compatibility PROVISIONAL now VERIFIED at source/test
-level. All C1–C10 remain `reviewed`. Next: S2 (enginesim).**
+**Last updated: 2026-07-05 — S2 explained (EngineSim, the virtual engine).
+`pio test -e native -f test_enginesim` → 9/9 PASSED. Ignition FSM (Off/Cranking/Running,
+armed-driven), linear throttle→rpm map (3500–15000, endpoint-exact), asymmetric inertia
+(12%/6% of gap per 20 ms tick), wobble/blips/limiter/overrun all verified. KEY: engine rpm
+is synthesized from throttle — `VehicleState.rpm` (wheel rpm) has NO consumer on board #2
+(grep-verified; new note #51). Ch07 §3 confirmed exact. Next: S3 (soundsynth — budget a
+full session).**
+
+Prior: S1 explained same day (link2 receiver + cross-repo compatibility; 40/40 native;
+`lib/link2` md5-identical to control; C8's cross-repo PROVISIONAL → VERIFIED at
+source/test level). All C1–C10 remain `reviewed`.
 
 Prior milestone: 2026-07-05 — C10 explained + C2 review pass (all C1–C10 `reviewed`;
 147/147 control native tests, all 3 control firmware envs build SUCCESS). The
@@ -285,6 +291,33 @@ Batch log:
   copy's format docs are accurate. No protocol mismatch found. PROVISIONAL until S5: main.cpp
   wiring (UART→feedByte, poll cadence, `millis()` as nowMs, the config `static_assert`); until
   bench: the physical GPIO25→GPIO16 wire + common ground + 115200 inter-board timing.
+- **S2** → `code_explained/soundlight_fw/02_engine_simulation.md`. Ran
+  `pio test -e native -f test_enginesim` → **9/9 PASSED**. Covered `EngineSim` (100+138
+  lines + 9 tests): the armed-driven ignition FSM (`!armed`→Off from ANY state first
+  priority — so S1's projection makes disarm/failsafe/stale/boot all one signal;
+  Off→Cranking on arm with clock anchor; Cranking→Running at inclusive ≥600 ms with
+  `rpm_` SNAPPED to idle = the "catch"; every return from Off replays the starter);
+  linear throttle→rpm map (idle+11500·t/100 → 3500/9250/15000 endpoint-exact; negative
+  throttle = braking → clamps to idle target); asymmetric exponential inertia
+  (`rpm += gap·rate·dt/1000`, 6‰/3‰ per ms = 12%/6% of gap per 20 ms tick; "~0.5s/~1.2s"
+  comments re-derived and honest; overshoot snap guard; ≤8/≤16 rpm truncation residual;
+  100 ms stall clamp like C6 ERS; first-call dt=0). Character layer: 400 ms ±120 idle
+  wobble fading with throttle (perceptual — layered on audible rpm only); ±1400×130 ms
+  shift blips with TRIPLE guard (everSeenState_ seeding / Running / !failsafe) + the key
+  subtlety that `lastGear_` tracks UNCONDITIONALLY so failsafe recovery can't phantom-blip
+  (pairs with S1's held-gear); limiter flag at throttle≥95 ∧ base `rpm_`≥14750 (not
+  audible rpm — wobble/blip can't fake it); overrun crackle window 900 ms on ≥40-pt
+  one-tick drop from ≥10400 rpm (int casts make braking count: drop 100−(−100)=200);
+  Off short-circuit reports engineRpm=0 IMMEDIATELY (internal rpm_ decays hidden).
+  **KEY FINDING:** engine rpm is simulated from commanded throttle; `VehicleState.rpm`
+  (wheel rpm) has **no consumer anywhere on board #2** (grep-verified) — the spec's
+  "derive engine revs from throttlePercent" option was taken; monitor's "stale rpm would
+  drive the engine sound" comment is defensive, not descriptive → **NEW note #51**.
+  Ch07 §3 constants all confirmed exact (S2-verified note added). Coverage gaps logged
+  honestly (§5: failsafe blip guard, wobble, negative-throttle paths, blip magnitude —
+  source-verified only). PROVISIONAL: main.cpp wiring/cadence + atomic word (#43) → S5;
+  all synth-side semantics (silence-when-Off, buzz cadence, crackle bursts, whine) → S3;
+  speaker voicing → bench (#32).
 
 ## w17-control-fw
 
@@ -363,8 +396,9 @@ Batch log:
 | `lib/link2monitor/library.json` | S1 | explained | §4; real `link2` dep (exercised) |
 | `test/test_link2monitor/test_main.cpp` | S1 | explained | §7; 6/6 PASSED |
 | `test/test_link2/test_main.cpp` | S1 | explained | §6; diff-checked = receiver-focused rewrite (5/5), golden bytes shared |
-| `lib/enginesim/include/.../EngineSim.hpp` + `src/EngineSim.cpp` | S2 | not started | header read during ch07 |
-| `test/test_enginesim/test_main.cpp` | S2 | not started | |
+| `lib/enginesim/include/.../EngineSim.hpp` + `src/EngineSim.cpp` | S2 | explained | §1/§2; ignition FSM + asymmetric inertia; wheel rpm unused (#51) |
+| `lib/enginesim/library.json` | S2 | explained | real `link2` dep |
+| `test/test_enginesim/test_main.cpp` | S2 | explained | §3; 9/9 PASSED; coverage gaps in §5 |
 | `lib/soundsynth/include/.../ISampleSource.hpp` | S3 | not started | |
 | `lib/soundsynth/include/.../EngineSynth.hpp` + `src/EngineSynth.cpp` | S3 | not started | hardest math in project |
 | `test/test_soundsynth/test_main.cpp` | S3 | not started | |
