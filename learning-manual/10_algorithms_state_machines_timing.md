@@ -3,6 +3,10 @@
 The interesting logic, explained properly. Everything here is pure code you can run on
 your laptop via the test suites.
 
+> Deep dives (`code_explained/control_fw/`): failsafe → C1, ArmGate/decoder → C5,
+> gearbox+ERS → C6, sensor conditioning → C7; how the loop wires and schedules them all
+> → C10.
+
 ## 1. The failsafe state machine (`lib/failsafe/FailsafeStateMachine`)
 
 The safety heart. Inputs each tick: `nowMs`, `frameArrivedThisTick`, `rxFailsafeFlag`.
@@ -163,9 +167,10 @@ in full: failsafe, ArmGate, Gearbox, ErsSystem) or ROADMAP D-entries as cited; t
 diagram transitions restate the failsafe header's documented behavior.
 
 **Inferred [I]:** the worked gearbox arithmetic (§3) applies the header's documented
-formula — exact rounding behavior in integer code may differ by ±1 until the
-line-by-line pass; the "four gates, four failure classes" framing (§2) and the 10×
-staleness observation (§7.4) are my syntheses.
+formula — the C6 deep dive re-derived the integer math line-by-line and confirmed the
+§3 example **exact** (125; no ±1 drift — open question #44 closed); the "four gates,
+four failure classes" framing (§2) and the 10× staleness observation (§7.4) are my
+syntheses.
 
 **Assumed [A]:** none — this chapter is entirely about laptop-verifiable logic.
 

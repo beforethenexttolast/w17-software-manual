@@ -133,6 +133,9 @@ These mirror the repos' own checklists — listed here so the manual tracks them
 
 43. Exact bit layout of the soundlight cross-core atomic parameter word.
 44. Exact integer rounding in `shapeThrottle` (the ±1 question from chapter 10 §3).
+    — **ANSWERED by C6** (2026-07-03 review): the integer math was re-derived
+    line-by-line; chapter 10 §3's worked example (125) is exact, no ±1 drift. Chapter 10
+    updated (2026-07-05).
 45. `main.cpp` ordering details beyond ROADMAP's summary (the line-by-line pass).
     — **ANSWERED by C10** (2026-07-05): `code_explained/control_fw/10_main_integration.md` §4.
 46. Contents of the two `ci.yml` workflows (currently described from ROADMAP only).

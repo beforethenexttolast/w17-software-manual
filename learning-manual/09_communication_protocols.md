@@ -4,6 +4,10 @@ Byte-level understanding of the three protocol families in the project: **CRSF**
 control + telemetry), **link2** (board #1 → board #2), and how they're kept honest
 (CRCs, golden tests, staleness rules).
 
+> Deep dives (`code_explained/control_fw/`): the CRSF code line-by-line is C3+C4, link2
+> is C8, and the telemetry senders' wiring/cadence is C10 §4.7. The ground-side JS
+> decoder comes with batch G1.
+
 ## 0. Protocol concepts in 90 seconds
 
 A serial link (UART) delivers a *stream of bytes* with no boundaries. A protocol adds:

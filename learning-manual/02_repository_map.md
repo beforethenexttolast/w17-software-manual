@@ -80,6 +80,9 @@ w17-control-fw/
 | `lib/settings` | `Settings`, `kDefaults` | Bench-tunable values + save/load blob for flash |
 | `lib/console` | `Console`, `ConsoleRunner` | The serial tuning console (`get/set/save…`) |
 
+> Every library above now has a **line-by-line deep dive** in `code_explained/control_fw/`
+> (batches C1–C10; the file↔batch map is in `source_code_progress.md`).
+
 ### The ESP32-only shells
 
 | Library | Wraps | Used by |

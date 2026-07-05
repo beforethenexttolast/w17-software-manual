@@ -34,6 +34,10 @@ Support files, used from any chapter:
 
 - [glossary.md](glossary.md) — every term, alphabetical
 - [open_questions.md](open_questions.md) — things only the project owner can confirm
+- `code_explained/` — the **line-by-line source-code deep dives**. Control firmware
+  complete: batches C1–C10 in `code_explained/control_fw/` (with beginner concept-notes
+  companions for C9a/C9b/C10). Status: [source_code_progress.md](source_code_progress.md);
+  inventory/order: [source_code_explanation_plan.md](source_code_explanation_plan.md)
 - `plan/` — the original study plan (historical; superseded by these chapters)
 
 ## Conventions used everywhere
@@ -45,8 +49,9 @@ Support files, used from any chapter:
   paths are relative to `/Users/vitaliykhomenko/Documents/projects/`.
 - Each chapter ends with **Questions to check your understanding** (answers are always
   derivable from that chapter; no trick questions).
-- Chapters describe architecture and behavior. **Line-by-line code walkthroughs are a
-  later phase** and will be added as separate deep-dive documents.
+- Chapters describe architecture and behavior. **Line-by-line code walkthroughs live in
+  `code_explained/`** — the control firmware's ten batches (C1–C10) are complete; the
+  sound/light (S1–S5) and ground-station (G1–G4) repos are next.
 
 ## Verify your environment (10 minutes, no hardware needed)
 
@@ -69,3 +74,8 @@ If these pass, you have a working lab for the entire manual.
 (parts not yet arrived/printed). Source: `w17-control-fw/docs/ROADMAP.md` (all D-items ✅
 except D8 "gated on parts") and `docs/bill_of_materials_v2.md` ("Nothing printed yet").
 Gift deadline: **2026-07-21**.
+
+**Update 2026-07-05:** the control firmware's line-by-line explanation campaign is
+complete (C1–C10, `code_explained/control_fw/`) — verified against 147/147 native tests
+and all three firmware builds. One notable finding: the delivered gift build does **not**
+load NVS-saved tuning (open question #49). Hardware status unchanged.

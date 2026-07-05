@@ -1,7 +1,8 @@
 # 06 — Control Firmware Architecture (`w17-control-fw`)
 
 The main firmware, module by module: what flows in, what decisions happen, what flows
-out. No line-by-line yet — this is the architectural pass; deep dives come later.
+out. This is the architectural pass; the **line-by-line deep dives are complete** in
+`code_explained/control_fw/` (batches C1–C10) and are cross-linked per module in §2.
 
 ## 1. The data-flow picture
 
@@ -52,6 +53,10 @@ two safety judges, survivors get shaped for feel, and everything observable is r
 twice (down to board #2, up to the HUD).**
 
 ## 2. Module tour (in data-flow order)
+
+> **Deep-dive map** (`code_explained/control_fw/`): crsf → C3+C4 · channels/ArmGate → C5 ·
+> failsafe → C1 · gearbox+ers → C6 · outputs → C2 · telemetry → C7 · link2 → C8 ·
+> settings+console → C9a/C9b · `main.cpp` + sim + build configs → C10.
 
 ### 2.1 `lib/crsf` — the radio's language
 Three cooperating layers, deliberately separated:
@@ -142,10 +147,13 @@ of D8's "the NVS-saved tuning persists". See `code_explained/control_fw/10_main_
 
 ## 3. `src/main.cpp` — the conductor
 
-**[C]** (structure verified; full walkthrough reserved for the deep-dive phase):
-~403 lines that (a) define every config with `static_assert(valid())`, (b) in `setup()`
-construct HAL objects and hand safe initial positions to the PWM channels, (c) in
-`loop()` run the cadences below, (d) under `#ifdef` add the Wokwi feeder or the console.
+**[C]** (full walkthrough: `code_explained/control_fw/10_main_integration.md`):
+~403 lines that (a) define every config with `static_assert(valid())`, (b) construct all
+module/HAL objects as globals (static initialization, *before* `setup()`) and, in
+`setup()`, attach the PWM channels with safe initial positions, (c) in `loop()` run the
+cadences below, (d) under `#ifdef` add the Wokwi feeder or the console. *(C10 note: an
+earlier wording here said `setup()` "constructs" the HAL objects — construction actually
+happens in static init; `setup()` attaches hardware. See C10 §2–§3.)*
 
 ## 4. Timing: three cadences in one loop
 
@@ -176,7 +184,9 @@ Channel-map defaults: ROADMAP D2 + D8 Phase 4 (explicitly "verify at bench").
 
 **Inferred [I]:** the diagram's exact arrow set is my synthesis of the documented flows
 (each individual arrow is documented; the composition is mine). Details of `main.cpp`'s
-internal ordering beyond what ROADMAP states await the line-by-line pass.
+internal ordering were confirmed by the line-by-line pass (C10,
+`code_explained/control_fw/10_main_integration.md` §4): the diagram and the cadence
+table above match the source.
 
 **Assumed [A]:** none beyond the global "nothing bench-verified yet" caveat.
 

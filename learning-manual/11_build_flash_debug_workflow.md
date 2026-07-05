@@ -58,8 +58,10 @@ Flashing notes for when hardware exists:
 - The DevKit V1 enters bootloader automatically via USB; if a board is stubborn, hold
   BOOT while the upload starts. **[A]** standard DevKit behavior — untested here.
 - Which build to flash when (**[C]** `docs/D8_BENCH_BRINGUP.md` preamble): bench =
-  `esp32dev_tuning`; the delivered gift = plain `esp32dev` (no console surface); the
-  NVS-saved tuning survives the reflash.
+  `esp32dev_tuning`; the delivered gift = plain `esp32dev` (no console surface). *C10
+  caution: the NVS-saved tuning survives the reflash **in flash only** — the plain build
+  has **no load path**, so the delivered firmware runs compiled-in defaults (open
+  question #49; `code_explained/control_fw/10_main_integration.md` §8).*
 - Board #2: `cd w17-soundlight-fw && pio run -e esp32dev -t upload`.
 
 ## 4. The tuning console (bench build only)
@@ -137,7 +139,9 @@ npm run demo
 ## 7. CI — the safety net
 
 Both firmware repos carry `.github/workflows/ci.yml`: native tests + both ESP32 builds
-on every push (**[C]** ROADMAP B2.1; workflow contents not yet reviewed in this manual).
+on every push (**[C]** ROADMAP B2.1; the control repo's workflow is explained
+line-by-line in C10 §9 — note it builds `esp32dev` + `esp32dev_sim` but **not**
+`esp32dev_tuning`; soundlight's workflow review comes with S5).
 The ground station's cross-platform claim is likewise "proven by CI + the pure-core
 tests" (README). Practical meaning for you: if `pio test -e native` and `pio run -e
 esp32dev` pass locally, you've reproduced CI.
@@ -177,8 +181,9 @@ has been flashed to real hardware yet in this project's history.
 3. You suspect the failsafe re-arm window is too short. Which of the four workflow
    stages (native test / Wokwi / tuning bench / car) lets you verify a change fastest,
    and what would you write?
-4. Why is the delivered gift firmware built *without* the tuning console, and why do
-   the tuned values survive anyway?
+4. Why is the delivered gift firmware built *without* the tuning console — and what does
+   the C10 finding (open question #49) say about whether the tuned values actually
+   *reach* the delivered car?
 5. In the Wokwi demo, why does the ERS store only recharge while you click the Hall
    button? Which two modules' rules combine to cause that?
 6. `npm run demo` shows a working HUD with plausible speed. Name every real component

@@ -4,8 +4,9 @@ Status values: `not started` → `explained` → `needs review` (you flagged que
 `reviewed` (you confirmed understanding). Priority = batch order from
 `source_code_explanation_plan.md`. Updated after every batch.
 
-**Last updated: 2026-07-05 — C10 explained (147/147 native tests + all 3 firmware envs build
-SUCCESS). The w17-control-fw campaign's explanation phase is COMPLETE (C1–C10). Next: S1.**
+**Last updated: 2026-07-05 — C10 explained + C2 review pass (all C1–C10 now `reviewed`;
+147/147 native tests, all 3 firmware envs build SUCCESS). The w17-control-fw campaign's
+explanation phase is COMPLETE and reviewed. Next: S1.**
 
 C9 split (APPROVED; both halves done):
 - **C9a — Settings persistence** → `09a_settings_persistence.md`. **DONE.** Files: `lib/settings/
@@ -15,7 +16,8 @@ C9 split (APPROVED; both halves done):
   copy — source-identical + cross-check test on "123456789", so proven not assumed); blob =
   [version][RAW struct memcpy][crc8], CRC over [version+struct]; guard chain length→CRC→version→
   valid(), out untouched on failure; kDefaults constexpr + static_assert(kDefaults.valid()).
-- **C9b — Console + tuning HAL** → `09b_console_and_tuning_hal.md`. Files: `lib/console/
+- **C9b — Console + tuning HAL** → `09b_console_tuning_and_settings_store.md` (final
+  name; the split plan's placeholder was `09b_console_and_tuning_hal.md`). Files: `lib/console/
   Console.{hpp,cpp}` + `ConsoleRunner.{hpp,cpp}` + `lib/settings_hal_esp32/*` (Esp32NvsStore
   + Esp32SerialConsole) + `MockCharIO.hpp` (+ MockSettingsStore if not in C9a) +
   `test/test_console/test_main.cpp`. Test: `pio test -e native -f test_console`. Risks: C++
@@ -39,6 +41,19 @@ Batch log:
   DRS binary output, and the LEDC µs→duty math (`µs·65535/20000`, verified by hand;
   file excluded from native tests). No new open questions; noted only ServoConfig has a
   valid() (A11); ESC brake-not-reverse mapping is hardware-dependent (open q #29, D8-7).
+- **C2 review (2026-07-05):** audited against the C2 sources; re-ran `pio test -e native -f
+  test_outputs` → **10/10 PASSED**. Independently re-derived all arithmetic — servo two-sided
+  scale (0→1500, ±1000→500/2500, +500→2000, −500→1000), ESC scale (+500→1750), and every
+  LEDC duty value (1000µs→3276, 1500→4915, 2000→6553, 500→1638, 2500→8191, all matching the
+  doc's table) — no errors. All 10 test descriptions/assertions verified against test_main.cpp;
+  A4/A5/A11 linkage correct; hardware-validation notes (open q #29, LEDC electrical) sound.
+  **One factual fix:** the doc claimed "main.cpp static_asserts the default config" — main.cpp
+  does NOT assert the servo/ESC/DRS configs (confirmed by grep: asserts cover channel-map/
+  gearbox/ers/battery/wheel/link2/settings only). Corrected §1 to state the real enforcement
+  (tuning console per-set + the tuning build's aggregate `settings::kDefaults` assert; the gift
+  build trusts the default). Added a C10-resolution note (reference-member lifetime, begin()
+  wiring, A5 anchor in setup(), LEDC channels 0–4, DRS-closed-on-failsafe, and the ESP32
+  `Esp32MillisClock` resolving the monotonic-clock assumption). Status: reviewed.
 - **C3** → `code_explained/control_fw/03_crsf_framing_and_channel_decoding.md`. Explained
   CrsfFrame constants, the 3-state assembler (framing+CRC, type-agnostic A7, resync A9),
   and CrsfParser (bit-by-bit CRC-8/0xD5, the 11-bit little-endian channel unpacker, frame
@@ -255,12 +270,12 @@ Batch log:
 | `lib/failsafe/src/FailsafeStateMachine.cpp` | C1 | reviewed | §5 |
 | `test/mocks/FakeClock.hpp` | C1 | reviewed | §6 |
 | `test/test_failsafe/test_main.cpp` | C1 | reviewed | §7 — ran, 8/8 PASSED |
-| `lib/outputs/include/outputs/ServoOutput.hpp` + `src/ServoOutput.cpp` | C2 | explained | |
-| `lib/outputs/include/outputs/EscOutput.hpp` + `src/EscOutput.cpp` | C2 | explained | |
-| `lib/outputs/include/outputs/DrsOutput.hpp` + `src/DrsOutput.cpp` | C2 | explained | |
-| `lib/outputs_hal_esp32/include/.../Esp32LedcPwm.hpp` + `src/Esp32LedcPwm.cpp` | C2 | explained | |
-| `test/mocks/MockPwmOutput.hpp` | C2 | explained | |
-| `test/test_outputs/test_main.cpp` | C2 | explained | |
+| `lib/outputs/include/outputs/ServoOutput.hpp` + `src/ServoOutput.cpp` | C2 | reviewed | two-sided µs scale; A11 enforcement corrected (§1) |
+| `lib/outputs/include/outputs/EscOutput.hpp` + `src/EscOutput.cpp` | C2 | reviewed | boot-arm hold (A5); IClock monotonic resolved via Esp32MillisClock |
+| `lib/outputs/include/outputs/DrsOutput.hpp` + `src/DrsOutput.cpp` | C2 | reviewed | binary; closed-on-failsafe confirmed (C10) |
+| `lib/outputs_hal_esp32/include/.../Esp32LedcPwm.hpp` + `src/Esp32LedcPwm.cpp` | C2 | reviewed | LEDC duty math re-derived; excluded from native tests |
+| `test/mocks/MockPwmOutput.hpp` | C2 | reviewed | |
+| `test/test_outputs/test_main.cpp` | C2 | reviewed | 10/10 re-run 2026-07-05 |
 | `lib/crsf/include/crsf/CrsfFrame.hpp` | C3 | reviewed | header read during ch09 |
 | `lib/crsf/include/crsf/CrsfFrameAssembler.hpp` + `src/CrsfFrameAssembler.cpp` | C3 | reviewed | |
 | `lib/crsf/include/crsf/CrsfParser.hpp` + `src/CrsfParser.cpp` | C3 | reviewed | 11-bit unpacking |

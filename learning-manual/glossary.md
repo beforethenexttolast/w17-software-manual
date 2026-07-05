@@ -85,6 +85,11 @@ ramps to 0. (07)
 `reset`) while the car is armed; `get`/`status`/`help` stay allowed. Tuning is a "pit-lane"
 activity — you can inspect a live car but never re-tune it. (09b)
 
+**Drive mode** — the ch13 3-position policy wired in `main.cpp`: **0 = Training** (one
+fixed gentle shape {400, 50}; paddles inert to output), **1 = Gearbox** (default — also
+what an absent channel decodes to), **2 = Gearbox+ERS**. No raw pass-through by design:
+top gear already *is* full power, and authority stays monotone along the switch. (06, C10)
+
 **DRS** — Drag Reduction System; here, a wing flap on an MG90S servo toggled by a
 switch. (01, 06)
 
@@ -181,6 +186,11 @@ king pin to steer. (05)
 **Layer height** — print resolution per layer: 0.2 mm default here, 0.12–0.16 mm on
 visible bodywork. (05)
 
+**LDF (Library Dependency Finder)** — PlatformIO's automatic dependency resolver: a
+library joins a build only if something `#include`s it. Why conditional includes keep
+whole libraries out of the gift build, and why `[env:native]`'s `lib_ignore` exists as
+the hard override. (09b, C10)
+
 **LEDC** — the ESP32 PWM peripheral generating servo pulses. `Esp32LedcPwm`. (03, 06)
 
 **link2** — this project's one-way UART protocol, board #1 → #2: 0xA5-framed 14-byte
@@ -238,6 +248,10 @@ link2 spec forbids receivers from doing it. (05, 09)
 
 **Pinion / spur / pitch (48DP)** — the motor's small gear / the big driven gear / their
 tooth size. Both must be 48-pitch or they won't mesh — "the one mesh-killer." (05)
+
+**PlatformIO** — the embedded build system both firmware repos use: `platformio.ini`
+declares *environments* (`esp32dev` / `esp32dev_sim` / `esp32dev_tuning` / `native`);
+`pio run` / `pio test` build and test them. (11, C10)
 
 **POM (acetal/Delrin)** — slippery, wear-resistant engineering plastic; the spur gear's
 material. (05)

@@ -3,7 +3,8 @@
 The C++ and embedded-programming concepts you need to read this codebase, each taught on
 a real file from the project. This is not a general C++ course — it is *this project's*
 C++, which is deliberately a small, readable subset ("readable over clever",
-`w17-control-fw/CLAUDE.md` §5).
+`w17-control-fw/CLAUDE.md` §5). (This chapter teaches the *language*; for line-by-line
+walkthroughs of the files quoted here, see `code_explained/control_fw/`.)
 
 ## 1. How C++ code becomes a program: files, headers, includes
 

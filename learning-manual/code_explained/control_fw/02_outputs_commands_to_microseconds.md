@@ -31,7 +31,20 @@ peripheral) and chapter 06 §2.5.
 
 **Test status: RUN AND PASSING.** I executed `pio test -e native -f test_outputs` on
 2026-07-03 — 10 test cases, all `[PASSED]` in 1.5 s. Behaviours marked **VERIFIED** below
-are confirmed by that run.
+are confirmed by that run. **Re-run 2026-07-05 (C2 review pass): 10/10 PASSED again.**
+
+> **C10 resolution note (2026-07-05).** C10 read `main.cpp`, so the "PROVISIONAL until
+> C10" items below are now source-verified (`10_main_integration.md` §2.6, §3.1, §4.8):
+> the PWM/clock objects are globals that outlive the outputs (§1/§3 reference-member
+> concern closed); `setup()` calls each channel's `begin()` with its safe pulse
+> (`steeringConfig.centerMicros` / `escConfig.neutralMicros` / `drsConfig.closedMicros` —
+> the A4 fix wired), and `esc.setThrottle(0)` in `setup()` is the first-ever call that
+> anchors the A5 hold; the five outputs get distinct LEDC channels 0–4; the Safe branch
+> commands `drs.setOpen(false)` (DRS-closed-on-failsafe confirmed); and the production
+> `IClock` is `Esp32MillisClock` wrapping `millis()` (monotonic apart from the accepted
+> 49.7-day wrap, A10 — so the unsigned `now − start` in `isArmed()` is sound).
+> **One correction:** §1 below said main.cpp `static_assert`s the servo config — it does
+> **not**. See the corrected paragraph in §1.
 
 ---
 
@@ -114,11 +127,24 @@ struct ServoConfig {
     the comment.
 - **Important nuance:** `valid()` is defined here but this file does **not** call
   `static_assert` on it — nothing in ServoOutput forces validation. The guarantee is only
-  as strong as *whoever constructs a ServoConfig* choosing to check `valid()`. In
-  practice `main.cpp` (batch C10) `static_assert`s the default config, and the tuning
-  console (C9) calls `valid()` on every `set`. So: **the guard exists, but its
-  enforcement lives in the callers, not here.** **VERIFIED** (no `static_assert` in this
-  file); which callers enforce it is **PROVISIONAL** until C9/C10.
+  as strong as *whoever constructs a ServoConfig* choosing to check `valid()`. **Where it
+  is actually enforced (confirmed by reading C10, and more nuanced than I first wrote):**
+  - `main.cpp` **does not** `static_assert` the steering/ESC/DRS configs. Its
+    `static_assert(...valid())` calls cover the channel map, gearbox, ERS, battery, wheel,
+    and link2 configs — but `steeringConfig`, `escConfig`, `drsConfig`, `gimbalConfig` are
+    plain `constexpr` globals with **no** assert (`10_main_integration.md` §2.6). `EscConfig`
+    /`DrsConfig` have no `valid()` to assert anyway; `ServoConfig` has one, but main.cpp
+    doesn't call it on the steering config.
+  - The A11 servo guard is enforced instead by: **(a)** the tuning console's per-`set`
+    `valid()` on a trial copy (C9b), and **(b)** in the *tuning* build only, transitively
+    via `static_assert(settings::kDefaults.valid())` — because `settings::Settings`
+    aggregates the steering `ServoConfig` (C9a), so that one assert checks `steering.valid()`.
+  - In the **plain gift build** the compiled-in default `ServoConfig{}` is simply trusted
+    (it is valid by construction and never changes at runtime — there is no console to edit
+    it). So: **the guard exists; its only compile-time enforcement is the tuning build's
+    aggregate assert, and its runtime enforcement is the console's per-set check.**
+    **VERIFIED** (no `static_assert` in this file; main.cpp's assert list confirmed in C10;
+    the settings aggregation confirmed in C9a).
 
 ### Lines 25–45: the ServoOutput class
 ```cpp
@@ -663,14 +689,21 @@ succeeded." **VERIFIED (ran).**
   the specific products here (≤ ~2,000,000 for the scalers, ~164,000,000 for the duty)
   fit comfortably.
 
-**PROVISIONAL** (stated by comment/structure or hardware-dependent; confirm later):
-- The ESC `IClock` monotonic assumption behind the unsigned `now − start` (confirm when
-  the ESP32 `IClock` impl is read — same open item as C1).
-- Which callers actually enforce `ServoConfig::valid()` and drive DRS "closed on failsafe"
-  (batches C9/C10).
+**RESOLVED by C10** (was PROVISIONAL "until C9/C10"; now source-verified — see the C10
+resolution note at the top and `10_main_integration.md`):
+- The ESC `IClock` is `Esp32MillisClock` (wraps `millis()`), monotonic apart from the
+  accepted 49.7-day wrap — so the unsigned `now − start` is sound.
+- Enforcement of `ServoConfig::valid()`: **not** via a main.cpp assert on the servo config
+  (there isn't one) — via the tuning console's per-`set` check and the tuning build's
+  aggregate `static_assert(settings::kDefaults.valid())`; the gift build trusts the default
+  (see corrected §1).
+- DRS "closed on failsafe" is driven by main.cpp's Safe branch (`drs.setOpen(false)`), and
+  `begin()`'s safe initial pulse is wired in `setup()`; LEDC channels 0–4 assigned.
+
+**PROVISIONAL** (hardware-dependent; still open):
 - The **electrical** behaviour of the LEDC output on a real servo/ESC, and the "negative
   throttle = brake, not reverse" mapping — both depend on hardware/ESC configuration not
-  yet on the bench.
+  yet on the bench (open q #29, D8 Phase 7; Wokwi Stage-2 for the PWM waveform).
 
 ---
 
@@ -687,11 +720,13 @@ succeeded." **VERIFIED (ran).**
 - **ROADMAP A11** (chapter 05 §1.2) — trim past an endpoint; C2 shows the guard in
   `ServoConfig::valid()` (and the defensive endpoint clamp behind it).
 - **C1 carry-over** — the `IClock`-is-monotonic assumption reused by `EscOutput::isArmed()`;
-  still PROVISIONAL until the ESP32 clock impl (a later HAL batch).
+  **resolved in C10**: the production clock is `Esp32MillisClock` over `millis()` (main.cpp),
+  monotonic apart from the 49.7-day wrap (A10).
 
 No *new* open questions surfaced by C2. One small observation logged for later: only
-`ServoConfig` has a `valid()` (A11); `EscConfig`/`DrsConfig` intentionally don't — worth
-remembering when we reach the tuning console (C9), which validates on every `set`.
+`ServoConfig` has a `valid()` (A11); `EscConfig`/`DrsConfig` intentionally don't — and
+C10 confirmed main.cpp does not assert even the `ServoConfig`, so the A11 guard's teeth are
+the tuning console's per-`set` check (C9b) plus the tuning build's aggregate assert.
 
 ---
 
