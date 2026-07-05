@@ -196,6 +196,25 @@ the hard override. (09b, C10)
 **link2** — this project's one-way UART protocol, board #1 → #2: 0xA5-framed 14-byte
 frames, 20 Hz, 500 ms staleness rule. Spec: `docs/link2_protocol.md`. (09)
 
+**Link2Monitor** — board #2's staleness watchdog (`lib/link2monitor`): wraps the copied
+`Link2FrameAssembler`, stamps the arrival time of each CRC-valid frame, and returns the
+*effective* VehicleState — the last good frame while the link is `Up`, a safe per-field
+projection once it goes stale. Time is a plain `nowMs` argument (no `hal::IClock`); the
+staleness edge is `elapsed >= 500 ms` (inclusive). (07, S1)
+
+**LinkStatus** — the monitor's three-way link health signal: **NeverConnected** (no valid
+frame ever — board #1 maybe still booting), **Up** (a valid frame within the window),
+**Lost** (was Up, then silent ≥ 500 ms). Three states not a boolean because the lights
+distinguish "never spoke" from "stopped speaking." (07, S1)
+
+**Effective state / per-field staleness projection** — the monitor's core idea: consumers
+(EngineSim, LightRenderer) act on `state()`, which sanitizes stale data *once, centrally*.
+On link loss, **commands** (throttle/steering/braking/drsOpen/armed/ersDeploying) are zeroed
+and `failsafe` forced true, **motion telemetry** (rpm) is zeroed, but **slow facts / latched
+judgments** (batteryMv, lowBattery, gear, ersPercent, driveMode) are held last-known to keep
+displays steady and avoid phantom shift-blips. `lastGood_` is never mutated, so recovery is
+one frame. (07, 09, S1)
+
 **LiPo (2S)** — two-cell lithium-polymer battery: 8.4 V full, 7.4 V nominal; warn
 threshold 7.0 V here. Soft-case, ≤75×45×25 mm envelope. (03)
 

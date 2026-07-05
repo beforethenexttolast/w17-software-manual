@@ -46,6 +46,14 @@ questions every tick: *what did board #1 last say?* and *is that still believabl
 | Motion telemetry (rpm) | zeroed | stale motion would keep sound/lights "moving" |
 | Qualified judgments (lowBattery) and slow facts (batteryMv, gear, ersPercent, driveMode) | hold last value | board #1 already qualified them; blanking would flicker the display |
 
+> **[C] S1 verified this table in code** (`soundlight_fw/01_link2_receiver_and_protocol_compatibility.md`
+> §5, §7): `Link2Monitor::recompute` applies exactly this projection on `Lost`, pinned
+> field-by-field by `test_per_field_staleness_projection` (6/6 tests pass). The window edge is
+> inclusive (`elapsed >= 500 ms`), only CRC-valid frames refresh it, and `NeverConnected` never
+> ages into `Lost`. The three-state `LinkStatus` and the `nowMs`-as-parameter clock seam are
+> confirmed there too. (Full ch07 re-audit + the cross-core atomic-word bit layout, open q #43,
+> still await S2–S5.)
+
 ## 3. `EngineSim` — the imaginary engine
 
 The car has a quiet brushless motor; the *drama* is synthesized. `EngineSim` maintains a

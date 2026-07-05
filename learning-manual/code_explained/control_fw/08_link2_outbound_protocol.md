@@ -16,6 +16,15 @@ purpose.
 > tracks the motor, not the stick). Cross-repo compatibility with the sound/light board
 > remains PROVISIONAL until S1's diff-verify.
 
+> **S1 resolution note (2026-07-05).** The cross-repo compatibility flagged as PROVISIONAL
+> throughout this doc is now **VERIFIED at the source/test level** by batch S1
+> (`../soundlight_fw/01_link2_receiver_and_protocol_compatibility.md`): board #2's `lib/link2`
+> is **md5-byte-identical** to this repo's copy (all 4 shared files; `docs/link2_protocol.md`
+> too), and both repos pin the same golden frame in passing native tests. The "two independent
+> failsafe mechanisms" note (this doc §3, §6 — the frame `failsafe` flag vs board #2's local
+> staleness) is likewise upgraded from INFERRED to **VERIFIED** — both halves are now in
+> explained source. What remains PROVISIONAL: the *physical* GPIO25→GPIO16 wire (bench).
+
 **A compatibility note up front (the brief stresses this).** The link2 spec is *owned by
 this repo*; the sound/light board is documented to copy `lib/link2` **verbatim**. But
 this batch reads **only the control-repo files**, so I can VERIFY the format + round-trip
@@ -85,11 +94,15 @@ inline constexpr uint8_t kFlagLowBattery  = 1u << 5;    // 0x20
 inline constexpr uint8_t kFlagErsDeploying= 1u << 6;    // 0x40
 ```
 - **`kFrameLen = 3 + kPayloadLen = 14`.** The "3" = start(1) + length(1) + crc(1); the
-  payload is 11 bytes. So a frame is **14 bytes on the wire**. (Note: the header comment at
-  the top of the file, and the UART comments in §5, still say "12 bytes" — that's a **stale
-  comment** from when the payload was 9 bytes, before the ROADMAP B2.2 amendment grew it to
-  11 → frame 14; the *code* `kFrameLen` is authoritative and = 14. Same stale "12" flagged in
-  the C1 review of `IByteSink`.) **VERIFIED** (`kFrameLen` value; the test array is 14 bytes).
+  payload is 11 bytes. So a frame is **14 bytes on the wire**. (Note: the UART comments in §5
+  still say "12 bytes" — a **stale comment** from when the payload was 9 bytes, before the
+  ROADMAP B2.2 amendment grew it to 11 → frame 14; the *code* `kFrameLen` is authoritative and
+  = 14. Same stale "12" flagged in the C1 review of `IByteSink`.) **S1 correction
+  (2026-07-05):** this note originally also claimed `Link2Frame.hpp`'s *own header comment*
+  said "12 bytes" — grep during S1 shows it does **not** (the header describes the frame
+  correctly). The stale "12" lives only in two sender-side files never part of the board-#2
+  copy: `hal/IByteSink.hpp:9` and `link2_hal_esp32/…/Esp32Link2Uart.hpp:14`. So board #2's
+  copied format docs are accurate. **VERIFIED** (`kFrameLen` value; the test array is 14 bytes).
 - **Flag bits are single-bit masks** (`1u << n`, the idiom from C4's `packChannels`). Bit 1
   (`kFlagReverse`) is **reserved and always 0** — the ESC runs forward/brake, so there is no
   reverse (cross-ref C2/C6). **VERIFIED** (each mask; `test_each_flag_bit_pinned`).

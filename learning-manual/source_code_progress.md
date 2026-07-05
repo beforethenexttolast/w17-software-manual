@@ -4,9 +4,15 @@ Status values: `not started` → `explained` → `needs review` (you flagged que
 `reviewed` (you confirmed understanding). Priority = batch order from
 `source_code_explanation_plan.md`. Updated after every batch.
 
-**Last updated: 2026-07-05 — C10 explained + C2 review pass (all C1–C10 now `reviewed`;
-147/147 native tests, all 3 firmware envs build SUCCESS). The w17-control-fw campaign's
-explanation phase is COMPLETE and reviewed. Next: S1.**
+**Last updated: 2026-07-05 — S1 explained (soundlight link2 receiver + cross-repo
+compatibility). Soundlight `pio test -e native` → 40/40 PASSED (test_link2 5/5,
+test_link2monitor 6/6). `lib/link2` diff-verified byte-identical to control (md5 on all
+4 shared files); C8's cross-repo-compatibility PROVISIONAL now VERIFIED at source/test
+level. All C1–C10 remain `reviewed`. Next: S2 (enginesim).**
+
+Prior milestone: 2026-07-05 — C10 explained + C2 review pass (all C1–C10 `reviewed`;
+147/147 control native tests, all 3 control firmware envs build SUCCESS). The
+w17-control-fw campaign's explanation phase is COMPLETE and reviewed.
 
 C9 split (APPROVED; both halves done):
 - **C9a — Settings persistence** → `09a_settings_persistence.md`. **DONE.** Files: `lib/settings/
@@ -252,6 +258,33 @@ Batch log:
   options: bake into defaults / ship tuning build / add loader). Stale comments flagged:
   ChannelDecoder.hpp "pan/tilt unwired" (gimbal is wired now); FailsafeStateMachine.hpp
   "main.cpp carries a minimal neutral-latch" (ArmGate long since exists).
+- **S1** → `code_explained/soundlight_fw/01_link2_receiver_and_protocol_compatibility.md`.
+  First soundlight batch; the receiver side of link2. Ran `pio test -e native -f test_link2
+  -f test_link2monitor` → **11/11 PASSED**, and full `pio test -e native` → **40/40 PASSED**
+  (all six soundlight suites). **Diff-verified** `lib/link2` against control: `diff -r` shows
+  only `Link2Sender.{hpp,cpp}` absent (correct — sender is board #1's job, needs `hal`); `md5`
+  on all 4 shared files (`Link2Frame.hpp`, `Link2Codec.hpp`, `Link2Codec.cpp`, `library.json`)
+  **byte-identical**; `docs/link2_protocol.md` byte-identical too. So the copy is referenced to
+  C8, not re-explained. Covered: PinMap (RX16 / reserved-ack-TX17 mirroring control's GPIO26
+  open q #33 / I2S 26/25/22 / LED4; all non-strapping); the codec re-read from the receiver's
+  chair (VehicleState defaults = board #2's boot state; decode+assembler now load-bearing;
+  encodeFrame kept for the sim feeder + tests); and the NEW module `Link2Monitor` — LinkStatus
+  {NeverConnected/Up/Lost}, `nowMs`-as-parameter time seam (no IClock), the inclusive
+  `elapsed >= 500 ms` staleness edge, and the **per-field projection** on Lost (commands zeroed +
+  failsafe forced true; rpm zeroed; batteryMv/lowBattery/gear/ersPercent/driveMode HELD). Both
+  test files walked assertion-by-assertion; `test_link2` diff-checked = a receiver-focused
+  **rewrite** (5 vs control's 13; the `0xA5`-in-payload false-sync case is pinned sender-side
+  only — transfers via source identity). **RESOLVED C8 PROVISIONALs:** cross-repo compatibility
+  (now VERIFIED at source/test level via md5 + shared golden frame `A5 0B 01 2A E7 4C 03 DC 05
+  DC 1E 3C 02 CE`); the "two independent failsafe mechanisms" INFERRED note upgraded to VERIFIED
+  (frame `failsafe` flag decodes in `decodeFrame`; local staleness failsafe is `Link2Monitor`).
+  **NEW open question #50** (dangling `hal` dep in the copied `link2/library.json` — no `lib/hal`
+  in soundlight; benign for native build; a cost of do-not-fork discipline). **Corrected the C8
+  doc**: the stale "12-byte" comment was misattributed to `Link2Frame.hpp` — it lives only in
+  control's `IByteSink.hpp:9` + `Esp32Link2Uart.hpp:14` (both sender-side, never copied), so the
+  copy's format docs are accurate. No protocol mismatch found. PROVISIONAL until S5: main.cpp
+  wiring (UART→feedByte, poll cadence, `millis()` as nowMs, the config `static_assert`); until
+  bench: the physical GPIO25→GPIO16 wire + common ground + 115200 inter-board timing.
 
 ## w17-control-fw
 
@@ -322,11 +355,14 @@ Batch log:
 
 | File | Batch | Status | Notes |
 |---|---|---|---|
-| `lib/config/include/config/PinMap.hpp` | S1 | not started | |
-| `lib/link2/include/link2/Link2Frame.hpp`, `Link2Codec.hpp` + `src/Link2Codec.cpp` | S1 | not started | diff-verify vs control copy, then reference C8 |
-| `lib/link2monitor/include/.../Link2Monitor.hpp` + `src/Link2Monitor.cpp` | S1 | not started | header read during ch07 |
-| `test/test_link2monitor/test_main.cpp` | S1 | not started | |
-| `test/test_link2/test_main.cpp` | S1 | not started | diff-check vs control's |
+| `lib/config/include/config/PinMap.hpp` | S1 | explained | §2; RX16/TX17-reserved, I2S 26/25/22, LED 4; all non-strapping |
+| `lib/config/library.json` | S1 | explained | §2; header-only shape, no deps |
+| `lib/link2/include/link2/Link2Frame.hpp`, `Link2Codec.hpp` + `src/Link2Codec.cpp` | S1 | explained | §1/§3; **md5-identical to control** → referenced C8, not re-explained |
+| `lib/link2/library.json` | S1 | explained | §1.4; md5-identical → carries a dangling `hal` dep (finding #50, benign) |
+| `lib/link2monitor/include/.../Link2Monitor.hpp` + `src/Link2Monitor.cpp` | S1 | explained | §4/§5; the new module — staleness + per-field projection |
+| `lib/link2monitor/library.json` | S1 | explained | §4; real `link2` dep (exercised) |
+| `test/test_link2monitor/test_main.cpp` | S1 | explained | §7; 6/6 PASSED |
+| `test/test_link2/test_main.cpp` | S1 | explained | §6; diff-checked = receiver-focused rewrite (5/5), golden bytes shared |
 | `lib/enginesim/include/.../EngineSim.hpp` + `src/EngineSim.cpp` | S2 | not started | header read during ch07 |
 | `test/test_enginesim/test_main.cpp` | S2 | not started | |
 | `lib/soundsynth/include/.../ISampleSource.hpp` | S3 | not started | |

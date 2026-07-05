@@ -4,9 +4,12 @@ Byte-level understanding of the three protocol families in the project: **CRSF**
 control + telemetry), **link2** (board #1 → board #2), and how they're kept honest
 (CRCs, golden tests, staleness rules).
 
-> Deep dives (`code_explained/control_fw/`): the CRSF code line-by-line is C3+C4, link2
-> is C8, and the telemetry senders' wiring/cadence is C10 §4.7. The ground-side JS
-> decoder comes with batch G1.
+> Deep dives (`code_explained/`): the CRSF code line-by-line is C3+C4, link2 (sender side)
+> is C8, and the telemetry senders' wiring/cadence is C10 §4.7. The link2 **receiver side**
+> (board #2's copy of the codec + the `Link2Monitor` staleness watchdog) is
+> `soundlight_fw/01_link2_receiver_and_protocol_compatibility.md` (S1), which also
+> diff-verifies the two repos' link2 against each other. The ground-side JS decoder comes
+> with batch G1.
 
 ## 0. Protocol concepts in 90 seconds
 
@@ -165,7 +168,11 @@ two's-complement signed bytes, bitfields, CRC coverage).
 Frames come at 20 Hz; **no CRC-valid frame for 500 ms (10 missed) ⇒ the receiver enters
 local failsafe** (engine silent, hazard lights). This rule is written into the spec as a
 receiver *obligation* because on a one-way link, a cut wire is indistinguishable from
-"last state persists forever." Implemented by `Link2Monitor` (chapter 07 §2).
+"last state persists forever." Implemented by `Link2Monitor` (chapter 07 §2; line-by-line
+in S1). **[C]** S1 verified this in code: the boundary is `elapsed >= 500 ms` (inclusive),
+only CRC-valid frames refresh the timer (a corrupt-only stream still goes stale), and on
+loss the monitor applies a *per-field projection* — commands zeroed + failsafe forced true,
+rpm zeroed, but battery/gear/ERS/mode held last-known.
 
 ## 3. The reliability strategy across all protocols
 

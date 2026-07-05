@@ -159,3 +159,16 @@ These mirror the repos' own checklists — listed here so the manual tracks them
     values into the source-code defaults and rebuild plain; (b) deliver the `esp32dev_tuning`
     build (accepting an open UART0 console); (c) add a load-only NVS path to the plain build
     (a code change). Which is intended? (C10 §8; supersedes the load half of #34b.)
+
+## Documentation / build-config consistency — new, found by S1 (2026-07-05)
+
+50. **Dangling `hal` dependency in the copied `lib/link2/library.json` (soundlight).** The
+    verbatim copy of link2 keeps `"dependencies": { "hal": "*" }` — correct in the control repo
+    (where `Link2Sender` includes `hal/IByteSink.hpp`), but in `w17-soundlight-fw` there is **no
+    `lib/hal`** and nothing `#include`s a hal header (`Link2Sender` wasn't copied). The dep is
+    declared but points at nothing and is needed by nothing. **Benign for the native build**
+    (verified: 40/40 pass — LDF never resolves it because nothing includes it); benign for
+    `esp32dev`/`esp32dev_sim` is **very likely but PROVISIONAL until S5** (soundlight builds +
+    ci.yml). It is arguably *intentional* — editing `library.json` would violate the do-not-fork
+    rule; the cost of byte-identical copy discipline is one harmless stale metadata line. Low
+    stakes; no action unless S5's build proves otherwise. (S1 §1.4)
