@@ -132,6 +132,16 @@ These mirror the repos' own checklists — listed here so the manual tracks them
 ## For the next code-reading phase (the manual will answer these itself)
 
 43. Exact bit layout of the soundlight cross-core atomic parameter word.
+    — **ANSWERED by S3** (2026-07-05): documented in `EngineSynth.hpp:12–27` and matched by
+    `packParams`/`applyPackedParams`. Layout of the one `std::atomic<uint32_t>`:
+    **bits 0–15 = engineRpm** (0–65535), **bits 16–23 = volume** (0–255, 0 = silent),
+    **bit 24 = ersWhine**, **bit 25 = limiterActive**, **bit 26 = overrunActive**,
+    **bits 27–31 reserved**. One aligned 32-bit word ⇒ torn-free lock-free hand-off; the
+    dead-man heartbeat is a *separate* atomic (ch07 §6). Note what is NOT in the word:
+    throttle and ignition state (see #52c). The remaining half — that `main.cpp` actually
+    packs EngineSim's output into this atomic each control tick, and **where the `volume`
+    byte is derived from** (there is no `volume` field in `EngineState`) — is S5.
+    (`03_sound_synthesis.md` §3.2, §0.)
 44. Exact integer rounding in `shapeThrottle` (the ±1 question from chapter 10 §3).
     — **ANSWERED by C6** (2026-07-03 review): the integer math was re-derived
     line-by-line; chapter 10 §3's worked example (125) is exact, no ±1 drift. Chapter 10
@@ -183,3 +193,43 @@ These mirror the repos' own checklists — listed here so the manual tracks them
     rpm-zeroing on staleness is still correct design (future consumers inherit safety). Not a
     defect; logged so S3–S5 walkthroughs confirm it in context and so a future feature (e.g. a
     speed-linked light effect) knows the field is free. (S2 §2.1, §11-observation)
+
+52. **Repo module docs lag the `soundsynth` code — found by S3 (2026-07-05).** Reading every
+    line of `EngineSynth.cpp` turned up three descriptions that overstate or misname what the
+    code does. None is a defect (the code is correct and tested); all are documentation drift,
+    and the repo files are read-only so only the *manual* was corrected. (a) **"Per-revolution
+    amplitude modulation (the 'lumpy' idle)"** — advertised by `w17-soundlight-fw/CLAUDE.md`
+    (soundsynth bullet) and echoed by ch07 §4 — **does not exist in `render()`**: there is no
+    per-rev envelope; the idle's life comes entirely from S2's ±120 rpm wobble bending the
+    pitch. The unused member `sampleCounter_` (written each frame at `EngineSynth.cpp:147`, read
+    nowhere) may be that feature's fossil [I]. (b) **"Throttle-correlated noise"** (the
+    `noiseAmpMax` field comment, the `render()` comment, and `CLAUDE.md`) is actually
+    **rpm-correlated** (`noiseAmp = noiseAmpMax * rpm / 15000`, `EngineSynth.cpp:109`) — throttle
+    is not even a synth input. The effect is throttle-correlated only *indirectly* (S2 maps
+    throttle→rpm), so the wording is lineage, not a live bug. (c) Ch07 §6's packed-word field
+    list said "rpm, throttle, flags" — the actual second field is **volume**, not throttle (#43).
+    **Ch07 §4 and §6 have been corrected in the manual.** Minor stale code comments folded in
+    here: `phaseIncForMilliHz` narrates a "avoid 64-bit divide" optimization it doesn't perform
+    and misquotes its constant (194.98 vs ≈194.78); the `SineTable` comment narrates three
+    abandoned designs. All cosmetic. Low stakes; no action beyond the manual corrections already
+    made. (`03_sound_synthesis.md` §7, §4.1, §4.2, §4.7c/e.)
+
+## For you (project owner) — new, found by S3 (2026-07-05)
+
+53. **The synth's parameter smoother truncates and "parks" below its target — is that intended
+    voicing?** `EngineSynth::render` smooths rpm/volume with `smooth += (target − smooth) >> 6`
+    (`EngineSynth.cpp:82–83`). Two issues, both verified by a scratchpad harness compiled against
+    the real source: (1) the code comment says "Move ~1/1024 of the gap each sample: ~23 ms time
+    constant," but `>> 6` is **1/64** of the gap, τ ≈ **2.9 ms** — the comment is simply wrong
+    (1/1024 would be `>> 10`). (2) More importantly, integer right-shift **truncates toward zero**,
+    so an *upward* approach stops once the remaining gap is < 64: **volume target 255 approached
+    from 0 parks at 192** (renders at 192/255 ≈ **75 % of full scale**), and **any volume target
+    1–63 approached from silence stays exactly 0 — inaudible**. (rpm parks ≤ 63 low too, but that
+    is a harmless ~0.4 % flat pitch.) A *downward* approach converges exactly (arithmetic shift of
+    a negative gap keeps stepping), so `volume = 0` genuinely silences — which is why
+    `test_zero_volume_is_silent` passes. Question for the owner: is "full = 75 %, and low volumes
+    below 64 are silent" acceptable voicing, or an unnoticed off-by-shift? It **interacts with
+    S5** (what volume values does `main.cpp` actually send? if only 0 and 255, the practical effect
+    is just "full = 75 %") and **with bench voicing (#32)** (perceived loudness). If a fix is ever
+    wanted, adding a rounding bias or a minimum step of 1 toward a nonzero target would close it.
+    (`03_sound_synthesis.md` §4.7a, §7 finding 3.)

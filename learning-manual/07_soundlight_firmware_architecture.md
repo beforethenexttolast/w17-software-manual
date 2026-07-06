@@ -91,13 +91,29 @@ bullet).
 ## 4. `EngineSynth` — the DSP (concepts only here)
 
 `EngineSynth` renders audio samples: a stack of harmonic partials at the engine's
-*firing frequency* (5 firings per revolution ⇒ V10 flavor), per-revolution amplitude
-modulation (the "lumpy" idle), throttle-correlated noise from a **seeded LFSR**
-(deterministic pseudo-random — same seed, same "random" noise, so tests can assert exact
-output), a pitch-tracking ERS whine layer gated by `ersDeploying`, and parameter
-smoothing so values glide instead of clicking. All integer math. Behind
-`ISampleSource`, so a future PCM sample player could replace synthesis without touching
-anything above. **[C]** `CLAUDE.md` module map + `lib/soundsynth/` headers.
+*firing frequency* (5 firings per revolution ⇒ V10 flavor), **rpm-scaled** noise from a
+**seeded LFSR** (xorshift32 — deterministic pseudo-random, same seed = same "random"
+noise, so tests can assert exact output; louder bursts during the overrun window give the
+crackle), a pitch-tracking ERS whine layer gated by `ersDeploying`, a rev-limiter
+ignition-cut gate, and per-sample parameter smoothing so values glide instead of clicking.
+All integer math (float only in the one-time sine-table build). Behind `ISampleSource`, so
+a future PCM sample player could replace synthesis without touching anything above.
+**[C]** `CLAUDE.md` module map + `lib/soundsynth/` headers.
+
+> **[C] S3 verified this section in code**
+> (`soundlight_fw/03_sound_synthesis.md`, 9/9 tests pass + a harness compiled against the
+> real source): the DSP is 32-bit **phase accumulators** feeding a **256-entry ±256 sine
+> table**, a **6-partial additive stack** at 5·rpm/60 Hz, rpm-scaled xorshift32 noise with
+> 1-in-4 **×3 overrun bursts**, a **3× firing-frequency** ERS whine ramped over ~23 ms, a
+> master volume, and an **18 Hz 50 %-duty limiter gate**, all clamped and duplicated to
+> stereo. **Two corrections to the description above** (open q **#52**): there is **no
+> per-revolution amplitude modulation** in the code — the idle's life comes from S2's rpm
+> wobble, not an AM envelope; and the noise is **rpm-correlated, not throttle-correlated**
+> (throttle is not even a synth input). The synth reads only `engineRpm`, a `volume` byte,
+> and the `ersWhine`/`limiter`/`overrun` flags — **not** `throttlePercent` or the ignition
+> state, so silence-when-Off must arrive as `volume = 0` from `main.cpp` (**PROVISIONAL
+> until S5**). Also found: the parameter smoother truncates so full volume renders at ~75 %
+> and sub-64 volumes stay silent (open q **#53**).
 
 ## 5. `LightRenderer` — the compositor
 
@@ -124,9 +140,14 @@ speaker pops. LED writes and frame parsing have their own timing quirks. The sol
 The entire shared surface between the cores (the "cross-core rule," **[C]** soundlight
 `CLAUDE.md`, verbatim rule):
 
-- one packed `std::atomic<uint32_t>` — the synth parameters (rpm, throttle, flags
-  bit-packed into 32 bits), written by core 1, read by core 0;
-- one heartbeat atomic.
+- one packed `std::atomic<uint32_t>` — the synth parameters bit-packed into 32 bits,
+  written by core 1, read by core 0. **[C] S3 confirmed the exact layout** (open q **#43**
+  answered, `EngineSynth.hpp:12–27`): **bits 0–15 = engineRpm**, **bits 16–23 = volume**,
+  **bit 24 = ersWhine**, **bit 25 = limiterActive**, **bit 26 = overrunActive**, bits 27–31
+  reserved. (Note: the second field is **volume**, not throttle as an earlier draft of this
+  section said — see #52.);
+- one heartbeat atomic (separate from the param word — the dead-man's "refreshed recently"
+  signal, not squeezed into the reserved bits).
 
 Nothing else crosses. Synth phase state lives only in the audio task; `VehicleState`,
 `EngineSim`, lights live only on core 1. Why one atomic word instead of a struct: a

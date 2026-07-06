@@ -327,6 +327,37 @@ Batch log:
   source-verified only). PROVISIONAL: main.cpp wiring/cadence + atomic word (#43) → S5;
   all synth-side semantics (silence-when-Off, buzz cadence, crackle bursts, whine) → S3;
   speaker voicing → bench (#32).
+- **S3** → `code_explained/soundlight_fw/03_sound_synthesis.md`. Ran
+  `pio test -e native -f test_soundsynth` → **9/9 PASSED** (1.08 s), plus a **scratchpad
+  verification harness** (compiled read-only against the real `EngineSynth.cpp`) to measure
+  the integer-truncation behaviors the tests don't pin. Covered `ISampleSource` (the
+  PCM-fallback render seam; alloc-/lock-free contract), `EngineSynth.hpp` (packParams word,
+  config voice, class), `EngineSynth.cpp` (sine table, phaseInc, render loop) + 9 tests
+  line/block-by-line. DSP verified: **32-bit phase accumulator** (2³²=one cycle; wraparound
+  IS the mechanism) → `phase>>24` into a **256-entry ±256 sine table** (Taylor-7 built once,
+  float only at init; ~19-count worst error at the wrap, measured); **6-partial additive
+  stack** at firing freq = 5·rpm/60 (table·amp>>8 makes partialAmp = peak int16 units);
+  **rpm-scaled xorshift32 noise** (`1600·rpm/15000`) + **1-in-4 ×3 overrun burst** lottery;
+  **3×-pitch ERS whine** with 512-sample (~23 ms) AR ramp; master **volume/255**; **18 Hz
+  50%-duty limiter** ignition-cut gate (`limiterPhase>>31`); **saturating clamp**;
+  mono→stereo duplication. **Headroom budget** peakSum 24,600 ≤ 30,000 (measured peak at max
+  settings = **17,944**). **ANSWERED open q #43** (packed word layout: rpm bits 0–15 · volume
+  16–23 · ersWhine 24 · limiter 25 · overrun 26 · 27–31 reserved). **KEY BOUNDARY:** the synth
+  reads only (rpm, volume, 3 flags) — **NOT** `throttlePercent` or `Ignition`; silence-when-Off
+  must arrive as `volume=0` from `main.cpp` (**PROVISIONAL → S5**). **NEW note #52**
+  (doc-consistency: repo `CLAUDE.md`/ch07 "per-revolution AM" does not exist in code; noise is
+  rpm-correlated, not "throttle-correlated"; ch07 §6 packed-word list said rpm/throttle/flags →
+  actually rpm/**volume**/flags — ch07 corrected). **NEW question #53** (owner: the `>>6`
+  smoother contradicts its "~1/1024, ~23 ms" comment — it's 1/64 ≈ 2.9 ms — and truncation
+  makes upward approaches **park short**: volume 255 renders at 192 ≈ **75%**, targets 1–63 from
+  silence stay **exactly silent**; downward converges exactly, so `volume=0` truly silences —
+  measured). Confirmed **#51** in-context (soundsynth never reads a `VehicleState`, let alone
+  wheel rpm). Test honesty logged (§8.2): never-clips test is a tautology, volume test compares
+  sound-vs-silence, packed-roundtrip/limiter tests are existence-not-cadence. PROVISIONAL → S5:
+  the real `std::atomic<uint32_t>`, who packs it + volume's origin, heartbeat dead-man, task
+  pinning, I2S buffer/cadence, `Esp32I2sAudio`, `test_integration`, config `static_assert` site.
+  Bench (#32): whether it *sounds* like an engine on MAX98357A + 3 W speaker; the PCM fallback
+  decision this seam exists for.
 
 ## w17-control-fw
 
@@ -408,9 +439,10 @@ Batch log:
 | `lib/enginesim/include/.../EngineSim.hpp` + `src/EngineSim.cpp` | S2 | explained | §1/§2; ignition FSM + asymmetric inertia; wheel rpm unused (#51) |
 | `lib/enginesim/library.json` | S2 | explained | real `link2` dep |
 | `test/test_enginesim/test_main.cpp` | S2 | explained | §3; 9/9 PASSED; coverage gaps in §5 |
-| `lib/soundsynth/include/.../ISampleSource.hpp` | S3 | not started | |
-| `lib/soundsynth/include/.../EngineSynth.hpp` + `src/EngineSynth.cpp` | S3 | not started | hardest math in project |
-| `test/test_soundsynth/test_main.cpp` | S3 | not started | |
+| `lib/soundsynth/include/.../ISampleSource.hpp` | S3 | explained | §2; render seam (PCM fallback); alloc/lock-free contract |
+| `lib/soundsynth/include/.../EngineSynth.hpp` + `src/EngineSynth.cpp` | S3 | explained | §3/§4; phase accumulators + sine table + partial stack + noise/whine/limiter; #43 answered; findings #52/#53 |
+| `lib/soundsynth/library.json` | S3 | explained | §4.8; header-only shape, NO dependencies key (includes nothing outside itself) |
+| `test/test_soundsynth/test_main.cpp` | S3 | explained | §5; 9/9 PASSED; test-strength caveats in §8.2 |
 | `lib/lights/include/.../LightRenderer.hpp` + `src/LightRenderer.cpp` | S4 | not started | |
 | `lib/lights_hal_esp32/include/.../Esp32NeoPixelStrip.hpp` + `src/Esp32NeoPixelStrip.cpp` | S4 | not started | |
 | `test/test_lights/test_main.cpp` | S4 | not started | |

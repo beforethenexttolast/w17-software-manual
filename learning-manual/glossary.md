@@ -9,8 +9,17 @@ damped by the shock. Atlas MECH-03. (05)
 **ADC (analog-to-digital converter)** — chip peripheral turning a pin voltage into a
 number. Reads the battery divider on GPIO34. (03, 06)
 
+**Additive synthesis** — building a sound by summing sine-wave *partials* (a fundamental
+plus harmonics at integer multiples of it). `EngineSynth`'s 6-partial stack is additive;
+the per-partial amplitudes *are* the engine's timbre. (07, S3)
+
 **Adversarial review** — a review whose goal is to *break* the code: hunt inputs and
 timings that misbehave. Produced ROADMAP findings A1–A13. (05)
+
+**Aliasing / Nyquist limit** — a sampled signal can only faithfully carry frequencies
+below half the sample rate (here 22,050 / 2 = 11,025 Hz); anything higher "folds back" as
+a false lower tone (aliasing). The synth's highest partial reaches ~7.5 kHz at redline —
+safely under the limit. (07, S3)
 
 **Anisotropy / layer orientation** — FDM prints are weakest *between* layers; the print
 spec's golden rule is to orient stressed parts so load runs along the layers. (05)
@@ -113,6 +122,10 @@ also relays standard telemetry frames back. (01, 09)
 **ERS** — Energy Recovery System (F1 concept). Simulated store: deploy via
 boost/overtake, harvest while braking/coasting with wheels turning. `lib/ers`. (10)
 
+**ERS whine** — the synth's electric-motor keening layer: a sine at 3× the firing
+frequency (MGU-K crank-coupled feel), gated on by `ersDeploying` with a ~23 ms fade-in/out
+so it can't click. `lib/soundsynth`. (07, S3)
+
 **ESC** — electronic speed controller: converts 1000–2000 µs PWM into three-phase motor
 power. Hobbywing 10BL120, sensored, forward/brake mode. (03)
 
@@ -125,6 +138,10 @@ Per-gear in the gearbox. (10)
 **Failsafe** — every layer that forces safety on communication loss: the control FSM
 (500 ms timeout + LQ latch), link2 staleness (500 ms), HUD fallback (1 s), audio
 dead-man. (10)
+
+**Firing frequency** — the engine-sound fundamental: f = rpm/60 × firingsPerRev. 5
+firings/rev = "V10 flavor"; across 3,500–15,000 rpm that is ~292–1,250 Hz, chosen to sit
+in a small speaker's usable band. `EngineSynth`. (07, S3)
 
 **First-decode seeding** — the ChannelDecoder sets initial switch levels from the first
 frame *without* emitting edges, so boot can't fire phantom gear shifts. (05, 06)
@@ -157,6 +174,10 @@ implementations separating logic from hardware. (02, 04)
 
 **Hall sensor (A3144)** — magnetic switch; an N35 neodymium magnet on the axle gives
 one pulse/revolution = wheel speed. (03)
+
+**Headroom (audio)** — the gap between the loudest possible synth output and the int16
+clip rail. `EngineSynthConfig::valid()` proves the summed partial + noise + whine peak
+(24,600) stays under `kHeadroomPeak` (30,000) so the normal mix can't clip. (07, S3)
 
 **Heat-set insert** — brass threaded insert melted into printed plastic with a
 soldering iron so steel bolts bite metal, not plastic. (05)
@@ -275,12 +296,22 @@ revs. EngineSim *detects* it (throttle drop ≥ 40 points in one tick from ≥ 1
 and opens a 900 ms eligibility flag (`overrunActive`); the synth adds the actual gated
 noise bursts. Hard braking counts as a lift (signed math: drop 100−(−100) = 200). (07, S2)
 
+**Packed parameter word (cross-core)** — the single `std::atomic<uint32_t>` carrying synth
+params from core 1 to core 0: bits 0–15 engineRpm, 16–23 volume, 24 ersWhine, 25 limiter,
+26 overrun, 27–31 reserved. One aligned 32-bit word = a torn-free, lock-free hand-off. The
+dead-man heartbeat is a *separate* atomic. (07, S3; open q #43) See Phase accumulator.
+
 **Parasitic powering** — driving a signal into an unpowered chip leaks current through
 its protection diodes, half-powering it; why the link2 spec warns against driving the
 line into an unpowered board #2 for long. (05)
 
 **Perimeters / walls** — the solid outline loops of each printed layer; 4–5 on
 structural parts because walls carry most of the load. (05)
+
+**Phase accumulator** — an oscillator's position stored as a `uint32_t` where 0…2³²−1
+spans one cycle; add a fixed increment each sample and the natural wraparound at 2³² *is*
+the cycle repeat. inc = freq × 2³² / sampleRate (computed in milli-Hz here for precision).
+The synth's partials, whine, and limiter gate all use one. (07, S3)
 
 **Phase-lock** — timing logic that *depends* on a sender's exact frame spacing; the
 link2 spec forbids receivers from doing it. (05, 09)
@@ -322,7 +353,20 @@ field-by-field wire formats of CRSF/link2. (09a)
 **Regression test** — a test added after a bug so it can never silently return; A1's
 fix added "no frame ever ⇒ Safe at every timestamp." (05)
 
+**Rev limiter (ignition cut)** — the redline "braaap": the synth gates its whole output to
+zero at 18 Hz, 50 % duty (an accumulator's top bit read as a square wave) while
+`limiterActive`, mimicking an F1 ignition cut. EngineSim raises the flag; EngineSynth
+renders it. (07, S3)
+
 **RTSP** — classic IP-camera streaming protocol; the camera's native output. (08)
+
+**Sample / sample rate** — one audio sample = one int16 telling the speaker cone where to
+be; the rate is how many per second. This project uses 22,050 Hz (`kSampleRateHz`), so one
+sample ≈ 45.4 µs. Stereo frames interleave L,R,L,R… (07, S3)
+
+**Saturation (hard clip)** — clamping an out-of-range audio value to the int16 rail
+(±32,767) instead of letting it wrap (signed overflow → glitch/UB). The synth's final
+clamp is a saturating backstop; the headroom budget means it should never fire. (07, S3)
 
 **Sensored** — see Brushless motor.
 
@@ -339,6 +383,11 @@ the servo's gears (`servosaverv7` printed part). (05)
 
 **Silvering (decals)** — silvery haze from micro-air trapped under a decal applied to a
 matte surface; why gloss clear goes on *before* decals. (05)
+
+**Sine table / wavetable** — a precomputed table of one sine cycle (256 signed entries,
+amplitude ±256) indexed by the top 8 bits of a phase accumulator, so render-time trig is a
+table read, not a `sin()` call. Built once at startup — the only place float is allowed
+(house rule). (07, S3)
 
 **Smoke test** — first power-on check that nothing obviously misbehaves before
 connecting valuable loads; D8 Phase 1. (05)
@@ -420,5 +469,15 @@ virtual circuit in `diagram.json`. (05, 11)
 **WS2812B** — addressable RGB LEDs; one data wire, 30 LEDs, level-shift fixes required.
 (03)
 
+**xorshift32 (LFSR noise)** — a fast pseudo-random generator (three XOR-with-shifted-self
+steps) in the linear-feedback-shift-register family; deterministic given its seed, so the
+synth's noise is bit-exactly reproducible for tests. Seed 0 is a dead fixed point (the
+constructor guards it to 1). (07, S3)
+
 **XT60 / XT30** — battery/accessory power connectors; the XT60 **Y-split** feeds ESC +
 both BECs from one pack. (03, 05)
+
+**Zipper noise / parameter smoothing** — audible stepping when a parameter (volume, rpm)
+jumps on ~50 Hz control updates. The synth hides it with a per-sample one-pole smoother
+(`s += (target − s) >> 6`). Same exponential-approach family as C7's EMA and S2's inertia
+— but its integer truncation parks short of the target (open q #53). (07, S3)
