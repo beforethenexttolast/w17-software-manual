@@ -172,7 +172,12 @@ receiver *obligation* because on a one-way link, a cut wire is indistinguishable
 in S1). **[C]** S1 verified this in code: the boundary is `elapsed >= 500 ms` (inclusive),
 only CRC-valid frames refresh the timer (a corrupt-only stream still goes stale), and on
 loss the monitor applies a *per-field projection* — commands zeroed + failsafe forced true,
-rpm zeroed, but battery/gear/ERS/mode held last-known.
+rpm zeroed, but battery/gear/ERS/mode held last-known. **[C]** S5 verified the obligation's
+*wiring* (`soundlight_fw/05_soundlight_main_integration.md` §4.10): board #2's `loop()`
+drains the UART into the monitor on **every pass** and calls `poll(millis())` at 50 Hz, so
+a silent wire is declared Lost within ~20 ms of the 500 ms boundary; the composed
+consequence (engine to exact digital silence + hazard) is natively test-executed in
+`test_integration`. The physical wire itself (GPIO25→GPIO16, common ground) stays bench.
 
 ## 3. The reliability strategy across all protocols
 

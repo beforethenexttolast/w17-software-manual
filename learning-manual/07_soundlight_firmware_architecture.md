@@ -28,6 +28,19 @@ flowchart LR
 **[C]** Structure per `w17-soundlight-fw/CLAUDE.md` (module map + cross-core rule),
 `README.md`, and `src/main.cpp` (includes, `audioTask`, atomics — verified by skim).
 
+> **[C] S5 verified this pipeline line-by-line in `src/main.cpp`**
+> (`soundlight_fw/05_soundlight_main_integration.md`; 40/40 native + both firmware builds
+> SUCCESS): the control loop runs at **50 Hz** (UART drained every pass, not just on
+> ticks), the lights at **~30 Hz** (33 ms — this diagram's "core 1" grouping is right,
+> but note the two cadences are independent tick guards), and the audio task re-reads the
+> packed word before every 256-frame (~11.6 ms) block. Both `EngineSim` and
+> `LightRenderer` receive the **same** `monitor.state()`. One correction of emphasis: the
+> diagram's PACK step derives `volume` via `volumeFor()` (Off→0, Cranking→70,
+> Running→90..255) — see §6. `main.cpp` itself is excluded from native tests
+> (`test_build_src = no`), so composition claims are source+build-verified; the module
+> chain is additionally exercised natively by `test_integration` (frames → Lost →
+> exact-zero audio + hazard).
+
 ## 2. `Link2Monitor` — trust, but with an expiry date
 
 The protocol is one-way: if the wire is cut, board #2 would otherwise keep performing
@@ -117,19 +130,44 @@ a future PCM sample player could replace synthesis without touching anything abo
 
 ## 5. `LightRenderer` — the compositor
 
-Pure function: state → 30 RGB values, layered like image compositing, **[C]** soundlight
-`CLAUDE.md` + `README.md`:
+A layered compositor: (effective state, LinkStatus, nowMs) → 30 RGB values — pure logic,
+stateful only for indicator hysteresis and harvest edge detection, **[C]** soundlight
+`CLAUDE.md` + `README.md` + (S4) the source:
 
-1. base/halo (teal when armed),
-2. brake bar (from the pre-filtered `braking` flag),
-3. turn indicators (swept from `steeringPercent`),
-4. F1 **rain light** — flashes while ERS is *harvesting* (the real F1 2026-era cue),
-5. low-battery pulse,
-6. **failsafe hazard: all-amber blink overriding everything** (also shown for
-   `NeverConnected`),
+1. base: halo (teal armed / dim white disarmed) + always-on dim red tail,
+2. brake bar (from the pre-filtered `braking` flag — hysteresis lives on board #1),
+3. turn indicators (steering-threshold latch with 40/20 hysteresis + self-cancel,
+   blinking ~1.5 Hz),
+4. F1 **rain light** — flashes while ERS is *harvesting* (the real F1 2026-era cue;
+   derived locally from `ersPercent` rising in ERS mode — the frame has no harvest flag),
+5. low-battery pulse (slow red triangle on the halo),
+6. **failsafe hazard: all-amber 2 Hz blink overriding everything** — for a frame-reported
+   failsafe *or* a `Lost` link; **`NeverConnected` instead shows a calm teal "waiting
+   breathe"** (a 2 s triangle on the halo) so power-on doesn't cry wolf — the three-state
+   `LinkStatus` is rendered three ways,
 then a gamma lookup (perceptual brightness correction) and a brightness cap whose power
 budget is enforced in the config's `valid()` (~43% — keeps worst-case all-amber inside
 the UBEC's current headroom).
+
+> **[C] S4 verified this section in code**
+> (`soundlight_fw/04_lights_and_light_hal.md`, 9/9 tests pass + independent recomputation
+> of the gamma/current figures): segments brake 0–5 / rain 6–7 / halo 8–21 / indicators
+> 22–25 + 26–29; budget (2·20·cap)/255 per LED × 30 ≤ 900 mA (default 510 ✓). **One
+> correction to this chapter's earlier text** (open q **#54**): the hazard is **not**
+> "also shown for NeverConnected" — never-connected gets the calm breathe, pinned by
+> `test_never_connected_is_calm_not_hazard`. Also found: the comments' indicator
+> "minimum-on" is not implemented (hysteresis only); `ILedStrip` exists only in the repo
+> docs (the renderer's `Rgb[30]` array is the seam); the lights read exactly seven
+> `VehicleState` fields — **no DRS or ERS-deploy light exists** (deploy is the synth's
+> whine; harvest is the light), and nothing audio-side is read. Post-cap-post-gamma the
+> dim layers render at 1–3/255 duty — daylight visibility is a bench question (**#55**).
+
+> **[C] S5 added the wiring** (`05_soundlight_main_integration.md` §4.10): `loop()`
+> renders the lights at **~30 Hz** (33 ms tick, not the control loop's 50 Hz), passing
+> `monitor.state()`, `monitor.status()`, and `millis()`; the 30 pixels are copied into
+> the Adafruit buffer one `setPixel` at a time and latched with one `show()` (~0.9 ms).
+> `strip.begin()` (the boot-blank) runs early in `setup()`. Frame rate and blink timing
+> stay independent because every animation is free-running off `nowMs`.
 
 ## 6. The dual-core design — why and how
 
@@ -161,6 +199,25 @@ loop must not leave the engine screaming." **[C]** `CLAUDE.md`. Count the failsa
 layers protecting the speaker alone: link staleness (monitor) → ignition Off on disarm
 (enginesim) → cross-core dead-man (audio task).
 
+> **[C] S5 verified this whole section in `src/main.cpp`**
+> (`05_soundlight_main_integration.md` §4.2, §4.6, §4.7, §4.11): the shared surface is
+> **exactly** the two atomics (`gSynthParams`, `gControlHeartbeatMs`), audited
+> object-by-object — the discipline holds. The control tick stores the packed word then
+> the heartbeat, both `memory_order_relaxed` (sufficient: no invariant spans the two
+> words; the 500 ms tolerance dwarfs any reordering window). The dead-man is exact
+> **500 ms** (`kAudioDeadmanMs`, strict `>`), and "ramps to 0" is implemented as *forced
+> silent params* (`setParams(0, 0, false, false, false)`) + the synth's per-sample
+> smoother (τ ≈ 2.9 ms, downward-exact) — the ramp is the smoother. **The missing piece
+> this chapter couldn't state before: `volume`.** `EngineState`'s `ignition` and
+> `throttlePercent` never cross the cores raw — `volumeFor()` folds them into the volume
+> byte: **Off → 0** (this is how link-loss/disarm silence actually reaches the synth,
+> since rpm 0 alone does not silence it), **Cranking → 70**, **Running → 90 +
+> throttle·165/100**. The audio task: pinned core 0, priority 5, 4096-byte stack,
+> self-paced by the blocking `i2s.write` into a ~70 ms DMA ring; `loop()` runs on core 1
+> per the framework (`CONFIG_ARDUINO_RUNNING_CORE=1`). **Honest scope:** `main.cpp` has
+> no native test, so the dead-man branch has *never executed anywhere* — a priority
+> bench check (open q **#57**); the atomics/task claims are source+build-verified.
+
 ## 7. Build variants + the bench demo
 
 | Env | Purpose |
@@ -173,6 +230,16 @@ Its `docs/SIMULATION.md` also carries the board's bench checklist (I2S sanity on
 pinned driver version, MAX98357A straps, WS2812 fixes, "does the synth actually read as
 engine on the real speaker," LED power budget).
 
+> **[C] S5 verified the sim feeder against that table**
+> (`05_soundlight_main_integration.md` §5): the 14 s script's phases and timings match
+> SIMULATION.md exactly (the soundlight analogue of C10's #48 check), the dropout is a
+> true 1 s emission gap through the real assembler+monitor path, and the demo loops
+> seamlessly (armed across the wrap — no re-crank per lap). One wording caveat (open q
+> **#56b**): the CORNERING steering triangle never goes negative, so only one indicator
+> side is actually demonstrated despite "indicators sweep L/R." Also confirmed: `ci.yml`
+> is **byte-identical** to the control repo's (#46 closed), and the copied link2
+> `library.json`'s dangling `hal` dep is inert in all environments (#50 closed).
+
 ## Confirmed vs inferred
 
 **Confirmed [C]:** module responsibilities, all numeric constants (§3), the staleness
@@ -182,8 +249,10 @@ SIMULATION.md.
 
 **Inferred [I]:** the *why* narratives (audio real-time pressure, lock avoidance,
 "sounds like the engine dying" as intended feedback) — standard reasoning consistent
-with, but stated beyond, the docs. Exact bit layout of the packed param word awaits the
-code deep-dive.
+with, but stated beyond, the docs. *(The packed word's bit layout, once listed here as
+awaiting the deep-dive, was confirmed by S3; the packing site, volume derivation, and
+dead-man wiring by S5 — every mechanism claim in this chapter is now source-verified,
+with runtime/acoustic behavior still bench-pending, #32/#55/#57.)*
 
 **Assumed [A]:** that synthesis quality is acceptable on the physical speaker — the
 repo itself flags this as a bench question with the PCM fallback ready

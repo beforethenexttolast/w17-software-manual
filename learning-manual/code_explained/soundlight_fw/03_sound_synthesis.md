@@ -51,6 +51,24 @@ labeled **VERIFIED (source + harness)**. As always: native tests + harness prove
 on this Mac*; nothing here proves what the MAX98357A and the 3 W speaker will make of it
 (bench, open q #32).
 
+> **S5-resolution note (2026-07-06,** `05_soundlight_main_integration.md`**):** the §0
+> boundary questions are answered. The **real** `std::atomic<uint32_t>` exists
+> (`gSynthParams`, `main.cpp:23`); the 50 Hz control tick stores
+> `packParams(engineRpm, volumeFor(e), ersWhine, limiter, overrun)` and the audio task
+> re-reads it before **every** 256-frame (~11.6 ms) block via `applyPackedParams` — both
+> ends relaxed, which suffices (no cross-variable invariant; audit in S5 §4.11).
+> **Volume's origin (#43's missing half): `volumeFor()`** — Off→**0** (silence-when-Off
+> arrives exactly as concept 17 demanded), Cranking→70, Running→90+throttle·165/100.
+> The **dead-man** lives in `audioTask` as §20 predicted: heartbeat older than 500 ms ⇒
+> `setParams(0,0,false,false,false)`; the "ramp" is this file's own smoother. **#53's
+> practical impact:** volume is a *continuum*, so upward moves park −63 → full = 192/255
+> ≈ 75 %, crank whir renders ≈ 7/255 ≈ 2.7 % (audibility → bench #57), idle is
+> path-dependent (27 vs 90). The `EngineSynthConfig` `static_assert` is at
+> `main.cpp:33–34`. I2S delivery: 6×256-frame DMA ring (~70 ms), blocking write =
+> self-pacing. **Caveat:** `main.cpp` is native-excluded — the dead-man branch and the
+> real `volumeFor` have never been test-executed (the integration test uses its own
+> constants, #56a).
+
 ---
 
 ## 0. Where this sits — and the boundary that surprised me

@@ -142,6 +142,15 @@ These mirror the repos' own checklists — listed here so the manual tracks them
     packs EngineSim's output into this atomic each control tick, and **where the `volume`
     byte is derived from** (there is no `volume` field in `EngineState`) — is S5.
     (`03_sound_synthesis.md` §3.2, §0.)
+    — **FULLY ANSWERED by S5** (2026-07-06): `main.cpp`'s 50 Hz control tick stores
+    `packParams(e.engineRpm, volumeFor(e), e.ersWhine, e.limiterActive, e.overrunActive)`
+    into the one `std::atomic<uint32_t>` (`gSynthParams`), then stamps the separate
+    heartbeat atomic. **Volume is derived by `volumeFor()`** from the two EngineState
+    fields that do NOT cross the cores: `Ignition::Off → 0` (the load-bearing silence
+    path), `Cranking → 70`, `Running → 90 + throttlePercent·165/100` (90..255). The
+    audio task re-reads the word before every 256-frame block (~86 Hz) with relaxed
+    ordering — sufficient, since no invariant spans the two atomics.
+    (`05_soundlight_main_integration.md` §4.6, §4.10, §4.11.) **CLOSED.**
 44. Exact integer rounding in `shapeThrottle` (the ±1 question from chapter 10 §3).
     — **ANSWERED by C6** (2026-07-03 review): the integer math was re-derived
     line-by-line; chapter 10 §3's worked example (125) is exact, no ±1 drift. Chapter 10
@@ -152,6 +161,11 @@ These mirror the repos' own checklists — listed here so the manual tracks them
     — **Control-fw's ANSWERED by C10 §9** (push/PR triggers, cached PlatformIO, native tests +
     esp32dev + esp32dev_sim builds; note: `esp32dev_tuning` is NOT built by CI). Soundlight's
     diff remains for S5.
+    — **Soundlight half ANSWERED by S5** (2026-07-06): `diff` of the two workflows is
+    **empty — byte-identical files**, so C10 §9's line-by-line reading transfers wholesale
+    (the env names coincide across repos; each repo's cache is keyed on its own
+    `platformio.ini` hash). Every CI step was reproduced locally: 40/40 native + both
+    builds SUCCESS. (`05_soundlight_main_integration.md` §8.) **CLOSED.**
 47. The HUD's exact widget-by-widget telemetry-vs-simulation precedence in
     `renderer/hud.js`.
 48. `SimCrsfFeeder.cpp`'s script structure (phase timing table vs implementation).
@@ -182,6 +196,11 @@ These mirror the repos' own checklists — listed here so the manual tracks them
     ci.yml). It is arguably *intentional* — editing `library.json` would violate the do-not-fork
     rule; the cost of byte-identical copy discipline is one harmless stale metadata line. Low
     stakes; no action unless S5's build proves otherwise. (S1 §1.4)
+    — **RESOLVED (benign) by S5** (2026-07-06): `pio run -e esp32dev -e esp32dev_sim` →
+    **both SUCCESS**, and the LDF dependency graph resolves `link2 @ 0.1.0` with **no
+    child** — the declared `hal` dep is never chased because no compiled source includes
+    a hal header. Inert in all three environments (CI builds exactly these two + native).
+    (`05_soundlight_main_integration.md` §7.4.) **CLOSED.**
 
 51. **`VehicleState.rpm` (wheel rpm) has no consumer on board #2 — found by S2 (2026-07-05).**
     EngineSim derives engine rpm from *commanded throttle* (the spec's `Link2Frame.hpp` comment
@@ -193,6 +212,10 @@ These mirror the repos' own checklists — listed here so the manual tracks them
     rpm-zeroing on staleness is still correct design (future consumers inherit safety). Not a
     defect; logged so S3–S5 walkthroughs confirm it in context and so a future feature (e.g. a
     speed-linked light effect) knows the field is free. (S2 §2.1, §11-observation)
+    — **Confirmed final by S5** (2026-07-06): S3 (synth reads no VehicleState), S4 (lights
+    read 7 fields, not rpm), and S5 (`main.cpp` passes `monitor.state()` through whole and
+    personally reads no field of it) complete the repo-wide sweep. The wire field remains
+    decorative on board #2 — free for a future feature. Kept open as a design note only.
 
 52. **Repo module docs lag the `soundsynth` code — found by S3 (2026-07-05).** Reading every
     line of `EngineSynth.cpp` turned up three descriptions that overstate or misname what the
@@ -233,3 +256,92 @@ These mirror the repos' own checklists — listed here so the manual tracks them
     is just "full = 75 %") and **with bench voicing (#32)** (perceived loudness). If a fix is ever
     wanted, adding a rounding bias or a minimum step of 1 toward a nonzero target would close it.
     (`03_sound_synthesis.md` §4.7a, §7 finding 3.)
+    — **Practical impact pinned by S5** (2026-07-06): `volumeFor()` sends a **continuum**,
+    not 0/255 — Off→0, Cranking→**70**, Running→**90..255** linear in throttle. Applying
+    the measured parking rule (upward approaches stop 63 short; downward exact): full
+    throttle renders at **192/255 ≈ 75 %**; the 600 ms crank whir renders at **7/255 ≈
+    2.7 %** (possibly near-inaudible — bench, #57); idle is **path-dependent** (27 after
+    revving up from silence, exactly 90 after lifting off). Still an owner question —
+    intended voicing or off-by-shift? A `>> 6`→rounding fix remains one line *in the
+    read-only repo*. (`05_soundlight_main_integration.md` §4.6.)
+
+## Documentation consistency — new, found by S4 (2026-07-05)
+
+54. **Lights docs/comments lag the `lib/lights` code (four items + one observation).** None is a
+    defect — the code is correct and 9/9 tested; all are doc drift. (a) **`NeverConnected` shows a
+    calm 2 s teal "breathe" on the halo, NOT the amber hazard** (`LightRenderer.cpp:70–81`,
+    pinned by `test_never_connected_is_calm_not_hazard`). Ch07 §5 said hazard "also shown for
+    NeverConnected" and the S1 doc relayed it — **both manual docs corrected** (this one was the
+    *manual's* pre-code inference, not the repo's). The three-state LinkStatus is rendered three
+    ways: breathe / normal / hazard. (b) **"Minimum-on" is not implemented**: both
+    `LightConfig`'s comment ("hysteresis + minimum-on so a flick still completes one blink") and
+    the indicator block's comment ("min-on (one full blink cycle guaranteed…)") promise a
+    persistence timer that does not exist — only the 40/20 hysteresis is real (a flick can light
+    an indicator for one 20 ms frame). (c) **Documented compositor priority vs code order**: the
+    header ranks low-battery ("alert") above the functional layer (brake/indicators/rain), but
+    the code paints low-battery *before* them; moot with the default disjoint segments, would
+    matter for overlapping custom layouts. (d) **`ILedStrip` exists only in documentation** —
+    named by `w17-soundlight-fw/CLAUDE.md`, `README.md`, and `lights_hal_esp32/library.json`,
+    found in no header; `Esp32NeoPixelStrip` is a plain concrete class, and none is needed (the
+    renderer's pure `Rgb[30]` output array is the testability seam). Plus one code observation:
+    the harvest tracker (`lastErsPercent_`) freezes during the hazard/breathe early-returns, so
+    ERS rising during an outage can fire a ≤400 ms **phantom rain flash on recovery** — cosmetic;
+    contrast S2's unconditional `lastGear_` tracking, which guarded the analogous phantom shift
+    blip. Low stakes; repo files read-only, manual corrected.
+    (`04_lights_and_light_hal.md` §3.4, §3.5, §3.8, §4.1, §7.)
+
+## For the bench — new, found by S4 (2026-07-05)
+
+55. **Are the dim light layers visible after the brightness cap + gamma?** Measured (exact
+    integer replication of the LUT + cap pipeline): at the default 110/255 cap with gamma 2.2,
+    the rendered PWM duties are — disarmed halo (kDimWhite) **{1,1,1}**, always-on tail
+    (kDimRed) **{1,0,0}**, NeverConnected breathe peak **{1,3,3}**, armed teal **{0,9,7}**;
+    bright layers land at 40 (brake/amber/white). The quiet layers sit at 0.4–3.5 % duty —
+    plausibly fine at dusk, plausibly invisible in daylight. Bench: judge visibility, retune
+    `maxBrightness`/palette if needed (the power budget has ~5× real headroom, since `valid()`
+    estimates **pre-gamma**: default worst case 510 mA budgeted vs ≈104 mA actual post-gamma
+    hazard draw — conservative in the safe direction, so brightness can rise substantially
+    within budget). Pairs with the strip-layout bench-tune (`Segment` values) and #32's
+    speaker-voicing session. (`04_lights_and_light_hal.md` §3.1, §3.3, §7, §8.4.)
+
+## Documentation consistency — new, found by S5 (2026-07-06)
+
+56. **Five small doc-vs-code drift items around the soundlight composition.** None is a
+    defect; the code is correct, builds, and passes 40/40 — all are wording/metadata lag,
+    and the repo files are read-only so only the manual records them.
+    (a) **The integration test's `volumeFor` helper says it maps volume "the way main.cpp
+    will" — but its constants differ**: test = Cranking 60 / Running 80 + throttle·175/100;
+    `main.cpp` = 70 / 90 + throttle·165/100. Same shape, same endpoints at Off (0) and full
+    throttle (255), different mid-curve — the assertions transfer conceptually, the comment
+    overstates. (b) **`SIMULATION.md` says the CORNERING phase's "indicators sweep L/R"** —
+    but the feeder's `triangle()` returns 0..peak (never negative), so `steeringPercent`
+    sweeps 0→90→0 and **only the positive-side indicator ever lights** in the demo (the
+    left indicator thus has no demo AND no dedicated unit test — see S4 §8.2). (c) The
+    feeder encodes the dropout window twice (the phase ladder's fall-through and `tick`'s
+    own `t >= 11000 && t < 12000`) — consistent today, drift-prone under maintenance.
+    (d) Repo `CLAUDE.md`'s dead-man phrase "volume **ramps** to 0" is implemented as
+    "forced volume target 0 + the synth's per-sample smoother (τ ≈ 2.9 ms, downward-exact)"
+    — a ramp by side effect, not a dedicated mechanism; precision, not error. (e) The
+    platform is pinned tightly (`espressif32 @ ~7.0.1` — deliberate legacy-I2S insurance)
+    while the LED lib floats (`Adafruit NeoPixel @ ^1.12.0`, resolved 1.15.5 this session)
+    — a mild reproducibility asymmetry. Low stakes; no action.
+    (`05_soundlight_main_integration.md` §4.6, §5.2, §6.1, §7.1, §9.)
+
+## For the bench — new, found by S5 (2026-07-06)
+
+57. **Composition-runtime facts no native test can reach (the S5 bench list).**
+    (a) **The audio dead-man has never executed** — `main.cpp` is excluded from every test
+    build, so the `heartbeat > 500 ms → setParams(0,…)` branch is source-verified only.
+    Bench: deliberately wedge the control loop (in a scratch build — NOT in the repo) and
+    confirm the speaker mutes within ~0.6 s (500 ms + ≤70 ms queued audio + smoother). It
+    is the last-resort speaker failsafe; cheapest possible test, highest safety value.
+    (b) **Render CPU cost on-target**: 256 frames must compute in < 11.6 ms on the 240 MHz
+    Xtensa; the Mac harness says far under, the ESP32 is unmeasured. (c) **Legacy-driver
+    `dma_buf_len` unit semantics**: the "~70 ms ring" claim (6 × 256 frames) assumes
+    frames; if the unit is per-channel samples the ring differs by 2× — audible as
+    underruns or extra latency. (d) **Worst-case parameter→speaker latency ≈ 100 ms**
+    (ring ≈70 + block 11.6 + tick 20, INFERRED) — measure once; it sets how "live" the
+    engine feels against the throttle. (e) **Crank-whir audibility**: with #53's parking,
+    the starter renders at ≈2.7 % of full scale for 600 ms — audible at all through the
+    MAX98357A at 9 dB gain? Joins #32's voicing session.
+    (`05_soundlight_main_integration.md` §3.3, §4.7, §9, §11.5.)

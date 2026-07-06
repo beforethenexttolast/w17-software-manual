@@ -43,6 +43,19 @@ matching the handoff's expectation exactly. Behaviours marked **VERIFIED** below
 backed by those runs plus the checksum diff. As always: native tests prove *logic on this
 Mac*, not electrical behaviour on an ESP32.
 
+> **S5-resolution note (2026-07-06,** `05_soundlight_main_integration.md`**):** every
+> "PROVISIONAL until S5" in this doc is now resolved at source+build level. `main.cpp`
+> drains `Serial2` (UART2, 115200 8N1, **RX = GPIO16, TX = −1** — GPIO17 never opened,
+> §2's reserved-ack promise honored) into `monitor.feedByte(byte, millis())` on **every**
+> loop pass, and calls `monitor.poll(millis())` on the 50 Hz control tick — the silent-
+> link-goes-Lost heartbeat is real (§4's contract). `millis()` is the monotonic clock the
+> §5 wraparound analysis assumed. The `Link2MonitorConfig` `static_assert` lives at
+> `main.cpp:29–30`, as predicted (C10-style definition-site assert). Both consumers act
+> on `state()` as designed: `EngineSim` (50 Hz) and `LightRenderer` (~30 Hz) receive the
+> same effective state. **#50 is CLOSED (benign):** both ESP32 envs build SUCCESS and the
+> LDF never resolves the dangling `hal` dep (§1.4). Still bench-only: the physical
+> GPIO25→GPIO16 wire, common ground, 115200 timing (§10).
+
 ---
 
 ## 0. The whole shape — the same wire, seen from the other end
@@ -347,10 +360,14 @@ enum class LinkStatus : uint8_t {
   the NeverConnected vs Lost distinction"*. The two non-Up states mean different things to
   a human looking at the car: `NeverConnected` = "board #1 hasn't spoken yet — maybe still
   booting" (normal for a second or two after power-on); `Lost` = "board #1 *was* talking
-  and stopped" (a real event mid-drive — wire off, board #1 crashed). Chapter 07 §5's
-  hazard layer shows amber for both, but a status LED or debug output can distinguish
-  them, and the tests read the intent directly instead of inferring it from projected
-  field values. **VERIFIED** (enum + comment; the lights' actual use is S4).
+  and stopped" (a real event mid-drive — wire off, board #1 crashed). *(S4 correction,
+  2026-07-05: this paragraph originally relayed ch07 §5's claim that the hazard shows
+  amber for both non-Up states — S4 found the lights render them **differently**:
+  `NeverConnected` gets a calm teal "waiting breathe" on the halo, and only
+  `Lost`/failsafe gets the amber hazard — so the distinction is a first-class visual,
+  not just debug output. See `04_lights_and_light_hal.md` §3.4 + note #54a.)* The tests
+  read the intent directly instead of inferring it from projected field values.
+  **VERIFIED** (enum + comment; the lights' use now VERIFIED by S4).
 
 ### Lines 18–24: `Link2MonitorConfig` — one number, spec-mandated
 

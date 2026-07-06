@@ -141,7 +141,12 @@ npm run demo
 Both firmware repos carry `.github/workflows/ci.yml`: native tests + both ESP32 builds
 on every push (**[C]** ROADMAP B2.1; the control repo's workflow is explained
 line-by-line in C10 §9 — note it builds `esp32dev` + `esp32dev_sim` but **not**
-`esp32dev_tuning`; soundlight's workflow review comes with S5).
+`esp32dev_tuning`; **S5 diffed soundlight's workflow: byte-identical to control's**, so
+C10 §9 covers both — each repo's PlatformIO cache is keyed on its own `platformio.ini`
+hash; open question #46 closed. One soundlight-specific build fact worth knowing from S5:
+its `platformio.ini` pins `platform = espressif32 @ ~7.0.1` **deliberately** — that is
+the last platform line shipping Arduino core 2.0.17 / IDF 4.4, whose legacy `driver/i2s.h`
+the audio HAL depends on; an unpinned platform bump would delete that API).
 The ground station's cross-platform claim is likewise "proven by CI + the pure-core
 tests" (README). Practical meaning for you: if `pio test -e native` and `pio run -e
 esp32dev` pass locally, you've reproduced CI.

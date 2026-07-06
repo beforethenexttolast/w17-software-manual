@@ -35,6 +35,19 @@ plain `nowMs` argument (S1's same clock seam), so tests just pass numbers.
 **VERIFIED** are backed by that run + the source. As always: native tests prove logic on
 this Mac; nothing here proves what the speaker will *sound* like (bench, open q #32).
 
+> **S5-resolution note (2026-07-06,** `05_soundlight_main_integration.md`**):** the §6
+> PROVISIONAL list is resolved. `main.cpp` calls `engine.update(millis(),
+> monitor.state())` on the **50 Hz control tick, on core 1** — the effective-state
+> contract is wired exactly as documented; the `EngineSimConfig` `static_assert` sits at
+> `main.cpp:31–32`. Which fields cross to the audio core (#43): `engineRpm` + the three
+> flags go into the packed word; **`ignition` and `throttlePercent` are folded into the
+> volume byte by `volumeFor()`** (Off→0, Cranking→70, Running→90..255) — so *every*
+> `EngineState` field has a consumer. The Off snap-to-zero is smoothed into a ~3 ms fade
+> by the synth (the click-kill S2 §2.8a deferred to S3/S5). The composed chain
+> (frames→Lost→Off→exact-zero audio) is natively test-executed in `test_integration`.
+> Speaker acoustics remain bench (#32); note the crank whir's *rendered* volume is
+> ≈2.7 % of full scale (#53 × #57).
+
 ---
 
 ## 0. Where this sits in the pipeline

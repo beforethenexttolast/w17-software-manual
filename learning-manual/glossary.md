@@ -33,6 +33,12 @@ tough / easy-but-soft. Assigned per part group by heat + load. (05)
 **Attenuation (ADC, 11 dB)** — input-range setting letting the ESP32 ADC read up to
 ~2.5 V linearly. The divider was sized to fit under it. (03, 05)
 
+**Audio pump / backpressure pacing** — soundlight's core-0 task loop: apply params →
+render 256 frames (~11.6 ms) → `i2s.write`, where the *blocking* write into the DMA ring
+is the only clock — the hardware drains samples at exactly 22,050 Hz, so the loop can't
+run fast or slow ("self-pacing"). No timer, no delay; the blocking also feeds core 0's
+IDLE task, keeping the task watchdog happy. `audioTask` in `main.cpp`. (07, S5)
+
 **Balance charging** — charging a multi-cell LiPo while equalizing each cell's voltage;
 the charger must support 2S balance (BOM open item). (05)
 
@@ -48,6 +54,10 @@ bytes are a raw copy, meaningful only to the same firmware build. (09a)
 
 **Boot arm hold** — `EscOutput` holds neutral ~2 s from the first throttle command so
 the ESC's own arming succeeds; anchored to first use after finding A5. (06, 10)
+
+**Breathe (waiting animation)** — the lights' `NeverConnected` rendering: a calm 2 s
+teal triangle pulse on the halo, everything else dark. Deliberately *not* the hazard —
+"board #1 hasn't spoken yet" is normal at power-on, not an emergency. (07, S4)
 
 **Brownout** — a supply-voltage dip that resets electronics; servo current spikes cause
 it; the 1000 µF rail capacitor prevents it. (03, 05)
@@ -77,6 +87,11 @@ parses a typed line (`get/set/save/load/reset/status/help`) and returns a `Resul
 `ConsoleRunner` does the actual serial I/O and flash storage. Compiled out of the gift firmware
 (`W17_TUNING_CONSOLE`). (09b)
 
+**Compositor (lights)** — building the LED frame in layers, each painting over the last
+(the "painter's algorithm"): base tail+halo → low-battery → brake/rain/indicators, with
+the failsafe hazard and NeverConnected breathe as early-return overrides. Priority = code
+order; whoever paints last wins the pixel. `lib/lights/LightRenderer`. (07, S4)
+
 **Conductor (`main.cpp`)** — the control firmware's composition file: constructs every module,
 injects the pins from `PinMap.hpp`, and schedules all cadences (50/20/10/5 Hz). Wiring and
 scheduling only — no mechanisms of its own; excluded from native tests (`test_build_src = no`),
@@ -88,11 +103,23 @@ Boot-safe defaults (`failsafe = true`) so the first frame can never report a pha
 (09, C10)
 
 **Dead-man (audio)** — soundlight rule: synth params not refreshed ~500 ms ⇒ volume
-ramps to 0. (07)
+ramps to 0. S5 found the implementation: `audioTask` compares `millis()` against the
+heartbeat atomic before every block; if older than exactly 500 ms it forces
+`setParams(0, 0, false, false, false)` — the "ramp" is the synth's own ~3 ms smoother.
+Lives in `main.cpp` (native-excluded), so it has never been test-executed — a priority
+bench check (open q #57). The speaker's third failsafe layer, after link staleness (S1)
+and ignition-off (S2). (07, S5)
 
 **DISARMED gating** — the tuning console refuses all *mutating* commands (`set`/`save`/`load`/
 `reset`) while the car is armed; `get`/`status`/`help` stay allowed. Tuning is a "pit-lane"
 activity — you can inspect a live car but never re-tune it. (09b)
+
+**DMA ring (I2S)** — a chain of buffers that **DMA** (direct memory access — hardware
+copying memory to a peripheral with no CPU work) feeds to the I2S output continuously.
+Soundlight: 6 buffers × 256 frames ≈ 70 ms of queued audio; `i2s_write` blocks until ring
+space frees (see Audio pump), and `tx_desc_auto_clear` makes an underrun play *silence*
+rather than repeating stale samples — fail-quiet at the lowest layer. `Esp32I2sAudio`.
+(07, S5)
 
 **Drive mode** — the ch13 3-position policy wired in `main.cpp`: **0 = Training** (one
 fixed gentle shape {400, 50}; paddles inert to output), **1 = Gearbox** (default — also
@@ -150,12 +177,22 @@ frame *without* emitting edges, so boot can't fire phantom gear shifts. (05, 06)
 
 **Frame (protocol)** — one delimited message on a byte stream. (09)
 
+**Free-running blink** — deriving a blinker's on/off purely from the wall clock
+(`nowMs % period < period/2`) instead of restarting a timer on trigger: all segments
+sharing a period blink in phase, and re-triggering can't reset a half-finished blink.
+The lights' indicators/hazard/rain all use it. (07, S4)
+
 **Fresh-neutral rule** — after *any* disarm or failsafe episode, throttle must be seen
 at neutral again before power flows (closes finding A3). (10)
 
 **Function-local static** — a variable declared `static` inside a function: initialized once
 (the first time execution reaches it) and keeping its value across calls — static storage, not
 the stack. Used for the sim status-print and feeder timestamps. (C10)
+
+**Gamma correction (LED)** — re-mapping brightness values through `out = in^2.2` (a
+256-entry LUT) so *perceived* LED brightness tracks the input linearly (raw PWM looks
+"all bright, no lows" to the eye). Applied after the brightness cap; crushes low inputs
+toward zero — why the dim layers render at 1–3/255 duty (open q #55). (07, S4)
 
 **GitHub Actions (CI)** — the hosted service running `.github/workflows/ci.yml` on every
 push/PR: native tests + the `esp32dev` and `esp32dev_sim` builds (`esp32dev_tuning` is not in
@@ -183,7 +220,8 @@ clip rail. `EngineSynthConfig::valid()` proves the summed partial + noise + whin
 soldering iron so steel bolts bite metal, not plastic. (05)
 
 **Hysteresis** — different thresholds for turning on vs off, preventing chatter: switch
-decode (±250), battery warning (7.0/7.4 V), brake flag. (06, 10)
+decode (±250), battery warning (7.0/7.4 V), brake flag, turn indicators (latch at |steer|
+≥ 40, hold 20–39, self-cancel < 20 — S4). (06, 10, S4)
 
 **I2S** — three-wire digital audio bus (BCLK/LRCLK/DIN) to the MAX98357A amp. (03, 07)
 
@@ -299,7 +337,11 @@ noise bursts. Hard braking counts as a lift (signed math: drop 100−(−100) = 
 **Packed parameter word (cross-core)** — the single `std::atomic<uint32_t>` carrying synth
 params from core 1 to core 0: bits 0–15 engineRpm, 16–23 volume, 24 ersWhine, 25 limiter,
 26 overrun, 27–31 reserved. One aligned 32-bit word = a torn-free, lock-free hand-off. The
-dead-man heartbeat is a *separate* atomic. (07, S3; open q #43) See Phase accumulator.
+dead-man heartbeat is a *separate* atomic. S5 confirmed the word in the flesh
+(`gSynthParams`, `main.cpp`): stored each 50 Hz control tick, re-read before every audio
+block, both ends `memory_order_relaxed` — sufficient because no invariant spans the two
+atomics. Word value 0 decodes to silence, making boot safe by initial value.
+(07, S3, S5; open q #43 — closed) See Phase accumulator, Volume map.
 
 **Parasitic powering** — driving a signal into an unpowered chip leaks current through
 its protection diodes, half-powering it; why the link2 spec warns against driving the
@@ -326,6 +368,11 @@ declares *environments* (`esp32dev` / `esp32dev_sim` / `esp32dev_tuning` / `nati
 **POM (acetal/Delrin)** — slippery, wear-resistant engineering plastic; the spur gear's
 material. (05)
 
+**Power budget (LED)** — `LightConfig::valid()` computes the worst-case strip current
+(all 30 pixels amber at the brightness cap: `(2·20mA·cap)/255 × 30`) and refuses configs
+over 900 mA — electricity rejected at compile time. Estimate is pre-gamma and
+both-channels-full, so ~5× conservative (safe direction). (03, 07, S4)
+
 **Preferences (Arduino)** — the Arduino-ESP32 library wrapping **NVS** as a simple named
 key→blob store; `Esp32NvsStore` uses it to persist the settings blob (namespace `w17tune`, key
 `settings`). Hardware-only; not exercised by native tests. (09b)
@@ -344,6 +391,12 @@ position/throttle. (03)
 
 **Rectilinear (infill)** — straight-line fill pattern; used here only at 100% density.
 (05)
+
+**Rain light (harvest cue)** — the 2-pixel white 4 Hz flash shown while ERS is
+*harvesting* (the real-F1 cue). The frame has no harvest flag, so it's **derived
+locally**: `ersPercent` strictly rising while `driveMode == 2`, remembered for 400 ms
+per rise (first frame only seeds the baseline). Deploying makes the percent *fall* and
+never triggers it. (07, S4)
 
 **Raw struct copy (serialization)** — packing a blob by `memcpy`-ing a struct's whole memory
 image (members + alignment padding) rather than field-by-field. Deterministic only within one
@@ -408,6 +461,14 @@ error. (04)
 **Styrene** — the fume ASA emits while printing; enclosed *and* ventilated printing
 required. (05)
 
+**Task pinning (FreeRTOS)** — creating a task locked to one CPU core
+(`xTaskCreatePinnedToCore`). Soundlight: `audioTask` pinned to core 0 (priority 5,
+4096-**byte** stack — ESP-IDF counts bytes where vanilla FreeRTOS counts words); Arduino's
+`loopTask` (running `setup()`/`loop()`) is created by the framework on core 1, priority 1.
+Priorities compete only within a core. The task watchdog watches only core 0's IDLE task
+(framework default), which is why a never-blocking `loop()` is safe while the audio task
+must block regularly — and does, in `i2s.write`. (07, S5)
+
 **Telemetry backchannel** — car→ground data over the ELRS downlink as standard CRSF
 frames (0x08 battery, 0x02 GPS/speed, 0x21 flight-mode string, 0x14 LQ). (09)
 
@@ -450,9 +511,23 @@ overtake, mode) instead of a physical output wire. Atlas ELEC-04. (05, 06)
 
 **vitest** — the JS test runner in the ground station. (08)
 
+**Volume map (`volumeFor`)** — the 12-line policy in soundlight's `main.cpp` that derives
+the synth's volume byte from the two `EngineState` fields that don't cross the cores:
+`Ignition::Off → 0` (the load-bearing silence path — rpm 0 alone does NOT silence the
+synth), `Cranking → 70`, `Running → 90 + throttle·165/100` (90..255). Glue policy living
+at the composition layer, owned by neither EngineSim nor EngineSynth. Answered open q #43;
+interacts with the smoother's parking quirk (#53): full throttle renders ≈75 %, the crank
+whir ≈2.7 %. (07, S5)
+
 **W17_SIM_CRSF_FEEDER** — the build flag (env `esp32dev_sim`) compiling in the scripted CRSF
 self-feeder + serial narration for Wokwi Stage 2; the whole module vanishes from the real
 firmware. (C10, 11)
+
+**W17_SIM_LINK2_FEEDER** — the build flag (env `esp32dev_sim`, soundlight) compiling in
+`SimLink2Feeder`: a scripted 14 s drive injected through the real assembler+monitor path
+(incl. a true 1 s dropout → staleness → hazard demo), with `[sim] phase:` narration on
+UART0. The whole module vanishes from the real firmware — the soundlight twin of
+W17_SIM_CRSF_FEEDER. (11, S5)
 
 **W17_TUNING_CONSOLE** — the build flag that compiles in the serial tuning console + NVS store
 (`esp32dev_tuning` env). The delivered gift firmware (plain `esp32dev`) is built *without* it —

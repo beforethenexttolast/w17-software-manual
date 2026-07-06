@@ -4,26 +4,43 @@ Status values: `not started` → `explained` → `needs review` (you flagged que
 `reviewed` (you confirmed understanding). Priority = batch order from
 `source_code_explanation_plan.md`. Updated after every batch.
 
-**Last updated: 2026-07-05 — S3 explained (EngineSynth, the synthesizer/DSP).
-`pio test -e native -f test_soundsynth` → 9/9 PASSED, plus a scratchpad harness compiled
-against the real source to measure the integer-truncation subtleties. Full DSP path
-verified: 32-bit phase accumulators → 256-entry ±256 sine table, 6-partial additive stack
-at the firing frequency (5×rpm/60), rpm-scaled xorshift32 noise + 1-in-4 ×3 overrun
-bursts, 3×-pitch ERS whine w/ 23 ms ramp, 18 Hz/50% limiter gate, headroom budget
-(peakSum 24,600 ≤ 30,000; measured peak 17,944), saturating clamp, mono→stereo. **#43
-ANSWERED** (packed word: rpm 0–15 · volume 16–23 · whine/limiter/overrun 24–26). KEY
-FINDINGS: repo CLAUDE.md's "per-rev AM" is NOT in the code and its "throttle-correlated"
-noise is rpm-correlated (new note #52; ch07 §4/§6 corrected); the `>> 6` param smoother
-contradicts its comment and PARKS below target — full volume 255 plays at 192 (~75%),
-volumes 1–63 from silence stay silent (new question #53). Synth has NO throttle/ignition
-input — silence-when-Off must arrive as volume=0 from main.cpp (PROVISIONAL → S5).
-Next: S4 (lights).**
+**Last updated: 2026-07-06 — S5 explained (audio HAL + dual-core main.cpp + SimLink2Feeder
++ test_integration + platformio.ini/ci.yml). THE w17-soundlight-fw EXPLANATION PHASE IS
+COMPLETE (S1–S5 all `explained`; review pass pending, C-batch parity).** Verification:
+`pio test -e native` → **40/40 PASSED** (all six suites incl. test_integration's 2), and
+`pio run -e esp32dev -e esp32dev_sim` → **both SUCCESS** (platform espressif32 7.0.1 /
+Arduino core 2.0.17 / IDF 4.4 — the pinned legacy-I2S world the ini comment promises).
+**#43 FULLY ANSWERED:** main.cpp packs the atomic word each 50 Hz tick; **volume derived by
+`volumeFor()`** — Off→0 (the load-bearing silence path), Cranking→70, Running→90+
+throttle·165/100 (90..255, a continuum). Dead-man real and where predicted: audioTask
+(core 0, prio 5, 256-frame ≈11.6 ms blocks, static 1 KiB buffer, blocking i2s.write =
+self-pacing/backpressure clock) forces setParams(0,…) when the heartbeat is >500 ms old —
+**but main.cpp is native-excluded (test_build_src=no), so dead-man/volumeFor/atomics/task
+wiring are source+build-verified only; the dead-man has never executed anywhere (#57)**.
+Cross-core surface = exactly 2 relaxed `std::atomic<uint32_t>` (audited item-by-item; no
+cross-variable invariant, so relaxed suffices). Both consumers get the SAME
+`monitor.state()`; lights cadence **~30 Hz (33 ms — S4's 50 Hz guess corrected)**;
+render→30×setPixel→show verbatim as S4 presumed; strip.begin()/i2s.begin() (zeroed DMA =
+audio boot-blank) early in setup(); Serial2 RX16/TX−1 (GPIO17 never opened); loop() on
+core 1 per framework (CONFIG_ARDUINO_RUNNING_CORE=1, checked in framework source).
+**ci.yml byte-identical to control's (#46 fully answered). #50 RESOLVED benign** (LDF
+never resolves the dangling `hal` dep — build graph shows no child). #51 confirmed final
+(main.cpp reads no state field itself). **#53 practical impact pinned:** upward volume
+moves park −63 → full throttle ≈75 % rendered, crank whir ≈2.7 % (7/255), idle
+path-dependent 27 vs 90 — owner question stands, audibility → bench. Feeder's 14 s script
+matches SIMULATION.md's phase table (the #48 analogue) with one wording caveat. NEW **#56**
+(doc-consistency: integration test's volumeFor constants ≠ main's despite its comment;
+"indicators sweep L/R" but demo steering never negative; dropout window encoded twice;
+"ramps to 0" = the synth's ~3 ms smoother; NeoPixel dep floats `^` vs pinned platform) and
+**#57** (bench: dead-man wedge test, render CPU cost on-target, DMA buf-unit semantics /
+~70 ms ring, ≈100 ms worst-case param→speaker latency, crank-whir audibility). Next:
+optional S1–S5 review pass, then G1 (ground station).
 
-Prior: S2 explained same day (EngineSim; 9/9; ignition FSM, throttle→rpm map, asymmetric
-inertia; wheel rpm has no consumer on board #2 — note #51; ch07 §3 confirmed exact) and
-S1 (link2 receiver + cross-repo compatibility; 40/40 native; `lib/link2` md5-identical to
-control; C8's cross-repo PROVISIONAL → VERIFIED at source/test level). All C1–C10 remain
-`reviewed`.
+Prior: S4 explained 2026-07-05 (LightRenderer + light HAL; 9/9 + independent gamma/current
+recompute; #54a breathe≠hazard + #54b–d + #55 dim layers), S3 (EngineSynth DSP; 9/9 +
+harness; #43 layout half; #52 doc-lag + #53 smoother parking), S2 (EngineSim; 9/9; wheel
+rpm unconsumed — #51), S1 (link2 receiver; 40/40; copy md5-identical; C8 cross-repo
+PROVISIONAL → VERIFIED). All C1–C10 remain `reviewed`.
 
 Prior milestone: 2026-07-05 — C10 explained + C2 review pass (all C1–C10 `reviewed`;
 147/147 control native tests, all 3 control firmware envs build SUCCESS). The
@@ -358,6 +375,70 @@ Batch log:
   pinning, I2S buffer/cadence, `Esp32I2sAudio`, `test_integration`, config `static_assert` site.
   Bench (#32): whether it *sounds* like an engine on MAX98357A + 3 W speaker; the PCM fallback
   decision this seam exists for.
+- **S4** → `code_explained/soundlight_fw/04_lights_and_light_hal.md`. Ran
+  `pio test -e native -f test_lights` → **9/9 PASSED** (1.18 s), plus an independent script
+  re-computing every gamma-LUT output, rendered-palette value, and power-budget figure.
+  Covered `LightRenderer.{hpp,cpp}` (99+150), `Esp32NeoPixelStrip.{hpp,cpp}` (25+20), both
+  library.jsons, and all 9 tests assertion-by-assertion. The compositor: clear → classify
+  (`localFailsafe = frame.failsafe ‖ Lost`; `neverConnected`) → **early-return breathe**
+  (2 s teal triangle on the halo — NeverConnected is NOT the hazard, test-pinned) →
+  **early-return hazard** (all-30 amber, 2 Hz, both phases pinned; Lost alone suffices even
+  with a clean frame = defense in depth over S1's projection) → base (dim red tail always;
+  halo teal-armed/dim-white-disarmed) → low-battery red triangle pulse on halo (1.6 s,
+  REPLACES arm color; untested in suite) → brake bright-red on `braking` (no local
+  hysteresis — flag pre-filtered by C8's sender) → **rain light** (harvest derived locally:
+  `harvestSeeded_` first-frame baseline, `driveMode == 2`, strict `ersPercent >` rise →
+  stamp; 400 ms window; deploy = falling = never triggers, pinned) → indicators (zone map:
+  ≥40 latch / 20–39 hold = hysteresis / <20 self-cancel; free-running phase-locked 660 ms
+  blink) → cap-then-gamma exit (scale to 110/255 then gamma-2.2 LUT via `__builtin_pow`,
+  float-at-init). **Input surface: exactly 7 VehicleState fields** (failsafe, armed,
+  lowBattery, braking, driveMode, ersPercent, steeringPercent); **NOT read: throttle,
+  reverse, drsOpen, ersDeploying, gear, rpm, batteryMv → no DRS light, no deploy light**
+  (deploy is S3's whine; harvest is the light); zero EngineSim/EngineState/synth coupling
+  (includes = link2 + link2monitor only). Power budget in `valid()`: (2·20·cap)/255 per LED
+  ×30 ≤ 900 mA → default 17×30=510 ✓, cap-255 40×30=1200 ✗ (test-pinned); estimate is
+  pre-gamma + both-channels-full = ~5× conservative (real hazard ≈104 mA). HAL:
+  `NEO_GRB + NEO_KHZ800` (lib handles GRB wire order), `begin()` = begin+clear+show =
+  **boot-blank** (WS2812s power up random — the visual twin of C2's A4), buffer-then-show
+  model (~0.9 ms wire time for 30 px); espressif32-only → excluded from native tests →
+  ALL electrical/visual PROVISIONAL. **NEW note #54** (doc-consistency: (a) ch07 §5 + S1
+  doc said hazard "also for NeverConnected" — corrected to breathe; (b) "minimum-on"
+  promised by two comments, NOT implemented; (c) documented priority (low-battery above
+  functional) vs code order (below) — moot w/ disjoint defaults; (d) `ILedStrip` named in
+  CLAUDE.md/README/library.json but exists nowhere — the Rgb[30] array is the seam; plus
+  observation: harvest tracker freezes during hazard → possible ≤400 ms phantom rain flash
+  on recovery, contrast S2's unconditional `lastGear_`). **NEW question #55** (bench:
+  rendered dim layers = 1–3/255 duty — disarmed halo {1,1,1}, tail {1,0,0}, breathe peak
+  {1,3,3}, teal {0,9,7} — daylight visibility unknown). Suite coverage gaps logged (§8.2:
+  low-battery pulse, breathe shape, left indicator, dim-vs-bright brake step). PROVISIONAL
+  → S5: render cadence, millis() as nowMs, monitor→renderer→HAL plumbing, begin() at boot,
+  static_assert site, GPIO4 injection, core-1 placement.
+- **S5** → `code_explained/soundlight_fw/05_soundlight_main_integration.md`. Verification
+  (2026-07-06): `pio test -e native` → **40/40 PASSED** + `pio run -e esp32dev -e
+  esp32dev_sim` → **both SUCCESS** (espressif32 7.0.1 / core 2.0.17 pinned). Covered
+  `Esp32I2sAudio.{hpp,cpp}` (legacy IDF 4.4 i2s; MASTER|TX, 16-bit, RIGHT_LEFT stereo-
+  duplicated mono, 6×256-frame DMA ring ≈70 ms, tx_desc_auto_clear = underrun→silence,
+  i2s_zero_dma_buffer = audio boot-blank, blocking write = backpressure clock; latency
+  budget ≈100 ms worst-case INFERRED), `main.cpp` (2-atomic cross-core surface, relaxed
+  suffices — no cross-variable invariant; 4 config static_asserts = the deferred sites
+  from S1–S4; static-init order audit; volumeFor Off→0/Crank→70/Run→90..255 **closes
+  #43**; audioTask dead-man >500 ms → setParams(0,…) — source-only, never test-executed;
+  setup order Serial→Serial2(RX16,TX−1)→i2s.begin→strip.begin→xTaskCreatePinnedToCore
+  ("audio", 4096 B, prio 5, core 0); loop = drain-every-pass → 50 Hz control tick
+  (poll→update(state())→pack→heartbeat) → ~30 Hz lights (same state()+status();
+  render→30×setPixel→show)), `SimLink2Feeder` (14 s script **matches SIMULATION.md's
+  table**; 20 Hz emitter; 1 s true dropout; phase-by-pointer narration; steering triangle
+  never negative → only one indicator side demoed, #56b), `test_integration` (2 tests
+  assertion-by-assertion: composed Up→Running→loud (>12000 rpm, peak>3000) then
+  Lost→Off→**exact-zero blocks** + hazard both phases probed at nowMs 0/250; 400-tick
+  churn never hits −32768 rail — near-tautology noted honestly; its volumeFor constants
+  differ from main's, #56a), `platformio.ini` (pin ~7.0.1 = the legacy-I2S insurance;
+  test_build_src=no; lib_ignore ×2), `ci.yml` (**byte-identical to control's** — C10 §9
+  transfers; #46 fully answered). #50 RESOLVED (LDF graph: no hal child). #51 confirmed
+  final. Framework facts checked in installed source: loop()=loopTask prio 1 core 1;
+  task WDT watches IDLE0 only. NEW #56 (doc-consistency ×5) + #57 (bench runtime facts).
+  All PROVISIONAL-until-S5 notes in S1–S4 docs resolved via S5-resolution notes; ch07
+  §§1/5/6/7, ch09 §2.4, ch11 §7 updated. **Soundlight explanation phase COMPLETE.**
 
 ## w17-control-fw
 
@@ -443,15 +524,18 @@ Batch log:
 | `lib/soundsynth/include/.../EngineSynth.hpp` + `src/EngineSynth.cpp` | S3 | explained | §3/§4; phase accumulators + sine table + partial stack + noise/whine/limiter; #43 answered; findings #52/#53 |
 | `lib/soundsynth/library.json` | S3 | explained | §4.8; header-only shape, NO dependencies key (includes nothing outside itself) |
 | `test/test_soundsynth/test_main.cpp` | S3 | explained | §5; 9/9 PASSED; test-strength caveats in §8.2 |
-| `lib/lights/include/.../LightRenderer.hpp` + `src/LightRenderer.cpp` | S4 | not started | |
-| `lib/lights_hal_esp32/include/.../Esp32NeoPixelStrip.hpp` + `src/Esp32NeoPixelStrip.cpp` | S4 | not started | |
-| `test/test_lights/test_main.cpp` | S4 | not started | |
-| `lib/audio_hal_esp32/include/.../Esp32I2sAudio.hpp` + `src/Esp32I2sAudio.cpp` | S5 | not started | |
-| `src/main.cpp` | S5 | not started | dual-core; answers open question #43 |
-| `src/SimLink2Feeder.hpp` + `src/SimLink2Feeder.cpp` | S5 | not started | |
-| `test/test_integration/test_main.cpp` | S5 | not started | frames→audio end-to-end |
-| `platformio.ini` | S5 | not started | |
-| `.github/workflows/ci.yml` | S5 | not started | diff vs control's |
+| `lib/lights/include/.../LightRenderer.hpp` + `src/LightRenderer.cpp` | S4 | explained | §2/§3; layered compositor; breathe≠hazard (#54a); harvest-derived rain light |
+| `lib/lights/library.json` | S4 | explained | §3.10; real deps link2 + link2monitor (both exercised) |
+| `lib/lights_hal_esp32/include/.../Esp32NeoPixelStrip.hpp` + `src/Esp32NeoPixelStrip.cpp` | S4 | explained | §4; Adafruit NeoPixel/RMT; boot-blank begin(); excluded from native (PROVISIONAL); ILedStrip doc-only (#54d) |
+| `lib/lights_hal_esp32/library.json` | S4 | explained | §4.3; espressif32-only; Adafruit NeoPixel ^1.12.0 (only external LED dep) |
+| `test/test_lights/test_main.cpp` | S4 | explained | §5; 9/9 PASSED; coverage gaps in §8.2 |
+| `lib/audio_hal_esp32/include/.../Esp32I2sAudio.hpp` + `src/Esp32I2sAudio.cpp` | S5 | explained | §2/§3; legacy IDF i2s; DMA ring 6×256; zeroed at begin(); excluded from native (PROVISIONAL electrically) |
+| `lib/audio_hal_esp32/library.json` | S5 | explained | §3.4; hardware-only shape; the 8th and last soundlight library.json |
+| `src/main.cpp` | S5 | explained | §4; the conductor — closes #43 (volumeFor); dead-man source-only; no native test (test_build_src=no) |
+| `src/SimLink2Feeder.hpp` + `src/SimLink2Feeder.cpp` | S5 | explained | §5; 14 s script matches SIMULATION.md (#48 analogue); L/R wording caveat (#56b) |
+| `test/test_integration/test_main.cpp` | S5 | explained | §6; 2/2 PASSED; exact-zero silence + hazard probe; volumeFor drift (#56a) |
+| `platformio.ini` | S5 | explained | §7; platform pin ~7.0.1 = legacy-I2S insurance; native exclusion = test_build_src=no + lib_ignore ×2 |
+| `.github/workflows/ci.yml` | S5 | explained | §8; **byte-identical to control's** (#46 fully answered) |
 
 ## w17-ground-station
 
