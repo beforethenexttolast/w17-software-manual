@@ -62,6 +62,10 @@ Flashing notes for when hardware exists:
   caution: the NVS-saved tuning survives the reflash **in flash only** — the plain build
   has **no load path**, so the delivered firmware runs compiled-in defaults (open
   question #49; `code_explained/control_fw/10_main_integration.md` §8).*
+- **⚠️ Never flash `esp32dev_sim` or `esp32dev_tuning` as the gift.** `_sim` compiles in a fake
+  CRSF feeder (the car would ignore the real radio); `_tuning` opens a UART0 console surface.
+  The delivered car is always plain `esp32dev`; reflash it before delivery (D8 Phase 11).
+  Cross-ref: `w17-control-fw/README.md`.
 - Board #2: `cd w17-soundlight-fw && pio run -e esp32dev -t upload`.
 
 ## 4. The tuning console (bench build only)
@@ -140,13 +144,15 @@ npm run demo
 
 Both firmware repos carry `.github/workflows/ci.yml`: native tests + both ESP32 builds
 on every push (**[C]** ROADMAP B2.1; the control repo's workflow is explained
-line-by-line in C10 §9 — note it builds `esp32dev` + `esp32dev_sim` but **not**
-`esp32dev_tuning`; **S5 diffed soundlight's workflow: byte-identical to control's**, so
-C10 §9 covers both — each repo's PlatformIO cache is keyed on its own `platformio.ini`
-hash; open question #46 closed. One soundlight-specific build fact worth knowing from S5:
-its `platformio.ini` pins `platform = espressif32 @ ~7.0.1` **deliberately** — that is
-the last platform line shipping Arduino core 2.0.17 / IDF 4.4, whose legacy `driver/i2s.h`
-the audio HAL depends on; an unpinned platform bump would delete that API).
+line-by-line in C10 §9. It now builds `esp32dev` + `esp32dev_sim` + `esp32dev_tuning` (the
+tuning step was added in audit fix F1/R17a; soundlight's workflow has no tuning env, so the
+two are no longer byte-identical). Each repo's PlatformIO cache is keyed on its own
+`platformio.ini` hash; open question #46 closed. Build fact worth knowing: **both** firmware
+`platformio.ini` files now pin `platform = espressif32 @ ~7.0.1` **deliberately** — that is the
+last platform line shipping Arduino core 2.0.17 / IDF 4.4, whose legacy `driver/i2s.h` the
+soundlight audio HAL depends on **and** whose channel-based LEDC API the control outputs HAL
+depends on; an unpinned bump to core 3.x would delete both. (control-fw pinned in audit fix
+F1/R02.)
 The ground station's cross-platform claim is likewise "proven by CI + the pure-core
 tests" (README). Practical meaning for you: if `pio test -e native` and `pio run -e
 esp32dev` pass locally, you've reproduced CI.
