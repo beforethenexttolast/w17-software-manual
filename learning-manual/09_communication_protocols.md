@@ -134,11 +134,11 @@ unsupported length byte *the moment it arrives* — otherwise a corrupted length
 | 1 | throttlePercent | int8 −100…100 | **what the ESC is actually commanded** — 0 in disarm/failsafe; negative = braking, never reverse |
 | 2 | steeringPercent | int8 −100…100 | for indicators; live even disarmed |
 | 3 | flags | bitfield | bit0 braking (pre-filtered), bit1 reverse (reserved 0), bit2 drsOpen, bit3 armed, bit4 failsafe, bit5 lowBattery, bit6 ersDeploying, bit7 reserved (mask, don't reject) |
-| 4 | gear | 1-based 1…6 | display gear |
+| 4 | gear | 1-based 1…4 | display gear (matches the firmware gearbox numGears=4) |
 | 5–6 | rpm | uint16 LE | **wheel** rpm (≤ ~5000), not engine rpm |
 | 7–8 | batteryMv | uint16 LE | display garnish; the lowBattery *flag* is the authoritative judgment |
 | 9 | ersPercent | 0…100 | frozen (not zeroed) outside ERS mode |
-| 10 | driveMode | 0/1/2 | Training / Gearbox / Gearbox+ERS; unknown → treat as 1 |
+| 10 | driveMode | 0/1/2 | TRAINING / RACE (gearbox) / ERS (gearbox+ERS); unknown → treat as 1 |
 
 ### 2.3 The golden frame, decoded by hand
 
@@ -148,7 +148,7 @@ unsupported length byte *the moment it arrives* — otherwise a corrupted length
 ```
 A5 0B 01 2A E7 4C 03 DC 05 DC 1E 3C 02 CE
 │  │  │  │  │  │  │  │───│ │───│ │  │  └ CRC8 = 0xCE
-│  │  │  │  │  │  │  rpm    batt │  └ driveMode 2 (Gearbox+ERS)
+│  │  │  │  │  │  │  rpm    batt │  └ driveMode 2 (ERS)
 │  │  │  │  │  │  │  =0x05DC     └ ersPercent 0x3C = 60
 │  │  │  │  │  │  │  =1500  =0x1EDC = 7900 mV     ← little-endian: DC 05 → 0x05DC!
 │  │  │  │  │  │  └ gear 3

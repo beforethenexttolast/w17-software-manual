@@ -125,6 +125,8 @@ rather than repeating stale samples — fail-quiet at the lowest layer. `Esp32I2
 fixed gentle shape {400, 50}; paddles inert to output), **1 = Gearbox** (default — also
 what an absent channel decodes to), **2 = Gearbox+ERS**. No raw pass-through by design:
 top gear already *is* full power, and authority stays monotone along the switch. (06, C10)
+The **user-facing labels** (canonical across the HUD, TELEMETRY.md and link2_protocol.md) are
+**TRAINING / RACE / ERS** — i.e. "gearbox" = RACE, "gearbox+ERS" = ERS. (audit R19)
 
 **DRS** — Drag Reduction System; here, a wing flap on an MG90S servo toggled by a
 switch. (01, 06)
