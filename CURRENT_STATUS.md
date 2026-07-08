@@ -14,7 +14,7 @@ _Last updated: 2026-07-09 (from the 2026-07-09 instruction-structure audit)._
 | `w17-control-fw` | `8336caa` | |
 | `w17-ground-station` | `dab3039` | |
 | `w17-soundlight-fw` | `4f25856` | clean |
-| `iPhone_rc` (Codex) | `517cbda` | |
+| `iPhone_rc` (Codex) | `b51ebe0` | AGENTS.md added/committed/pushed |
 | `w17-rc-print-codex` (Codex) | `75b408c` | has existing untracked reports |
 
 > Checkpoints drift as work continues. Re-verify with `git -C <repo> rev-parse --short HEAD`
