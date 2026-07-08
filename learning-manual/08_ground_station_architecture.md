@@ -72,9 +72,14 @@ sources:
 2. **Local simulation:** speed/rpm/ERS are animated from the gamepad inputs using the
    shared feel constants (`shared/feelConstants.js`) so the dash looks alive with no car.
 3. **Real telemetry (when connected):** fields present in the latest `Telemetry`
-   snapshot replace their simulated counterparts; a source silent > 1 s falls back to
-   simulation automatically. **[C]** `docs/TELEMETRY.md` ("All fields optional… falls
-   back… automatically").
+   snapshot replace their simulated counterparts. Link state is *derived on the ground*
+   from link quality + staleness (`shared/linkState.mjs`, audit R01/F2) into four states:
+   **sim** — no source has *ever* been live → "Telemetry: sim", gamepad simulation;
+   **live** — fresh telemetry, LQ > 0; **LINK LOST** — fresh telemetry but `linkQualityPct == 0`
+   (the ground TX still reports link stats after the radio to the car drops); **TELEMETRY LOST**
+   — a *previously-live* source went silent > 1 s → the last real values are held **dimmed**, and
+   the HUD deliberately does **not** silently resume simulated numbers. (`armed`/`failsafe` are
+   demo-only fields the car never transmits.) **[C]** `docs/TELEMETRY.md` "HUD link states".
 
 Why send gear/ERS from the car at all when the HUD could mirror them? Because two
 independent computations drift — a dropped shift edge desyncs the displayed gear from
