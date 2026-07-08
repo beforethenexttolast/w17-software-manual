@@ -10,7 +10,7 @@ _Last updated: 2026-07-09 (from the 2026-07-09 instruction-structure audit)._
 
 | Repo / folder | Checkpoint | Notes |
 |---|---|---|
-| `projects` (manual repo, `w17-software-manual`) | `78ed5d6` | |
+| `projects` (manual repo, `w17-software-manual`) | — | contains this CURRENT_STATUS.md; do not self-record its own exact hash — use `git HEAD` for the current commit |
 | `w17-control-fw` | `2fc2afe` | |
 | `w17-ground-station` | `1f973d3` | |
 | `w17-soundlight-fw` | `f175bce` | clean |
@@ -19,6 +19,10 @@ _Last updated: 2026-07-09 (from the 2026-07-09 instruction-structure audit)._
 
 > Checkpoints drift as work continues. Re-verify with `git -C <repo> rev-parse --short HEAD`
 > before relying on any hash here.
+>
+> `CURRENT_STATUS.md` may record hashes for other repos, but should not try to record the
+> exact hash of the repo that contains it (that would go stale on every commit that touches
+> this file).
 
 ## Hardware gates
 
