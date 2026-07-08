@@ -1,3 +1,7 @@
+> **HISTORICAL / SUPERSEDED HANDOFF.** This is an archived per-session checkpoint, kept for
+> context only. It does not reflect current status. For live status see
+> `../CURRENT_STATUS.md` and `README.md`.
+
 # Soundlight firmware — S5 handoff (2026-07-05)
 
 A single-page checkpoint for starting **S5** (the final soundlight batch) in a fresh

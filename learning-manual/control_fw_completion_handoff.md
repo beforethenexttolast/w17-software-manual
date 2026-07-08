@@ -1,3 +1,7 @@
+> **HISTORICAL / SUPERSEDED HANDOFF.** This is an archived per-session checkpoint, kept for
+> context only. It does not reflect current status. For live status see
+> `../CURRENT_STATUS.md` and `README.md`.
+
 # Control Firmware — Completion Handoff (2026-07-05)
 
 The **w17-control-fw source-code explanation campaign is complete and reviewed** (batches

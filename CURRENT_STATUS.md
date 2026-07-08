@@ -1,0 +1,39 @@
+# W17 Current Status
+
+**This is the only workspace-level file that carries volatile state and commit hashes.**
+Overwrite it in place when state changes; do not append history. Instruction files
+(`CLAUDE.md` / `AGENTS.md`) must not duplicate anything below.
+
+_Last updated: 2026-07-09 (from the 2026-07-09 instruction-structure audit)._
+
+## Checkpoints
+
+| Repo / folder | Checkpoint | Notes |
+|---|---|---|
+| `projects` (manual repo, `w17-software-manual`) | `78ed5d6` | |
+| `w17-control-fw` | `2fc2afe` | |
+| `w17-ground-station` | `1f973d3` | |
+| `w17-soundlight-fw` | `f175bce` | clean |
+| `iPhone_rc` (Codex) | `517cbda` | |
+| `w17-rc-print-codex` (Codex) | `75b408c` | has existing untracked reports |
+
+> Checkpoints drift as work continues. Re-verify with `git -C <repo> rev-parse --short HEAD`
+> before relying on any hash here.
+
+## Hardware gates
+
+- **A1.1–A1.6 software / pre-power validation: COMPLETE.**
+- **A2 no-power bench checklist: committed but NOT EXECUTED.** No measurements recorded; A2
+  is not closed. Canonical checklist:
+  `w17-control-fw/project-review/13_phase_a_a2_no_power_checklist.md`.
+- **Phase B (powered) is BLOCKED** until A2 is filled in, pasted back, reviewed, and approved.
+- Golden rule: ESC motor power stays disconnected until the failsafe + arm chain is proven
+  live (Phase A → B).
+
+## Pending validations
+
+- **Real iPhone ↔ Windows bridge validation: PENDING** (not yet run against the real
+  ground-station repo).
+- **Active iPhone-derived pan/tilt: BLOCKED** behind a separate, reviewed safety milestone.
+  Until then: no iPhone → CRSF, no iPhone → servo/gimbal, firmware stays iPhone-unaware, and
+  the Windows W3 (UDP 5602) receiver is LOG-ONLY.
