@@ -11,9 +11,9 @@ _Last updated: 2026-07-09 (from the 2026-07-09 instruction-structure audit)._
 | Repo / folder | Checkpoint | Notes |
 |---|---|---|
 | `projects` (manual repo, `w17-software-manual`) | — | contains this CURRENT_STATUS.md; do not self-record its own exact hash — use `git HEAD` for the current commit |
-| `w17-control-fw` | `2fc2afe` | |
-| `w17-ground-station` | `1f973d3` | |
-| `w17-soundlight-fw` | `f175bce` | clean |
+| `w17-control-fw` | `8336caa` | |
+| `w17-ground-station` | `dab3039` | |
+| `w17-soundlight-fw` | `4f25856` | clean |
 | `iPhone_rc` (Codex) | `517cbda` | |
 | `w17-rc-print-codex` (Codex) | `75b408c` | has existing untracked reports |
 
