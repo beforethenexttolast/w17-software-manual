@@ -120,7 +120,8 @@ sound/light demo — but it needs a real board + speaker/LEDs to be interesting
 cd w17-ground-station
 npm install
 npm run setup        # repairs Electron if postinstall was blocked; fetches mediamtx v1.9.3
-npm test             # 20 vitest specs
+npm test             # vitest suites — 118 tests as of 2026-07-09 (grew from 20 with
+                     #   the audit F2/F3 + iPhone-bridge W1–W3 work; run it for the live count)
 npm run demo         # the app with replay telemetry — no car, no camera
 npm start            # the real thing (needs the camera pipeline configured)
 npm run build        # package the Windows .exe

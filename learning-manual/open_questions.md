@@ -166,6 +166,14 @@ These mirror the repos' own checklists — listed here so the manual tracks them
     (the env names coincide across repos; each repo's cache is keyed on its own
     `platformio.ini` hash). Every CI step was reproduced locally: 40/40 native + both
     builds SUCCESS. (`05_soundlight_main_integration.md` §8.) **CLOSED.**
+    — **Post-closure drift (2026-07-09):** the audit fixes F1/F3 (2026-07-07/08) ended
+    the byte-identity: control's `ci.yml` now also builds `esp32dev_tuning` (F1/R17a),
+    and **both** repos gained a link2 contract-drift-guard job (F3) — each clones the
+    sibling repo and fails CI if the shared link2 files differ (mirror-direction wording
+    differs per repo). The question itself stays CLOSED — both workflows' contents are
+    known — but the S5-era "byte-identical" phrasing is historical; current description
+    in ch11 §7, drift notes added to ch07 §7 and the S5 doc. The `lib/link2` copy and
+    `docs/link2_protocol.md` remain identical across repos (re-verified 2026-07-09).
 47. The HUD's exact widget-by-widget telemetry-vs-simulation precedence in
     `renderer/hud.js`.
 48. `SimCrsfFeeder.cpp`'s script structure (phase timing table vs implementation).
@@ -345,3 +353,17 @@ These mirror the repos' own checklists — listed here so the manual tracks them
     the starter renders at ≈2.7 % of full scale for 600 ms — audible at all through the
     MAX98357A at 9 dB gain? Joins #32's voicing session.
     (`05_soundlight_main_integration.md` §3.3, §4.7, §9, §11.5.)
+
+## For real-device validation — new, noted 2026-07-09 (post-audit, pre-G-batches)
+
+58. **iPhone-bridge (W1–W3) real-device validation is PENDING.** The ground station
+    gained the iPhone bridge (W1 contract doc, W2 telemetry snapshots out, W3 UDP 5602
+    head-tracking receiver — **LOG-ONLY by safety boundary**: it must never reach CRSF,
+    servos, or the gimbal) with 118/118 vitest tests green on both macOS and Windows
+    (2026-07-09). But **no end-to-end run against a real iPhone has happened** (no
+    device on hand yet), and the first cross-device attempt was blocked by guest-Wi-Fi
+    client isolation (a network limitation, not a bridge bug — see
+    `../CURRENT_STATUS.md`). Until a real-device pass is recorded, the manual must
+    treat W3 as **implemented + unit-tested, not validated** — and never as complete.
+    The manual's own iPhone-bridge chapter is deliberately not written yet; this entry
+    is the placeholder so the gap isn't lost. [C] source: `CURRENT_STATUS.md` 2026-07-09.

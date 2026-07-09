@@ -1,4 +1,10 @@
-# Manual Standardization Audit — after C10 (2026-07-05)
+# Manual Standardization Audit
+
+> **Latest pass: 2026-07-09 — see §7** (post-S5, post-audit-F1–F4 standardization
+> sweep; §§1–6 below are the 2026-07-05 after-C10 audit, kept as the dated record —
+> read their verdicts as "as of C10").
+
+## After C10 (2026-07-05)
 
 Scope: the 12 overview chapters (Standard A) + all completed control-fw code-explained
 docs (Standard B). Method: every chapter read in full this session; code-explained docs
@@ -132,7 +138,7 @@ the top of batch docs 04–08, and open questions #34b/#45/#46/#48/#49.)
 - Open questions #43, #46 (soundlight half), #47, #48-adjacent sim-run items (#35–39
   are hardware/Wokwi, not batch work).
 
-## 6. Bottom line
+## 6. Bottom line (as of 2026-07-05)
 
 **The control-firmware manual is internally consistent and ready to continue.** Every
 chapter now agrees with the C1–C10 deep dives; every C10-resolved PROVISIONAL is
@@ -141,3 +147,105 @@ still loads NVS tuning") is corrected at every occurrence and tracked as design 
 #49; chapters and batches are cross-linked both ways. The one outstanding quality item —
 the **C2 review pass** — is now **done** (2026-07-05; a servo-`static_assert` overclaim
 was the one fix, and all C1–C10 batches are `reviewed`). Nothing blocks starting **S1**.
+*(S1–S5 have since been completed — see §7.)*
+
+---
+
+## 7. Standardization pass — 2026-07-09 (post-S5, post-audit-F1–F4)
+
+Context since §§1–6: the soundlight explanation phase completed (S1–S5, 2026-07-06);
+the source repos then received the **skeptical-audit fix round F1–F4** (2026-07-07/08),
+iPhone-bridge work **W1–W3** (ground station), a **rewritten `w17-control-fw/CLAUDE.md`**
+(2026-07-09), and hardware-gate documentation (A2 checklist committed, NOT executed;
+Phase B blocked — `../CURRENT_STATUS.md`). This pass re-checked the manual against the
+current repos and applied bounded consistency patches.
+
+### 7.1 Facts re-verified against the repos this pass
+
+- The two firmware `ci.yml` files **differ** (diff run 2026-07-09): control builds
+  `esp32dev_tuning` (F1/R17a); both carry a link2 contract-drift-guard job (F3).
+- The `lib/link2` copy (4 shared files) **and** `docs/link2_protocol.md` remain
+  **identical** across the two firmware repos post-F4 (md5 compared) — the do-not-fork
+  discipline holds; S1's cross-repo conclusions stand.
+- Control native tests still **147** (RUN_TEST count; F4's commit records 147/147 pass).
+- Ground station: **118 vitest tests / 8 suites** (was 20/7) and 7 new source files
+  from F2/F3 + W1–W3. `w17-ground-station` inventory in the plan/progress files marked
+  stale (re-inventory gate before G1).
+- Ch09's link2 payload table already matches F4's doc alignment (gear 1…4;
+  TRAINING/RACE/ERS labels) — no drift there.
+
+### 7.2 Patches applied this pass (2026-07-09)
+
+1. `00_START_HERE.md` — S1–S5 marked complete in both status bullets; 2026-07-09 status
+   update (audit F1–F4 + W1–W3 exist; audit/iPhone manual chapters deliberately not yet
+   written; A2 committed-not-executed / Phase B blocked; source/build/test ≠ hardware
+   proof); global citation caveat for the rewritten control `CLAUDE.md`.
+2. `02_repository_map.md` — soundlight deep-dive pointer block added (parity with the
+   control section's); ground-station tree annotated with the 2026-07-09 inventory note
+   (new F2/F3+W files, 118 tests, W3 log-only + validation pending).
+3. `05_control_firmware_documentation_explained.md` — §10 update note: the founding
+   brief was rewritten as a maintenance guide; §N citations refer to the pre-rewrite
+   revision.
+4. `07_soundlight_firmware_architecture.md` — §7 update note: ci.yml byte-identity
+   ended by F1/F3 (link2 copy still identical).
+5. `10_algorithms_state_machines_timing.md` — §6 recap now carries the two standing
+   warnings inline: silence = `volume 0` (not rpm 0), and the dead-man branch has
+   **never executed anywhere** (bench #57).
+6. `11_build_flash_debug_workflow.md` — ground-station test count 20 → 118 (dated).
+7. `glossary.md` — added **HUD link states** (sim/live/LINK LOST/TELEMETRY LOST), the
+   audit-F2 concept ch08 already teaches.
+8. `open_questions.md` — #46 post-closure drift note; new **#58** (iPhone-bridge W1–W3
+   real-device validation PENDING; W3 log-only; treat as implemented+unit-tested, not
+   validated).
+9. `source_code_progress.md` — repo-drift note at top (ci.yml divergence; F4-touched
+   files; CLAUDE.md rewrite; link2 copies still identical; G inventory stale; statuses
+   unchanged).
+10. `source_code_explanation_plan.md` — G-repo stale-inventory note (re-verify before
+    G1; new files need batch placement).
+11. `code_explained/soundlight_fw/05_soundlight_main_integration.md` — post-batch drift
+    note at top (byte-identical ci.yml claim historical; protocol conclusions stand).
+
+### 7.3 Standing warnings spot-checked (all still present where relevant)
+
+- Silence means `volume = 0`, not `rpm = 0` — ch07 §6, glossary (Volume map), S3/S5
+  docs, now also ch10 §6.
+- The soundlight dead-man has **never executed** in any test — ch07 §6, glossary
+  (Dead-man), S5 doc, #57, now also ch10 §6.
+- 40/40 green does **not** cover `main.cpp` dead-man runtime behavior
+  (`test_build_src = no`) — ch07 §1/§6, S5 doc, progress file.
+- Soundlight bench wedge-test still required — #57(a).
+- Source/build/test confidence ≠ hardware proof — 00 status, ch03/ch11 [A] blocks,
+  hardware-gate wording (A2 not executed, Phase B blocked).
+- Audit F1–F4 fixes exist but hardware-validation gates remain separate — 00 status,
+  `CURRENT_STATUS.md`.
+- iPhone bridge W3 pending unless proven — #58, ch02 note.
+
+### 7.4 Remaining issues (recorded, NOT fixed this pass)
+
+1. **~37 "`CLAUDE.md` §N" citations across 16 files** (ch01/02/03/04/05/10/11 + eight
+   control-fw batch docs) now point at section numbers that no longer exist in the
+   rewritten file. Mitigated by the global caveat in `00_START_HERE.md` and notes in
+   ch05/progress; a per-citation re-anchor (or "(pre-rewrite)" suffix) is a follow-up
+   decision — recommend leaving as-is, since the underlying facts were code-verified in
+   C1–C10 and the old revision is in git history.
+2. **S1–S5 review pass** still pending (C-batch parity) — unchanged from the S5 close.
+3. **Skeptical-audit (F1–F4) manual chapter not written** — deliberately out of scope
+   this pass; when written, it should also absorb the per-fix references now scattered
+   in ch08 §3 (R01/F2), ch11 §7 (F1/R02, F1/R17a), and the glossary (R19).
+4. **iPhone-bridge (W1–W3) manual chapter not written** — out of scope; gated on #58's
+   validation status staying honestly "pending".
+5. **G1–G4 re-inventory** before the ground-station campaign starts (§7.1).
+6. Batch-doc line-number references into F4-touched files (control `main.cpp`,
+   `ChannelDecoder.hpp`, `Link2Frame.hpp`) may be off by a few lines — harmless;
+   re-check opportunistically during the next review pass, not worth a sweep.
+7. Older batch docs (C1–C8) still use the pre-close-out structure — accepted stylistic
+   drift (unchanged verdict from §2).
+
+### 7.5 Bottom line (2026-07-09)
+
+The manual is consistent with the repos as of audit-F4 + W3: no file claims hardware
+proof, W3 completion, or ci.yml identity anymore; the S-batch campaign is fully
+reflected; unfinished work (S review pass, audit + iPhone chapters, G re-inventory) is
+tracked here and in `open_questions.md` rather than implied done. Next recommended
+batch: **G1 after re-inventory**, or the **audit F1–F4 chapter** if narrative freshness
+matters more than campaign order.

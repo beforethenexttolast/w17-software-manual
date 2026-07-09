@@ -237,8 +237,13 @@ engine on the real speaker," LED power budget).
 > seamlessly (armed across the wrap — no re-crank per lap). One wording caveat (open q
 > **#56b**): the CORNERING steering triangle never goes negative, so only one indicator
 > side is actually demonstrated despite "indicators sweep L/R." Also confirmed: `ci.yml`
-> is **byte-identical** to the control repo's (#46 closed), and the copied link2
-> `library.json`'s dangling `hal` dep is inert in all environments (#50 closed).
+> was **byte-identical** to the control repo's at S5 time (#46 closed), and the copied
+> link2 `library.json`'s dangling `hal` dep is inert in all environments (#50 closed).
+> *(Update 2026-07-09 [C]: the audit fixes F1/F3 — 2026-07-07/08 — ended the
+> byte-identity: control's `ci.yml` now also builds `esp32dev_tuning`, and both repos
+> gained a link2 contract-drift-guard job that clones the sibling repo; the `lib/link2`
+> copy itself and `docs/link2_protocol.md` remain identical across the repos, so the
+> do-not-fork discipline holds. See chapter 11 §7 and open question #46.)*
 
 ## Confirmed vs inferred
 

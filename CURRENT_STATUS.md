@@ -4,7 +4,8 @@
 Overwrite it in place when state changes; do not append history. Instruction files
 (`CLAUDE.md` / `AGENTS.md`) must not duplicate anything below.
 
-_Last updated: 2026-07-09 (from the 2026-07-09 instruction-structure audit)._
+_Last updated: 2026-07-09 (instruction-structure audit; then bridge-validation session —
+Windows GS host stood up, network client-isolation finding recorded)._
 
 ## Checkpoints
 
@@ -36,8 +37,19 @@ _Last updated: 2026-07-09 (from the 2026-07-09 instruction-structure audit)._
 
 ## Pending validations
 
-- **Real iPhone ↔ Windows bridge validation: PENDING** (not yet run against the real
-  ground-station repo).
+- **Real iPhone ↔ Windows bridge validation: PENDING (in progress).**
+  - **Windows GS host stood up (2026-07-09):** fresh clone of `w17-ground-station` at
+    checkpoint `dab3039`, `npm install` done, `npm test` green (118/118) on Windows —
+    identical to macOS. No source/schema/firmware/dependency drift.
+  - **Blocker — network client isolation:** the office guest Wi-Fi (`SE-Guest`, Public
+    profile) isolates clients — laptop↔laptop ping fails both ways — so direct LAN UDP for
+    W2/W3 cannot pass. Real cross-device validation needs a **non-isolated** network; this
+    is a network limitation, not a bridge bug.
+  - **Approach:** spare-phone (Android) Mobile Hotspot now; **Ralink RT5370 USB Wi-Fi as a
+    PC-hosted SoftAP** as the permanent bench network (ordered — AP-mode support on Win
+    10/11 to be verified on arrival); FPV **camera AP** for a later field-representative
+    pass. Gate every attempt on a peer-to-peer ping before any UDP test.
+  - Not yet run end-to-end against a real iPhone (no device on hand yet).
 - **Active iPhone-derived pan/tilt: BLOCKED** behind a separate, reviewed safety milestone.
   Until then: no iPhone → CRSF, no iPhone → servo/gimbal, firmware stays iPhone-unaware, and
   the Windows W3 (UDP 5602) receiver is LOG-ONLY.

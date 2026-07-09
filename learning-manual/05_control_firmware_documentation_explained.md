@@ -903,6 +903,15 @@ priorities (§6), bench wiring notes (§7), first-deliverable scope (§8). Writt
 ROADMAP + code (examples: link2 payload grew from §2.7's sketch; `CrsfReceiver` arrived
 late as A13's fix; "Direct mode" dropped in B2.2). **[C/I]** as in §1.
 
+> **Update 2026-07-09 [C]:** that founding brief no longer exists in the working tree —
+> `w17-control-fw/CLAUDE.md` was **rewritten as a maintenance guide** (commit `8336caa`,
+> "replace stale day-1 build brief with firmware maintenance guidance"; unnumbered
+> sections: modules, pin-map pointer, architecture rules, test philosophy, safety
+> priorities, hardware gates, iPhone/pan-tilt boundary). The description above, and every
+> "`CLAUDE.md` §N" citation in this manual, refers to the **pre-rewrite revision**
+> (recoverable via git history). The rewrite states it changed no source behavior; the
+> facts the manual took from the old file were re-verified against code in C1–C10.
+
 **`docs/f1_hud.html` — the HUD design mockup.** A standalone Mercedes-palette dashboard
 over a placeholder video background. **[I]** The design prototype for
 `w17-ground-station/renderer/` — and quietly a *numbers contract*: `lib/ers/

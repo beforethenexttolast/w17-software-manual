@@ -75,6 +75,17 @@ manual chapters (03 = electronics, 04 = embedded C++, 07–10 = domain chapters)
 
 ### Repo 3: w17-ground-station (batches G1–G4)
 
+> **Inventory stale (noted 2026-07-09):** the tables below reflect the 2026-07-03 tree.
+> The audit fixes (F2/F3) and the iPhone-bridge work (W1–W3, 2026-07-07/08) added files
+> not yet batched — `shared/linkState.mjs`, `shared/telemetrySnapshot.js`,
+> `shared/headTracking.js`, `main/HeadTrackingReceiver.js`,
+> `main/IphoneTelemetryBridge.js`, `main/headTrackingConfig.js`,
+> `main/iphoneBridgeConfig.js`, plus new test suites (total now 118 vitest tests across
+> 8 suites, was 20). **Re-verify this inventory (wc -l per file) and decide the batch
+> placement of the new files before starting G1** — likely G1/G2 grow, or a G5/W-batch
+> is added for the bridge (which also depends on the not-yet-written iPhone-bridge
+> manual chapter). Line counts below for pre-existing files may also have drifted.
+
 | Batch | Files (lines) | Difficulty | Required concepts |
 |---|---|---|---|
 | **G1 — Shared pure core (JS)** | `shared/telemetry.js` (43) · `feelConstants.js` (13) · `crsf.js` (165) · `crsfAssembler.js` (45) · `crsfTelemetry.js` (45) · `test/crsf.test.js` (96) · `test/crsfTelemetry.test.js` (79) | ★★★ | JS-for-C++-readers primer (will open the batch doc: `const/let`, objects, modules, Buffer/DataView); ch09 (same protocol, third implementation — a great re-test of protocol understanding) |

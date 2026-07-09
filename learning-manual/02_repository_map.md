@@ -116,6 +116,9 @@ Same pattern, smaller:
 | `lib/audio_hal_esp32` | `Esp32I2sAudio` | I2S output @ 22,050 Hz to the MAX98357A |
 | `lib/lights_hal_esp32` | `Esp32NeoPixelStrip` | WS2812 via the Adafruit NeoPixel library |
 
+> Every library above now has a **line-by-line deep dive** in `code_explained/soundlight_fw/`
+> (batches S1–S5; the file↔batch map is in `source_code_progress.md`).
+
 `src/main.cpp` (142 lines) is special: it splits work across the ESP32's **two CPU
 cores** — control logic on core 1, audio rendering on core 0 — sharing exactly one
 atomic 32-bit word + a heartbeat (chapter 07). `src/SimLink2Feeder.{hpp,cpp}` scripts a
@@ -148,9 +151,20 @@ w17-ground-station/
 │   └── feelConstants.js  ERS feel numbers shared with the firmware
 ├── mediamtx/mediamtx.yml pinned server config (camera RTSP URL goes here)
 ├── scripts/              run/setup helpers (Electron repair, mediamtx download)
-├── test/                 20 vitest specs (reuse the firmware's golden vectors)
+├── test/                 vitest suites (reuse the firmware's golden vectors)
 └── docs/                 SETUP.md (bench risks), TELEMETRY.md (contract), CODESIGNING.md
 ```
+
+> **Inventory note (2026-07-09):** the tree above shows the repo as explained so far by
+> the manual. The skeptical-audit fixes (F2/F3) and the iPhone-bridge work (W1–W3,
+> 2026-07-07/08) added files not yet covered here — e.g. `shared/linkState.mjs`,
+> `shared/telemetrySnapshot.js`, `shared/headTracking.js`,
+> `main/HeadTrackingReceiver.js`, `main/IphoneTelemetryBridge.js` — and grew the test
+> suite from 20 to **118 vitest tests** (verified on two machines, 2026-07-09). The
+> W3 head-tracking receiver is **LOG-ONLY by safety boundary** (it must never reach
+> CRSF, servos, or the gimbal) and its real-device validation is **still pending**.
+> These files get their manual coverage in a future batch; the G1–G4 inventory will be
+> re-verified first (`source_code_explanation_plan.md`).
 
 ## 5. Who owns what (cross-repo relationships)
 

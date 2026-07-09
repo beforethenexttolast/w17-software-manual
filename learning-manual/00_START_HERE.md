@@ -35,8 +35,10 @@ Support files, used from any chapter:
 - [glossary.md](glossary.md) — every term, alphabetical
 - [open_questions.md](open_questions.md) — things only the project owner can confirm
 - `code_explained/` — the **line-by-line source-code deep dives**. Control firmware
-  complete: batches C1–C10 in `code_explained/control_fw/` (with beginner concept-notes
-  companions for C9a/C9b/C10). Status: [source_code_progress.md](source_code_progress.md);
+  complete + reviewed: batches C1–C10 in `code_explained/control_fw/`; sound/light
+  firmware explanation complete: batches S1–S5 in `code_explained/soundlight_fw/`
+  (review pass pending). Beginner concept-notes companions exist for C9a/C9b/C10 and
+  S1–S5. Status: [source_code_progress.md](source_code_progress.md);
   inventory/order: [source_code_explanation_plan.md](source_code_explanation_plan.md)
 - `plan/` — the original study plan (historical; superseded by these chapters)
 
@@ -50,8 +52,13 @@ Support files, used from any chapter:
 - Each chapter ends with **Questions to check your understanding** (answers are always
   derivable from that chapter; no trick questions).
 - Chapters describe architecture and behavior. **Line-by-line code walkthroughs live in
-  `code_explained/`** — the control firmware's ten batches (C1–C10) are complete; the
-  sound/light (S1–S5) and ground-station (G1–G4) repos are next.
+  `code_explained/`** — the control firmware's ten batches (C1–C10) and the sound/light
+  firmware's five (S1–S5) are complete; the ground-station repo (G1–G4) is next.
+- Citation caveat: `w17-control-fw/CLAUDE.md` was **rewritten 2026-07-09** as a
+  maintenance guide without the old §0–§8 numbering. Manual references of the form
+  "`CLAUDE.md` §N" point at the **pre-rewrite revision**; the underlying facts were
+  independently re-verified against source in C1–C10, so the claims stand — only the
+  section anchors are historical. (Tracked in `manual_standardization_audit.md`.)
 
 ## Verify your environment (10 minutes, no hardware needed)
 
@@ -79,3 +86,16 @@ Gift deadline: **2026-07-21**.
 complete (C1–C10, `code_explained/control_fw/`) — verified against 147/147 native tests
 and all three firmware builds. One notable finding: the delivered gift build does **not**
 load NVS-saved tuning (open question #49). Hardware status unchanged.
+
+**Update 2026-07-09:** the sound/light explanation campaign is complete (S1–S5,
+`code_explained/soundlight_fw/`, 2026-07-06; 40/40 native tests + both firmware builds
+— review pass pending). Since then the source repos received a **skeptical-audit fix
+round (F1–F4, 2026-07-07/08)** and iPhone-bridge work (W1–W3, ground station) — both
+documented in the repos themselves; the manual's audit/iPhone chapters are **not yet
+written** (deliberately deferred). Two consequences already reflected here: the two
+firmware `ci.yml` files are **no longer byte-identical** (chapter 11 §7), and
+`w17-control-fw/CLAUDE.md` was rewritten (see the citation caveat above). Hardware
+state (per `../CURRENT_STATUS.md`): software/pre-power validation A1.1–A1.6 complete;
+the **A2 no-power bench checklist is committed but NOT executed**; powered bring-up
+(Phase B) stays blocked behind it. **Source/build/test evidence is still not hardware
+proof** — nothing has been proven on powered hardware.

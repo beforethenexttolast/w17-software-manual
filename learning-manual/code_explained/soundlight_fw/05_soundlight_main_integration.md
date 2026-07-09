@@ -1,5 +1,15 @@
 # S5 — main.cpp Integration: Audio HAL, the Dual-Core Conductor, the Sim Feeder, and the Build
 
+> **Post-batch drift note (2026-07-09) [C]:** this document describes the repos as of
+> 2026-07-06. The audit fix round F1/F3 (2026-07-07/08) has since ended the
+> "byte-identical `ci.yml`" fact asserted below (headline 4, scope table, §8): control's
+> workflow now also builds `esp32dev_tuning`, and **both** repos gained a link2
+> contract-drift-guard CI job (each clones the sibling repo and fails if the shared
+> link2 files differ). The `lib/link2` copy and `docs/link2_protocol.md` themselves
+> remain identical across the repos (re-verified 2026-07-09), so every *protocol*
+> conclusion in this document stands. Current CI description: chapter 11 §7; tracking:
+> open question #46.
+
 **Batch S5 of the source-code campaign** (see `../../source_code_explanation_plan.md`) —
 the **final soundlight batch**, the one that closes the `w17-soundlight-fw` explanation
 phase. Every module from S1–S4 was pure logic with its wiring deliberately deferred;

@@ -140,7 +140,11 @@ simulated dash and the real car *feel* the same.
 Chapter 07 covers them in context: `Link2Monitor`'s
 NeverConnected→Up→Lost with per-field staleness projection; `EngineSim`'s
 Off→Cranking(600 ms)→Running ignition with asymmetric rpm inertia, blips, limiter and
-overrun windows; the audio dead-man (params stale ~500 ms ⇒ volume ramp to 0).
+overrun windows; the audio dead-man (params stale > 500 ms ⇒ forced `volume = 0` —
+note silence on board #2 is always *volume* 0, not rpm 0; rpm 0 alone does not silence
+the synth). Honest scope: the dead-man branch lives in soundlight's `main.cpp`, which
+no test build compiles, so it has **never executed anywhere** — a priority bench check
+(open question #57; chapter 07 §6).
 
 ## 7. Timing architecture — the patterns that tie it together
 

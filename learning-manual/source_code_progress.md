@@ -4,6 +4,26 @@ Status values: `not started` → `explained` → `needs review` (you flagged que
 `reviewed` (you confirmed understanding). Priority = batch order from
 `source_code_explanation_plan.md`. Updated after every batch.
 
+> **Repo-drift note (2026-07-09).** The batch entries below are dated records — they
+> describe the repos as of each batch's session. Since S5 (2026-07-06) the source repos
+> received the **skeptical-audit fixes F1–F4** (2026-07-07/08) and iPhone-bridge work
+> W1–W3 (ground station). Effects on this file's claims:
+> - **"ci.yml byte-identical to control's" is no longer true** (F1 added the tuning
+>   build to control's; F3 added a link2 drift-guard job to both). #46 stays closed;
+>   drift notes added to ch07 §7, the S5 doc, and open question #46. ch11 §7 is current.
+> - Explained files touched by the audit (comment/doc alignment only, no behavior:
+>   control `main.cpp`, `ChannelDecoder.hpp`, `Link2Frame.hpp`, `link2_protocol.md` —
+>   F4; `w17-control-fw/CLAUDE.md` **rewritten** 2026-07-09 as a maintenance guide, so
+>   "`CLAUDE.md` §N" citations in batch docs refer to the pre-rewrite revision). Line
+>   numbers cited in batch docs may be off by a few lines for these files. 147/147
+>   control tests still pass post-F4 (per the F4 commit's own validation note).
+> - The `lib/link2` copy + `docs/link2_protocol.md` remain **identical across the two
+>   firmware repos** (re-verified 2026-07-09) — S1's cross-repo conclusion stands.
+> - The **G1–G4 inventory below is stale**: audit F2/F3 + W1–W3 added ground-station
+>   files and grew the suite to 118 vitest tests (was 20). See the stale-inventory note
+>   in `source_code_explanation_plan.md`; re-inventory before starting G1.
+> - Statuses (`reviewed`/`explained`) are unchanged — no explained logic changed.
+
 **Last updated: 2026-07-06 — S5 explained (audio HAL + dual-core main.cpp + SimLink2Feeder
 + test_integration + platformio.ini/ci.yml). THE w17-soundlight-fw EXPLANATION PHASE IS
 COMPLETE (S1–S5 all `explained`; review pass pending, C-batch parity).** Verification:

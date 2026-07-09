@@ -221,6 +221,14 @@ clip rail. `EngineSynthConfig::valid()` proves the summed partial + noise + whin
 **Heat-set insert** — brass threaded insert melted into printed plastic with a
 soldering iron so steel bolts bite metal, not plastic. (05)
 
+**HUD link states (sim / live / LINK LOST / TELEMETRY LOST)** — the ground station's
+four-way telemetry-health display, derived on the ground from link quality + staleness
+(`shared/linkState.mjs`, added by audit fix F2): **sim** = no source ever live (gamepad
+simulation shown), **live** = fresh telemetry with LQ > 0, **LINK LOST** = fresh
+telemetry but `linkQualityPct == 0` (the ground TX still reports stats after the radio
+link to the car drops), **TELEMETRY LOST** = a previously-live source silent > 1 s
+(last real values held dimmed — the HUD never silently resumes simulated numbers). (08)
+
 **Hysteresis** — different thresholds for turning on vs off, preventing chatter: switch
 decode (±250), battery warning (7.0/7.4 V), brake flag, turn indicators (latch at |steer|
 ≥ 40, hold 20–39, self-cancel < 20 — S4). (06, 10, S4)
