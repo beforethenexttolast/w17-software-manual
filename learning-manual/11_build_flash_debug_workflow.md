@@ -158,8 +158,13 @@ soundlight audio HAL depends on **and** whose channel-based LEDC API the control
 depends on; an unpinned bump to core 3.x would delete both. (control-fw pinned in audit fix
 F1/R02.)
 The ground station's cross-platform claim is likewise "proven by CI + the pure-core
-tests" (README). Practical meaning for you: if `pio test -e native` and `pio run -e
-esp32dev` pass locally, you've reproduced CI.
+tests" (README). Its own `.github/workflows/ci.yml` (read 2026-07-09; line-by-line in
+batch G4) has two jobs: `npm test` on Ubuntu (the 118 vitest tests), plus a **Windows
+packaging smoke** added by audit fix F2 (R17b/R03) — rebuild `serialport` against
+Electron's ABI, then an unpacked `electron-builder --dir` build, proving the deliverable
+`.exe` actually packages (no installer, no signing, no publish). Practical meaning for
+you: if `pio test -e native`, `pio run -e esp32dev`, and `npm test` pass locally, you've
+reproduced CI (minus that Windows packaging job unless you're on Windows).
 
 ## 8. Debugging techniques this project is built for
 

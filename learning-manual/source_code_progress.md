@@ -22,12 +22,42 @@ Status values: `not started` → `explained` → `needs review` (you flagged que
 >   control tests still pass post-F4 (per the F4 commit's own validation note).
 > - The `lib/link2` copy + `docs/link2_protocol.md` remain **identical across the two
 >   firmware repos** (re-verified 2026-07-09) — S1's cross-repo conclusion stands.
-> - The **G1–G4 inventory below is stale**: audit F2/F3 + W1–W3 added ground-station
->   files and grew the suite to 118 vitest tests (was 20). See the stale-inventory note
->   in `source_code_explanation_plan.md`; re-inventory before starting G1.
+> - ~~The **G1–G4 inventory below is stale**~~ — **RESOLVED 2026-07-09**: the G0
+>   re-inventory ran (`wc -l` per file; the old table matched the 2026-07-03 tree at
+>   `b5ed803` exactly), the plan's Repo-3 section was rewritten (now batches G1–G5b),
+>   and the table below reflects the current tree at `dab3039`.
 > - Statuses (`reviewed`/`explained`) are unchanged — no explained logic changed.
 
-**Last updated: 2026-07-06 — S5 explained (audio HAL + dual-core main.cpp + SimLink2Feeder
+**Last updated: 2026-07-09 — G0 re-inventory + G1 explained** (`code_explained/
+ground_station/01_shared_pure_core.md` — the manual's first JS batch, with the
+JS-for-C++-readers primer). Verification: `npx vitest run test/crsf.test.js
+test/crsfTelemetry.test.js test/linkState.test.js` → **32/32 PASSED** (13+10+9), and
+the full suite → **118/118 PASSED** (8 files, 347 ms). Covered: `TelemetrySource`
+observer seam + the Telemetry typedef (armed/failsafe demo-only, audit R01);
+`feelConstants` (values re-checked against C6's ErsConfig: 26/11/1.18 ✓, GEARS 4 =
+audit R05; drift-guard test covers 3 of 5 constants → #59a); `crsf.js` (CRC-8/0xD5
+fourth implementation, KAT 0xBC re-run + golden battery CRC 0x4E independently
+re-computed via node; big-endian decoders; toInt8; parseFlightMode regex; decodeFrame
+sync→length→CRC order matches C3); `crsfAssembler` (compared side-by-side with the
+firmware `CrsfFrameAssembler.cpp` this session — same 64-byte bound, length guard,
+CRC span, no-rewind resync; JS folds decode into assembly); `crsfTelemetry` mapper
+(RSSI sign flip 75→−75; GPS keeps only speedKmh; unparseable flightmode → null, not
+{}); `linkState.mjs` (audit F2/R01 — four states, precedence sim→telemetry-lost→
+link-lost→live, inclusive ≥1000 ms edge, strict `=== 0` so missing LQ ≠ link-lost;
+stickiness lives in the caller's everLive latch); `crsf_golden.json` (audit F3/R07 —
+**fixture values cross-checked against the firmware builder tests in
+w17-control-fw/test/test_crsf read-only this session: battery 79 dV/72 %, GPS 361 =
+36.1 km/h, flightmode "G3 M2 E55" all match** [C]; no CI job diffs the fixture across
+repos — discipline rule, unlike link2's drift-guard job). One forward coupling noted:
+`linkState.test.js` imports `sampleTimeline`/`DEMO_TIMELINE` from `shared/replaySource.js`
+(G2). NEW **#59** (doc-consistency ×2: feelConstants' "a test guards these" overstates;
+`FRAME_TYPE_RC_CHANNELS_PACKED` exported but referenced nowhere — reads as deliberate
+viewer-only documentation-by-name). Bench-gated: ELRS LQ→0 behavior (#27), serial
+sharing (#28), real top speed. **No hardware claims — 118 green vitest tests are
+source/test evidence only; iPhone-bridge W3 stays implemented + unit-tested, NOT
+real-device validated (#58).** Next: G2 (main process + telemetry sources).
+
+Prior milestone: 2026-07-06 — S5 explained (audio HAL + dual-core main.cpp + SimLink2Feeder
 + test_integration + platformio.ini/ci.yml). THE w17-soundlight-fw EXPLANATION PHASE IS
 COMPLETE (S1–S5 all `explained`; review pass pending, C-batch parity).** Verification:
 `pio test -e native` → **40/40 PASSED** (all six suites incl. test_integration's 2), and
@@ -462,6 +492,15 @@ Batch log:
   task WDT watches IDLE0 only. NEW #56 (doc-consistency ×5) + #57 (bench runtime facts).
   All PROVISIONAL-until-S5 notes in S1–S4 docs resolved via S5-resolution notes; ch07
   §§1/5/6/7, ch09 §2.4, ch11 §7 updated. **Soundlight explanation phase COMPLETE.**
+- **G0+G1** → `code_explained/ground_station/01_shared_pure_core.md` (2026-07-09).
+  G0: ground-station inventory re-verified file-by-file (drift = F2/F3/F4 + W1–W3 only;
+  the 2026-07-03 table matched `b5ed803` exactly); plan Repo-3 section rewritten →
+  batches **G1–G5b** (G5a = W2 telemetry-out bridge, G5b = W3 LOG-ONLY head-tracking +
+  noControlPath guards; both gated on the deferred iPhone-bridge chapter decision, #58);
+  `ci.yml` added to G4 (missed by the original inventory). G1: the six shared pure-core
+  files + golden fixture + three suites explained (details in the Last-updated block
+  above). Ran the three G1 suites → 32/32 PASSED; full suite 118/118. New #59; no
+  corrections to ch08/ch09 needed (checked while reading).
 
 ## w17-control-fw
 
@@ -562,24 +601,30 @@ Batch log:
 
 ## w17-ground-station
 
+(Inventory re-verified 2026-07-09 against the tree at `dab3039`; line counts in the
+plan's Repo-3 table.)
+
 | File | Batch | Status | Notes |
 |---|---|---|---|
-| `shared/telemetry.js` | G1 | not started | |
-| `shared/feelConstants.js` | G1 | not started | |
-| `shared/crsf.js` | G1 | not started | JS port of firmware decoder |
-| `shared/crsfAssembler.js` | G1 | not started | |
-| `shared/crsfTelemetry.js` | G1 | not started | |
-| `test/crsf.test.js` | G1 | not started | golden vectors |
-| `test/crsfTelemetry.test.js` | G1 | not started | |
-| `main/main.js` | G2 | not started | |
-| `main/preload.cjs` | G2 | not started | |
+| `shared/telemetry.js` | G1 | explained | §2; Telemetry typedef + TelemetrySource observer seam; armed/failsafe demo-only (R01) |
+| `shared/feelConstants.js` | G1 | explained | §3; values match C6 ErsConfig; GEARS 4 = audit R05; drift guard partial (#59a) |
+| `shared/crsf.js` | G1 | explained | §4; JS port of firmware decoder; KAT + golden CRC re-computed; RC-channels constant unused (#59b) |
+| `shared/crsfAssembler.js` | G1 | explained | §5; compared with firmware CrsfFrameAssembler.cpp — same bounds/span/resync |
+| `shared/crsfTelemetry.js` | G1 | explained | §6; frame→partial-Telemetry mapper; RSSI sign flip |
+| `shared/linkState.mjs` | G1 | explained | §7; audit F2/R01 four-state model; inclusive ≥1 s edge; strict `=== 0` |
+| `test/fixtures/crsf_golden.json` | G1 | explained | §8; audit F3/R07; values cross-checked vs firmware builder tests (read-only) |
+| `test/crsf.test.js` | G1 | explained | §9.1; 13/13 PASSED |
+| `test/crsfTelemetry.test.js` | G1 | explained | §9.2; 10/10 PASSED; golden end-to-end |
+| `test/linkState.test.js` | G1 | explained | §9.3; 9/9 PASSED; imports replaySource helpers (G2 forward coupling) |
+| `main/main.js` | G2 | not started | grew 106→159 (bridge/receiver wiring; forward refs to G5a/G5b) |
+| `main/preload.cjs` | G2 | not started | grew 17→22 (`sendCommandMirror` one-way channel) |
 | `main/mediamtx.js` | G2 | not started | |
 | `main/CrsfSerialSource.js` | G2 | not started | |
-| `shared/replaySource.js` | G2 | not started | |
-| `test/replay.test.js` | G2 | not started | |
+| `shared/replaySource.js` | G2 | not started | now also exports `sampleTimeline`/`DEMO_TIMELINE` (used by G1's linkState tests) |
+| `test/replay.test.js` | G2 | not started | 7 tests; carries the feel-constants drift guard (#59a) |
 | `renderer/index.html` | G3 | not started | |
-| `renderer/hud.css` | G3 | not started | |
-| `renderer/hud.js` | G3 | not started | answers open question #47 |
+| `renderer/hud.css` | G3 | not started | 134→137 |
+| `renderer/hud.js` | G3 | not started | 246→295 (F2 link states, F4 gear labels, command mirror); answers open question #47 |
 | `renderer/whep.js` | G3 | not started | |
 | `scripts/run.js` | G4 | not started | |
 | `scripts/ensure-electron.js` | G4 | not started | |
@@ -587,5 +632,17 @@ Batch log:
 | `package.json` | G4 | not started | |
 | `electron-builder.yml` | G4 | not started | |
 | `mediamtx/mediamtx.yml` | G4 | not started | |
+| `.github/workflows/ci.yml` | G4 | not started | missed by the 2026-07-03 inventory; F2 added the Windows package-smoke job |
+| `shared/telemetrySnapshot.js` | G5a | not started | W2; pure snapshot builder (contract: docs/windows_bridge_contract.md) |
+| `main/IphoneTelemetryBridge.js` | G5a | not started | W2; send-only UDP 5601, off by default |
+| `main/iphoneBridgeConfig.js` | G5a | not started | W2; pure env-config resolution |
+| `test/telemetrySnapshot.test.js` | G5a | not started | 21 tests |
+| `test/iphoneBridge.test.js` | G5a | not started | 18 tests |
+| `shared/headTracking.js` | G5b | not started | W3; pure validator + diagnostics monitor — LOG-ONLY by safety boundary |
+| `main/HeadTrackingReceiver.js` | G5b | not started | W3; UDP 5602 receive, LOG-ONLY dead end; real-device validation PENDING (#58) |
+| `main/headTrackingConfig.js` | G5b | not started | W3; pure env-config resolution |
+| `test/headTracking.test.js` | G5b | not started | 33 tests |
+| `test/noControlPath.test.js` | G5b | not started | 7 tests; spans W2+W3 — the no-control-path structural guards |
 | `package-lock.json` | — | skip | generated lockfile; concept noted in G4 |
 | `mediamtx/mediamtx` (binary) | — | skip | fetched third-party binary |
+| `README.md`, `CLAUDE.md`, `docs/*` | — | not in campaign | docs, covered by ch08 + (future) iPhone-bridge chapter; CLAUDE.md new 2026-07-09 |

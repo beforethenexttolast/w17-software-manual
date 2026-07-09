@@ -102,6 +102,13 @@ commanded* (plus gear/rpm/battery/ERS at send time) and hands to `Link2Sender` a
 Boot-safe defaults (`failsafe = true`) so the first frame can never report a phantom Active.
 (09, C10)
 
+**CommonJS / ES modules (CJS/ESM)** — JavaScript's two module systems. CJS:
+`require()` / `module.exports`, Node's original, synchronous — used by the ground
+station's `.js` files because Electron's main process is CJS. ESM: `import`/`export`,
+the modern standard browsers and vitest speak natively — `shared/linkState.mjs` opts in
+via the `.mjs` extension because its consumers are the renderer + vitest. The repo
+deliberately mixes both. (G1 §1)
+
 **Dead-man (audio)** — soundlight rule: synth params not refreshed ~500 ms ⇒ volume
 ramps to 0. S5 found the implementation: `audioTask` compares `millis()` against the
 heartbeat atomic before every block; if older than exactly 500 ms it forces
@@ -269,6 +276,10 @@ executing from flash inside an interrupt can crash. (04, 05)
 **ISR (interrupt service routine)** — code run by hardware on an event (Hall edge);
 tiny, `IRAM_ATTR`, atomic counters, 2 ms lockout. (04)
 
+**JSDoc** — structured JS comments (`/** @typedef ... */`) that *document* types in a
+language with no compile-time types; the ground station's `Telemetry` "struct" is a
+JSDoc typedef enforced by nothing but tests. (G1 §1–2)
+
 **King pin** — the vertical pin a steering knuckle pivots on. (05)
 
 **Knuckle (steering)** — the part that holds a front wheel's bearings and swings on the
@@ -419,6 +430,11 @@ never triggers it. (07, S4)
 image (members + alignment padding) rather than field-by-field. Deterministic only within one
 build; `lib/settings` uses it (safe because the same build reads it back), unlike the portable
 field-by-field wire formats of CRSF/link2. (09a)
+
+**Regular expression (regex)** — a text-pattern mini-language; `/G(\d+)/` means
+"letter G, then one-or-more digits, captured". `shared/crsf.js`'s `parseFlightMode`
+uses three of them to read `"G3 M2 E55"` tolerantly — the ground half of the
+firmware's `snprintf("G%u M%u E%u")`. (G1 §4.5)
 
 **Regression test** — a test added after a bug so it can never silently return; A1's
 fix added "no frame ever ⇒ Safe at every timestamp." (05)

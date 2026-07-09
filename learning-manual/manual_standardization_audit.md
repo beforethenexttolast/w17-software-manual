@@ -237,7 +237,9 @@ current repos and applied bounded consistency patches.
    gate*, *Drift guard*; 00's reading order includes chapter 12.
 4. **iPhone-bridge (W1–W3) manual chapter not written** — out of scope; gated on #58's
    validation status staying honestly "pending".
-5. **G1–G4 re-inventory** before the ground-station campaign starts (§7.1).
+5. ~~**G1–G4 re-inventory** before the ground-station campaign starts (§7.1)~~ —
+   **DONE 2026-07-09** (see §8): inventory re-verified file-by-file, plan rewritten to
+   G1–G5b, and batch G1 written.
 6. Batch-doc line-number references into F4-touched files (control `main.cpp`,
    `ChannelDecoder.hpp`, `Link2Frame.hpp`) may be off by a few lines — harmless;
    re-check opportunistically during the next review pass, not worth a sweep.
@@ -255,3 +257,45 @@ matters more than campaign order. *(Update, later on 2026-07-09: the audit chapt
 chosen and written — see §7.4 item 3. Remaining from that list: S1–S5 review pass,
 iPhone-bridge chapter, G1–G4 re-inventory. Next recommended batch: **G1 after
 re-inventory**, with the iPhone-bridge chapter gated on #58's validation status.)*
+
+---
+
+## 8. G0 re-inventory + G1 — 2026-07-09 (same day, later session)
+
+Closed §7.4 item 5. What ran:
+
+- **G0 re-inventory:** the current `w17-ground-station` tree (`dab3039`) verified
+  file-by-file (`wc -l`); the old plan table matched the 2026-07-03 tree (`b5ed803`)
+  *exactly*, so all drift = audit F2/F3/F4 + iPhone-bridge W1–W3. 13 new files, 10
+  grown files, suite 20→**118 vitest tests / 8 files** (run: 118/118 PASSED). One
+  original-inventory omission found and fixed: the ground station's `ci.yml` existed
+  since the initial commit but was never batched — now in G4 (the firmware repos'
+  ci.ymls were batched in C10/S5, so this restores parity). Repo now ≈3,770
+  project-authored lines (was ~1,770).
+- **Plan rewritten** (Repo-3 section): batches now **G1–G5b**; the iPhone-bridge files
+  form G5a (W2 telemetry-out) + G5b (W3 LOG-ONLY head-tracking + the noControlPath
+  guards), deliberately last and gated on the deferred iPhone-bridge chapter decision
+  (#58). G1 absorbed `linkState.mjs` (audit F2) + `crsf_golden.json` (audit F3) + the
+  linkState suite.
+- **G1 written:** `code_explained/ground_station/01_shared_pure_core.md` (the manual's
+  first JS batch; opens with the JS-for-C++-readers primer the plan promised). G1
+  suites 32/32; golden-fixture values cross-checked against the firmware builder tests
+  (read-only) and the battery CRC re-computed independently. New open question **#59**
+  (2 doc-consistency notes).
+- **Consistency patches:** ch02 §4 tree + inventory note refreshed (+deep-dive
+  pointer); ch08 gained the G1 pointer and a new §7 recording the bridge's existence
+  with the #58 honesty gates; ch11 §7 now describes the ground station's own CI
+  (incl. F2's Windows package-smoke); progress file G-table rewritten (G1 `explained`,
+  the rest `not started`); glossary +3 (CommonJS/ESM, JSDoc, Regular expression);
+  `code_explained/README.md` layout line updated; `README.md` status line updated;
+  `00_START_HERE.md` (support-files list, conventions bullet, 2026-07-09 status update)
+  now carries the G0/G1 milestone — this was the batch's interrupted last step,
+  completed in the recovery session.
+- **Standing warnings kept intact:** no hardware claims anywhere (118 green vitest =
+  source/test evidence only); W3 stays *implemented + unit-tested, NOT real-device
+  validated* (#58); ELRS LQ→0 behavior remains bench-pending (#27) even though the
+  ground code is built around it.
+
+Remaining from §7.4: S1–S5 review pass (item 2), iPhone-bridge chapter (item 4),
+CLAUDE.md §N citations (item 1, recommend leave), C1–C8 style drift (item 7, accepted).
+**Next recommended batch: G2 (main process + telemetry sources).**

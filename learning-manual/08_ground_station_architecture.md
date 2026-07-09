@@ -4,6 +4,12 @@ The laptop app: live FPV video under a Mercedes-style F1 HUD, with real car tele
 overlaid when available. Written in JavaScript on Electron — a different world from the
 firmware, so this chapter starts with the platform.
 
+> **Deep dive:** the repo's shared pure core (the CRSF decoder port, telemetry model,
+> link-state model, and the cross-repo golden fixture) is explained line-by-line in
+> `code_explained/ground_station/01_shared_pure_core.md` (batch G1, with a
+> JS-for-C++-readers primer). Remaining batches G2–G5b:
+> `source_code_explanation_plan.md`.
+
 ## 1. Electron in five minutes
 
 **Electron** packages a web app with its own private Chromium browser and a Node.js
@@ -137,6 +143,27 @@ zero ability to stop the car. The fallback chain is graded:
   HUD simply stays gamepad-simulated.
 - `npm run build` → Windows .exe via electron-builder; unsigned by default
   (SmartScreen will prompt once; `docs/CODESIGNING.md` covers opt-in signing).
+
+## 7. The optional iPhone bridge (added 2026-07-08 — validation pending)
+
+Since this chapter was first written, the repo gained an **off-by-default** iPhone
+bridge (work items W1–W3): **W2** streams the normalized telemetry snapshot plus a
+read-only display mirror of the HUD's gamepad/camera state to the companion iPhone HUD
+as UDP/JSON on port 5601 — **send-only**, a second consumer of the existing telemetry
+flow; **W3** receives the iPhone's head-tracking intent packets on UDP 5602 —
+**strictly LOG-ONLY**: packets are validated, counted, and summarized to the console,
+and *nothing else happens* (no CRSF, no servos, no camera pan/tilt — that mapping is
+blocked until a separate safety milestone). Both are dormant unless enabled by env vars
+(`W17_IPHONE_BRIDGE`, `W17_HEADTRACK`). **[C]** README + `main/main.js` +
+`test/noControlPath.test.js` (structural guards that the bridge opens no control path).
+
+Two honesty gates apply until further notice (**[C]** `open_questions.md` #58,
+`../CURRENT_STATUS.md`): the bridge is **implemented + unit-tested (118/118 vitest),
+NOT real-device validated** — no end-to-end run against a real iPhone has happened; and
+the manual's own iPhone-bridge chapter is deliberately deferred. Line-by-line coverage
+is planned as batches **G5a/G5b** (`source_code_explanation_plan.md`); the packet
+contract's implementation copy is `docs/windows_bridge_contract.md` (canonical copy
+lives in the Codex-owned `iPhone_rc` repo).
 
 ## Confirmed vs inferred
 

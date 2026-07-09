@@ -368,3 +368,24 @@ These mirror the repos' own checklists — listed here so the manual tracks them
     treat W3 as **implemented + unit-tested, not validated** — and never as complete.
     The manual's own iPhone-bridge chapter is deliberately not written yet; this entry
     is the placeholder so the gap isn't lost. [C] source: `CURRENT_STATUS.md` 2026-07-09.
+    — *Batch placement decided by the G0 re-inventory (2026-07-09): the bridge files are
+    campaign batches **G5a** (W2 telemetry-out) and **G5b** (W3 head-tracking +
+    noControlPath guards), deliberately last, gated on the chapter decision above. The
+    validation status wording here is unchanged — still pending.*
+
+## Documentation consistency — new, found by G1 (2026-07-09)
+
+59. **Two small doc-vs-code notes from the ground-station shared core.** Neither is a
+    defect; the code is correct and 32/32 (G1 suites) / 118/118 (full) tested.
+    (a) **`shared/feelConstants.js` says "A test guards these against drift"** — the
+    guard (`test/replay.test.js`, "feel constants match the firmware ErsConfig
+    numbers") pins only the three ERS rates (26/11/1.18). `GEARS` is pinned indirectly
+    (the replay test asserts the demo timeline tops out at gear 4, audit R05) and
+    `TOP_SPEED_KMH` not at all — by design ("themed; set to real measured top speed
+    later", a bench-day number). The comment slightly overstates; low stakes.
+    (b) **`shared/crsf.js` exports `FRAME_TYPE_RC_CHANNELS_PACKED` (0x16) but nothing
+    in the repo references it** (grep-verified), and no RC-channels decoder exists at
+    all — consistent with viewer-only (the app never reads stick data off the wire; and
+    `test/noControlPath.test.js` separately asserts no *encoder* exists). Reads as
+    deliberate documentation-by-name; owner can confirm or drop the constant.
+    (`code_explained/ground_station/01_shared_pure_core.md` §3, §4.1, §10.)

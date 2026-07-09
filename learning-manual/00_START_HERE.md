@@ -38,8 +38,10 @@ Support files, used from any chapter:
 - `code_explained/` — the **line-by-line source-code deep dives**. Control firmware
   complete + reviewed: batches C1–C10 in `code_explained/control_fw/`; sound/light
   firmware explanation complete: batches S1–S5 in `code_explained/soundlight_fw/`
-  (review pass pending). Beginner concept-notes companions exist for C9a/C9b/C10 and
-  S1–S5. Status: [source_code_progress.md](source_code_progress.md);
+  (review pass pending); ground station started: batch G1 in
+  `code_explained/ground_station/` (G2–G5b pending). Beginner concept-notes companions
+  exist for C9a/C9b/C10 and S1–S5. Status:
+  [source_code_progress.md](source_code_progress.md);
   inventory/order: [source_code_explanation_plan.md](source_code_explanation_plan.md)
 - `plan/` — the original study plan (historical; superseded by these chapters)
 
@@ -54,7 +56,8 @@ Support files, used from any chapter:
   derivable from that chapter; no trick questions).
 - Chapters describe architecture and behavior. **Line-by-line code walkthroughs live in
   `code_explained/`** — the control firmware's ten batches (C1–C10) and the sound/light
-  firmware's five (S1–S5) are complete; the ground-station repo (G1–G4) is next.
+  firmware's five (S1–S5) are complete; the ground-station campaign (G1–G5b, plan
+  rewritten after the 2026-07-09 re-inventory) has G1 done, G2 next.
 - Citation caveat: `w17-control-fw/CLAUDE.md` was **rewritten 2026-07-09** as a
   maintenance guide without the old §0–§8 numbering. Manual references of the form
   "`CLAUDE.md` §N" point at the **pre-rewrite revision**; the underlying facts were
@@ -97,7 +100,12 @@ round (F1–F4, 2026-07-07/08)** and iPhone-bridge work (W1–W3, ground station
 the iPhone-bridge chapter is still deliberately deferred (open question #58). Two
 audit consequences already reflected here: the two firmware `ci.yml` files are **no
 longer byte-identical** (chapter 11 §7, chapter 12 §6), and `w17-control-fw/CLAUDE.md`
-was rewritten (see the citation caveat above). Hardware state (per
+was rewritten (see the citation caveat above). Later the same day the ground-station
+campaign started: the repo was **re-inventoried** (grown to ≈3,770 project-authored
+lines by F2–F4 + W1–W3; plan rewritten to batches G1–G5b) and **batch G1 (the shared
+pure JS core) was explained** — verified against 118/118 vitest tests. The iPhone-bridge
+code itself remains **implemented + unit-tested, NOT real-device validated** (#58); its
+W3 head-tracking receiver is LOG-ONLY by safety boundary. Hardware state (per
 `../CURRENT_STATUS.md`): software/pre-power validation A1.1–A1.6 complete; the **A2
 no-power bench checklist is committed but NOT executed**; powered bring-up (Phase B)
 stays blocked behind it. **Source/build/test evidence is still not hardware proof** —

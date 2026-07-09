@@ -7,6 +7,9 @@ the inventory + order; `source_code_progress.md` tracks status per file.
 Inventory verified against the actual trees on 2026-07-03 (`wc -l` on every file).
 Totals: **w17-control-fw ~6,790 lines** (incl. configs), **w17-soundlight-fw ~2,700**,
 **w17-ground-station ~1,770** → **≈11,300 lines** of project-authored material.
+*(Update 2026-07-09: the ground-station repo grew to ≈3,770 project-authored lines
+with audit F2–F4 + iPhone-bridge W1–W3 — re-inventoried in the Repo 3 section below;
+project total now ≈13,300.)*
 
 ## 1. Ground rules
 
@@ -73,25 +76,39 @@ manual chapters (03 = electronics, 04 = embedded C++, 07–10 = domain chapters)
 | **S4 — Lights** | `lib/lights/…/LightRenderer.{hpp,cpp}` (249) · `lib/lights_hal_esp32/…/Esp32NeoPixelStrip.{hpp,cpp}` (45) · `test/test_lights/` (183) | ★★★ | ch07 §5; compositing layers; gamma; power budget |
 | **S5 — Audio HAL + dual-core main + integration** | `lib/audio_hal_esp32/…/Esp32I2sAudio.{hpp,cpp}` (82) · `src/main.cpp` (142) · `src/SimLink2Feeder.{hpp,cpp}` (130) · `test/test_integration/` (158) · `platformio.ini` (45) · `ci.yml` (36, diff vs control's) | ★★★★ | ch07 §6 (cores, the atomic word, dead-man — answers open question #43); FreeRTOS task pinning; I2S driver |
 
-### Repo 3: w17-ground-station (batches G1–G4)
+### Repo 3: w17-ground-station (batches G1–G5b)
 
-> **Inventory stale (noted 2026-07-09):** the tables below reflect the 2026-07-03 tree.
-> The audit fixes (F2/F3) and the iPhone-bridge work (W1–W3, 2026-07-07/08) added files
-> not yet batched — `shared/linkState.mjs`, `shared/telemetrySnapshot.js`,
-> `shared/headTracking.js`, `main/HeadTrackingReceiver.js`,
-> `main/IphoneTelemetryBridge.js`, `main/headTrackingConfig.js`,
-> `main/iphoneBridgeConfig.js`, plus new test suites (total now 118 vitest tests across
-> 8 suites, was 20). **Re-verify this inventory (wc -l per file) and decide the batch
-> placement of the new files before starting G1** — likely G1/G2 grow, or a G5/W-batch
-> is added for the bridge (which also depends on the not-yet-written iPhone-bridge
-> manual chapter). Line counts below for pre-existing files may also have drifted.
+> **Inventory re-verified 2026-07-09** (G0 pass: `wc -l` per file against the tree at
+> commit `dab3039`; the earlier table matched the 2026-07-03 tree at `b5ed803` exactly,
+> so all drift came from audit F2/F3/F4 + iPhone-bridge W1–W3, 2026-07-07/08). Changes
+> absorbed below: **13 new files** (7 source, 5 test suites, 1 fixture), growth in 10
+> pre-existing files (largest: `main.js` 106→159, `hud.js` 246→295, both CRSF test
+> suites roughly +50 %), suite now **118 vitest tests / 8 files** (was 20/3; verified
+> by running it). `.github/workflows/ci.yml` (31; package-smoke job added by F2) was
+> **missing from the original inventory** — added to G4, matching the firmware repos
+> where `ci.yml` was batched (C10/S5). The iPhone-bridge files form new batches
+> **G5a/G5b** rather than growing G1/G2, because (a) they are a self-contained feature
+> behind off-by-default env flags, and (b) their real-device validation is **pending**
+> (open question #58) and the manual's iPhone-bridge chapter is deliberately deferred —
+> keeping them last lets G1–G4 tell the complete viewer-app story first. New repo
+> totals: ~2,255 lines runtime source + ~1,367 tests/fixture + ~150 config ≈ **3,770
+> project-authored lines** (docs/README/CLAUDE.md excluded from line-by-line as in the
+> other repos; `w17-ground-station/CLAUDE.md` is new 2026-07-09).
 
 | Batch | Files (lines) | Difficulty | Required concepts |
 |---|---|---|---|
-| **G1 — Shared pure core (JS)** | `shared/telemetry.js` (43) · `feelConstants.js` (13) · `crsf.js` (165) · `crsfAssembler.js` (45) · `crsfTelemetry.js` (45) · `test/crsf.test.js` (96) · `test/crsfTelemetry.test.js` (79) | ★★★ | JS-for-C++-readers primer (will open the batch doc: `const/let`, objects, modules, Buffer/DataView); ch09 (same protocol, third implementation — a great re-test of protocol understanding) |
-| **G2 — Main process + telemetry sources** | `main/main.js` (106) · `main/preload.cjs` (17) · `main/mediamtx.js` (54) · `main/CrsfSerialSource.js` (96) · `shared/replaySource.js` (93) · `test/replay.test.js` (84) | ★★★ | ch08 §1 (Electron anatomy); child processes; serial ports; answers open question #47 partially |
-| **G3 — The renderer (HUD + video)** | `renderer/index.html` (97) · `hud.css` (134) · `hud.js` (246) · `whep.js` (89) | ★★★ | HTML/CSS/DOM basics (primer in the batch doc); Gamepad API; WebRTC/WHEP client flow; answers open question #47 fully |
-| **G4 — Scripts + packaging configs** | `scripts/run.js` (19) · `ensure-electron.js` (88) · `fetch-mediamtx.js` (57) · `package.json` (31) · `electron-builder.yml` (38) · `mediamtx/mediamtx.yml` (36) | ★★ | npm lifecycle; ch08 §6 gotchas; ends the campaign with the deployment story |
+| **G1 — Shared pure core (JS)** — **DONE 2026-07-09** | `shared/telemetry.js` (50) · `feelConstants.js` (13) · `crsf.js` (169) · `crsfAssembler.js` (45) · `crsfTelemetry.js` (51) · `linkState.mjs` (31, audit F2) · `test/fixtures/crsf_golden.json` (38, audit F3) · `test/crsf.test.js` (152) · `test/crsfTelemetry.test.js` (121) · `test/linkState.test.js` (72) | ★★★ | JS-for-C++-readers primer (opens the batch doc); ch09 (same protocol, third implementation); ch12 §4/§6 (why linkState + the golden fixture exist) |
+| **G2 — Main process + telemetry sources** | `main/main.js` (159) · `main/preload.cjs` (22) · `main/mediamtx.js` (54) · `main/CrsfSerialSource.js` (96) · `shared/replaySource.js` (93) · `test/replay.test.js` (84) | ★★★ | ch08 §1 (Electron anatomy); child processes; serial ports; answers open question #47 partially. main.js's bridge/receiver construction blocks get summarized with forward refs to G5a/G5b |
+| **G3 — The renderer (HUD + video)** | `renderer/index.html` (97) · `hud.css` (137) · `hud.js` (295) · `whep.js` (89) | ★★★ | HTML/CSS/DOM basics (primer in the batch doc); Gamepad API; WebRTC/WHEP client flow; answers open question #47 fully; F4's gear-count alignment and the command-mirror IPC send land here |
+| **G4 — Scripts + packaging + CI** | `scripts/run.js` (19) · `ensure-electron.js` (88) · `fetch-mediamtx.js` (57) · `package.json` (32) · `electron-builder.yml` (40) · `mediamtx/mediamtx.yml` (36) · `.github/workflows/ci.yml` (31, incl. F2's Windows package-smoke job) | ★★ | npm lifecycle; ch08 §6 gotchas; ch11 §7; ends the viewer-app story with the deployment story |
+| **G5a — iPhone bridge W2: telemetry out (send-only)** | `shared/telemetrySnapshot.js` (136) · `main/IphoneTelemetryBridge.js` (142) · `main/iphoneBridgeConfig.js` (26) · `test/telemetrySnapshot.test.js` (262) · `test/iphoneBridge.test.js` (220) | ★★★ | ch08 + G1 linkState; the bridge contract (`docs/windows_bridge_contract.md`, implementation copy — canonical lives in Codex-owned `iPhone_rc`); **honesty rules: real-device validation PENDING (#58)** — the batch may claim unit-test truth only |
+| **G5b — iPhone bridge W3: head-tracking in (LOG-ONLY) + no-control-path guards** | `shared/headTracking.js` (216) · `main/HeadTrackingReceiver.js` (152) · `main/headTrackingConfig.js` (28) · `test/headTracking.test.js` (326) · `test/noControlPath.test.js` (92) | ★★★ | G5a; the workspace safety boundaries (W3 is LOG-ONLY — no CRSF/servo/gimbal path, ever, until a separate safety milestone); `noControlPath` spans W2+W3 and is explained here where it completes |
+
+G5a/G5b are additionally gated on a decision about the deferred **iPhone-bridge manual
+chapter** (open question #58): write the chapter first (architecture before
+line-by-line, as ch07/ch08 did for S/G) or fold the architecture into the G5 batch
+docs. Either way the batches must not claim W3 real-device validation — it is
+implemented + unit-tested, not validated.
 
 ### Dependency order, condensed
 
@@ -99,7 +116,7 @@ manual chapters (03 = electronics, 04 = embedded C++, 07–10 = domain chapters)
 flowchart LR
   C1 --> C2 --> C3 --> C4 --> C5 --> C6 --> C7 --> C8 --> C9 --> C10
   C8 --> S1 --> S2 --> S3 --> S4 --> S5
-  C4 --> G1 --> G2 --> G3 --> G4
+  C4 --> G1 --> G2 --> G3 --> G4 --> G5a --> G5b
 ```
 
 Repos 2 and 3 can be interleaved after their entry dependency (C8 for soundlight, C4
@@ -107,7 +124,8 @@ for ground station) if variety is wanted; the default is straight through C→S�
 
 ## 4. Effort estimate
 
-19 batches ≈ 19 sessions at one batch/session. Heavier batches (C4, C9, C10, S3) may
+21 batches (was 19; the 2026-07-09 re-inventory added G5a/G5b for the iPhone bridge)
+≈ 21 sessions at one batch/session. Heavier batches (C4, C9, C10, S3) may
 spill into two sittings; lighter ones (S1, G4) can pair up. Nothing blocks on hardware.
 
 ## 5. First recommended batch

@@ -138,7 +138,11 @@ w17-ground-station/
 │   ├── main.js           window creation, telemetry source selection, IPC push
 │   ├── mediamtx.js       starts/supervises the bundled mediamtx video server
 │   ├── CrsfSerialSource.js  reads CRSF telemetry from a serial port
-│   └── preload.cjs       the safe bridge exposed to the renderer
+│   ├── preload.cjs       the safe bridge exposed to the renderer
+│   ├── IphoneTelemetryBridge.js + iphoneBridgeConfig.js   W2: telemetry → iPhone,
+│   │                     UDP 5601, SEND-ONLY, off by default (W17_IPHONE_BRIDGE)
+│   └── HeadTrackingReceiver.js + headTrackingConfig.js    W3: iPhone → Windows,
+│                         UDP 5602, LOG-ONLY dead end, off by default (W17_HEADTRACK)
 ├── renderer/             RENDERER (the visible HUD web page)
 │   ├── index.html, hud.css, hud.js   gamepad mirroring + simulated dash + overlay
 │   └── whep.js           WebRTC video client
@@ -147,24 +151,36 @@ w17-ground-station/
 │   ├── crsfAssembler.js  byte-stream → frames
 │   ├── crsfTelemetry.js  frames → Telemetry fields
 │   ├── telemetry.js      the normalized Telemetry object (contract: docs/TELEMETRY.md)
+│   ├── linkState.mjs     the 4-state HUD link model (audit F2; ch08 §3)
 │   ├── replaySource.js   fake telemetry for `npm run demo`
-│   └── feelConstants.js  ERS feel numbers shared with the firmware
+│   ├── feelConstants.js  ERS feel numbers shared with the firmware
+│   ├── telemetrySnapshot.js  W2: pure iPhone-packet builder (bridge contract)
+│   └── headTracking.js   W3: pure packet validator + diagnostics monitor (LOG-ONLY)
 ├── mediamtx/mediamtx.yml pinned server config (camera RTSP URL goes here)
 ├── scripts/              run/setup helpers (Electron repair, mediamtx download)
-├── test/                 vitest suites (reuse the firmware's golden vectors)
-└── docs/                 SETUP.md (bench risks), TELEMETRY.md (contract), CODESIGNING.md
+├── test/                 8 vitest suites, 118 tests (incl. the shared CRSF golden
+│                         fixture, audit F3, and the no-control-path guards)
+├── .github/workflows/ci.yml   npm test on Linux + a Windows packaging smoke (F2)
+└── docs/                 SETUP.md (bench risks), TELEMETRY.md (contract),
+                          CODESIGNING.md, windows_bridge_contract.md (implementation
+                          copy — canonical lives in Codex-owned iPhone_rc) + bridge
+                          readiness/test-plan notes
 ```
 
-> **Inventory note (2026-07-09):** the tree above shows the repo as explained so far by
-> the manual. The skeptical-audit fixes (F2/F3) and the iPhone-bridge work (W1–W3,
-> 2026-07-07/08) added files not yet covered here — e.g. `shared/linkState.mjs`,
-> `shared/telemetrySnapshot.js`, `shared/headTracking.js`,
-> `main/HeadTrackingReceiver.js`, `main/IphoneTelemetryBridge.js` — and grew the test
-> suite from 20 to **118 vitest tests** (verified on two machines, 2026-07-09). The
-> W3 head-tracking receiver is **LOG-ONLY by safety boundary** (it must never reach
-> CRSF, servos, or the gimbal) and its real-device validation is **still pending**.
-> These files get their manual coverage in a future batch; the G1–G4 inventory will be
-> re-verified first (`source_code_explanation_plan.md`).
+> **Inventory note (updated 2026-07-09, G0 pass):** tree re-verified file-by-file; the
+> audit fixes (F2/F3/F4) and the iPhone-bridge work (W1–W3, 2026-07-07/08) added the
+> files marked W2/W3/F above and grew the test suite from 20 to **118 vitest tests**
+> (run this session: 118/118). The W3 head-tracking receiver is **LOG-ONLY by safety
+> boundary** (it must never reach CRSF, servos, or the gimbal) and its real-device
+> validation is **still pending** (open question #58). Batch placement of every file:
+> `source_code_explanation_plan.md` (G1–G5b); the shared pure core now has its
+> line-by-line deep dive.
+
+> Deep dive: `shared/`'s pure core (CRSF decode, telemetry model, link state, golden
+> fixture) is explained line-by-line in
+> `code_explained/ground_station/01_shared_pure_core.md` (batch G1, incl. a
+> JS-for-C++-readers primer); the remaining batches G2–G5b are planned in
+> `source_code_explanation_plan.md`.
 
 ## 5. Who owns what (cross-repo relationships)
 
