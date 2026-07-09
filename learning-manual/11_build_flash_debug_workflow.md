@@ -133,6 +133,15 @@ telemetry needs `W17_TELEMETRY_SOURCE=crsf-serial W17_TELEMETRY_PORT=<port>` and
 `npx electron-rebuild` for the native `serialport` module — without it the app still
 runs, just simulated.
 
+How those knobs actually work (**[C]** G2, 2026-07-09, `main/main.js` +
+`scripts/run.js`): `npm run demo` is just `run.js --demo` setting
+`W17_TELEMETRY_SOURCE=replay`; `main.js`'s `chooseTelemetrySource()` maps
+`replay`/`crsf-serial`/unset → `ReplaySource` / `CrsfSerialSource` / no source at all.
+Degradation is graceful at every layer: a missing mediamtx binary logs "video
+disabled; HUD + telemetry still work", and a missing/unbuilt `serialport` is caught by
+a lazy `require` — one log line, gamepad-only HUD. Deep dive:
+`code_explained/ground_station/02_main_process_and_telemetry_sources.md`.
+
 Offline video rehearsal without the camera (**[C]** SETUP.md §5):
 
 ```bash

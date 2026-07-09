@@ -177,6 +177,13 @@ These mirror the repos' own checklists — listed here so the manual tracks them
     The audit and F1–F4 story behind the divergence is now chapter 12 (§6).
 47. The HUD's exact widget-by-widget telemetry-vs-simulation precedence in
     `renderer/hud.js`.
+    — **Partially answered by G2** (2026-07-09): the *input side* is settled —
+    `CrsfSerialSource` accumulates a running merged snapshot (a battery frame never
+    blanks speed/gear) and `main.js` forwards each merge verbatim over the one
+    `telemetry` IPC channel, so every push the renderer receives is a **complete
+    snapshot**, never a per-frame partial. The renderer-side half (which widget
+    prefers which field, and how sim values yield to real ones) remains open → G3.
+    (`02_main_process_and_telemetry_sources.md` §5.2, §9.)
 48. `SimCrsfFeeder.cpp`'s script structure (phase timing table vs implementation).
     — **ANSWERED by C10 §5.4** (2026-07-05): the 10-phase implementation matches
     SIMULATION.md's demo table exactly; neither drifted.
@@ -389,3 +396,29 @@ These mirror the repos' own checklists — listed here so the manual tracks them
     `test/noControlPath.test.js` separately asserts no *encoder* exists). Reads as
     deliberate documentation-by-name; owner can confirm or drop the constant.
     (`code_explained/ground_station/01_shared_pure_core.md` §3, §4.1, §10.)
+
+## Code observations — new, found by G2 (2026-07-09)
+
+60. **Three small notes from the ground-station main process.** None affects the
+    deployment target's (Windows) happy path; the code otherwise matches every doc
+    claim checked; repo files are read-only so these are recorded, not fixed.
+    (a) **macOS-only: re-activating the app after closing its window would throw.**
+    `ipcMain.handle('config:get', …)` is registered inside `createWindow()`, and the
+    macOS `activate` handler calls `createWindow()` again — Electron documents that a
+    second `handle` for the same channel **throws**. Reachable only on macOS (on
+    Windows/Linux `window-all-closed` quits first), i.e. the dev machine, not gift
+    day. The same double-run would also double-subscribe `onTelemetry` and re-`start()`
+    the source, but the throw happens first. [I] — source + documented Electron
+    behavior, not executed. Fix, if ever wanted, is a one-liner (register the handler
+    once in `whenReady`).
+    (b) **Comment nit:** `main.js`'s *"Only used when the bridge is enabled"* above
+    the dynamic `import()` of `linkState.mjs` — the *import itself* runs
+    unconditionally (harmless, a few ms); only the imported function goes unused when
+    the bridge is off.
+    (c) **The mediamtx supervisor restarts on a fixed 2 s interval with no backoff or
+    give-up** — a binary that dies instantly (bad yml, port held by an orphan) logs
+    and respawns every 2 s forever. Arguably right for a gift-day tool (self-heals the
+    moment the cause clears, and the log makes it visible); noted as a design
+    observation, not a defect.
+    (`code_explained/ground_station/02_main_process_and_telemetry_sources.md` §2.7,
+    §2.8, §4.4, §9.)

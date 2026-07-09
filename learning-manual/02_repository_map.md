@@ -179,8 +179,10 @@ w17-ground-station/
 > Deep dive: `shared/`'s pure core (CRSF decode, telemetry model, link state, golden
 > fixture) is explained line-by-line in
 > `code_explained/ground_station/01_shared_pure_core.md` (batch G1, incl. a
-> JS-for-C++-readers primer); the remaining batches G2–G5b are planned in
-> `source_code_explanation_plan.md`.
+> JS-for-C++-readers primer); the main process + telemetry sources (`main/main.js`,
+> `preload.cjs`, `mediamtx.js`, `CrsfSerialSource.js`, `shared/replaySource.js`) in
+> `02_main_process_and_telemetry_sources.md` (batch G2); the remaining batches G3–G5b
+> are planned in `source_code_explanation_plan.md`.
 
 ## 5. Who owns what (cross-repo relationships)
 
@@ -209,8 +211,10 @@ Practical consequence: if you ever want to change a protocol, the change starts 
 above).
 
 **Inferred [I]:** the description of *why* the seam pattern exists (testability) is the
-docs' own stated motivation, generalized; the ground-station file roles beyond what
-README states (e.g., exactly what `preload.cjs` exposes) await the code-reading phase.
+docs' own stated motivation, generalized. *(The old note here — "exactly what
+`preload.cjs` exposes awaits the code-reading phase" — was answered by G2, 2026-07-09:
+it exposes exactly three functions, `getConfig` / `onTelemetry` / `sendCommandMirror`,
+as `window.groundStation`; see the G2 deep dive §3.)*
 
 **Assumed [A]:** none of significance in this chapter.
 

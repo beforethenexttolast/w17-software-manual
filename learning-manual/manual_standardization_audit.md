@@ -298,4 +298,42 @@ Closed §7.4 item 5. What ran:
 
 Remaining from §7.4: S1–S5 review pass (item 2), iPhone-bridge chapter (item 4),
 CLAUDE.md §N citations (item 1, recommend leave), C1–C8 style drift (item 7, accepted).
-**Next recommended batch: G2 (main process + telemetry sources).**
+**Next recommended batch: G2 (main process + telemetry sources).** *(Done — §9.)*
+
+---
+
+## 9. G2 — 2026-07-09 (later session, same day as §8)
+
+- **G2 written:** `code_explained/ground_station/02_main_process_and_telemetry_sources.md`
+  — the Electron main process (`main/main.js`, `preload.cjs`, `mediamtx.js`,
+  `CrsfSerialSource.js`), the replay source, and `test/replay.test.js`. Verified:
+  replay suite 7/7, full suite 118/118, tree unchanged at `dab3039`, all six line
+  counts re-checked against the plan's table (exact). The session brief's `src/`
+  paths were a slip (real layout: `main/` + `shared/`) — noted in the batch doc §0,
+  no plan change needed (the plan's table already had the right paths).
+- **Full Standard-B skeleton present** (scope/prereqs/where-this-fits/line-by-line/
+  concepts-on-first-use/tests/what-proves-what/labels/questions), with one structural
+  emphasis new to this batch: §8 explicitly tables the **untested-I/O-shell** parity
+  across all three repos, because G2 is the first batch whose VERIFIEDs are mostly
+  source+doc-verified rather than test-pinned — the label section says so in as many
+  words.
+- **Consistency patches:** ch02 (deep-dive pointer + the "what preload exposes awaits
+  the code pass" note closed); ch08 (deep-dive pointer; Inferred block updated — §1
+  anatomy now code-confirmed, #47 input half settled); ch11 §6 (how the env knobs +
+  graceful degradation actually work, one paragraph); `code_explained/README.md`
+  layout line; progress file (new Last-updated block, G2 batch-log entry, G-table
+  rows → explained); plan (G2 row → DONE); `README.md` + `00_START_HERE.md` status
+  lines; glossary +5 (Preload/contextBridge, Child process/spawn, Promise/async-await,
+  Environment variable, Keyframe/lerp); open questions: **#47 partially answered**
+  (input half), new **#60** (macOS activate re-registration [I]; import-comment nit;
+  supervisor no-backoff observation).
+- **Standing warnings kept intact:** no hardware claims (7/7 + 118/118 vitest =
+  source/test evidence about a laptop, §8 of the batch doc spells out that the four
+  `main/` files have no tests at all); iPhone bridge still implemented + unit-tested,
+  **NOT real-device validated** (#58); W3 LOG-ONLY; camera codec/serial sharing/ELRS
+  LQ behavior remain bench (#25/#27/#28).
+
+Remaining from §7.4 (unchanged): S1–S5 review pass, iPhone-bridge chapter (gated on
+#58 + the chapter-vs-batch-doc decision), CLAUDE.md §N citations (leave), C1–C8 style
+drift (accepted). **Next recommended batch: G3 (the renderer — HUD + video), which
+closes #47's remaining half.**

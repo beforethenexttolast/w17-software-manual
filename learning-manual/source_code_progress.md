@@ -28,7 +28,48 @@ Status values: `not started` → `explained` → `needs review` (you flagged que
 >   and the table below reflects the current tree at `dab3039`.
 > - Statuses (`reviewed`/`explained`) are unchanged — no explained logic changed.
 
-**Last updated: 2026-07-09 — G0 re-inventory + G1 explained** (`code_explained/
+**Last updated: 2026-07-09 (later session) — G2 explained** (`code_explained/
+ground_station/02_main_process_and_telemetry_sources.md` — the Electron main process +
+both telemetry sources). Verification: `npx vitest run test/replay.test.js` → **7/7
+PASSED**, full suite → **118/118 PASSED** (8 files); tree unchanged at `dab3039`; line
+counts re-verified (159/22/54/96/93/84). *(The session brief's `src/` paths were a
+slip — the real layout is `main/` + `shared/`, per `package.json` `"main"`.)* Covered:
+`main.js` (CJS-by-necessity header; mediamtx dev-vs-packaged paths cross-checked
+against electron-builder.yml's extraResources; `chooseTelemetrySource` env seam
+replay/crsf-serial/none; bridge choosers summarized with G5a/G5b forward refs — wiring
+only, off-by-default verified at the null-short-circuit level; sandboxed
+BrowserWindow; `config:get` handler = how feelConstants reach the no-require renderer;
+one-subscription two-consumer telemetry fan-out with `isDestroyed` guard; dynamic
+`import()` of linkState.mjs resolving G1's CJS→ESM cliffhanger; `command-mirror`
+one-way channel; will-quit teardown), `preload.cjs` (the complete 3-function
+`window.groundStation` surface — ch02's "awaits code pass" note now answered;
+unsubscribe-closure idiom shared with TelemetrySource), `mediamtx.js` (supervisor:
+missing-binary graceful degradation "video disabled; HUD + telemetry still work",
+crash→2 s respawn, latch-then-kill stop; knows nothing about video itself),
+`CrsfSerialSource.js` (the HAL-rind pattern in JS: lazy `require('serialport')` in
+try/catch = optional-native-module degradation; 420 kbaud default matches C4's
+Esp32CrsfUart; 2 s reopen ladder with error+close collapsed to one timer; the
+**merge accumulator** — fields persist once seen, fresh copy per emit — settling
+**#47's input half**: every renderer push is a complete snapshot), `replaySource.js`
+(the project's third scripted self-feeder, after SimCrsfFeeder/SimLink2Feeder;
+9-keyframe 20 s DEMO_TIMELINE incl. the 14–16 s LQ=0 loss window G1's linkState tests
+sample; the ONLY producer of armed/failsafe in the repo, R01; sampleTimeline lerps
+numerics, rounds gear into whole shifts, steps booleans/driveMode; injectable
+clock/schedule/cancel = FakeClock's JS twin), `test/replay.test.js` (7 tests
+assertion-by-assertion incl. the feel-constants drift guard = #59a's 3-of-5 pin).
+**KEY COVERAGE FACT:** only `replaySource.js` is unit-tested — no vitest file imports
+the four `main/` process files (verified), the same untested-thin-shell architecture
+as both firmware repos' `main.cpp`+HAL (`test_build_src=no` analogue). So G2's
+VERIFIED = source+doc-cross-check-verified, mostly NOT test-verified; all runtime/
+hardware behavior (teardown, reopen healing, real serial, camera, WHEP) stays
+PROVISIONAL → demo run / bench (#25/#27/#28). NEW **#60** (a: macOS-only
+activate→duplicate `ipcMain.handle` throw, INFERRED, dev-machine-only; b: stale
+"only used when enabled" import comment; c: supervisor restart has no backoff).
+**#47 partially answered** (input half; renderer half → G3). **No hardware claims;
+iPhone bridge stays implemented + unit-tested, NOT real-device validated (#58); W3
+LOG-ONLY.** Next: G3 (renderer).
+
+Prior milestone: 2026-07-09 — **G0 re-inventory + G1 explained** (`code_explained/
 ground_station/01_shared_pure_core.md` — the manual's first JS batch, with the
 JS-for-C++-readers primer). Verification: `npx vitest run test/crsf.test.js
 test/crsfTelemetry.test.js test/linkState.test.js` → **32/32 PASSED** (13+10+9), and
@@ -501,6 +542,15 @@ Batch log:
   files + golden fixture + three suites explained (details in the Last-updated block
   above). Ran the three G1 suites → 32/32 PASSED; full suite 118/118. New #59; no
   corrections to ch08/ch09 needed (checked while reading).
+- **G2** → `code_explained/ground_station/02_main_process_and_telemetry_sources.md`
+  (2026-07-09, later session). The Electron composition root + both telemetry sources
+  (details in the Last-updated block above). Ran `test/replay.test.js` → 7/7; full
+  suite 118/118; tree still `dab3039`. Resolved G1's forward notes (the CJS→ESM
+  dynamic-import story; `sampleTimeline`/`DEMO_TIMELINE` now explained where they
+  live). #47 input half answered; new #60 (3 small observations); ch02's
+  preload-awaits-code-pass note closed. Only `replaySource.js` of the five source
+  files is unit-tested — the `main/` shell is the repo's untested-thin-rind, matching
+  both firmware repos' main.cpp/HAL exclusion.
 
 ## w17-control-fw
 
@@ -616,12 +666,12 @@ plan's Repo-3 table.)
 | `test/crsf.test.js` | G1 | explained | §9.1; 13/13 PASSED |
 | `test/crsfTelemetry.test.js` | G1 | explained | §9.2; 10/10 PASSED; golden end-to-end |
 | `test/linkState.test.js` | G1 | explained | §9.3; 9/9 PASSED; imports replaySource helpers (G2 forward coupling) |
-| `main/main.js` | G2 | not started | grew 106→159 (bridge/receiver wiring; forward refs to G5a/G5b) |
-| `main/preload.cjs` | G2 | not started | grew 17→22 (`sendCommandMirror` one-way channel) |
-| `main/mediamtx.js` | G2 | not started | |
-| `main/CrsfSerialSource.js` | G2 | not started | |
-| `shared/replaySource.js` | G2 | not started | now also exports `sampleTimeline`/`DEMO_TIMELINE` (used by G1's linkState tests) |
-| `test/replay.test.js` | G2 | not started | 7 tests; carries the feel-constants drift guard (#59a) |
+| `main/main.js` | G2 | explained | §2; composition root; bridge wiring summarized (detail → G5a/G5b); no unit test (§8); #60a/b |
+| `main/preload.cjs` | G2 | explained | §3; the complete 3-function `window.groundStation` surface |
+| `main/mediamtx.js` | G2 | explained | §4; supervisor only — video facts stay bench (#25); #60c |
+| `main/CrsfSerialSource.js` | G2 | explained | §5; HAL-rind pattern; merge accumulator (#47 input half); serial realities bench (#27/#28) |
+| `shared/replaySource.js` | G2 | explained | §6; the only unit-tested G2 source file; sole producer of armed/failsafe (R01) |
+| `test/replay.test.js` | G2 | explained | §7; 7/7 PASSED; carries the feel-constants drift guard (#59a, 3 of 5) |
 | `renderer/index.html` | G3 | not started | |
 | `renderer/hud.css` | G3 | not started | 134→137 |
 | `renderer/hud.js` | G3 | not started | 246→295 (F2 link states, F4 gear labels, command mirror); answers open question #47 |

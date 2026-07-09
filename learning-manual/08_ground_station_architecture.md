@@ -7,7 +7,9 @@ firmware, so this chapter starts with the platform.
 > **Deep dive:** the repo's shared pure core (the CRSF decoder port, telemetry model,
 > link-state model, and the cross-repo golden fixture) is explained line-by-line in
 > `code_explained/ground_station/01_shared_pure_core.md` (batch G1, with a
-> JS-for-C++-readers primer). Remaining batches G2–G5b:
+> JS-for-C++-readers primer); the Electron main process, mediamtx supervisor, and both
+> telemetry sources in `02_main_process_and_telemetry_sources.md` (batch G2 — this
+> chapter's §1/§2/§4/§6 in code form). Remaining batches G3–G5b:
 > `source_code_explanation_plan.md`.
 
 ## 1. Electron in five minutes
@@ -172,10 +174,14 @@ and frame mapping (TELEMETRY.md), the codec risk and fallbacks (SETUP.md), the
 viewer-only rationale (README), run-script behaviors (README + package.json).
 
 **Inferred [I]:** the Electron-anatomy explanation (§1) is platform knowledge applied
-to this repo's structure; the precedence description in §3 says "HUD prefers telemetry
-over its mirror when live," which ROADMAP B2.8 confirms in passing ("HUD needed no
-change — it already prefers telemetry"), but the exact widget-by-widget precedence
-awaits the code pass.
+to this repo's structure *(since confirmed against the code by G2, 2026-07-09: the
+main/renderer/preload/IPC roles are exactly as described, and the preload surface is
+exactly three functions — G2 §2–§3)*; the precedence description in §3 says "HUD
+prefers telemetry over its mirror when live," which ROADMAP B2.8 confirms in passing
+("HUD needed no change — it already prefers telemetry"), but the exact widget-by-widget
+precedence awaits the code pass (G2 settled the input half: each IPC push is a complete
+merged snapshot, `CrsfSerialSource`'s accumulator; the renderer half is G3 — open
+question #47).
 
 **Assumed [A]:** everything that touches real hardware is bench-pending: the camera's
 actual codec, the actual RTSP URL, whether elrs-joystick-control can forward telemetry,

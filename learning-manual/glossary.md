@@ -68,6 +68,12 @@ it; the 1000 µF rail capacitor prevents it. (03, 05)
 **Check value (CRC)** — the standard fingerprint for verifying a CRC implementation:
 CRC of ASCII `"123456789"`. For CRC-8/DVB-S2 it is 0xBC. (05, 09)
 
+**Child process / `spawn`** — a program started (and owned) by another program.
+Node's `spawn(binary, [args])` returns a handle with `stdout`/`stderr` streams and an
+`exit` event; killing the parent does *not* reliably kill children, which is why the
+ground station supervises mediamtx explicitly (`main/mediamtx.js`: spawn,
+restart-on-crash after 2 s, latch-guarded kill on quit). (08, G2)
+
 **com0com / hub4com** — Windows virtual serial-port splitter: one owner mirrors a
 physical COM port to several virtual ones. The planned fix for the FT232 telemetry
 sharing problem. (08)
@@ -161,6 +167,12 @@ telemetry payloads = big-endian. (09)
 
 **ELRS (ExpressLRS)** — open-source 2.4 GHz RC radio link; TX module ↔ RP1 receiver;
 also relays standard telemetry frames back. (01, 09)
+
+**Environment variable (env var)** — a named string in a process's environment,
+inherited by child processes; read in Node as `process.env.NAME` (unset =
+`undefined`). The ground station's *entire* configuration system: `W17_TELEMETRY_SOURCE`,
+`W17_TELEMETRY_PORT`, `W17_WHEP_URL`, `W17_IPHONE_BRIDGE`, `W17_HEADTRACK`… — the
+runtime, no-rebuild cousin of the firmware's compile-time `-D` build flags. (08, G2)
 
 **ERS** — Energy Recovery System (F1 concept). Simulated store: deploy via
 boost/overtake, harvest while braking/coasting with wheels turning. `lib/ers`. (10)
@@ -279,6 +291,12 @@ tiny, `IRAM_ATTR`, atomic counters, 2 ms lockout. (04)
 **JSDoc** — structured JS comments (`/** @typedef ... */`) that *document* types in a
 language with no compile-time types; the ground station's `Telemetry` "struct" is a
 JSDoc typedef enforced by nothing but tests. (G1 §1–2)
+
+**Keyframe / lerp** — animation vocabulary the replay source borrows: a *keyframe* is
+a full value-set pinned at a time point; *lerp* (linear interpolation,
+`a + (b−a)·f`) fills the gap between two keyframes. `shared/replaySource.js` lerps
+numeric telemetry between its 9 keyframes, rounds `gear` to whole shifts, and steps
+booleans/`driveMode` from the earlier keyframe. (G2 §6)
 
 **King pin** — the vertical pin a steering knuckle pivots on. (05)
 
@@ -404,6 +422,19 @@ both-channels-full, so ~5× conservative (safe direction). (03, 07, S4)
 **Preferences (Arduino)** — the Arduino-ESP32 library wrapping **NVS** as a simple named
 key→blob store; `Esp32NvsStore` uses it to persist the settings blob (namespace `w17tune`, key
 `settings`). Hardware-only; not exercised by native tests. (09b)
+
+**Preload / contextBridge (Electron)** — the small privileged script
+(`main/preload.cjs`) that runs between Electron's sandboxed page and Node:
+`contextBridge.exposeInMainWorld` publishes a hand-picked API object into the page
+(here `window.groundStation`: exactly `getConfig` / `onTelemetry` /
+`sendCommandMirror`). The page never sees `require`, `ipcRenderer`, or any Node
+primitive — the whole machine-access surface is those three functions. (08, G2)
+
+**Promise / `async`–`await`** — JS's "value that arrives later": a Promise represents
+a pending result; `await p` inside an `async` function suspends *that function* (not
+the process) until the result lands. Used for Electron boot
+(`app.whenReady().then(async …)`), request/response IPC (`ipcRenderer.invoke`), and
+the CJS→ESM dynamic `import()` of `linkState.mjs`. (G2 §1)
 
 **Potentiometer (pot)** — a knob-adjustable voltage divider; the Wokwi stand-in for the
 battery divider (preset 69% ≈ 2.27 V ≈ 8.4 V pack). (05, 11)
