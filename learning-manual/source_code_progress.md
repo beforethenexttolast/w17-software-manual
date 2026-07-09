@@ -7,7 +7,10 @@ Status values: `not started` → `explained` → `needs review` (you flagged que
 > **Repo-drift note (2026-07-09).** The batch entries below are dated records — they
 > describe the repos as of each batch's session. Since S5 (2026-07-06) the source repos
 > received the **skeptical-audit fixes F1–F4** (2026-07-07/08) and iPhone-bridge work
-> W1–W3 (ground station). Effects on this file's claims:
+> W1–W3 (ground station). The audit + F1–F4 are now explained in manual **chapter 12**
+> (`12_the_skeptical_audit_and_f1_f4_fixes.md` — an overview chapter, not a code batch;
+> the `project-review/` docs it covers are outside this campaign's line-by-line
+> inventory, like `docs/`). Effects on this file's claims:
 > - **"ci.yml byte-identical to control's" is no longer true** (F1 added the tuning
 >   build to control's; F3 added a link2 drift-guard job to both). #46 stays closed;
 >   drift notes added to ch07 §7, the S5 doc, and open question #46. ch11 §7 is current.

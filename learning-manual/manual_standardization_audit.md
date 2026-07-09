@@ -229,9 +229,12 @@ current repos and applied bounded consistency patches.
    decision — recommend leaving as-is, since the underlying facts were code-verified in
    C1–C10 and the old revision is in git history.
 2. **S1–S5 review pass** still pending (C-batch parity) — unchanged from the S5 close.
-3. **Skeptical-audit (F1–F4) manual chapter not written** — deliberately out of scope
-   this pass; when written, it should also absorb the per-fix references now scattered
-   in ch08 §3 (R01/F2), ch11 §7 (F1/R02, F1/R17a), and the glossary (R19).
+3. ~~**Skeptical-audit (F1–F4) manual chapter not written**~~ — **DONE 2026-07-09**:
+   `12_the_skeptical_audit_and_f1_f4_fixes.md` (new chapter 12), written from the
+   `w17-control-fw/project-review/` corpus (read in full this session). The scattered per-fix references
+   (ch08 §3 R01/F2, ch11 §7 F1/R02 + F1/R17a + F3/R06, glossary R19, open q #46) now
+   cross-link to it; glossary gained *Skeptical audit*, *Risk register*, *Validation
+   gate*, *Drift guard*; 00's reading order includes chapter 12.
 4. **iPhone-bridge (W1–W3) manual chapter not written** — out of scope; gated on #58's
    validation status staying honestly "pending".
 5. **G1–G4 re-inventory** before the ground-station campaign starts (§7.1).
@@ -248,4 +251,7 @@ proof, W3 completion, or ci.yml identity anymore; the S-batch campaign is fully
 reflected; unfinished work (S review pass, audit + iPhone chapters, G re-inventory) is
 tracked here and in `open_questions.md` rather than implied done. Next recommended
 batch: **G1 after re-inventory**, or the **audit F1–F4 chapter** if narrative freshness
-matters more than campaign order.
+matters more than campaign order. *(Update, later on 2026-07-09: the audit chapter was
+chosen and written — see §7.4 item 3. Remaining from that list: S1–S5 review pass,
+iPhone-bridge chapter, G1–G4 re-inventory. Next recommended batch: **G1 after
+re-inventory**, with the iPhone-bridge chapter gated on #58's validation status.)*

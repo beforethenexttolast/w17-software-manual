@@ -147,7 +147,10 @@ Both firmware repos carry `.github/workflows/ci.yml`: native tests + both ESP32 
 on every push (**[C]** ROADMAP B2.1; the control repo's workflow is explained
 line-by-line in C10 §9. It now builds `esp32dev` + `esp32dev_sim` + `esp32dev_tuning` (the
 tuning step was added in audit fix F1/R17a; soundlight's workflow has no tuning env, so the
-two are no longer byte-identical). Each repo's PlatformIO cache is keyed on its own
+two are no longer byte-identical). Both repos also carry a **link2 drift-guard job**
+(audit fix F3/R06): each clones the sibling repo and fails CI if the four shared link2
+contract files differ — the machine enforcement of chapter 02 §5's do-not-fork rule.
+The audit and fix-batch story behind all of this is chapter 12. Each repo's PlatformIO cache is keyed on its own
 `platformio.ini` hash; open question #46 closed. Build fact worth knowing: **both** firmware
 `platformio.ini` files now pin `platform = espressif32 @ ~7.0.1` **deliberately** — that is the
 last platform line shipping Arduino core 2.0.17 / IDF 4.4, whose legacy `driver/i2s.h` the

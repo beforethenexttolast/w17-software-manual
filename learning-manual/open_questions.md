@@ -174,6 +174,7 @@ These mirror the repos' own checklists — listed here so the manual tracks them
     known — but the S5-era "byte-identical" phrasing is historical; current description
     in ch11 §7, drift notes added to ch07 §7 and the S5 doc. The `lib/link2` copy and
     `docs/link2_protocol.md` remain identical across repos (re-verified 2026-07-09).
+    The audit and F1–F4 story behind the divergence is now chapter 12 (§6).
 47. The HUD's exact widget-by-widget telemetry-vs-simulation precedence in
     `renderer/hud.js`.
 48. `SimCrsfFeeder.cpp`'s script structure (phase timing table vs implementation).

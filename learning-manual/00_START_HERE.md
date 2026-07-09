@@ -29,6 +29,7 @@ Read the chapters in numeric order — each one only uses concepts introduced ea
 9. [09_communication_protocols.md](09_communication_protocols.md) — CRSF, link2, and telemetry, byte by byte
 10. [10_algorithms_state_machines_timing.md](10_algorithms_state_machines_timing.md) — the interesting logic, in depth
 11. [11_build_flash_debug_workflow.md](11_build_flash_debug_workflow.md) — how to build, test, flash, and poke everything
+12. [12_the_skeptical_audit_and_f1_f4_fixes.md](12_the_skeptical_audit_and_f1_f4_fixes.md) — the independent audit, its risk register, the F1–F4 fixes, and why "tests green" ≠ "proven"
 
 Support files, used from any chapter:
 
@@ -90,12 +91,14 @@ load NVS-saved tuning (open question #49). Hardware status unchanged.
 **Update 2026-07-09:** the sound/light explanation campaign is complete (S1–S5,
 `code_explained/soundlight_fw/`, 2026-07-06; 40/40 native tests + both firmware builds
 — review pass pending). Since then the source repos received a **skeptical-audit fix
-round (F1–F4, 2026-07-07/08)** and iPhone-bridge work (W1–W3, ground station) — both
-documented in the repos themselves; the manual's audit/iPhone chapters are **not yet
-written** (deliberately deferred). Two consequences already reflected here: the two
-firmware `ci.yml` files are **no longer byte-identical** (chapter 11 §7), and
-`w17-control-fw/CLAUDE.md` was rewritten (see the citation caveat above). Hardware
-state (per `../CURRENT_STATUS.md`): software/pre-power validation A1.1–A1.6 complete;
-the **A2 no-power bench checklist is committed but NOT executed**; powered bring-up
-(Phase B) stays blocked behind it. **Source/build/test evidence is still not hardware
-proof** — nothing has been proven on powered hardware.
+round (F1–F4, 2026-07-07/08)** and iPhone-bridge work (W1–W3, ground station).
+**The audit and its fixes now have their own chapter:
+[12_the_skeptical_audit_and_f1_f4_fixes.md](12_the_skeptical_audit_and_f1_f4_fixes.md)**;
+the iPhone-bridge chapter is still deliberately deferred (open question #58). Two
+audit consequences already reflected here: the two firmware `ci.yml` files are **no
+longer byte-identical** (chapter 11 §7, chapter 12 §6), and `w17-control-fw/CLAUDE.md`
+was rewritten (see the citation caveat above). Hardware state (per
+`../CURRENT_STATUS.md`): software/pre-power validation A1.1–A1.6 complete; the **A2
+no-power bench checklist is committed but NOT executed**; powered bring-up (Phase B)
+stays blocked behind it. **Source/build/test evidence is still not hardware proof** —
+nothing has been proven on powered hardware.

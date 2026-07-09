@@ -73,7 +73,8 @@ sources:
    shared feel constants (`shared/feelConstants.js`) so the dash looks alive with no car.
 3. **Real telemetry (when connected):** fields present in the latest `Telemetry`
    snapshot replace their simulated counterparts. Link state is *derived on the ground*
-   from link quality + staleness (`shared/linkState.mjs`, audit R01/F2) into four states:
+   from link quality + staleness (`shared/linkState.mjs`, audit fix F2 closing risk R01 —
+   the why and the history are chapter 12 §4/§6) into four states:
    **sim** — no source has *ever* been live → "Telemetry: sim", gamepad simulation;
    **live** — fresh telemetry, LQ > 0; **LINK LOST** — fresh telemetry but `linkQualityPct == 0`
    (the ground TX still reports link stats after the radio to the car drops); **TELEMETRY LOST**

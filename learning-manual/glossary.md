@@ -121,6 +121,13 @@ space frees (see Audio pump), and `tx_desc_auto_clear` makes an underrun play *s
 rather than repeating stale samples — fail-quiet at the lowest layer. `Esp32I2sAudio`.
 (07, S5)
 
+**Drift guard (link2 CI job)** — the CI step added to *both* firmware repos by audit fix
+F3 (risk R06): it clones the sibling repo and fails the build if the four copied link2
+contract files (`Link2Frame.hpp`, `Link2Codec.hpp`, `Link2Codec.cpp`,
+`link2_protocol.md`) differ. Machine enforcement of the "verbatim copy, do not fork"
+rule that previously relied on human discipline. A deliberate protocol change now
+requires updating both repos back-to-back. (11, 12)
+
 **Drive mode** — the ch13 3-position policy wired in `main.cpp`: **0 = Training** (one
 fixed gentle shape {400, 50}; paddles inert to output), **1 = Gearbox** (default — also
 what an absent channel decodes to), **2 = Gearbox+ERS**. No raw pass-through by design:
@@ -421,6 +428,13 @@ zero at 18 Hz, 50 % duty (an accumulator's top bit read as a square wave) while
 `limiterActive`, mimicking an F1 ignition cut. EngineSim raises the flag; EngineSynth
 renders it. (07, S3)
 
+**Risk register** — a numbered, ranked list of everything that could still go wrong,
+each entry carrying severity, confidence, a verification verdict (CONFIRMED / ADJUSTED /
+REFUTED / PLAUSIBLE), whether hardware is needed to close it, and when to fix it. This
+project's lives in `w17-control-fw/project-review/10_risk_register.md`: 22 stable
+`R##` entries (4 High, 13 Medium, 5 Low). Referenced by commit messages and CI job
+names. (12)
+
 **RTSP** — classic IP-camera streaming protocol; the camera's native output. (08)
 
 **Sample / sample rate** — one audio sample = one int16 telling the speaker cone where to
@@ -451,6 +465,13 @@ matte surface; why gloss clear goes on *before* decals. (05)
 amplitude ±256) indexed by the top 8 bits of a phase accumulator, so render-time trig is a
 table read, not a `sin()` call. Built once at startup — the only place float is allowed
 (house rule). (07, S3)
+
+**Skeptical audit** — the independent, pre-hardware review of all three repos
+(2026-07, output in `w17-control-fw/project-review/`) that treated all code as "guilty
+until proven correct": ten dimension investigations, cross-dimension dedupe, then an
+adversarial re-check of every High/Medium finding (some were downgraded or refuted).
+Produced the risk register, the hardware validation plan, and — after owner triage —
+the F1–F4 fix batches. Chapter 12 is the guided tour. (12)
 
 **Smoke test** — first power-on check that nothing obviously misbehaves before
 connecting valuable loads; D8 Phase 1. (05)
@@ -505,6 +526,14 @@ and 8.4 V) to correct both offset and slope; D8 Phase 8's battery ADC procedure.
 link2 115200, console 115200). (03)
 
 **Unity** — the C unit-test framework used by `pio test`. (04, 11)
+
+**Validation gate (hardware gate)** — a rule of the form "activity X is forbidden until
+check Y has passed *and been recorded*" — how the project keeps software confidence from
+quietly being treated as hardware proof. Current gates (see `../CURRENT_STATUS.md` for
+live status): Phase-A software items A1.1–A1.6 complete; the **A2 no-power multimeter
+checklist is committed but NOT executed**; **Phase B (any powered bring-up) is blocked**
+until A2 is filled in, reviewed, and approved; ESC motor power stays disconnected until
+the failsafe + arm chain is proven live. (11, 12)
 
 **Version byte / versioned blob** — the first byte of a settings blob (`kBlobVersion`). On any
 layout change the version is bumped, so an old persisted blob fails the version guard and the
