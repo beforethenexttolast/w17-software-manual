@@ -184,6 +184,18 @@ These mirror the repos' own checklists — listed here so the manual tracks them
     snapshot**, never a per-frame partial. The renderer-side half (which widget
     prefers which field, and how sim values yield to real ones) remains open → G3.
     (`02_main_process_and_telemetry_sources.md` §5.2, §9.)
+    — **FULLY ANSWERED by G3** (2026-07-09): the precedence is **per-widget AND
+    per-field**. `render()` computes `useTelem = linkState(...) !== 'sim'` once, then
+    each telemetry-capable widget independently checks
+    `useTelem && typeof telem.<field> === 'number'` — so a source that has only ever
+    sent battery frames shows real volts *and* simulated speed (labeled `km/h · sim`)
+    at once. Telemetry-only widgets: drive mode (blank without it), battery (`--`),
+    the link line. Mirror-only: THR/BRK/STR/CAM/DRS/boost/overtake (always local
+    inputs). Sim-only: the rev strip (the car transmits no engine rpm). In
+    `telemetry-lost`, the same real values are held with the `.stale` class (35 %
+    opacity) on exactly six readouts; in `link-lost` they stay bright (data is
+    fresh — the radio to the car dropped, not the serial feed).
+    (`03_renderer_hud_and_whep.md` §6.) **CLOSED.**
 48. `SimCrsfFeeder.cpp`'s script structure (phase timing table vs implementation).
     — **ANSWERED by C10 §5.4** (2026-07-05): the 10-phase implementation matches
     SIMULATION.md's demo table exactly; neither drifted.
@@ -422,3 +434,32 @@ These mirror the repos' own checklists — listed here so the manual tracks them
     observation, not a defect.
     (`code_explained/ground_station/02_main_process_and_telemetry_sources.md` §2.7,
     §2.8, §4.4, §9.)
+
+## Code observations — new, found by G3 (2026-07-09)
+
+61. **Five small display-layer notes from the ground-station renderer.** None affects
+    safety, control, or the deployment happy path; repo files are read-only so these
+    are recorded, not fixed.
+    (a) **The local "▶ Demo mode" button never demonstrates DRS.** `readDemo()` gates
+    it on `S.gear >= 5`, but audit F4 (R05) cut the HUD to 4 gears and `shift()`
+    clamps to `FEEL.gears` — gear ≥ 5 is unreachable. Git-verified: the `>= 5` line
+    is from the initial (8-gear-era) commit `e22442a`; the 4-gear alignment came
+    later in `b6d00f6` (F4) without touching it. A one-character fix (`>= 4`) *in the
+    read-only repo* — owner's call. (Display-only; `npm run demo`'s replay path and
+    real gamepad DRS are unaffected.)
+    (b) **`config:get`'s `hasTelemetrySource` field is consumed by nothing** —
+    `hud.js` is the only `getConfig` caller and reads only `feel` + `whepUrl`
+    (grep-verified). Cousin of #59b's exported-but-unused constant.
+    (c) **The boost/overtake pills light on the *simulated* ERS store** (`S.ers > 0`)
+    even when the ERS bar displays telemetry `ersPct` — with real ERS at 0 % and sim
+    ERS full, a held ○ still lights the pill. Cosmetic, mirror-side.
+    (d) **`live` with LQ absent would print "LQ 0%" in teal** (`telem.linkQualityPct
+    ?? 0`) — visually ambiguous next to LINK LOST's meaning of LQ 0, but unreachable
+    on the real path (the TX module always emits 0x14; the demo always sets LQ). [I]
+    (e) **`startWhep`'s returned `stop()` handle is never called** (page-lifetime
+    stream — likely deliberate), and the page's CSP pins `connect-src` to
+    `127.0.0.1:8889`/`localhost:8889`, so a non-local `W17_WHEP_URL` override (G2
+    §2.4) would be blocked by the page itself unless `index.html`'s meta tag is also
+    edited. [I]
+    (`code_explained/ground_station/03_renderer_hud_and_whep.md` §5.1, §6.2, §6.4,
+    §7.4, §8.3, §10.)

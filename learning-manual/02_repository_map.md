@@ -181,8 +181,11 @@ w17-ground-station/
 > `code_explained/ground_station/01_shared_pure_core.md` (batch G1, incl. a
 > JS-for-C++-readers primer); the main process + telemetry sources (`main/main.js`,
 > `preload.cjs`, `mediamtx.js`, `CrsfSerialSource.js`, `shared/replaySource.js`) in
-> `02_main_process_and_telemetry_sources.md` (batch G2); the remaining batches G3–G5b
-> are planned in `source_code_explanation_plan.md`.
+> `02_main_process_and_telemetry_sources.md` (batch G2); the renderer
+> (`renderer/index.html`, `hud.css`, `hud.js`, `whep.js` — the HUD, the widget
+> precedence, WHEP video, the command mirror) in `03_renderer_hud_and_whep.md`
+> (batch G3, incl. a browser-concepts primer); the remaining batches G4–G5b are
+> planned in `source_code_explanation_plan.md`.
 
 ## 5. Who owns what (cross-repo relationships)
 

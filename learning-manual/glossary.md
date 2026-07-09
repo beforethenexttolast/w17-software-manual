@@ -78,6 +78,20 @@ restart-on-crash after 2 s, latch-guarded kill on quit). (08, G2)
 physical COM port to several virtual ones. The planned fix for the FT232 telemetry
 sharing problem. (08)
 
+**Command mirror** — the ground station's one renderer→main message
+(`sendCommandMirror`, ~20 Hz rate-limited): a read-only copy of the command values
+*as drawn on the HUD* (throttle/brake/steering/camera + whether video is playing),
+forwarded outward to the iPhone telemetry bridge — or dropped when the bridge is off.
+One-way by construction; it never feeds control (elrs-joystick-control drives the
+car), and nothing returns on the channel. A picture of the operator's inputs, not a
+control path — and not proof the bridge works end-to-end (#58). (08, G2 §2.8, G3 §7)
+
+**Content-Security-Policy (CSP)** — a page-level allowlist (here a `<meta>` tag in
+`renderer/index.html`) declaring what a web page may load or connect to; the browser
+enforces it. The HUD's pins scripts/styles to its own files, media to live streams,
+and `fetch` to the localhost WHEP endpoint only — defense-in-depth *inside* the
+Electron sandbox. (G3 §2.1)
+
 **CRC-8 (poly 0xD5)** — the 1-byte checksum (CRC-8/DVB-S2) used by both CRSF and link2;
 corrupted frames are rejected. (09)
 
@@ -134,6 +148,11 @@ space frees (see Audio pump), and `tx_desc_auto_clear` makes an underrun play *s
 rather than repeating stale samples — fail-quiet at the lowest layer. `Esp32I2sAudio`.
 (07, S5)
 
+**DOM (Document Object Model)** — the browser's live object tree parsed from HTML;
+JS reads and mutates it (`document.getElementById`, `.textContent`, `.classList`)
+and the screen follows — no explicit "redraw" call. The renderer's version of
+setPixel-then-show, with the show implicit. (08, G3 §1)
+
 **Drift guard (link2 CI job)** — the CI step added to *both* firmware repos by audit fix
 F3 (risk R06): it clones the sibling repo and fails the build if the four copied link2
 contract files (`Link2Frame.hpp`, `Link2Codec.hpp`, `Link2Codec.cpp`,
@@ -184,6 +203,11 @@ so it can't click. `lib/soundsynth`. (07, S3)
 **ESC** — electronic speed controller: converts 1000–2000 µs PWM into three-phase motor
 power. Hobbywing 10BL120, sensored, forward/brake mode. (03)
 
+**Event listener** — a callback registered on a browser element or the page
+(`addEventListener('keydown', fn)`); the browser calls it when the named event fires,
+delivering an event object with the details. Push-style input (ISR-flavored), in
+contrast to the polled Gamepad API — the HUD uses both. (G3 §1)
+
 **Expo** — exponential stick curve: softens response near center, keeps endpoints.
 Per-gear in the gearbox. (10)
 
@@ -216,6 +240,13 @@ at neutral again before power flows (closes finding A3). (10)
 **Function-local static** — a variable declared `static` inside a function: initialized once
 (the first time execution reaches it) and keeping its value across calls — static storage, not
 the stack. Used for the sim status-print and feeder timestamps. (C10)
+
+**Gamepad API** — the browser's controller interface: `navigator.getGamepads()`
+returns arrays of `axes` (−1…1 floats) and `buttons` (`{pressed, value}` — triggers
+are analog). **Polled** each frame, not event-driven (only connect/disconnect are
+events). Indices follow the W3C "standard gamepad" layout; that a DualShock lands on
+them as the HUD assumes (R2=7 throttle, L2=6 brake…) is browser/OS behavior — a
+demo-run check. (08, G3 §1/§5.2)
 
 **Gamma correction (LED)** — re-mapping brightness values through `out = in^2.2` (a
 256-entry LUT) so *perceived* LED brightness tracks the input linearly (raw PWM looks
@@ -470,6 +501,13 @@ firmware's `snprintf("G%u M%u E%u")`. (G1 §4.5)
 **Regression test** — a test added after a bug so it can never silently return; A1's
 fix added "no frame ever ⇒ Safe at every timestamp." (05)
 
+**requestAnimationFrame (render loop)** — the browser API that calls your function
+right before the next screen repaint (~60 Hz, display-synced, paused when hidden);
+re-requesting inside the callback makes a render loop — the renderer's answer to the
+firmware's 50 Hz tick, with the *display* as the clock. The HUD's `frame()` also
+clamps `dt` to 50 ms so a stall drops time instead of catching up (the tick-guard
+policy, one `Math.min`). (G3 §1/§7.2)
+
 **Rev limiter (ignition cut)** — the redline "braaap": the synth gates its whole output to
 zero at 18 Hz, 50 % duty (an accumulator's top bit read as a square wave) while
 `limiterActive`, mimicking an F1 ignition cut. EngineSim raises the flag; EngineSynth
@@ -491,6 +529,12 @@ sample ≈ 45.4 µs. Stereo frames interleave L,R,L,R… (07, S3)
 **Saturation (hard clip)** — clamping an out-of-range audio value to the int16 rail
 (±32,767) instead of letting it wrap (signed overflow → glitch/UB). The synth's final
 clamp is a saturating backstop; the headroom budget means it should never fire. (07, S3)
+
+**SDP offer/answer (WebRTC handshake)** — how two WebRTC peers agree on a media
+session: one sends an **offer** (an SDP text blob describing what it can receive),
+the other returns an **answer**, then media flows. **WHEP** compresses the exchange
+into a single HTTP POST (body = offer, response = answer) — `renderer/whep.js` is the
+whole protocol in one `fetch`. (08, G3 §1/§8)
 
 **Sensored** — see Brushless motor.
 
@@ -622,7 +666,7 @@ persists in flash but the plain build never reads it and runs compiled-in defaul
 question #49). (09b, C10)
 
 **WHEP** — HTTP handshake standard for *receiving* WebRTC streams; `renderer/whep.js`.
-(08)
+See SDP offer/answer. (08, G3 §8)
 
 **Wokwi** — browser/VS-Code ESP32 simulator running the real firmware against the
 virtual circuit in `diagram.json`. (05, 11)

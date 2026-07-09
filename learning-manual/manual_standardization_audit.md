@@ -336,4 +336,45 @@ CLAUDE.md §N citations (item 1, recommend leave), C1–C8 style drift (item 7, 
 Remaining from §7.4 (unchanged): S1–S5 review pass, iPhone-bridge chapter (gated on
 #58 + the chapter-vs-batch-doc decision), CLAUDE.md §N citations (leave), C1–C8 style
 drift (accepted). **Next recommended batch: G3 (the renderer — HUD + video), which
-closes #47's remaining half.**
+closes #47's remaining half.** *(Done — §10.)*
+
+---
+
+## 10. G3 — 2026-07-09 (later session, same day as §§8–9)
+
+- **G3 written:** `code_explained/ground_station/03_renderer_hud_and_whep.md` — the
+  renderer (`renderer/index.html`, `hud.css`, `hud.js`, `whep.js`; 618 lines).
+  Verified: full suite 118/118 (renderer files have **no** unit tests of their own —
+  the batch doc's §9 makes the coverage asymmetry explicit: `hud.js` is the repo's
+  third untested shell but *not* thin; the precedence logic is source-verified only,
+  with linkState's 9 G1 tests + the feel-constants guard as the only test-backed
+  pieces). Tree unchanged at `dab3039`; line counts re-checked against the plan's
+  table (exact).
+- **Full Standard-B skeleton present** (scope/prereqs/where-this-fits/line-by-line/
+  concepts-on-first-use/tests/what-proves-what/labels/questions), with a browser
+  primer (part 3: DOM, events, Gamepad API, requestAnimationFrame, CSP, WebRTC/SDP)
+  continuing G1/G2's primer numbering.
+- **Open question #47 CLOSED** (renderer half): the per-widget/per-field precedence
+  table (G3 §6.2); F2's four-state display and F4's gear/label alignment located in
+  the shipped code; the command mirror explained with the safety framing intact.
+- **Consistency patches:** ch02 + ch08 deep-dive pointers extended to G3; ch08's
+  Inferred block updated (#47 closed); **one real drift fixed** — ch09 §3's
+  reliability table still described the *pre-F2* HUD ("falls back to simulation after
+  1 s") → corrected to the hold-dimmed four-state model; ch09's deep-dive pointer now
+  names G1/G3; `code_explained/README.md` layout line; progress file (new
+  Last-updated block, G3 batch-log entry, 4 renderer rows → explained); plan (G3 row
+  → DONE); `README.md` + `00_START_HERE.md` status lines; glossary +7 (Command
+  mirror, CSP, DOM, Event listener, Gamepad API, requestAnimationFrame, SDP
+  offer/answer) + WHEP cross-link; open questions: #47 closure note, new **#61**
+  (5 display-layer observations, incl. the git-verified demo-DRS dead branch left
+  behind by F4's 8→4 gear cut).
+- **Standing warnings kept intact:** no hardware claims (118 green vitest say nothing
+  about video/camera/serial/radio — #25/#27/#28 all bench); the command mirror is a
+  display mirror, not control, and not end-to-end proof; iPhone bridge stays
+  implemented + unit-tested, **NOT real-device validated** (#58); W3 LOG-ONLY (the
+  renderer verifiably imports nothing from it — the noControlPath module-graph scan).
+
+Remaining from §7.4 (unchanged): S1–S5 review pass, iPhone-bridge chapter (gated on
+#58 + the chapter-vs-batch-doc decision), CLAUDE.md §N citations (leave), C1–C8 style
+drift (accepted). **Next recommended batch: G4 (scripts + packaging + CI) — the last
+non-bridge batch, completing the viewer-app story before the G5a/G5b gate decision.**

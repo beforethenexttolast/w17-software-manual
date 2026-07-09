@@ -28,7 +28,44 @@ Status values: `not started` → `explained` → `needs review` (you flagged que
 >   and the table below reflects the current tree at `dab3039`.
 > - Statuses (`reviewed`/`explained`) are unchanged — no explained logic changed.
 
-**Last updated: 2026-07-09 (later session) — G2 explained** (`code_explained/
+**Last updated: 2026-07-09 (later session) — G3 explained** (`code_explained/
+ground_station/03_renderer_hud_and_whep.md` — the renderer: HUD page, widget
+precedence, WHEP video, command mirror). Verification: full suite `npx vitest run` →
+**118/118 PASSED** (8 files, 323 ms); tree unchanged at `dab3039`; line counts
+re-verified (97/137/295/89 = 618). Covered: `index.html` (CSP incl. the
+localhost-pinned connect-src; stage/video/HUD regions; the start gate with the
+viewer-only contract stated in the UI itself), `hud.css` (Mercedes palette via CSS
+variables; clamp() responsive sizing; the functional selectors table — incl.
+`.stale{opacity:.35}`, audit F2's dimming in CSS form), `hud.js` (browser primer part
+3: DOM/events/classList/Gamepad API/requestAnimationFrame/performance.now/ESM-in-
+browser/CSP/WebRTC-SDP; the telemEverLive caller-side latch G1 §7 promised; DRIVE_
+MODES = R19 labels; caps [0,103,181,253,320] re-derived; readInputs' prev-latch edges
+= C5's consume-on-read in JS; updateSim using the three shared ERS rates; **render()
+= #47's renderer half, ANSWERED: per-widget AND per-field** — `useTelem = state !==
+'sim'`, `typeof telem.X === 'number'` per field; telemetry-only widgets mode/battery/
+link-line, mirror-only command widgets, sim-only rev strip, stale-dimming on exactly
+six readouts, LINK LOST bright vs TELEMETRY LOST dimmed; **sendCommandMirror** — the
+one renderer→main message, ~20 Hz rate-limited, display mirror only, NOT a control
+path and NOT proof the bridge works end-to-end, #58 unchanged), `whep.js` (the whole
+WHEP protocol = one POST, offer/answer SDP; recvonly video, playoutDelayHint 0;
+1.5 s fixed retry — third instance of the no-backoff house style, #60c-adjacent).
+**KEY COVERAGE FACT: no vitest file imports any renderer file** — and unlike G2's
+thin `main/` shell, `hud.js` carries real untested decisions (the precedence table,
+input edges, sim physics); only linkState (G1's 9 tests) + the ERS rates (G2's drift
+guard) + the noControlPath text scan carry test evidence; everything visual/runtime
+is demo-run/bench (#25 video codec = the repo's #1 risk). NEW **#61** (5 display-
+layer notes: demo-mode DRS dead branch `gear >= 5` predating F4's 4-gear cut,
+git-verified; `hasTelemetrySource` config field consumed by nothing; boost pills
+gate on sim ERS; live-with-missing-LQ prints "LQ 0%"; unused whep stop() + the CSP/
+W17_WHEP_URL interaction). **#47 FULLY ANSWERED** (input half G2, renderer half G3).
+Correction to earlier material: ch09 §3's "HUD falls back to simulation after 1 s"
+was pre-F2 wording → corrected to the four-state hold-dimmed model. **No hardware
+claims; iPhone bridge stays implemented + unit-tested, NOT real-device validated
+(#58); W3 LOG-ONLY** (the renderer verifiably imports nothing from it —
+noControlPath's module-graph scan, run green this session). Next: G4 (scripts +
+packaging + CI).
+
+Prior milestone: 2026-07-09 (later session) — **G2 explained** (`code_explained/
 ground_station/02_main_process_and_telemetry_sources.md` — the Electron main process +
 both telemetry sources). Verification: `npx vitest run test/replay.test.js` → **7/7
 PASSED**, full suite → **118/118 PASSED** (8 files); tree unchanged at `dab3039`; line
@@ -551,6 +588,17 @@ Batch log:
   preload-awaits-code-pass note closed. Only `replaySource.js` of the five source
   files is unit-tested — the `main/` shell is the repo's untested-thin-rind, matching
   both firmware repos' main.cpp/HAL exclusion.
+- **G3** → `code_explained/ground_station/03_renderer_hud_and_whep.md` (2026-07-09,
+  later session). The renderer: `index.html` + `hud.css` + `hud.js` + `whep.js`
+  (details in the Last-updated block above). Ran the full suite → 118/118; tree still
+  `dab3039`. **#47 fully answered** (the per-widget/per-field precedence table, G3
+  §6.2); the F2 four-state display and F4 gear/label alignment located in the
+  renderer's flesh; the command mirror explained with its safety framing intact
+  (display mirror, not control, #58 unchanged). New #61 (5 display-layer notes, incl.
+  the git-verified demo-DRS dead branch). Correction: ch09 §3's stale pre-F2
+  "falls back to simulation after 1 s" cell fixed. Coverage honesty: the renderer is
+  the repo's third untested shell but NOT thin — the precedence logic is
+  source-verified only.
 
 ## w17-control-fw
 
@@ -672,10 +720,10 @@ plan's Repo-3 table.)
 | `main/CrsfSerialSource.js` | G2 | explained | §5; HAL-rind pattern; merge accumulator (#47 input half); serial realities bench (#27/#28) |
 | `shared/replaySource.js` | G2 | explained | §6; the only unit-tested G2 source file; sole producer of armed/failsafe (R01) |
 | `test/replay.test.js` | G2 | explained | §7; 7/7 PASSED; carries the feel-constants drift guard (#59a, 3 of 5) |
-| `renderer/index.html` | G3 | not started | |
-| `renderer/hud.css` | G3 | not started | 134→137 |
-| `renderer/hud.js` | G3 | not started | 246→295 (F2 link states, F4 gear labels, command mirror); answers open question #47 |
-| `renderer/whep.js` | G3 | not started | |
+| `renderer/index.html` | G3 | explained | §2; CSP (localhost-pinned connect-src), HUD regions, start gate w/ in-UI viewer-only contract |
+| `renderer/hud.css` | G3 | explained | §3; palette variables, clamp() sizing, functional-selector table; `.stale` = F2's dimming |
+| `renderer/hud.js` | G3 | explained | §§4–7; **#47 renderer half ANSWERED** (per-widget/per-field precedence); everLive latch; command mirror; R19 labels; F4 leftover found (#61a); NO unit test — precedence source-verified only |
+| `renderer/whep.js` | G3 | explained | §8; one-POST WHEP handshake, recvonly, 1.5 s fixed retry; all real-video behavior bench (#25) |
 | `scripts/run.js` | G4 | not started | |
 | `scripts/ensure-electron.js` | G4 | not started | |
 | `scripts/fetch-mediamtx.js` | G4 | not started | |

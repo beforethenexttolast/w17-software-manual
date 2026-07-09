@@ -8,8 +8,10 @@ control + telemetry), **link2** (board #1 → board #2), and how they're kept ho
 > is C8, and the telemetry senders' wiring/cadence is C10 §4.7. The link2 **receiver side**
 > (board #2's copy of the codec + the `Link2Monitor` staleness watchdog) is
 > `soundlight_fw/01_link2_receiver_and_protocol_compatibility.md` (S1), which also
-> diff-verifies the two repos' link2 against each other. The ground-side JS decoder comes
-> with batch G1.
+> diff-verifies the two repos' link2 against each other. The ground-side JS decoder is
+> `ground_station/01_shared_pure_core.md` (G1); how its output becomes HUD pixels
+> (widget precedence + the four link states rendered) is `03_renderer_hud_and_whep.md`
+> (G3).
 
 ## 0. Protocol concepts in 90 seconds
 
@@ -184,7 +186,7 @@ consequence (engine to exact digital silence + hazard) is natively test-executed
 | Layer | CRSF in | link2 | CRSF telemetry |
 |---|---|---|---|
 | Corruption | CRC8 0xD5, bad frames rejected | same | same (checked by ground decoder) |
-| Silence | failsafe FSM 500 ms + latched LQ=0 flag | 500 ms → local failsafe | HUD falls back to simulation after 1 s |
+| Silence | failsafe FSM 500 ms + latched LQ=0 flag | 500 ms → local failsafe | HUD shows TELEMETRY LOST after 1 s, holding last real values dimmed (never silently resumes simulation — audit F2, ch08 §3; the pre-F2 behavior *was* a silent sim fallback) |
 | Version skew | fixed frame types | explicit version byte, checked after CRC | fixed standard types |
 | Implementation drift | — | lib copied verbatim + cross-CRC test | **golden vectors asserted in both repos** (firmware `test_build_*_frame*` ↔ ground vitest) |
 
