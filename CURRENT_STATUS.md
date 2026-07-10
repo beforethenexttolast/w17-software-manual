@@ -4,8 +4,9 @@
 Overwrite it in place when state changes; do not append history. Instruction files
 (`CLAUDE.md` / `AGENTS.md`) must not duplicate anything below.
 
-_Last updated: 2026-07-09 (instruction-structure audit; then bridge-validation session —
-Windows GS host stood up, network client-isolation finding recorded)._
+_Last updated: 2026-07-10 (ground-station pre-ride setup flow landed: pit-wall UI,
+in-app WiFi join/hotspot, controller presets, settings persistence, launch-only elrs
+integration, mDNS discovery proposal for iPhone_rc; bench validation pending)._
 
 ## Checkpoints
 
@@ -13,7 +14,7 @@ Windows GS host stood up, network client-isolation finding recorded)._
 |---|---|---|
 | `projects` (manual repo, `w17-software-manual`) | — | contains this CURRENT_STATUS.md; do not self-record its own exact hash — use `git HEAD` for the current commit |
 | `w17-control-fw` | `8336caa` | |
-| `w17-ground-station` | `dab3039` | |
+| `w17-ground-station` | `3c16954` | pre-ride setup flow (`4103db2`…`3c16954`); 217/217 tests; OS paths bench-unvalidated |
 | `w17-soundlight-fw` | `4f25856` | clean |
 | `iPhone_rc` (Codex) | `b51ebe0` | AGENTS.md added/committed/pushed |
 | `w17-rc-print-codex` (Codex) | `75b408c` | has existing untracked reports |
@@ -50,6 +51,20 @@ Windows GS host stood up, network client-isolation finding recorded)._
     10/11 to be verified on arrival); FPV **camera AP** for a later field-representative
     pass. Gate every attempt on a peer-to-peer ping before any UDP test.
   - Not yet run end-to-end against a real iPhone (no device on hand yet).
+  - **New since 2026-07-10 — in-app setup flow supersedes manual network setup:** the
+    ground station (checkpoint `3c16954`) now scans/joins WiFi and hosts a hotspot
+    itself (Mobile Hotspot backend preferred; legacy `hostednetwork` fallback targets
+    the RT5370, needs elevation), runs the peer ping as a first-class GRID check, and
+    can enable W2/W3 from persisted settings (`settings.json` in userData; **set env
+    vars always win**). Orchestration logic is unit-tested against canned command
+    output (217/217); the **real OS layer is UNVALIDATED** — runbook with evidence
+    boxes: `w17-ground-station/docs/setup_flow_bench_checklist.md`. W3 remains
+    LOG-ONLY (new: it exposes the last accepted sender's IP as a user-confirmed
+    address suggestion — transport metadata only, guard-tested).
+- **mDNS discovery of the iPhone HUD: PROPOSED, awaiting iPhone_rc (Codex) adoption.**
+  Proposal: `w17-ground-station/docs/proposals/iphone_mdns_discovery.md`; handoff +
+  Codex prompt: `_handoff/2026-07-10_ground-station_setup_flow_and_mdns.md`. Windows
+  implements nothing until the canonical contract adopts it.
 - **Active iPhone-derived pan/tilt: BLOCKED** behind a separate, reviewed safety milestone.
   Until then: no iPhone → CRSF, no iPhone → servo/gimbal, firmware stays iPhone-unaware, and
   the Windows W3 (UDP 5602) receiver is LOG-ONLY.
