@@ -19,13 +19,14 @@ pending validations live in `CURRENT_STATUS.md`.
 | `w17-soundlight-fw` | projects | Claude Code | ESP32 #2 sound + light: consumes `link2`, V10 engine synth (I2S/MAX98357A), WS2812 lights. No control authority. |
 | `w17-ground-station` | projects | Claude Code | Electron viewer app: video + F1 HUD + telemetry. Windows side is control/integration authority; the app itself is viewer-only. |
 | `learning-manual` | projects | Claude Code | Beginner-friendly manual for the whole system. Persistent teaching output. |
+| `w17-3d-codex` | projects | Claude Code | 3D printing & fabrication: model inventory, materials, Bambu slicing specs, test prints, finishing/painting/decals, printed-part assembly. Raw STLs live untracked in its `unsorted_stl_raw/`. Consults the Codex `w17-rc-print-codex` reports read-only. |
 | `iPhone_rc` | Codex | ChatGPT Codex | Thin iPhone FPV HUD client. Receives telemetry (UDP 5601), sends head-tracking **intent** (UDP 5602). No control path. |
 | `w17-rc-print-codex` | Codex | ChatGPT Codex | STL/SCAD print-decision project (3D-print filtering). Isolated from firmware/bridge/electronics. Do not touch unless explicitly asked. |
 
 ## Ownership split (quick reference)
 
-- **Claude Code:** control-fw, soundlight-fw, ground-station, learning-manual, hardware
-  bring-up docs/checklists.
+- **Claude Code:** control-fw, soundlight-fw, ground-station, learning-manual, w17-3d-codex
+  (3D printing/fabrication/finishing), hardware bring-up docs/checklists.
 - **ChatGPT Codex:** iPhone_rc (bridge/HUD) and w17-rc-print-codex (printing/mechanical).
 
 ## Canonical-vs-copy registry

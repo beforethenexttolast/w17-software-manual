@@ -5,6 +5,7 @@
 w17-control-fw/
 w17-ground-station/
 w17-soundlight-fw/
+w17-3d-codex/
 
 # Common generated files
 node_modules/

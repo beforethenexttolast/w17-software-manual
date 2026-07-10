@@ -6,7 +6,9 @@ Overwrite it in place when state changes; do not append history. Instruction fil
 
 _Last updated: 2026-07-10 (ground-station pre-ride setup flow landed: pit-wall UI,
 in-app WiFi join/hotspot, controller presets, settings persistence, launch-only elrs
-integration, mDNS discovery proposal for iPhone_rc; bench validation pending)._
+integration, mDNS discovery proposal for iPhone_rc; bench validation pending.
+Also 2026-07-10: `w17-3d-codex` bootstrapped as the Claude-side 3D-printing subproject —
+inventory, material matrix, print spec, guides; nothing printed yet)._
 
 ## Checkpoints
 
@@ -16,6 +18,7 @@ integration, mDNS discovery proposal for iPhone_rc; bench validation pending)._
 | `w17-control-fw` | `8336caa` | |
 | `w17-ground-station` | `3c16954` | pre-ride setup flow (`4103db2`…`3c16954`); 217/217 tests; OS paths bench-unvalidated |
 | `w17-soundlight-fw` | `4f25856` | clean |
+| `w17-3d-codex` | `80e7f74` | bootstrapped 2026-07-10: 210 files classified (37 required staged), docs + gates written; 4 human gates open, nothing printed |
 | `iPhone_rc` (Codex) | `b51ebe0` | AGENTS.md added/committed/pushed |
 | `w17-rc-print-codex` (Codex) | `75b408c` | has existing untracked reports |
 
