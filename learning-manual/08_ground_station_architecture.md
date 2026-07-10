@@ -12,7 +12,9 @@ firmware, so this chapter starts with the platform.
 > chapter's §1/§2/§4/§6 in code form); the renderer — the HUD page, this chapter's §3
 > precedence in code form (open question #47's full answer), the WHEP client, and the
 > command mirror — in `03_renderer_hud_and_whep.md` (batch G3, with a browser-concepts
-> primer). Remaining batches G4–G5b: `source_code_explanation_plan.md`.
+> primer); and the deployment story (npm scripts, Electron packaging, `mediamtx.yml`,
+> and CI) in `04_scripts_packaging_and_ci.md` (batch G4). Remaining batches G5a/G5b
+> (iPhone bridge): `source_code_explanation_plan.md`.
 
 ## 1. Electron in five minutes
 

@@ -378,3 +378,47 @@ Remaining from §7.4 (unchanged): S1–S5 review pass, iPhone-bridge chapter (ga
 #58 + the chapter-vs-batch-doc decision), CLAUDE.md §N citations (leave), C1–C8 style
 drift (accepted). **Next recommended batch: G4 (scripts + packaging + CI) — the last
 non-bridge batch, completing the viewer-app story before the G5a/G5b gate decision.**
+
+## 11. G4 — 2026-07-09 (later session, same day as §§8–10)
+
+- **G4 written:** `code_explained/ground_station/04_scripts_packaging_and_ci.md` — the
+  deployment story: `package.json`, `scripts/run.js`, `scripts/ensure-electron.js`,
+  `scripts/fetch-mediamtx.js`, `electron-builder.yml`, `mediamtx/mediamtx.yml`,
+  `.github/workflows/ci.yml` (303 lines of source/config across 7 files). This is the
+  **last non-bridge ground-station batch** — G1–G4 now tell the complete viewer-app arc
+  (shared core → main process → renderer → build/package/CI). Verified: full suite
+  `npx vitest run` → **118/118 PASSED**, which reproduces CI's own `test` job (not its
+  packaging job). Tree unchanged at `dab3039`; all seven G4 line counts re-checked
+  against the plan's table (exact).
+- **Full Standard-B skeleton present** (scope/prereqs/where-this-fits/tooling primer/
+  line-by-line/concepts-on-first-use/what-CI-proves/coverage line/labels/questions),
+  with a tooling primer (npm, packaging, CI) continuing the batch-primer convention.
+- **Coverage honesty is the batch's spine:** its §9 makes explicit that **none of the
+  seven G4 files is unit-tested** — they are scripts/config, verified by *running* the
+  tools (CI's packaging job + a human's `npm run setup`/`start`/`build`), none of which
+  this manual has done. So G4 is the widest source/test-verified-but-NOT-runtime-verified
+  gap in the campaign; every VERIFIED label is source-read + cross-check, never
+  test-pinned. §8.4/§10 keep packaging/download/launch/video all PROVISIONAL → real run /
+  bench.
+- **Consistency patches:** ch02 + ch08 deep-dive pointers extended to G4; ch11 §7's CI
+  overview now cross-links the line-by-line read (G4 §8); `code_explained/README.md`
+  layout line (`01_…`–`04_…`); progress file (new Last-updated block, G3 block demoted,
+  G4 batch-log entry, 7 G4 rows → explained); plan (G4 row → DONE); `README.md` +
+  `00_START_HERE.md` status lines; glossary additions; open questions: new **#62**.
+- **New open question #62** (small, works-as-designed): `ensure-electron.js` extracts
+  Electron from the **download cache** — it does **not** download; a fully script-blocked
+  install where the binary was never fetched needs a manual `node
+  node_modules/electron/install.js` first. Documented in the script's own error message.
+- **Standing warnings kept intact:** no hardware/video/serial/device claims — **"CI
+  green" ≠ "the ground station works"**, it = "the logic is sound and the box packs"
+  (#25/#27/#28 all bench); packaging assembles files, it does not run the UI or the
+  installer (the smoke job is `--dir`, no NSIS/sign/publish); iPhone bridge stays
+  implemented + unit-tested, **NOT real-device validated** (#58); W3 LOG-ONLY (the
+  noControlPath tests that enforce it run inside the 118 but are a structural guarantee,
+  not a device test).
+
+Remaining from §7.4 (unchanged): S1–S5 review pass, iPhone-bridge chapter + batches
+G5a/G5b (gated on #58 + the chapter-vs-batch-doc decision), CLAUDE.md §N citations
+(leave), C1–C8 style drift (accepted). **Next recommended batch: G5a (iPhone bridge W2,
+telemetry-out) — gated on the #58 chapter-vs-batch-doc decision; must not claim W3
+real-device validation.**

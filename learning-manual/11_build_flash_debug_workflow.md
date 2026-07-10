@@ -167,8 +167,8 @@ soundlight audio HAL depends on **and** whose channel-based LEDC API the control
 depends on; an unpinned bump to core 3.x would delete both. (control-fw pinned in audit fix
 F1/R02.)
 The ground station's cross-platform claim is likewise "proven by CI + the pure-core
-tests" (README). Its own `.github/workflows/ci.yml` (read 2026-07-09; line-by-line in
-batch G4) has two jobs: `npm test` on Ubuntu (the 118 vitest tests), plus a **Windows
+tests" (README). Its own `.github/workflows/ci.yml` (explained line-by-line in batch G4,
+`code_explained/ground_station/04_scripts_packaging_and_ci.md` §8) has two jobs: `npm test` on Ubuntu (the 118 vitest tests), plus a **Windows
 packaging smoke** added by audit fix F2 (R17b/R03) — rebuild `serialport` against
 Electron's ABI, then an unpacked `electron-builder --dir` build, proving the deliverable
 `.exe` actually packages (no installer, no signing, no publish). Practical meaning for

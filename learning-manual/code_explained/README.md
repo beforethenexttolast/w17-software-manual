@@ -8,8 +8,9 @@ Line-by-line source explanations, one markdown file per batch (see
 
 - `control_fw/` — w17-control-fw batches `01_…` to `10_…` (plan IDs C1–C10)
 - `soundlight_fw/` — w17-soundlight-fw batches `01_…` to `05_…` (plan IDs S1–S5)
-- `ground_station/` — w17-ground-station batches `01_…`–`03_…` so far (plan IDs
-  G1–G5b; G4 pending; G5a/G5b are the iPhone-bridge batches, see the plan)
+- `ground_station/` — w17-ground-station batches `01_…`–`04_…` so far (plan IDs
+  G1–G5b; G4 = `04_scripts_packaging_and_ci.md`, done 2026-07-09; G5a/G5b are the
+  iPhone-bridge batches still pending, see the plan)
 
 ## Format of each batch file
 

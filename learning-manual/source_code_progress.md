@@ -28,7 +28,52 @@ Status values: `not started` → `explained` → `needs review` (you flagged que
 >   and the table below reflects the current tree at `dab3039`.
 > - Statuses (`reviewed`/`explained`) are unchanged — no explained logic changed.
 
-**Last updated: 2026-07-09 (later session) — G3 explained** (`code_explained/
+**Last updated: 2026-07-09 (later session) — G4 explained** (`code_explained/
+ground_station/04_scripts_packaging_and_ci.md` — the deployment story: npm scripts,
+setup/helper scripts, Electron packaging, mediamtx config, and CI). This is the **last
+non-bridge ground-station batch**; G1–G4 now tell the complete viewer-app story
+(shared core → main process → renderer → build/package/CI). Verification: full suite
+`npx vitest run` → **118/118 PASSED** (8 files, 335 ms — reproducing CI's own `test`
+job); tree unchanged at `dab3039`; all seven G4 line counts re-verified against the
+plan (19/88/57/32/40/36/31 = 303). Covered: `package.json` (entry point
+`main/main.js`; the 8-script table dev/demo/test/build/package; **zero runtime
+`dependencies`** — only optional `serialport` + dev tooling, so the dependency graph
+*declares* G2 §5's graceful degradation; `allowScripts`/lavamoat = the reason
+ensure-electron exists; package-lock concept), `scripts/run.js` (the
+`ELECTRON_RUN_AS_NODE` strip that makes `npm start` immune to the VS-Code-in-Electron
+gotcha; `--demo` → `W17_TELEMETRY_SOURCE=replay` = the entire demo mechanism, matched
+to G2 §2.3), `scripts/ensure-electron.js` (**repairs from the download cache — does
+NOT download**; idempotent guard, per-platform cache dirs, system-unzip extraction,
+`path.txt` write; honest two-step failure when the zip was never fetched → **#62**),
+`scripts/fetch-mediamtx.js` (pinned v1.9.3 via global `fetch`; per-platform asset
+naming; extracts ONLY the binary so our authoritative `mediamtx.yml` survives),
+`electron-builder.yml` (`files` = exactly the G1–G3 runtime folders; **`extraResources`
+mediamtx = the packaged path G2 §2.5 read from the code side**; NSIS target; CSC_*
+signing hooks with no secrets, matched to CODESIGNING.md; **`asarUnpack` serialport +
+`app:rebuild` chain = the packaging half of G2 §5's optional native module**, audit
+R03), `mediamtx/mediamtx.yml` (project-authored, hand-edited — NOT the release sample;
+`webrtcAddress: :8889` + `paths.cam` = **the server side of G3 §8's WHEP POST to
+127.0.0.1:8889/cam/whep**; localhost-only matches the page CSP; placeholder RTSP source
++ the H.265 #1-risk warning; offline-demo comment), `.github/workflows/ci.yml`
+(line-by-line: job `test` on Ubuntu = `npm ci` + `npm test` = the 118 tests; job
+`package-smoke` on Windows = rebuild serialport + `electron-builder --dir`, **added by
+audit F2** R17b/R03, no installer/signing/publish). **KEY COVERAGE FACT: not one of the
+seven G4 files is imported or executed by any vitest test** — they are scripts/config,
+verified by *running* the tools (CI's packaging job + a human's `npm run
+setup`/`start`/`build`), none of which this manual has done. The 118 tests CI runs all
+belong to G1 (32), G2 (7), G5a (39), G5b (40) — table in §9. So G4 is the widest
+source/test-verified-but-NOT-runtime-verified gap in the campaign, and every VERIFIED
+label means source-verified + cross-checked (against G2's mediamtx path/serialport
+degradation, G3's WHEP endpoint, and the docs) — packaging/download/launch/video all
+stay **PROVISIONAL → real run / bench (#25/#27/#28)**. NEW **#62** (ensure-electron
+repairs from cache only; fully-blocked installs need a manual `install.js` first — works
+as designed, documented in its own error message). **No hardware/video/serial/device
+claims; "CI green" ≠ "the ground station works" — it = "the logic is sound and the box
+packs"; iPhone bridge stays implemented + unit-tested, NOT real-device validated (#58);
+W3 LOG-ONLY.** Next: G5a/G5b (iPhone bridge) — gated on the #58 chapter-vs-batch-doc
+decision.
+
+Prior milestone: 2026-07-09 (later session) — **G3 explained** (`code_explained/
 ground_station/03_renderer_hud_and_whep.md` — the renderer: HUD page, widget
 precedence, WHEP video, command mirror). Verification: full suite `npx vitest run` →
 **118/118 PASSED** (8 files, 323 ms); tree unchanged at `dab3039`; line counts
@@ -599,6 +644,28 @@ Batch log:
   "falls back to simulation after 1 s" cell fixed. Coverage honesty: the renderer is
   the repo's third untested shell but NOT thin — the precedence logic is
   source-verified only.
+- **G4** → `code_explained/ground_station/04_scripts_packaging_and_ci.md` (2026-07-09,
+  later session). The deployment story — the last non-bridge ground-station batch, so
+  G1–G4 now tell the whole viewer-app arc (shared core → main process → renderer →
+  build/package/CI). Seven files: `package.json`, `scripts/run.js`,
+  `scripts/ensure-electron.js`, `scripts/fetch-mediamtx.js`, `electron-builder.yml`,
+  `mediamtx/mediamtx.yml`, `.github/workflows/ci.yml` (details in the Last-updated block
+  above). Ran the full suite `npx vitest run` → **118/118 PASSED** (8 files) — this
+  reproduces CI's own `test` job, not the packaging job. **KEY COVERAGE FACT: none of the
+  seven G4 files is imported or executed by any vitest test** — they are scripts/config,
+  verified by *running* the tools (§9 table shows all 118 tests belong to G1/G2/G5a/G5b),
+  which this manual has not done; so G4 is the widest source/test-verified-but-NOT-
+  runtime-verified gap in the campaign, and packaging/download/launch/video all stay
+  PROVISIONAL → real run / bench (#25/#27/#28). Cross-refs closed: G2 §2.5's packaged
+  mediamtx path ← `extraResources`; G2's optional-serialport degradation ← `asarUnpack`
+  + `app:rebuild`; G3 §8's WHEP endpoint ← `mediamtx.yml` `:8889`/`paths.cam`; ch11 §7's
+  CI overview ← the line-by-line read. NEW **#62** (ensure-electron repairs from the
+  download cache only — a fully-blocked install needs a manual `install.js` first; works
+  as designed, documented in its own error message). **No hardware/video/serial/device
+  claims — "CI green" ≠ "the ground station works", it = "the logic is sound and the box
+  packs"; iPhone bridge stays implemented + unit-tested, NOT real-device validated (#58);
+  W3 LOG-ONLY.** Next: G5a/G5b (iPhone bridge) — gated on the #58 chapter-vs-batch-doc
+  decision.
 
 ## w17-control-fw
 
@@ -724,13 +791,13 @@ plan's Repo-3 table.)
 | `renderer/hud.css` | G3 | explained | §3; palette variables, clamp() sizing, functional-selector table; `.stale` = F2's dimming |
 | `renderer/hud.js` | G3 | explained | §§4–7; **#47 renderer half ANSWERED** (per-widget/per-field precedence); everLive latch; command mirror; R19 labels; F4 leftover found (#61a); NO unit test — precedence source-verified only |
 | `renderer/whep.js` | G3 | explained | §8; one-POST WHEP handshake, recvonly, 1.5 s fixed retry; all real-video behavior bench (#25) |
-| `scripts/run.js` | G4 | not started | |
-| `scripts/ensure-electron.js` | G4 | not started | |
-| `scripts/fetch-mediamtx.js` | G4 | not started | |
-| `package.json` | G4 | not started | |
-| `electron-builder.yml` | G4 | not started | |
-| `mediamtx/mediamtx.yml` | G4 | not started | |
-| `.github/workflows/ci.yml` | G4 | not started | missed by the 2026-07-03 inventory; F2 added the Windows package-smoke job |
+| `scripts/run.js` | G4 | explained | §3; `ELECTRON_RUN_AS_NODE` strip (VS-Code gotcha); `--demo` → replay source |
+| `scripts/ensure-electron.js` | G4 | explained | §4; repairs Electron from the download cache — does NOT download (#62); excluded from tests (PROVISIONAL) |
+| `scripts/fetch-mediamtx.js` | G4 | explained | §5; pinned v1.9.3 fetch; extracts only the binary so `mediamtx.yml` survives; PROVISIONAL until a real download |
+| `package.json` | G4 | explained | §2; 8-script table; **zero runtime `dependencies`** (only optional serialport); entry = `main/main.js` |
+| `electron-builder.yml` | G4 | explained | §6; `files`/`extraResources` (mediamtx path ← G2 §2.5); `asarUnpack` serialport + `app:rebuild`; CSC signing hooks (no secrets); PROVISIONAL until a real build |
+| `mediamtx/mediamtx.yml` | G4 | explained | §7; project-authored config; `:8889`+`paths.cam` = server side of G3 §8 WHEP; H.265 #1-risk warning; video behavior bench (#25) |
+| `.github/workflows/ci.yml` | G4 | explained | §8; job `test` (Ubuntu = the 118 tests) + job `package-smoke` (Windows `--dir`, F2/R17b, no installer/sign/publish); CI green ≠ works |
 | `shared/telemetrySnapshot.js` | G5a | not started | W2; pure snapshot builder (contract: docs/windows_bridge_contract.md) |
 | `main/IphoneTelemetryBridge.js` | G5a | not started | W2; send-only UDP 5601, off by default |
 | `main/iphoneBridgeConfig.js` | G5a | not started | W2; pure env-config resolution |

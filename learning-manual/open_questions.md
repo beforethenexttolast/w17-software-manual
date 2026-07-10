@@ -463,3 +463,20 @@ These mirror the repos' own checklists — listed here so the manual tracks them
     edited. [I]
     (`code_explained/ground_station/03_renderer_hud_and_whep.md` §5.1, §6.2, §6.4,
     §7.4, §8.3, §10.)
+
+## Code observations — new, found by G4 (2026-07-09)
+
+62. **`npm run setup`'s `ensure-electron.js` repairs from the download cache — it does
+    NOT download.** The script exists because lavamoat `allow-scripts` blocks Electron's
+    postinstall, leaving `node_modules/electron/` without an unpacked binary or
+    `path.txt`. `ensure-electron.js` fixes that by **extracting the already-downloaded
+    zip from Electron's per-platform cache** and writing `path.txt`. In a fully
+    script-blocked install where the zip was *never fetched at all*, `setup` fails on
+    this step and prints the two-command manual recovery (`node
+    node_modules/electron/install.js`, then re-run). This is by design — a
+    *repair-from-cache* tool whose own error message says exactly what to do — but it
+    means `npm run setup` is not always a single self-sufficient bootstrap on the most
+    locked-down machines. Low stakes; documented in the script itself; logged so a future
+    "why did setup fail?" has an answer. Not fixed (repo read-only); no safety/control
+    impact.
+    (`code_explained/ground_station/04_scripts_packaging_and_ci.md` §4.3, §10.)

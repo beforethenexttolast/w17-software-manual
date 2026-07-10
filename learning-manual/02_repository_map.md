@@ -184,8 +184,10 @@ w17-ground-station/
 > `02_main_process_and_telemetry_sources.md` (batch G2); the renderer
 > (`renderer/index.html`, `hud.css`, `hud.js`, `whep.js` — the HUD, the widget
 > precedence, WHEP video, the command mirror) in `03_renderer_hud_and_whep.md`
-> (batch G3, incl. a browser-concepts primer); the remaining batches G4–G5b are
-> planned in `source_code_explanation_plan.md`.
+> (batch G3, incl. a browser-concepts primer); and the deployment story (npm scripts,
+> Electron packaging, the `mediamtx.yml` config, and CI) in
+> `04_scripts_packaging_and_ci.md` (batch G4). The remaining batches G5a/G5b
+> (iPhone bridge) are planned in `source_code_explanation_plan.md`.
 
 ## 5. Who owns what (cross-repo relationships)
 

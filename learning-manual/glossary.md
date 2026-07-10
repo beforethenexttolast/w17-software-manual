@@ -21,6 +21,17 @@ below half the sample rate (here 22,050 / 2 = 11,025 Hz); anything higher "folds
 a false lower tone (aliasing). The synth's highest partial reaches ~7.5 kHz at redline —
 safely under the limit. (07, S3)
 
+**allow-scripts (lavamoat)** — a supply-chain safety tool that **blocks npm packages'
+install-time scripts** by default (a malicious `postinstall` can't run). The ground
+station enables it (`package.json` `lavamoat.allowScripts`), which is *why* Electron's
+own postinstall (that unpacks its binary) never runs — the gap `ensure-electron.js`
+then repairs. (08, G4 §2.4/§4)
+
+**asar** — Electron's app-archive format: at package time the app's JS/HTML/CSS are
+bundled into one `app.asar` blob (faster loads, tidier install). Files a **native**
+binary must reach by real filesystem path can't live inside it, so they are listed under
+`asarUnpack` (the ground station unpacks `serialport`). See **Native module**. (08, G4 §6.5)
+
 **Anisotropy / layer orientation** — FDM prints are weakest *between* layers; the print
 spec's golden rule is to orient stressed parts so load runs along the layers. (05)
 
@@ -73,6 +84,18 @@ Node's `spawn(binary, [args])` returns a handle with `stdout`/`stderr` streams a
 `exit` event; killing the parent does *not* reliably kill children, which is why the
 ground station supervises mediamtx explicitly (`main/mediamtx.js`: spawn,
 restart-on-crash after 2 s, latch-guarded kill on quit). (08, G2)
+
+**CI (continuous integration) / job** — a cloud service (here **GitHub Actions**) that
+runs a defined pipeline of steps on every push. A *job* is one such pipeline on one
+*runner* (a fresh VM — `ubuntu-latest` or `windows-latest`). The ground station's
+`.github/workflows/ci.yml` has two: `test` (the 118 vitest tests on Linux) and
+`package-smoke` (an Electron build on Windows). "CI green" means the logic passed and the
+app packaged — **not** that video, serial, or a real device works. (11 §7, G4 §8)
+
+**Code signing (CSC)** — attaching a cryptographic certificate to a Windows/macOS app so
+the OS trusts its origin and stops "unknown publisher" warnings. `electron-builder`
+reads the cert from `CSC_LINK`/`CSC_KEY_PASSWORD` **environment variables** — no secret
+lives in the repo; unset ⇒ an unsigned build. (08, G4 §6.4)
 
 **com0com / hub4com** — Windows virtual serial-port splitter: one owner mirrors a
 physical COM port to several virtual ones. The planned fix for the FT232 telemetry
@@ -180,6 +203,12 @@ seeded from the first sample to avoid a boot false-alarm. (10)
 **EMI** — electromagnetic interference; motor noise inducing phantom sensor pulses.
 Defended physically (scope + snubbing cap), by timing (2 ms lockout), and logically
 (5000 rpm plausibility clamp). (03, 10)
+
+**Electron Builder** — the packaging tool (`electron-builder.yml` + `npm run package`)
+that turns the ground station's source into a distributable Windows app: it bundles the
+listed `files` into an **asar**, copies `extraResources` (mediamtx) alongside, unpacks
+native modules, and can produce an installer (**NSIS**). Its `--dir` mode assembles the
+unpacked app folder *without* an installer — used by CI's package-smoke job. (08, G4 §6)
 
 **Endianness** — byte order of multi-byte numbers. link2 = little-endian; CRSF
 telemetry payloads = big-endian. (09)
@@ -387,6 +416,13 @@ Phase 4 checks for exactly this. (05)
 **MSP** — MultiWii Serial Protocol; the *rejected* telemetry alternative (standard CRSF
 frames won). (08, 09)
 
+**Native module (electron-rebuild / ABI)** — an npm package with a compiled C/C++ binary
+(here `serialport`). Because Electron ships its *own* Node with a different **ABI**
+(application binary interface — the compiled-in calling convention), such a module must
+be **rebuilt against Electron's ABI** (`app:rebuild` / `electron-rebuild`) or it throws
+a version-mismatch at load. This is the packaging half of the ground station's
+optional-serialport degradation. See **asar**. (08, G4 §6.5)
+
 **Netlist** — a list of pin-to-pin connections describing a circuit; `diagram.json`'s
 `connections` array is one. (05)
 
@@ -399,6 +435,21 @@ valid()**: a stored blob is applied only if all four pass, else the firmware kee
 compiled-in `kDefaults`. Means "a bad blob can never make the car run invalid settings"; does
 NOT mean the flash worked, the lifecycle is wired, or the firmware is un-brickable in general
 (those are C9b/C10/hardware). (09a)
+
+**npm / package.json** — Node's package manager and the manifest it reads. `package.json`
+declares the app's identity, its entry point (`main`: `main/main.js`), its **scripts**,
+and its dependency buckets. The ground station's has **no `dependencies`** — only
+`optionalDependencies` (serialport) + `devDependencies` — so its runtime code depends on
+nothing that must install, matching the app's graceful-degradation design. (08, G4 §2)
+
+**npm script** — a named command under `package.json` `"scripts"`, run with `npm run
+<name>` (`start`/`test`/`install` need no `run`). The ground station's eight scripts are
+its whole entry-point surface: `start`, `demo`, `test`, `setup`, `build`, `package`,
+`fetch-mediamtx`, `postinstall`. (08, G4 §2.2)
+
+**NSIS** — Nullsoft Scriptable Install System: the Windows installer format
+`electron-builder` targets for the shipped `.exe`. CI's package-smoke job **skips** it
+(`--dir` only), so "it packages" is not "the installer works". (08, G4 §6.4)
 
 **NVS** — ESP32 non-volatile storage (flash key-value); persists tuning settings via
 the never-brick guard chain. (06)
