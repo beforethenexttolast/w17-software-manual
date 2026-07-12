@@ -50,9 +50,15 @@ NVS tuning while remaining console-free; 153/153 native tests pass; hardware gat
   - Native tests: **153/153 passing**.
   - `esp32dev`, `esp32dev_tuning`, and `esp32dev_sim` build successfully.
   - Physical NVS save → reflash → reload behavior remains a powered-bench verification item.
-- **CF-2 steering endpoint console exposure: PENDING.**
-  - Steering min/max already exist, persist, validate, and are used at runtime.
-  - Only tuning-console commands are missing; no settings-layout or blob-version change is expected.
+- CF-2 steering endpoint tuning: RESOLVED.
+  - `steer.min` and `steer.max` are available in `esp32dev_tuning`.
+  - Endpoint updates are atomically validated and persisted through the existing settings blob.
+  - The settings layout and blob version remain unchanged.
+  - Delivery `esp32dev` remains console-free.
+  - Native tests: 168/168 passing.
+  - All ESP32 environments build successfully.
+  - Actual endpoint values remain Phase-B hardware calibration evidence.
+- Console numeric narrowing hardening: PENDING before powered tuning.
 
 ## Pending validations
 
