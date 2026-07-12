@@ -9,13 +9,15 @@ in-app WiFi join/hotspot, controller presets, settings persistence, launch-only 
 integration, mDNS discovery proposal for iPhone_rc; bench validation pending.
 Also 2026-07-10: `w17-3d-codex` bootstrapped as the Claude-side 3D-printing subproject —
 inventory, material matrix, print spec, guides; nothing printed yet)._
+Also 2026-07-12: control-fw CF-1 resolved — delivery firmware now loads validated
+NVS tuning while remaining console-free; 153/153 native tests pass; hardware gates unchanged.
 
 ## Checkpoints
 
 | Repo / folder | Checkpoint | Notes |
 |---|---|---|
 | `projects` (manual repo, `w17-software-manual`) | — | contains this CURRENT_STATUS.md; do not self-record its own exact hash — use `git HEAD` for the current commit |
-| `w17-control-fw` | `8336caa` | |
+| `w17-control-fw` | `61bfa87` | CF-1 resolved: delivery `esp32dev` loads validated NVS tuning; console/mutation remain tuning-only; 153/153 native tests; all ESP32 envs build |
 | `w17-ground-station` | `3c16954` | pre-ride setup flow (`4103db2`…`3c16954`); 217/217 tests; OS paths bench-unvalidated |
 | `w17-soundlight-fw` | `4f25856` | clean |
 | `w17-3d-codex` | `80e7f74` | bootstrapped 2026-07-10: 210 files classified (37 required staged), docs + gates written; 4 human gates open, nothing printed |
@@ -38,6 +40,19 @@ inventory, material matrix, print spec, guides; nothing printed yet)._
 - **Phase B (powered) is BLOCKED** until A2 is filled in, pasted back, reviewed, and approved.
 - Golden rule: ESC motor power stays disconnected until the failsafe + arm chain is proven
   live (Phase A → B).
+
+## Firmware freeze status
+
+- **CF-1 delivery tuning persistence: RESOLVED.**
+  - Delivery `esp32dev` loads the complete validated NVS settings object at boot.
+  - Missing, corrupt, outdated, or invalid settings fall back atomically to complete compiled defaults.
+  - Tuning console and settings mutation remain available only in `esp32dev_tuning`.
+  - Native tests: **153/153 passing**.
+  - `esp32dev`, `esp32dev_tuning`, and `esp32dev_sim` build successfully.
+  - Physical NVS save → reflash → reload behavior remains a powered-bench verification item.
+- **CF-2 steering endpoint console exposure: PENDING.**
+  - Steering min/max already exist, persist, validate, and are used at runtime.
+  - Only tuning-console commands are missing; no settings-layout or blob-version change is expected.
 
 ## Pending validations
 
