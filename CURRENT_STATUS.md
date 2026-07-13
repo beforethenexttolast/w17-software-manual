@@ -4,20 +4,22 @@
 Overwrite it in place when state changes; do not append history. Instruction files
 (`CLAUDE.md` / `AGENTS.md`) must not duplicate anything below.
 
-_Last updated: 2026-07-10 (ground-station pre-ride setup flow landed: pit-wall UI,
-in-app WiFi join/hotspot, controller presets, settings persistence, launch-only elrs
-integration, mDNS discovery proposal for iPhone_rc; bench validation pending.
-Also 2026-07-10: `w17-3d-codex` bootstrapped as the Claude-side 3D-printing subproject —
-inventory, material matrix, print spec, guides; nothing printed yet)._
-Also 2026-07-12: control-fw CF-1 resolved — delivery firmware now loads validated
-NVS tuning while remaining console-free; 153/153 native tests pass; hardware gates unchanged.
+_Last updated: 2026-07-13. Control-firmware remediation through R5-b is complete:
+validated delivery NVS loading, configurable steering endpoints, console parsing
+hardening, a provisional 2-second control-loop Task Watchdog, and RTC-retained
+reset diagnostics. Native tests: 224/224; all ESP32 environments build. Live
+watchdog-cycle observation and physical reset-path validation remain pending.
+A2 remains unexecuted and Phase B remains blocked.
+
+Ground-station pre-ride setup flow, iPhone mDNS proposal, and `w17-3d-codex`
+bootstrap status remain as recorded below._
 
 ## Checkpoints
 
 | Repo / folder | Checkpoint | Notes |
 |---|---|---|
 | `projects` (manual repo, `w17-software-manual`) | — | contains this CURRENT_STATUS.md; do not self-record its own exact hash — use `git HEAD` for the current commit |
-| `w17-control-fw` | `61bfa87` | CF-1 resolved: delivery `esp32dev` loads validated NVS tuning; console/mutation remain tuning-only; 153/153 native tests; all ESP32 envs build |
+| `w17-control-fw` | `72d5347` | R1–R5-b remediation complete; 224/224 native tests; all ESP32 environments build; live watchdog-cycle observation and physical reset-path validation pending |
 | `w17-ground-station` | `3c16954` | pre-ride setup flow (`4103db2`…`3c16954`); 217/217 tests; OS paths bench-unvalidated |
 | `w17-soundlight-fw` | `4f25856` | clean |
 | `w17-3d-codex` | `80e7f74` | bootstrapped 2026-07-10: 210 files classified (37 required staged), docs + gates written; 4 human gates open, nothing printed |
@@ -58,7 +60,30 @@ NVS tuning while remaining console-free; 153/153 native tests pass; hardware gat
   - Native tests: 168/168 passing.
   - All ESP32 environments build successfully.
   - Actual endpoint values remain Phase-B hardware calibration evidence.
-- Console numeric narrowing hardening: PENDING before powered tuning.
+- Console parsing hardening: COMPLETE.
+  - Numeric setting values are checked before narrowing.
+  - Gear indexes are parsed without signed-overflow risk.
+  - Native tests: 195/195 passing.
+  - All ESP32 environments build successfully.
+  - Delivery and simulation remain console-free.
+- **Control-firmware software remediation through R5-b: COMPLETE.**
+  - Delivery loads validated NVS tuning while remaining application-console-free.
+  - Steering minimum and maximum endpoints are configurable in the tuning build.
+  - Numeric setting values are checked before narrowing.
+  - Gear indexes are parsed without signed-overflow risk.
+  - The Arduino `loopTask` is directly subscribed to the global Task Watchdog with a
+    provisional 2-second timeout.
+  - The watchdog is fed exactly once after each completed 50 Hz actuator-control tick.
+  - All watchdog API failures are handled fail-fatally.
+  - RTC-retained reset diagnostics classify every reset reason in the pinned ESP-IDF
+    version.
+  - Tuning and simulation builds print the boot reset reason and retained-session count;
+    delivery remains silent.
+  - Native tests: 224/224 passing.
+  - All ESP32 environments build successfully.
+  - Live Wokwi stall → watchdog panic → reboot observation: PENDING.
+  - Physical reset reason, RTC retention, panic/reboot-to-safe-output timing,
+    GPIO13/GPIO14 reset state, and real ESC signal-loss behavior remain Phase-B evidence.
 
 ## Pending validations
 
