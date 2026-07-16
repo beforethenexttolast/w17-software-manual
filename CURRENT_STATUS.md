@@ -131,6 +131,80 @@ ends at `HEAD_INTENT_STATE_ACTIVE_LOG_ONLY = 8` (**no active enum value**), GS 7
 iPhone→CRSF/servo/gimbal/ESC. Next (GATED): **first U4 implementation slice — only if/after
 the §2.3.11.6 FIRST_ACTIVE review is approved.**
 
+2026-07-15 (later): **FIRST_ACTIVE consolidation — owner decisions RECORDED (docs only,
+uncommitted).** In `w17-control-fw/project-review/head_tracking_unlock_plan.md` §2.3.12 +
+§3.1 + §4/§5: decision **#2 video loss** resolved (sender-side suppression → ordinary
+mapper stale decay; video never directly commands servo/CRSF; operator-facing
+degraded-video state required); **#3/U8 radio loss** resolved FOR BENCH ONLY (hold-last
+stands; MUST re-review before driving); **#5 driving** resolved (FIRST_ACTIVE bench-only,
+wheels off, operator present, e-power removal, ±5 mech deg first travel; separate
+driving-readiness milestone with reviewed gate + spotter). Also recorded: invalid-packet
+policy (one invalid ⇒ eligibility removed + decay; repeated ⇒ latched fault; recovery =
+disarm + valid-data interval + explicit recenter), GLOBAL manual-override (both axes, wins
+in active AND decay, latched, no auto-restore), hybrid yaw→pan/pitch→tilt position→rate
+mapping (roll ignored, no discontinuity), and the shaping-constants **derivation policy**
+(deadband from measured jitter, floor 1°/cap 3°; 10°/s; 20°/s²; takeover = max(noise,
+~10% half-range); missing calibration ⇒ fail closed; NO production values signed). Fork
+license **GPL-3.0-or-later + provenance recorded (R11 PASS)**; `go.bug.st/serial`→v1.7.1
+**approved as a future isolated mapper slice** (not mixed with anything). **Controller
+affordances L1+R1 deadman / R3 recenter FAILED the conflict audit** (R1/L1 = gear up/down
+in every GS SEAT-FIT preset; R3 perturbs the pan/tilt stick) — NOT adopted. **Owner-choice
+RESOLVED 2026-07-15 → Alternative C (bench-only):** short-press SHARE = recenter; hold D-pad
+DOWN + OPTIONS 1 s = arm; OPTIONS may then release; D-pad DOWN is the continuous held deadman
+(release = disarm); the right thumb stays free for right-stick manual takeover. A and B
+rejected (held two-thumb chords impede that takeover). **Live mapper node-graph binding
+validation (SHARE/OPTIONS/D-pad DOWN unbound) still required; bench-only, NOT for driving**
+(decision #6, §2.3.12.6). iPhone **R10 = PASS (automated only)**: 250 ms send-time gate verified
+read-only in `iPhone_rc` (249/250 eligible, 251 stale; cached-active cannot bypass);
+uncommitted — real-device lifecycle/axes/mount + canonical commit + mirror still pending.
+U4 design addendum completed (states/transitions/guards + required test per behavior) and
+the canonical execution order **A–O** recorded (§3.1). **FIRST_ACTIVE overall verdict:
+NO-GO / BLOCKED** — R1/R2/R6–R9/R12/R13 remain hardware/evidence class; no missing
+hardware evidence was converted to PASS.
+
+2026-07-15 (later still): **Windows ground-station reliability slice — IMPLEMENTED on
+macOS, COMMITTED as `e0a5cdc`, in `w17-ground-station` only.** Addresses five real Windows
+observations: (2A) production full-screen launch (NOT kiosk; F11 restore; dev override
+`W17_FULLSCREEN`); (2B) live WLAN-adapter discovery while the Network page is open
+(main-process `adapterMonitor.js` bounded polling → `adapter-state` push); (2C) adapter-
+disconnection transitions (join early-aborts `kind:'adapter-missing'`; a live hotspot marked
+INTERRUPTED / re-verified when its adapter set changes; vanished selected adapter invalidates
+the pick, no auto-switch); (2D) honest hotspot **DHCP/ICS readiness** model
+(`hotspotVerify.js`: WinRT tether state + ICS `192.168.137.x` gateway + `SharedAccess`/`icssvc`
+service state → `verified`/`degraded`; `idle→verifying→verified/degraded`+`interrupted`; a
+start-command success is never shown as client-ready); (2E) auth-error UX (terse wrapped
+summary + expandable scrollable redacted detail; no overlap; clears on new op).
+`shared/redact.js` scrubs secrets from any surfaced command output. **Evidence:** `npm test`
+**798/798** (46 files; +52 reliability tests; the pre-existing WIP had left the suite 5 red —
+now repaired by completing the wiring), `npm run smoke:electron` **4/4** (live preload surface
+24 methods, console-clean), `npm run proto:check` OK. **No** bridge schema / canonical contract
+/ control path / firmware / mapper / iPhone change. **Pixel/hotspot root-cause distinction
+(no overstatement):** the **proven code/UI root cause** is that a successful hotspot-start
+*command* was treated as client-readiness without verifying ICS/gateway/services/DHCP; the
+physical Pixel "Obtaining IP address" failure has a **leading hypothesis** (missing/broken ICS,
+no subnet gateway, DHCP service down, driver/AP-mode limits, or adapter/backend behaviour) but
+its **actual cause remains UNPROVEN** until the real-Windows validation captures host gateway,
+ICS + `SharedAccess`/`icssvc` state, adapter/backend, and the Pixel lease result. The
+verified/degraded model correctly stops a false "ready" but does not itself prove end-to-end
+DHCP. **Windows/Pixel behaviour UNVALIDATED** on this macOS host (real adapter timing, ICS/DHCP
+enablement, and the **Pixel IPv4-lease path** remain the next-session Windows validation).
+Durable tracker + runbook: `w17-ground-station/docs/2026-07-15_windows_reliability_slice.md`.
+These changes are **committed as `e0a5cdc`** and **Windows CI is GREEN at `e0a5cdc`**
+(run `29440396447`).
+
+2026-07-16: **Ground-station Batch F closed + verified (this implementation plan).** The
+reliability slice landed as `e0a5cdc`, and the earlier CB8 3B/3C (`03f43e2`/`dce91f8`) plus the
+2026-07-15 documentation-sync (`8c5af12`, terse msg "some chages") were pushed — `w17-ground-station`
+`main` is **level with `origin/main` (0 ahead / 0 behind)**. The Batch F documentation re-sync
+(audit banner/hardware-matrix CI SHA/transfer checkpoints/Batch-F section, bench-checklist baseline
+746/43→798/46, reliability-slice CI note, and the README/SETUP hotspot readiness-lifecycle step) was
+committed **docs-only** as **`170fd66`**. **Windows CI is GREEN for both:** app HEAD `e0a5cdc` = run
+`29440396447`; docs `170fd66` = run `29473220328` — each ran ubuntu `test` + windows-latest
+`package-smoke` (`npm test` **798/798, 46 files** + `npm run smoke:electron` **4/4** + `electron-builder
+--dir`). Real **Windows/Pixel hardware** validation of the reliability slice is still pending. A separate
+**SEAT-FIT / camera-mode display track remains in progress and uncommitted** in `w17-ground-station`
+(out of Batch F/G scope, not documented as shipped). **Batch G not started.**
+
 Ground-station pre-ride setup flow, iPhone mDNS proposal, and `w17-3d-codex`
 bootstrap status remain as recorded below._
 
@@ -140,7 +214,7 @@ bootstrap status remain as recorded below._
 |---|---|---|
 | `projects` (manual repo, `w17-software-manual`) | — | contains this CURRENT_STATUS.md; do not self-record its own exact hash — use `git HEAD` for the current commit |
 | `w17-control-fw` | `8ed0a6c` | R1–R5-b remediation complete (`72d5347`); 224/224 native tests; all ESP32 environments build; live watchdog-cycle observation and physical reset-path validation pending. `8ed0a6c` = docs-only: U4 head-intent shaping/arbitration DESIGN (`head_tracking_unlock_plan.md §2.3.11`) — no firmware/behavior change |
-| `w17-ground-station` | `dce91f8` | CB8 slice 3B head-intent subscriber (`03f43e2`) + slice 3C proto-drift guard & integration evidence (`dce91f8`); 746/746 tests; OS paths bench-unvalidated |
+| `w17-ground-station` | `170fd66` | App HEAD `e0a5cdc` (Windows reliability slice: adapter live-push + hotspot readiness/interrupted + full-screen/F11 + join-error UX + secret redaction) on CB8 3B/3C (`03f43e2`/`dce91f8`) + E1 (`0e85702`); **798/798 tests (46 files)**; OS paths bench-unvalidated. All pushed (level with `origin/main`); **Windows CI GREEN at `e0a5cdc`** (run `29440396447`) and at docs `170fd66` (run `29473220328`). `170fd66` = Batch F hardening-status doc re-sync (docs-only). A separate SEAT-FIT/camera-mode display track is in progress/uncommitted (not shipped) |
 | `w17-mapper` | `59d1739` | owned fork (`w17-headtrack` off upstream `2b8031a`); CB8 slices 1–3A committed: LOG-ONLY UDP 5602 head-intent ingest + read-only gRPC diagnostics; go build/test green; push disabled |
 | `w17-soundlight-fw` | `4f25856` | clean |
 | `w17-3d-codex` | `80e7f74` | bootstrapped 2026-07-10: 210 files classified (37 required staged), docs + gates written; 4 human gates open, nothing printed |
@@ -225,10 +299,16 @@ at the end of every VR-FPV session; one-line evidence only.
 | CB9 | Gimbal endpoints + console | `BLOCKED_HARDWARE` | HARD GATE: A2 + Phase B; needs CB7 mount |
 | CB10 | Integration + bench milestone | `BLOCKED_EXTERNAL` | needs CB8, CB9, Codex Batches 5–7, FIRST_ACTIVE review |
 
-Open owner decisions: #1 UDP 5602 topology + fork ownership — **RESOLVED 2026-07-15
-(topology (a); owned-fork path/name + license still to approve before source)** · #2 active
-video-loss response · #3 failsafe hold-vs-center (in CB9) · #4 camera placement (in CB7)
-· #5 head-tracked driving protocol/spotter.
+Open owner decisions: #1 UDP 5602 topology + fork ownership/license — **RESOLVED 2026-07-15
+(topology (a); fork = `w17-mapper` @ GPL-3.0-or-later, §2.3.12.9)** · #2 video-loss —
+**RESOLVED 2026-07-15 (sender suppression → stale decay, §2.3.12.1)** · #3 failsafe
+hold-vs-center — **RESOLVED FOR BENCH ONLY 2026-07-15 (hold-last; driving re-review
+required, §2.3.12.2)** · #4 camera placement (in CB7) — **still open** · #5 driving
+protocol/spotter — **RESOLVED 2026-07-15 (bench-only; separate driving milestone,
+§2.3.12.3)** · **#6 FIRST_ACTIVE arm/recenter affordances — owner-choice RESOLVED 2026-07-15
+(Alternative C, bench-only: SHARE=recenter; hold D-pad DOWN+OPTIONS 1 s=arm; D-pad DOWN=held
+deadman; right thumb free); live mapper-binding validation still required; NOT for driving
+(§2.3.12.6).** ~~(superseded interim: L1+R1/R3 failed the conflict audit; A/B were the earlier options)~~
 
 ## Pending validations
 
@@ -245,16 +325,32 @@ video-loss response · #3 failsafe hold-vs-center (in CB9) · #4 camera placemen
     10/11 to be verified on arrival); FPV **camera AP** for a later field-representative
     pass. Gate every attempt on a peer-to-peer ping before any UDP test.
   - Not yet run end-to-end against a real iPhone (no device on hand yet).
-  - **New since 2026-07-10 — in-app setup flow supersedes manual network setup:** the
-    ground station (checkpoint `3c16954`) now scans/joins WiFi and hosts a hotspot
-    itself (Mobile Hotspot backend preferred; legacy `hostednetwork` fallback targets
-    the RT5370, needs elevation), runs the peer ping as a first-class GRID check, and
-    can enable W2/W3 from persisted settings (`settings.json` in userData; **set env
-    vars always win**). Orchestration logic is unit-tested against canned command
-    output (217/217); the **real OS layer is UNVALIDATED** — runbook with evidence
-    boxes: `w17-ground-station/docs/setup_flow_bench_checklist.md`. W3 remains
-    LOG-ONLY (new: it exposes the last accepted sender's IP as a user-confirmed
-    address suggestion — transport metadata only, guard-tested).
+  - **In-app setup flow (hardened through the pre-hardware pass):** the ground station
+    (now at `e0a5cdc`) scans/joins WiFi and hosts a hotspot itself (Mobile Hotspot backend
+    preferred; legacy `hostednetwork` fallback targets the RT5370, needs elevation), runs
+    the peer ping as a first-class GRID check, and can enable W2/W3 from persisted settings
+    (`settings.json` in userData; **set env vars always win**). W3 remains **LOG-ONLY** (it
+    exposes the last accepted sender's IP as a user-confirmed address suggestion — transport
+    metadata only, guard-tested). Status classification:
+    - **Software: COMPLETE through Batch E1** (hardening batches A1–E1: hotspot
+      lifecycle/STOP + quit-ownership, adapter-pinned status/join, Wi-Fi security scope
+      [open/WPA2/WPA3-transition join; WPA3-only/enterprise/unknown rejected], locale-neutral
+      errors, ping classification, video-state lock, credential DPAPI-at-rest via
+      safeStorage) **plus CB8 slices 3B/3C** (read-only, display-only mapper head-intent
+      diagnostics subscriber — no control path) **and the `e0a5cdc` Windows reliability slice**
+      (adapter live-push, hotspot readiness/interrupted, full-screen/F11, join-error UX, secret
+      redaction). Suite **798/798 (46 files)**.
+    - **Host verification: COMPLETE** — full suite + `npm run smoke:electron` (4/4 real
+      boot scenarios) green on macOS; E1 accepted on live macOS Keychain.
+    - **Windows CI: GREEN at `e0a5cdc`** (run `29440396447`: suite + Electron smoke + package
+      build on windows-latest) and at the Batch F docs commit `170fd66` (run `29473220328`).
+      Everything through `e0a5cdc` — CB8 3B/3C, the doc-sync `8c5af12`, and the reliability
+      slice — is pushed and CI-covered.
+    - **Real hardware evidence: PENDING** — the real OS layer (netsh/WinRT/ping/localized
+      Windows, camera→mediamtx→WHEP, real iPhone W2/Local-Network, ELRS, Windows DPAPI) is
+      **UNVALIDATED**. Runbook with evidence boxes:
+      `w17-ground-station/docs/setup_flow_bench_checklist.md`; the authoritative evidence
+      ledger is the matrix in `w17-ground-station/docs/audits/2026-07-12-pre-hardware-hardening-audit.md`.
 - **mDNS discovery of the iPhone HUD: ADOPTED canonically, Windows side NOT BUILT.**
   The canonical contract carries a Discovery section (`_w17hud._udp.local.`, advisory
   user-confirmed hints only; canonical 2026-07-10, mirrored at rev `84532ed`
