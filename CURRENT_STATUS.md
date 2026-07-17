@@ -4,7 +4,7 @@
 Overwrite it in place when state changes; do not append history. Instruction files
 (`CLAUDE.md` / `AGENTS.md`) must not duplicate anything below.
 
-_Last updated: 2026-07-15. Control-firmware remediation through R5-b is complete:
+_Last updated: 2026-07-17. Control-firmware remediation through R5-b is complete:
 validated delivery NVS loading, configurable steering endpoints, console parsing
 hardening, a provisional 2-second control-loop Task Watchdog, and RTC-retained
 reset diagnostics. Native tests: 224/224; all ESP32 environments build. Live
@@ -204,6 +204,17 @@ committed **docs-only** as **`170fd66`**. **Windows CI is GREEN for both:** app 
 --dir`). Real **Windows/Pixel hardware** validation of the reliability slice is still pending. A separate
 **SEAT-FIT / camera-mode display track remains in progress and uncommitted** in `w17-ground-station`
 (out of Batch F/G scope, not documented as shipped). **Batch G not started.**
+
+2026-07-17: **Hardware delivery (partial).** Electronics arrived: **3× ESP32 boards**,
+**BL-M8812EU2 USB WiFi module** (the camera's 5.8 GHz video-link module), **ELRS TX**,
+**LiPo voltage tester**, **resistor kit**. Mechanical items (MR128ZZ front bearings ×10,
+3×32 mm turnbuckle, M4 rod-end linkage balls ×10, M3 tie-rod-end ball caps, steel threaded
+rods, aluminium tube) are logged in `w17-3d-codex/GENERAL_PLAN.md` open-questions item 5.
+Still awaited (per that item + the RT5370 note below): tyres, shocks, servos, king pins,
+belt set, blower, rear 6801 bearings, RT5370 USB Wi-Fi. Delivery changes no software
+status: A2 remains unexecuted, Phase B remains blocked, and no unattended
+flashing/powering. CB5 (video baseline) remains gated on assembling/verifying the
+camera + BL-M8812EU2 pair on a bench.
 
 Ground-station pre-ride setup flow, iPhone mDNS proposal, and `w17-3d-codex`
 bootstrap status remain as recorded below._
