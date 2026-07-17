@@ -210,9 +210,18 @@ the top:
      exactly this line.
    - `boots=…, retained=…` — the RTC-retained session counter. After a *power-on*
      the retained memory is untrusted, so expect a fresh session (`retained=no`).
-     **[I]** whether an EN-button press also reads as POWERON with a fresh session
-     (vs. retaining) is exactly the kind of real-hardware truth this session
-     records — write down what you actually see.
+     **[C]** confirmed on board #1 (2026-07-17): an EN press *and* the monitor's
+     own auto-reset both read as `POWER_ON` with `boots=1 retained=no` every time —
+     power-on-class resets always start a fresh session. The counter climbs only
+     across *crash-class* resets (software, panic, watchdog), which is exactly what
+     makes a rising `boots=` number diagnostic: it means the board is rebooting
+     without losing power, i.e. crashing.
+   - **Why you see the boot every time you open the monitor:** DevKit boards wire
+     the USB-serial chip's RTS/DTR handshake lines to the ESP32's EN and GPIO0
+     pins (the "auto-program" circuit that also lets the flasher work hands-free).
+     Opening the monitor toggles those lines → the board resets. So "the board
+     rebooted when I connected" is a feature, not a fault — you get the boot lines
+     from the top, for free, on every connect. **[C]** observed on board #1.
 3. **On a virgin board only, one red-tagged framework line** (**[C]** observed on
    board #1, 2026-07-17; source: Arduino core `Preferences.cpp` via
    `lib/settings_hal_esp32/src/Esp32NvsStore.cpp` — its load opens the NVS
@@ -358,6 +367,7 @@ note) and any deviation becomes a tracked finding.
 
 | Symptom | Most likely | Do |
 |---|---|---|
+| `Could not exclusively lock port … [Errno 35]` on monitor **or** a flash that can't find/open the port | another monitor still running somewhere | §12.1 — the full walkthrough |
 | No `/dev/tty.usb*` appears | charge-only cable | different cable (§4) |
 | `Failed to connect` on upload | auto-bootloader quirk | hold **BOOT** during "Connecting" (§6) |
 | Monitor shows only endless garbage | wrong baud (monitor started with an override) | plain `pio device monitor` from the repo folder — it reads 115200 from `platformio.ini` |
@@ -365,6 +375,69 @@ note) and any deviation becomes a tracked finding.
 | `reset=BROWNOUT` in the boot line | USB power dipped | different port, no hub; report if persistent |
 | `reset=TASK_WDT` ever | control loop stalled — a real bug or a bad board | copy everything, report — this is exactly what the diagnostics exist for |
 | Typing in monitor shows nothing | monitor echo off is normal — the console replies only after Enter | type the full command + Enter; if no *reply* at all, check you flashed `_tuning`, not plain `esp32dev` |
+
+### 12.1 Serial-port locks — the 101 (with the real 2026-07-17 incident)
+
+This happened **twice** during board #1's first bench session, so it earns the full
+why/what/how treatment. The symptom, verbatim:
+
+```
+UserSideException: [Errno 35] Could not exclusively lock port /dev/cu.usbserial-1120:
+[Errno 35] Resource temporarily unavailable
+```
+
+**What a serial port *is* here.** When the board's USB-UART chip enumerates, the
+macOS driver creates a pair of device files: `/dev/cu.usbserial-XXXX` and
+`/dev/tty.usbserial-XXXX` — two doors to the same wire. (`cu` = "call-up",
+opens immediately; the `tty.` twin is a modem-era variant that waits for a
+carrier-detect signal. Modern tools use the `cu.` one; treat them as one port.)
+A serial line has no addressing and no multiplexing — bytes go to whoever holds the
+file descriptor — so two readers would silently steal bytes from each other.
+
+**What the lock is.** To prevent exactly that, `pio device monitor` (and the
+flasher) opens the port in **exclusive mode** (the `TIOCEXCL` ioctl): first process
+in wins, every later open is refused with `errno 35` (`EAGAIN`, printed as
+"Resource temporarily unavailable" — misleading, since it won't become available by
+waiting; something *owns* it). ⚠️ The same lock blocks **uploads** too: a flash
+attempt that hangs at "Looking for upload port" or fails to connect has the same
+root cause and the same fix.
+
+**How to find the owner** — two commands, both read-only and safe:
+
+```bash
+lsof /dev/cu.usbserial-1120        # who has the file open → a PID
+ps -p <PID> -o lstart,command      # what that PID is, and since when
+```
+
+In both real incidents the answer was a forgotten
+`… /Users/…/Python3.9/bin/pio device monitor` — an earlier monitor still running in
+another Terminal tab (started 14:51 and 15:09 respectively). That is the usual
+culprit ~always: **the previous you.**
+
+**How to fix it, gentlest first:**
+
+1. **Find the window and press Ctrl+C there.** If the old monitor is in a visible
+   tab it may even still be usable — just keep using it instead of starting a new one.
+2. **`kill <PID>`** — polite termination (SIGTERM) when you can't find the window.
+   This is what fixed both incidents.
+3. `kill -9 <PID>` — only if (2) did nothing after a few seconds.
+4. Unplug/replug the USB cable — destroys and recreates the device node, forcibly
+   orphaning every holder. Works, but it also resets the board and renumbers the
+   port sometimes; last resort.
+
+**Why killing it is safe:** the monitor is a *passive viewer*. It holds the port
+open on the Mac side; the board neither knows nor cares that it exists. Killing it
+cannot corrupt the firmware, the NVS settings, or the board's state — the only
+thing lost is output nobody was reading. (Killing an *upload* mid-write is a
+different story — never do that; a half-written flash just means reflashing, but
+there's no reason to interrupt one.)
+
+**Prevention (one habit):** dedicate **one** terminal window as *the* monitor
+window for the whole bench session. Don't start a second monitor in a new tab —
+return to the one you have. Ctrl+C it before any reflash if you're superstitious
+(the flasher usually coexists by winning the port between monitor reconnects, but
+the clean sequence is monitor off → flash → monitor on). When in doubt,
+`lsof /dev/cu.usbserial-*` tells you the truth in one line.
 
 ## 13. What this session did NOT do (still open, still gated)
 
