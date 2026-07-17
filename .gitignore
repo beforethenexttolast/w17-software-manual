@@ -6,6 +6,10 @@ w17-control-fw/
 w17-ground-station/
 w17-soundlight-fw/
 w17-3d-codex/
+w17-mapper/
+
+# Read-only upstream reference clones (own git history; never edited).
+_vendor/
 
 # Common generated files
 node_modules/
