@@ -196,21 +196,38 @@ the top:
 1. A burst of ROM chatter — `rst:0x1 (POWERON_RESET)`, `configsip`, `clk_drv`,
    partition lines, maybe odd characters. This is the mask-ROM bootloader talking at
    a different baud; ignore everything before our first `[boot]` line.
-2. **The reset-diagnostics line** (**[C]** `src/main.cpp` `formatBootLine()`):
+2. **The reset-diagnostics line** (**[C]** `src/main.cpp` `formatBootLine()`;
+   labels in `lib/reset_diag/src/ResetDiagnostics.cpp`):
 
    ```
-   [boot] reset=POWERON boots=1 retained=no
+   [boot] reset=POWER_ON boots=1 retained=no
    ```
 
-   - `reset=POWERON` — the chip's own hardware register says this boot came from a
+   - `reset=POWER_ON` — the chip's own hardware register says this boot came from a
      power-cycle/EN reset, not a crash. The full label set (PANIC, TASK_WDT,
      BROWNOUT, SW…) is the R5-b diagnostics work from chapter 12.
+   - **Confirmed on real board #1, 2026-07-17** — an EN press after flashing gave
+     exactly this line.
    - `boots=…, retained=…` — the RTC-retained session counter. After a *power-on*
      the retained memory is untrusted, so expect a fresh session (`retained=no`).
      **[I]** whether an EN-button press also reads as POWERON with a fresh session
      (vs. retaining) is exactly the kind of real-hardware truth this session
      records — write down what you actually see.
-3. **The settings-load line** (**[C]** `lib/console/src/ConsoleRunner.cpp`):
+3. **On a virgin board only, one red-tagged framework line** (**[C]** observed on
+   board #1, 2026-07-17; source: Arduino core `Preferences.cpp` via
+   `lib/settings_hal_esp32/src/Esp32NvsStore.cpp` — its load opens the NVS
+   namespace read-only and returns "no data" gracefully when it doesn't exist yet):
+
+   ```
+   [    20][E][Preferences.cpp:50] begin(): nvs_open failed: NOT_FOUND
+   ```
+
+   The `[E]` makes it look like an error. It is the *expected* first-boot path: the
+   settings namespace has never been created, so the read-only open reports
+   NOT_FOUND, and the loader falls back to defaults exactly as designed. After your
+   first `save` the namespace exists and this line never appears again. A
+   *persisting* NOT_FOUND after a successful `save` **would** be a finding.
+4. **The settings-load line** (**[C]** `lib/console/src/ConsoleRunner.cpp`):
 
    ```
    [tune] using defaults (no valid saved settings)
