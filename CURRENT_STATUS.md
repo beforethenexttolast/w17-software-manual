@@ -216,6 +216,17 @@ status: A2 remains unexecuted, Phase B remains blocked, and no unattended
 flashing/powering. CB5 (video baseline) remains gated on assembling/verifying the
 camera + BL-M8812EU2 pair on a bench.
 
+2026-07-17 (later): **Owner approved a BARE-BOARD USB smoke test** as a scoped exception to
+the pre-A2 no-powered-bring-up rule (`w17-control-fw/CLAUDE.md`): one naked DevKit at a
+time, USB from the Mac only, **nothing connected to any pin**, attended, no
+battery/PSU/ESC/servo; A2 + Phase B stay in force for the car harness. Procedure manual:
+`learning-manual/13_bare_board_smoke_test.md` (includes the physical NVS
+save→reset→reload evidence steps and a per-board evidence template). All software suites
+re-verified green on this machine today: control-fw native 224/224, soundlight native
+94/94, ground station 976/976 (52 files — SEAT-FIT WIP has grown the suite past the
+recorded 798/46), mapper `pkg/headintent` ok. Smoke test NOT yet executed; results to be
+pasted back into a session.
+
 Ground-station pre-ride setup flow, iPhone mDNS proposal, and `w17-3d-codex`
 bootstrap status remain as recorded below._
 

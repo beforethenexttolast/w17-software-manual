@@ -30,6 +30,7 @@ Read the chapters in numeric order — each one only uses concepts introduced ea
 10. [10_algorithms_state_machines_timing.md](10_algorithms_state_machines_timing.md) — the interesting logic, in depth
 11. [11_build_flash_debug_workflow.md](11_build_flash_debug_workflow.md) — how to build, test, flash, and poke everything
 12. [12_the_skeptical_audit_and_f1_f4_fixes.md](12_the_skeptical_audit_and_f1_f4_fixes.md) — the independent audit, its risk register, the F1–F4 fixes, and why "tests green" ≠ "proven"
+13. [13_bare_board_smoke_test.md](13_bare_board_smoke_test.md) — hands-on: first power-up of the real ESP32 boards, bare over USB (owner-approved 2026-07-17 scope)
 
 Support files, used from any chapter:
 
