@@ -201,9 +201,9 @@ reliability slice landed as `e0a5cdc`, and the earlier CB8 3B/3C (`03f43e2`/`dce
 committed **docs-only** as **`170fd66`**. **Windows CI is GREEN for both:** app HEAD `e0a5cdc` = run
 `29440396447`; docs `170fd66` = run `29473220328` — each ran ubuntu `test` + windows-latest
 `package-smoke` (`npm test` **798/798, 46 files** + `npm run smoke:electron` **4/4** + `electron-builder
---dir`). Real **Windows/Pixel hardware** validation of the reliability slice is still pending. A separate
-**SEAT-FIT / camera-mode display track remains in progress and uncommitted** in `w17-ground-station`
-(out of Batch F/G scope, not documented as shipped). **Batch G not started.**
+--dir`). Real **Windows/Pixel hardware** validation of the reliability slice is still pending. The separate SEAT-FIT / camera-mode display track named here has since grown into the
+full **setup-flow redesign (Batches 0–9) — now SHIPPED, AUDITED, and PUSHED** (`8441adb`; see the
+`w17-ground-station` Checkpoints row and the 2026-07-17 entry below). **Batch G not started.**
 
 2026-07-17: **Hardware delivery (partial).** Electronics arrived: **3× ESP32 boards**,
 **BL-M8812EU2 USB WiFi module** (the camera's 5.8 GHz video-link module), **ELRS TX**,
@@ -227,6 +227,26 @@ re-verified green on this machine today: control-fw native 224/224, soundlight n
 recorded 798/46), mapper `pkg/headintent` ok. Smoke test NOT yet executed; results to be
 pasted back into a session.
 
+2026-07-17 (later still): **Setup-flow redesign (Batches 0–9) SHIPPED, AUDITED, and PUSHED**
+in `w17-ground-station`. The SEAT-FIT/camera-mode display track named above grew into the full
+pre-race setup redesign: PIT WALL/SEAT FIT layout fixes, a generic **steering-wheel display
+mirror** + assign/calibrate UI, HUD wheel mirroring, flow chrome (step rail, solid backdrop,
+GARAGE fast-path card, HUD status stack), step reorder (SEAT FIT before PIT WALL; desktop skips
+PIT WALL), and controller-driven UI navigation. All 11 commits `a88692d..9855cc3` are on `main`
+and now PUSHED; the final audit is committed docs-only as **`8441adb`**
+(`w17-ground-station/docs/audits/2026-07-17_setup_flow_redesign_audit.md`) and also pushed.
+Suite **984/984 (52 files)**, smoke 4/4 (apiKeys 24), proto:check OK,
+noControlPath/ipcSurface(24)/responsiveLayout green; live CDP-driven sweep at
+1280×800/1366×768/1024×640/fullscreen. Audit verdict: history maps 1:1 to plan batches, all 7
+invariants PASSED, and **9 findings recorded but NOT fixed (deliberate — follow-up work):**
+**1 HIGH — the calibrated wheel profile is silently dropped by `normalizeSettings`
+(`shared/settings.js`), so it never persists across restart**; 1 MED (the HUD wheel mirror can
+resolve the wrong device when the wheel is absent at START, applying wheel calibration to
+gamepad axes); 4 LOW UX/display defects; 1 docs gap; plus a design-bundle-§10 deviation and a
+readAxis-dedupe observation. A fix-plan session is queued for these findings. Windows CI at
+`8441adb` was not re-verified this session (last recorded green: app `e0a5cdc` run
+`29440396447`, docs `170fd66` run `29473220328`).
+
 Ground-station pre-ride setup flow, iPhone mDNS proposal, and `w17-3d-codex`
 bootstrap status remain as recorded below._
 
@@ -236,7 +256,7 @@ bootstrap status remain as recorded below._
 |---|---|---|
 | `projects` (manual repo, `w17-software-manual`) | — | contains this CURRENT_STATUS.md; do not self-record its own exact hash — use `git HEAD` for the current commit |
 | `w17-control-fw` | `8ed0a6c` | R1–R5-b remediation complete (`72d5347`); 224/224 native tests; all ESP32 environments build; live watchdog-cycle observation and physical reset-path validation pending. `8ed0a6c` = docs-only: U4 head-intent shaping/arbitration DESIGN (`head_tracking_unlock_plan.md §2.3.11`) — no firmware/behavior change |
-| `w17-ground-station` | `170fd66` | App HEAD `e0a5cdc` (Windows reliability slice: adapter live-push + hotspot readiness/interrupted + full-screen/F11 + join-error UX + secret redaction) on CB8 3B/3C (`03f43e2`/`dce91f8`) + E1 (`0e85702`); **798/798 tests (46 files)**; OS paths bench-unvalidated. All pushed (level with `origin/main`); **Windows CI GREEN at `e0a5cdc`** (run `29440396447`) and at docs `170fd66` (run `29473220328`). `170fd66` = Batch F hardening-status doc re-sync (docs-only). A separate SEAT-FIT/camera-mode display track is in progress/uncommitted (not shipped) |
+| `w17-ground-station` | `8441adb` | **Setup-flow redesign (Batches 0–9) SHIPPED + PUSHED** on top of the Windows reliability slice (`e0a5cdc`), CB8 3B/3C (`03f43e2`/`dce91f8`), E1 (`0e85702`): PIT WALL/SEAT FIT layout, steering-wheel display mirror + calibration UI, HUD wheel mirroring, flow chrome/step rail/fast-path card, step reorder, controller UI nav. **984/984 tests (52 files)**, smoke 4/4 (apiKeys 24); OS paths bench-unvalidated. Final audit committed docs-only as `8441adb` (`docs/audits/2026-07-17_setup_flow_redesign_audit.md`): history 1:1 clean, all 7 invariants PASSED, **9 findings NOT fixed (follow-up)** — **1 HIGH: wheel profile silently dropped by `normalizeSettings` (`shared/settings.js`), never persists**; 1 MED (wheel mirror can read the wrong device when the wheel is absent at START); 4 LOW + 1 docs gap + design-§10/readAxis observations. All pushed (level with `origin/main`). **Windows CI not re-verified at `8441adb`** (last green: app `e0a5cdc` run `29440396447`, docs `170fd66` run `29473220328`). |
 | `w17-mapper` | `59d1739` | owned fork (`w17-headtrack` off upstream `2b8031a`); CB8 slices 1–3A committed: LOG-ONLY UDP 5602 head-intent ingest + read-only gRPC diagnostics; go build/test green; push disabled |
 | `w17-soundlight-fw` | `4f25856` | clean |
 | `w17-3d-codex` | `80e7f74` | bootstrapped 2026-07-10: 210 files classified (37 required staged), docs + gates written; 4 human gates open, nothing printed |
