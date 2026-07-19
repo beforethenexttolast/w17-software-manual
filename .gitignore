@@ -7,6 +7,7 @@ w17-ground-station/
 w17-soundlight-fw/
 w17-3d-codex/
 w17-mapper/
+w17-design-system/
 
 # Read-only upstream reference clones (own git history; never edited).
 _vendor/

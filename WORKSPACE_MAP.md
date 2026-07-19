@@ -18,6 +18,7 @@ pending validations live in `CURRENT_STATUS.md`.
 | `w17-control-fw` | projects | Claude Code | ESP32 #1 control firmware: CRSF parse, failsafe, arm gate, virtual gearbox, servo/ESC/gimbal PWM, battery ADC, Hall wheel-speed, `link2` TX. The **only** producer of final hardware outputs. |
 | `w17-soundlight-fw` | projects | Claude Code | ESP32 #2 sound + light: consumes `link2`, V10 engine synth (I2S/MAX98357A), WS2812 lights. No control authority. |
 | `w17-ground-station` | projects | Claude Code | Electron viewer app: video + F1 HUD + telemetry. Windows side is control/integration authority; the app itself is viewer-only. |
+| `w17-design-system` | projects | Claude Code | Visual source of truth for the ground-station setup-flow redesign (Batches 2/3/6): `w17.css` tokens + `foundations/`/`components/` cards + 1280×800 screen mockups. Design reference only (no runtime code); the `w17-ground-station` renderer is the implementation. |
 | `w17-mapper` | projects | Claude Code | Owned fork of `elrs-joystick-control` (upstream `github.com/kaack/elrs-joystick-control`, pinned `2b8031a`; branch `w17-headtrack`; **GPL-3.0-or-later**). The production DualShock→CRSF→ELRS mapper and, per owner decision #1 (topology (a), 2026-07-15), the production owner of UDP 5602 head-intent ingest. Read-only reference copy stays at `_vendor/elrs-joystick-control` (never edited). Push disabled until owner approves a remote. |
 | `learning-manual` | projects | Claude Code | Beginner-friendly manual for the whole system. Persistent teaching output. |
 | `w17-3d-codex` | projects | Claude Code | 3D printing & fabrication: model inventory, materials, Bambu slicing specs, test prints, finishing/painting/decals, printed-part assembly. Raw STLs live untracked in its `unsorted_stl_raw/`. Consults the Codex `w17-rc-print-codex` reports read-only. |
@@ -26,8 +27,8 @@ pending validations live in `CURRENT_STATUS.md`.
 
 ## Ownership split (quick reference)
 
-- **Claude Code:** control-fw, soundlight-fw, ground-station, learning-manual, w17-3d-codex
-  (3D printing/fabrication/finishing), hardware bring-up docs/checklists.
+- **Claude Code:** control-fw, soundlight-fw, ground-station, design-system, learning-manual,
+  w17-3d-codex (3D printing/fabrication/finishing), hardware bring-up docs/checklists.
 - **ChatGPT Codex:** iPhone_rc (bridge/HUD) and w17-rc-print-codex (printing/mechanical).
 
 ## Canonical-vs-copy registry
@@ -43,6 +44,7 @@ Every copy must state, in its own header, where the canonical source lives.
 | A2 no-power hardware checklist | `w17-control-fw/project-review/13_phase_a_a2_no_power_checklist.md` | — (single source) |
 | Pan/tilt firmware readiness | `w17-control-fw/project-review/iphone_pan_tilt_firmware_readiness.md` | — (single source; keep no duplicate at projects root) |
 | Manual chapters | `learning-manual/` | — |
+| Setup-flow visual design | `w17-design-system/` (`DESIGN_NOTES.md` + `screens/`) | `w17-ground-station/renderer/` is the **implementation**, not a copy. Per Decision B (`DESIGN_NOTES.md` §10, 2026-07-19) the shipped stacked full-panel BOTH-mode SEAT FIT layout is canonical; `screens/02c-seatfit-both.html` is superseded/historical. |
 
 ## Handoff convention
 
