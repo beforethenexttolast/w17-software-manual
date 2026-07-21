@@ -45,6 +45,7 @@ Every copy must state, in its own header, where the canonical source lives.
 | Pan/tilt firmware readiness | `w17-control-fw/project-review/iphone_pan_tilt_firmware_readiness.md` | — (single source; keep no duplicate at projects root) |
 | Manual chapters | `learning-manual/` | — |
 | Setup-flow visual design | `w17-design-system/` (`DESIGN_NOTES.md` + `screens/`) | `w17-ground-station/renderer/` is the **implementation**, not a copy. Per Decision B (`DESIGN_NOTES.md` §10, 2026-07-19) the shipped stacked full-panel BOTH-mode SEAT FIT layout is canonical; `screens/02c-seatfit-both.html` is superseded/historical. |
+| Hardware inventory / delivery log | `HARDWARE_INVENTORY.md` (projects root) | — (single source for physical parts *arrival / on-hand* status, mapped to BOM v2). Carries no gate status or commit hashes (those stay in `CURRENT_STATUS.md`); mechanical mount/measure status stays in `w17-3d-codex`. |
 
 ## Handoff convention
 
