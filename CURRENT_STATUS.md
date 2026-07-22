@@ -264,6 +264,24 @@ pre-existing go1.26 × `go.bug.st/serial` cgo incompat, not a new failure). The 
 984/984 progression recorded above (2026-07-17) is left as-is — it's an accurate log of
 what was true at each point that day; this entry just adds the next data point.
 
+2026-07-22 (later): **BARE-BOARD USB SMOKE TEST EXECUTED — all 3× ESP32 DevKit PASS**
+(attended, owner present for every plug/unplug; procedure `learning-manual/13_bare_board_smoke_test.md`;
+scoped 2026-07-17 exception — A2 + Phase B untouched, nothing on any pin, USB-only). Boards are
+**USB-C DevKit V1 clones** (manual §2 assumed micro-USB): silkscreen "ESP-32D", flasher-confirmed
+**ESP32-D0WD-V3 rev v3.1** (classic ESP32; `ets Jul 29 2019` ROM banner), **CH340C** USB-UART
+(VID:PID 1A86:7523), 30-pin. MACs: #2 `b4:bf:e9:05:61:4c`, #3 `b4:bf:e9:06:9f:d4` (#1 not captured).
+Each board flashed `esp32dev_tuning` clean (no BOOT hold), booted `reset=POWER_ON boots=1 retained=no`
++ `[tune] loaded settings from flash` (non-virgin from the owner's prior flash — expected; no NOT_FOUND);
+console help/status/get/set/save/reset all correct (center=1500, gears=4, channels 0/2/4/5 placeholder
+confirmed). **Physical NVS persistence PROVEN on all three:** a fresh distinct write (steer.trim 5→12)
+survived an EN power-cycle (`loaded settings from flash`, get=12), then reset→0→save→EN→get=0 (defaults
+persisted). No panic / TASK_WDT / BROWNOUT; only mild warmth reported, none flagged hot. All three
+returned to compiled defaults and unplugged/labeled 1/2/3. One §12.1 serial-port-lock recurrence during
+board-3 flash (stray monitor held the port; cleared, reflashed OK). **NOT done / still open:** optional
+reflash-survival + delivery-silent legs (skipped); crash-class reset classification + RTC retained-counter
+increment unexercised (only POWER_ON seen, by design); board role assignment deferred to harness assembly;
+A2 / Phase B unchanged. Per-board §11 evidence: `learning-manual/13_bare_board_smoke_test_evidence.md`.
+
 ## Checkpoints
 
 | Repo / folder | Checkpoint | Notes |
@@ -302,7 +320,10 @@ what was true at each point that day; this entry just adds the next data point.
   - Tuning console and settings mutation remain available only in `esp32dev_tuning`.
   - Native tests: **153/153 passing**.
   - `esp32dev`, `esp32dev_tuning`, and `esp32dev_sim` build successfully.
-  - Physical NVS save → reflash → reload behavior remains a powered-bench verification item.
+  - Physical NVS save → power-cycle → reload: **VALIDATED 2026-07-22** on 3× ESP32-D0WD-V3 DevKit
+    (bare-board smoke test) — a fresh distinct write survived an EN reset and reloaded through the
+    guard chain on every board. The **reflash-survival** leg (save → application reflash → reload)
+    remains an optional powered-bench item (not yet exercised).
 - CF-2 steering endpoint tuning: RESOLVED.
   - `steer.min` and `steer.max` are available in `esp32dev_tuning`.
   - Endpoint updates are atomically validated and persisted through the existing settings blob.
@@ -335,6 +356,9 @@ what was true at each point that day; this entry just adds the next data point.
   - Live Wokwi stall → watchdog panic → reboot observation: PENDING.
   - Physical reset reason, RTC retention, panic/reboot-to-safe-output timing,
     GPIO13/GPIO14 reset state, and real ESC signal-loss behavior remain Phase-B evidence.
+    (POWER_ON reset-reason path + `retained=no` fresh-session behavior confirmed on real
+    hardware 2026-07-22 across 3 boards; crash-class classification, RTC counter increment,
+    reboot timing, GPIO state, and ESC behavior remain.)
 
 ## VR-FPV batch status (Claude side)
 
