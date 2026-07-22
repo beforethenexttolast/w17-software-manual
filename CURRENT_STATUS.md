@@ -1,6 +1,10 @@
 # W17 Current Status
 
-**This is the only workspace-level file that carries volatile state and commit hashes.**
+**This is the only workspace-level file that carries volatile state and commit hashes**,
+with a single carve-out: physical hardware *arrival / on-hand* status lives in
+`HARDWARE_INVENTORY.md` (the parts delivery log, mapped to BOM v2). That file carries no
+commit hashes and no gate / software / execution state, so this file stays the sole
+workspace-level source for all of those and for project execution status.
 Overwrite it in place when state changes; do not append history. Instruction files
 (`CLAUDE.md` / `AGENTS.md`) must not duplicate anything below.
 
@@ -249,6 +253,16 @@ readAxis-dedupe observation. A fix-plan session is queued for these findings. Wi
 
 Ground-station pre-ride setup flow, iPhone mDNS proposal, and `w17-3d-codex`
 bootstrap status remain as recorded below._
+
+2026-07-22: **Zero-hardware suite re-verification** (read-only session, no source edits).
+All green: `w17-control-fw` native **224/224**; `w17-soundlight-fw` native **94/94**
+(README corrected from a stale "40" — see repo commit); `w17-ground-station` `npm test`
+**1046/1046 (53 files)** — grown further past the `8441adb`-era 984/984 recorded above
+(recent SEAT-FIT/wheel-support work), `npm run smoke:electron` **4/4**; `w17-mapper`
+`go test ./pkg/headintent/...` all green (full `./...` still blocked only by the
+pre-existing go1.26 × `go.bug.st/serial` cgo incompat, not a new failure). The 976/976 →
+984/984 progression recorded above (2026-07-17) is left as-is — it's an accurate log of
+what was true at each point that day; this entry just adds the next data point.
 
 ## Checkpoints
 
