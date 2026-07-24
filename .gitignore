@@ -12,6 +12,12 @@ w17-design-system/
 # Read-only upstream reference clones (own git history; never edited).
 _vendor/
 
+# Machine-local Claude Code state (permissions, launch config) — host-specific paths.
+.claude/
+
+# Scratch dirs for one-off local HTML previews.
+.preview-tmp/
+
 # Common generated files
 node_modules/
 dist/

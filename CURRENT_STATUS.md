@@ -8,7 +8,11 @@ workspace-level source for all of those and for project execution status.
 Overwrite it in place when state changes; do not append history. Instruction files
 (`CLAUDE.md` / `AGENTS.md`) must not duplicate anything below.
 
-_Last updated: 2026-07-17. Control-firmware remediation through R5-b is complete:
+_Last updated: **2026-07-25** (workspace bookkeeping sync — see the 2026-07-25 entry below and the
+corrected Checkpoints table; the dated entries that follow are preserved as an as-of log, so read the
+Checkpoints table and the newest entry for current truth).
+
+Earlier baseline, 2026-07-17. Control-firmware remediation through R5-b is complete:
 validated delivery NVS loading, configurable steering endpoints, console parsing
 hardening, a provisional 2-second control-loop Task Watchdog, and RTC-retained
 reset diagnostics. Native tests: 224/224; all ESP32 environments build. Live
@@ -242,14 +246,13 @@ and now PUSHED; the final audit is committed docs-only as **`8441adb`**
 Suite **984/984 (52 files)**, smoke 4/4 (apiKeys 24), proto:check OK,
 noControlPath/ipcSurface(24)/responsiveLayout green; live CDP-driven sweep at
 1280×800/1366×768/1024×640/fullscreen. Audit verdict: history maps 1:1 to plan batches, all 7
-invariants PASSED, and **9 findings recorded but NOT fixed (deliberate — follow-up work):**
-**1 HIGH — the calibrated wheel profile is silently dropped by `normalizeSettings`
-(`shared/settings.js`), so it never persists across restart**; 1 MED (the HUD wheel mirror can
-resolve the wrong device when the wheel is absent at START, applying wheel calibration to
-gamepad axes); 4 LOW UX/display defects; 1 docs gap; plus a design-bundle-§10 deviation and a
-readAxis-dedupe observation. A fix-plan session is queued for these findings. Windows CI at
-`8441adb` was not re-verified this session (last recorded green: app `e0a5cdc` run
-`29440396447`, docs `170fd66` run `29473220328`).
+invariants PASSED, and **9 findings recorded but NOT fixed at that time (deliberate — follow-up
+work):** 1 HIGH (calibrated wheel profile silently dropped by `normalizeSettings`); 1 MED (HUD wheel
+mirror can resolve the wrong device when the wheel is absent at START); 4 LOW UX/display defects;
+1 docs gap; plus a design-bundle-§10 deviation and a readAxis-dedupe observation. **All 9 have since
+been closed — see the 2026-07-25 entry below; do not read this paragraph as a list of open work.**
+Windows CI at `8441adb` was not re-verified in that session (green recorded later at `3119180`, run
+`29724061397`).
 
 Ground-station pre-ride setup flow, iPhone mDNS proposal, and `w17-3d-codex`
 bootstrap status remain as recorded below._
@@ -319,16 +322,65 @@ Codex recalc handoff **`w17-codex-batch1-recalc-prompt.md`** (PDB-height re-deri
 reopen, Wi-Fi placement close, CG refine, dock/charge routing). Physical caliper of the MH-ET boards + the
 actual 1000 µF, and the Track C/D fit-gates, still await parts/printed-part sessions.
 
+2026-07-25: **Workspace bookkeeping sync (docs-only, no hardware) — A2 still NOT-EXECUTED, Phase B
+still BLOCKED.** Nothing here touched firmware, gates, or any control path.
+- **Pushed finished work.** `w17-soundlight-fw` `4f25856..ec5ddf8` (11 commits) after verifying
+  native **94/94**; `w17-design-system` `b301de0..6a59c96` (1 docs commit). Workspace repo: `main`
+  fast-forwarded onto the `w17-batch1-measurements` branch tip and pushed (`bb8e7e7..c5d32c7`) —
+  the branch was a strict descendant, so the merge was a clean fast-forward; the branch ref is now
+  redundant and retained only as a label.
+- **Ground-station audit findings — ALL 9 CLOSED** (the checkpoint row and the 2026-07-17 entry are
+  corrected accordingly). Finding 1 (HIGH, wheel profile never persisted) fixed in **`a04b07c`**:
+  `normalizeSettings` now admits a validated `wheel.profile` subtree via conditional spread
+  (`shared/settings.js:191`) with a CJS-local `normalizeWheelProfile` mirror, a parity test against
+  the ESM `shared/wheelProfile.mjs`, and a hostile-corpus persistence test
+  (`test/wheelProfilePersist.test.js`). Findings 2/3/4 fixed in **`5141912`** (absent wheel yields
+  no mirror and an honest `INPUT · WHEEL (NO DEVICE)` tag instead of driving a gamepad through wheel
+  calibration; WHEEL mode gains its own device selector; `wheelActive` gating). Findings 5/6/7 fixed
+  in **`ec1baef`** (⚙ inert to the pad during the start-lights countdown; fast-path card focused on
+  boot only; in-code deferral markers). **`085e1d1`** then fixed a defect that closure-verification
+  of `ec1baef` itself surfaced — the BOTH-mode source tags shipped `.barsrc hidden` but `hud.css`
+  had no generic `.hidden` rule, so the class was visually inert and the tags leaked into
+  GAMEPAD-only and WHEEL-only modes; the jsdom class-only assertions had passed vacuously. The
+  design-bundle §10 observation was resolved both ways in **`e57f587`** (Decision B), and the
+  `readAxis`/`clampAxis` dedupe observation is explicitly **waived in-code** at
+  `shared/wheelProfile.mjs:88`. Verified against live code this session, not taken from commit
+  messages. **Consequence: the session prompt `w17-gs-audit-followups-prompt.md` is now wrong where
+  it says "Findings 2–7 are still open" — a correction banner was added to it rather than deleting
+  the prompt.**
+- **`HARDWARE_INVENTORY.md`**: the 2026-07-24 electrical order is now recorded there as a new **§E**
+  section, all rows **⏳ in transit** (2× MH-ET D1-Mini ESP32 USB-C, ceramic + electrolytic cap kits,
+  Amass XT90-S master switch + XT60→XT90 adapter, IP2326 2S Type-C balancing charger, ZEEE 1500 mAh
+  2S LiPo, plus the 1N5819 as 🏠 office stock). The debt that the 2026-07-24 entry recorded is
+  discharged. That file still carries arrival status only — no hashes, no gate state.
+- **Cross-repo follow-up closed (elsewhere):** the `w17-3d-codex` "stop tracking arrivals" cleanup
+  that `HARDWARE_INVENTORY.md` listed as owed has in fact landed there as `59a1634` (2026-07-22) —
+  **but that commit is unpushed.** Not edited or pushed from here.
+- **Root artifact triage.** Nine spent ground-station artifacts deleted (the `a1` / `a1-a2` /
+  `through-d1-d4` patches, their three audit copies, two `git status` snapshots, and the
+  planning handoff). Proof before deletion, not assumption: the committed
+  `w17-ground-station/docs/audits/2026-07-12-pre-hardware-hardening-audit.md` (2592 lines) is a
+  strict superset of the 1818-line root copy and names the landing chain itself — `79fa2e0`
+  ("a lot of chagnes", 62 files, +10524/−570) → `0564141` → `297ca79` → `8ceb931` → `0e85702`;
+  90–96% of every patch's added lines are present verbatim at GS HEAD, and each apparent gap was
+  traced with `git log -S` to `79fa2e0` followed by later refactoring in `e0a5cdc` / `8c5af12` /
+  `d822c80`. The planning handoff's four changes are exactly GS `3119180` and its "FINAL, SEPARATE"
+  design-system item is `6a59c96`; its named intermediate deliverable
+  (`w17-ground-station-impl-plan.md`) was never written to disk, so the plan was consumed in-session.
+  Live session prompts, the six Codex handoff docs, and the steering-servo fit diagram were committed
+  instead. `.claude/` and `.preview-tmp/` are now git-ignored; `.preview-tmp/` was deleted.
+
 ## Checkpoints
 
 | Repo / folder | Checkpoint | Notes |
 |---|---|---|
 | `projects` (manual repo, `w17-software-manual`) | — | contains this CURRENT_STATUS.md; do not self-record its own exact hash — use `git HEAD` for the current commit |
-| `w17-control-fw` | `8ed0a6c` | R1–R5-b remediation complete (`72d5347`); 224/224 native tests; all ESP32 environments build; live watchdog-cycle observation and physical reset-path validation pending. `8ed0a6c` = docs-only: U4 head-intent shaping/arbitration DESIGN (`head_tracking_unlock_plan.md §2.3.11`) — no firmware/behavior change |
-| `w17-ground-station` | `8441adb` | **Setup-flow redesign (Batches 0–9) SHIPPED + PUSHED** on top of the Windows reliability slice (`e0a5cdc`), CB8 3B/3C (`03f43e2`/`dce91f8`), E1 (`0e85702`): PIT WALL/SEAT FIT layout, steering-wheel display mirror + calibration UI, HUD wheel mirroring, flow chrome/step rail/fast-path card, step reorder, controller UI nav. **984/984 tests (52 files)**, smoke 4/4 (apiKeys 24); OS paths bench-unvalidated. Final audit committed docs-only as `8441adb` (`docs/audits/2026-07-17_setup_flow_redesign_audit.md`): history 1:1 clean, all 7 invariants PASSED, **9 findings NOT fixed (follow-up)** — **1 HIGH: wheel profile silently dropped by `normalizeSettings` (`shared/settings.js`), never persists**; 1 MED (wheel mirror can read the wrong device when the wheel is absent at START); 4 LOW + 1 docs gap + design-§10/readAxis observations. All pushed (level with `origin/main`). **Windows CI not re-verified at `8441adb`** (last green: app `e0a5cdc` run `29440396447`, docs `170fd66` run `29473220328`). |
-| `w17-mapper` | `59d1739` | owned fork (`w17-headtrack` off upstream `2b8031a`); CB8 slices 1–3A committed: LOG-ONLY UDP 5602 head-intent ingest + read-only gRPC diagnostics; go build/test green; push disabled |
-| `w17-soundlight-fw` | `4f25856` | clean |
-| `w17-3d-codex` | `80e7f74` | bootstrapped 2026-07-10: 210 files classified (37 required staged), docs + gates written; 4 human gates open, nothing printed |
+| `w17-control-fw` | `1834852` (branch `docs/bom-cassette-electrical`) · `fbf22f0` (`main`) | **Checked out on a branch, not `main`.** `main` = `fbf22f0` (docs: FIRST_ACTIVE decisions + Alt-C bench controls), pushed. Branch `docs/bom-cassette-electrical` is 2 ahead and pushed to its own remote: `78e1e88` (BOM — 2× D1-Mini ESP32 on-car, IMX335 camera, cassette PDB/charge/connectors) → `1834852` (BOM — name the onboard 2S charger, IP2326 primary / BQ25887 alt). Nothing unpushed. The previously recorded `8ed0a6c` is a real ancestor of both, just 3 commits stale. Firmware unchanged by any of it (docs-only): R1–R5-b remediation complete (`72d5347`); 224/224 native tests; all ESP32 environments build; live watchdog-cycle observation and physical reset-path validation still pending. **Branch is unmerged — decide merge-vs-keep before relying on `main` for BOM content.** |
+| `w17-ground-station` | `3119180` | **Windows CI GREEN at this HEAD: run `29724061397` (2026-07-20) — 1046/1046, 53 files**, both the ubuntu `test` job and the windows-latest `package-smoke` job (suite + `smoke:electron` + `electron-builder --dir`). `main` level with `origin/main`. `3119180` = setup-flow follow-through (reorder PIT WALL before SEAT FIT, DRIVE MODE display preference, SEAT FIT rebalance, start-lights off by default) — the four changes from the 2026-07-19 planning handoff. **All 9 findings of the 2026-07-17 setup-flow audit are now CLOSED** (see the 2026-07-25 entry); the audit document's own §3 still reads "none applied" and is the stale artifact. **An uncommitted 7-file WIP sits on top of this HEAD** (`renderer/hud.css`, `renderer/index.html`, `renderer/setupFlow.js`, `shared/setupSteps.mjs`, + 3 test files) splitting a new `SETUP` step out of SEAT FIT — not reviewed, not committed, and NOT covered by the CI run above. Real-OS/Windows-hardware paths remain bench-unvalidated. |
+| `w17-mapper` | `59d1739` | owned fork (`w17-headtrack` off upstream `2b8031a`); CB8 slices 1–3A committed: LOG-ONLY UDP 5602 head-intent ingest + read-only gRPC diagnostics; go build/test green; push disabled. Verified unchanged 2026-07-25. |
+| `w17-soundlight-fw` | `ec5ddf8` | **PUSHED 2026-07-25** (`4f25856..ec5ddf8`, 11 commits — the previously recorded `4f25856` was exactly the stale remote tip). Native `pio test -e native` **94/94 across 8 suites**, verified green immediately before the push. Content: audio-decision centralization, graceful audio-startup/runtime-write failure handling, wrap-safe engine effect timers, exact synth-smoothing convergence, signed engine inertia preserved, widened noise multiplication, low-battery period validation, UART0 diagnostics gated by firmware mode, README host-test count corrected 40→94. |
+| `w17-design-system` | `6a59c96` | **PUSHED 2026-07-25** (`b301de0..6a59c96`, 1 commit, `DESIGN_NOTES.md` only): sync with the shipped setup flow (PIT WALL first, DRIVE MODE, SEAT FIT layout) — the "FINAL, SEPARATE" half of the same planning handoff that produced GS `3119180`. Newly carried in this table. |
+| `w17-3d-codex` | `59a1634` | **1 commit UNPUSHED.** Recorded `80e7f74` (2026-07-10 bootstrap: 210 files classified, 37 required staged, docs + gates written, 4 human gates open, nothing printed) is a real ancestor but **8 commits stale**. The unpushed tip `59a1634` (2026-07-22, *"docs: stop this repo tracking arrivals; point to HARDWARE_INVENTORY.md"*) closes the cross-repository follow-up that `HARDWARE_INVENTORY.md` had recorded as owed — verified read-only: it touches `GENERAL_PLAN.md` + `10_assembly_architecture/B_component_envelope_register.md`. **Not pushed and not edited from this session** (repo treated as Codex-owned per the session brief). |
 | `iPhone_rc` (Codex) | `84532ed` | VR FPV plan consolidation (H1–H11 applied; canonical contract sync revision); Batch 1 VR-calibration work remains uncommitted in its working tree |
 | `w17-rc-print-codex` (Codex) | `75b408c` | has existing untracked reports |
 
