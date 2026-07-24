@@ -282,6 +282,28 @@ reflash-survival + delivery-silent legs (skipped); crash-class reset classificat
 increment unexercised (only POWER_ON seen, by design); board role assignment deferred to harness assembly;
 A2 / Phase B unchanged. Per-board §11 evidence: `learning-manual/13_bare_board_smoke_test_evidence.md`.
 
+2026-07-24: **Batch-1 physical measurement session (no-power) — component envelopes + weights
+captured; A2 / Phase B UNCHANGED.** No power/battery/PSU/USB/flashing; harness is still loose
+modules so A2 §3–§9 was not executable and was not run. Calipers + gram scale only. Results +
+Codex mechanical-register handoff: **`w17-batch1-measurements-for-codex.md`** (workspace root; Claude
+does not edit `w17-3d-codex`). Photos in `w17-3d-codex/images_of_parts/batch_1/`.
+- **Board decision (owner):** both controllers will be **MH-ET Live D1-Mini ESP32** (frees cassette
+  space; USB-C variant being sourced). This makes the ZK "FIRM" 39×31 board premise true by
+  procurement — the 39 mm wall-row / `X+3…+42` seat / `S0≥9.82 mm` derivations stand. The on-hand
+  USB-C DevKit V1 clones (30-pin) are **TEST/SPARE only**, not the cassette controllers. Real MH-ET
+  caliper + weight pending purchase (ZK CAS-03 stays open on the physical board).
+- **Two height findings on the #1 blocker (steering clearance, `KO-01 Z22 − PDB top Z19 = 3 mm`,
+  5 mm short of policy):** UBEC measured **9.1 mm** (ZK assumed ~18 mm "UBEC-dominated") → PDB height
+  can drop → *helps*; QuicRun ESC installed height **34 mm** (fan+heatsink on top) vs documented
+  24.2 mm → ESC floor station Z1.5…25.7 too short → *reopens ESC clearance* (CAS-06/ASM-49).
+- **BL-M8812EU2 = 32.4×32×7 mm, 11.2 g** → fits the ≤60×32×12 allocation → **D-06b unblocked** (was
+  uncalipered/unplaced).
+- **DS3235SG side face 40.25×20.2** vs 42×18.5 arch → **~1.7 mm height interference confirmed**
+  (fit study predicted ~1.5 mm); physical no-force dry-fit (Track D) + steering sweep/S0/arch
+  (Track C) still pending; do not file/force test-grade prints.
+- Weights lighten the CG control/RF group (assumed 72.5 g); motor 156.7 g / ESC 100 g / servo 70.3 g
+  dominate; four-corner scaling deferred to a rolling assembly. Details in the handoff doc.
+
 ## Checkpoints
 
 | Repo / folder | Checkpoint | Notes |
