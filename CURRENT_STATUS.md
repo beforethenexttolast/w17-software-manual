@@ -304,6 +304,21 @@ does not edit `w17-3d-codex`). Photos in `w17-3d-codex/images_of_parts/batch_1/`
 - Weights lighten the CG control/RF group (assumed 72.5 g); motor 156.7 g / ESC 100 g / servo 70.3 g
   dominate; four-corner scaling deferred to a rolling assembly. Details in the handoff doc.
 
+2026-07-24 (later): **Electrical BOM FINALIZED + all items ORDERED (owner) — no gate change.** Every
+remaining cassette electronic module is chosen and en route; no open sourcing decisions remain. **A2 still
+NOT-EXECUTED, Phase B still BLOCKED** — ordering is not powering; the harness must still be built and A2
+run before any power. Ordered: 2× MH-ET D1-Mini ESP32 (USB-C), ceramic + electrolytic cap kits (covers
+1000 µF servo-rail + LED, 100 nF, opt 1–10 nF), **Amass XT90-S anti-spark master switch** + XT60→XT90
+adapter, **IP2326 2S Type-C balancing charger** (18.3×31 mm, confirmed balancing), **ZEEE 1500 mAh 2S
+LiPo** (69×35×18, JST-XH; owner will re-terminate to XT60); 1N5819 from office stock. (These ordered/
+in-transit rows still owe an entry in `HARDWARE_INVENTORY.md` as ⏳ — left for that file's in-progress
+edit; not touched here to avoid clobbering its uncommitted rewrite.) New Claude-side build docs:
+**`w17-pdb-build-and-connector-guide.md`** (PDB schematic/topology, connector proposal with genders +
+proposed cable lengths, capacitor placement + soldering guide, pins reconciled to `PinMap.hpp`) and the
+Codex recalc handoff **`w17-codex-batch1-recalc-prompt.md`** (PDB-height re-derivation, ESC 34 mm station
+reopen, Wi-Fi placement close, CG refine, dock/charge routing). Physical caliper of the MH-ET boards + the
+actual 1000 µF, and the Track C/D fit-gates, still await parts/printed-part sessions.
+
 ## Checkpoints
 
 | Repo / folder | Checkpoint | Notes |
