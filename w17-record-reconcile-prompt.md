@@ -17,12 +17,11 @@ run-status honesty) are **committed but unpushed**, sitting on a branch named
 **`docs/bom-cassette-electrical`** whose name no longer describes its contents (it now carries a tools
 script and four owner decisions).
 
-1. **Branch — and it's worse than a naming problem.** Verified 2026-07-25: `main` is at **`fbf22f0`** and the
-   branch is **6 commits ahead and unmerged**, so the electrical BOM content (`78e1e88`, `1834852` — the
-   D1-Mini/IMX335/PDB rows and the IP2326 charger) **is not on `main` at all**, alongside the four new
-   commits. Anything reading that repo's `main` for BOM facts is reading a pre-BOM tree. Propose the fix —
-   merge to `main` (with a rename first, since the name now describes only a third of its contents), or
-   rebase — and tell me which you'd pick and why **before** doing it.
+1. **Branch — ALREADY DONE 2026-07-25, just verify.** `main` had been at `fbf22f0` with the branch 6 commits
+   ahead and unmerged, so the electrical BOM (`78e1e88`, `1834852`) wasn't on `main` at all. It was
+   fast-forwarded (`fbf22f0 → 34eba89`, 16 files, no merge commit needed) and pushed. Confirm
+   `main == 34eba89` and `origin/main == 34eba89`, then the naming problem is moot — the redundant branch
+   `docs/bom-cassette-electrical` can simply be deleted local and on origin.
 2. **Amend the serial-version record (owner decision 2026-07-25).** `head_tracking_unlock_plan.md`
    §2.3.12.9 records the approved bump as `go.bug.st/serial` → **v1.7.1**. What shipped in `w17-mapper`
    (`f0a18f3`, 2 files / +3 −1) is **v1.6.0**, and it is **accepted** — record the real reason, which is
@@ -186,19 +185,50 @@ script and four owner decisions).
    - Consequence for the R06 record: once these are pushed the cross-repo guard is **enforced, not advisory** —
      drop that caveat.
 
-4. **Open items to carry forward** (all no-hardware): **HUD BATT ordering + intra-row pill order deferred to
-   a live 13" pass** (prompt 8) — code ships BATT-first with `BOOST·OVERTAKE·DRS`, mockup `05-hud.html` says
-   BATT-last with `DRS·OVERTAKE·BOOST`; recorded as an open two-row table in `DESIGN_NOTES.md` §11 with
-   `screens/05-hud.html` untouched and neither declared canonical. The **soundlight CI `--strict` step**,
-   without which the cross-repo link2 guard is advisory only. Soundlight's copy of `docs/link2_protocol.md`
-   needing a judgment-based re-sync (byte-identity is the wrong bar — the script reports that tier
-   non-fatally and exits 0). Two **stale rail comments** in the ground station (`renderer/index.html:140`
-   confirmed still describing `01..04 GRID`; the `setupFlow.js` one may already be gone — verify) — code is
-   correct, only the comments lag `42319ad`. And in `w17-design-system`, the **"Adoption path" section**
-   still lists "SEAT FIT-before-PIT WALL order" as net-new, twice-superseded (by §2 on 2026-07-20, then by
-   the SETUP split).
+4. **Live 13" pass DONE (prompt 8) — record it; three items it closed and two it opened.**
+   - **BATT ordering RESOLVED toward the code** (owner, 2026-07-25): shipped order stands — BATT above the
+     merged pill row, `BOOST·OVERTAKE·DRS` within it. Decisive measurement: both stacks occupy an identical
+     envelope (y 643→782 at 1280×800), but the mockup order terminates the right column's bottom edge — the
+     HUD's strongest horizontal alignment line, registering against the bottom-left R-STK panel — with a
+     **99 px chip leaving a 184 px notch**, versus a full-width 283 px block. Bundle amendment (incl.
+     `screens/05-hud.html`) is prompt 12 phase B, not an open question any more.
+   - **`.revwrap` centering CONFIRMED** — offset from viewport centre **0.00 px**, and it stays 0.00 under a
+     forced 30-char driver name, a 52-char team string, a long clock, and tiny values. `e01eb9f` achieved
+     exactly what it set out to.
+   - **`#addrStatus:empty` reserve works as designed** — empty ⇒ height 0; after CHECK ⇒ 33.6 px with the hint
+     shifting down by exactly that. The one-time shift is a deliberate, code-commented trade.
+   - **Viewer-only disclaimer verified genuinely once per session** — visible on boot GARAGE (36 px, in normal
+     flow, crossing nothing), hidden on every later screen, still hidden after a full CHANGE SETUP →
+     back-to-GARAGE round trip; both homes carry byte-identical copy.
+   - Clean at all four sizes × both paths: rail `01..05`, GRID reads 05, solo shows `02 PIT WALL` struck
+     through as `SKIPPED · DESKTOP`, zero horizontal overflow, no wrap. Invariants held in every screenshot
+     (HEAD TRACKING LOCKED · SAFETY GATE NOT COMPLETE, ACTIVE AUTHORITY NOT REPORTED BY MAPPER, violet
+     `STICK INPUT · PAD`, `ARM / FAILSAFE · NOT REPORTED BY CAR`).
+   - **Two defects opened, both assigned to prompt 12 phase A:** **D1** — SETUP is **3.0–3.2 : 1** lopsided
+     with ~300 px of dead left column at 1024×640; the split relocated §14(b)'s imbalance rather than solving
+     it. Owner decision: **SETUP becomes a single centred column**; SEAT FIT is deliberately left alone
+     because its right column is the *taller* one (1.31–1.38 : 1) — the earlier "SEAT FIT reads empty"
+     premise was **inverted**. **D2** — `#gamepadPanel` is `display:block` with no gap inside a `gap:11.2px`
+     column, so its six rows butt at 0 px and `NO CONTROLLER · KEYBOARD FALLBACK` collides with `LAYOUT`
+     (measured: no true overlap). Pre-existing, one-line fix, approved.
+   - **Stale rail comments fixed** in comment-only commit **`17ec1be`** (anchors had drifted to
+     `renderer/index.html:131` / `renderer/setupFlow.js:129`); prompt 3a had **not** swept them. Landing onto
+     `main` is prompt 12 item A0.
 
-5. **Add this hardware-class unknown to Pending validations** — drafted 2026-07-25, ready to paste as a
+5. **Open items to carry forward** (all no-hardware). Everything else previously listed here is now closed —
+   verify each before you keep it:
+   - **Prompt 12 phase A** (`w17-ground-station`): land `17ec1be` onto `main`, SETUP → single centred column
+     (D1), `#gamepadPanel` gap (D2). Flag the one live risk: stacking may overflow vertically at 1024×640,
+     where the right column already runs to ~70% — that session must measure and report rather than pick.
+   - **Prompt 12 phase B** (`w17-design-system`): §11 + `screens/05-hud.html` amended to the shipped BATT and
+     pill-row order, §14/§2 updated for the single-column SETUP, and the twice-superseded **"Adoption path"**
+     entry ("SEAT FIT-before-PIT WALL order" as net-new) finally fixed.
+   - **Prompt 6** (`w17-ground-station`, optional): CB1 right-stick indicator, CB4 Windows mDNS.
+   - **Prompt 4b** (`w17-control-fw`, gated): the Wokwi run, blocked only on the owner deciding whether to
+     upload firmware to Wokwi's servers.
+   - `w17-3d-codex` has **2 unpushed commits** (`59a1634`, `2325fd9`) — Codex-owned; record, don't act.
+
+6. **Add this hardware-class unknown to Pending validations** — drafted 2026-07-25, ready to paste as a
    sibling to the bullet ending ~line 522. It belongs with the Windows-hardware items, not buried in a
    dependency-bump record:
 
@@ -215,7 +245,7 @@ script and four owner decisions).
    >   `w17-ground-station/docs/audits/2026-07-12-pre-hardware-hardening-audit.md`;
    >   `w17-control-fw/project-review/11_hardware_validation_plan.md`.
 
-6. **New host limitation worth recording, because it changes every future GS session's gate list:**
+7. **New host limitation worth recording, because it changes every future GS session's gate list:**
    `npm run smoke:electron` **cannot run on this macOS host** — Gatekeeper denies the `node_modules` Electron
    binary ("library load denied by system policy"). Reproduced at a clean `e09369b` before any change, so it
    is the **machine, not the code**. Windows CI covers it and passes. Record it so no future session reports
