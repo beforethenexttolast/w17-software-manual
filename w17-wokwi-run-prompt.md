@@ -1,19 +1,21 @@
-# Session prompt — 4b. Run the Wokwi sim (gated on a Wokwi credential; no physical hardware)
+# Session prompt — 4b. Run the Wokwi sim (upload APPROVED; no physical hardware)
 
 Paste into a Claude Code session started at `~/Documents/projects/w17-control-fw`.
 
-**Do not start this session until the credential exists.** One action from the owner unblocks it:
+**Upload is approved** (owner, 2026-07-25): every Wokwi route uploads the firmware image to Wokwi's servers,
+and that is fine for this firmware. Recorded as a knowing decision, not an assumption.
+
+Setup, before the session can do anything:
 
 ```
 npm i -g wokwi-cli
-export WOKWI_CLI_TOKEN=…        # from your Wokwi dashboard
+export WOKWI_CLI_TOKEN=…        # from your Wokwi dashboard / CI token page
 ```
 
-Know what you're agreeing to: **every Wokwi route uploads the firmware image to Wokwi's servers.** That's
-fine for this firmware, but it is an external service and the decision is the owner's to make knowingly.
-The alternative is driving `Wokwi: Start Simulator` in VS Code (extension 3.6.0, installed and licensed)
-by hand and pasting the serial log into a session — an agent cannot start it. If you'd rather not upload,
-take that route and this prompt becomes "classify the log I paste."
+**If the CLI token isn't available on the current plan**, don't fight it — the VS Code extension is already
+installed and licensed (3.6.0). Drive `Wokwi: Start Simulator` yourself (an agent cannot start it) and paste
+the serial log in; this prompt then becomes "classify the log I paste," and every item below still applies to
+that log. Prefer the CLI where possible: it's repeatable and can go into CI later, which the extension can't.
 
 ---
 
