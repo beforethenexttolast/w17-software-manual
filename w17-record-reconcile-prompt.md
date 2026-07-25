@@ -58,7 +58,17 @@ script and four owner decisions).
    to a fork we intend to track. Record the consequence: **if mapper CI is ever added, scope vet to the owned
    packages** (`go vet ./pkg/headintent/ ./pkg/server/`) rather than `./...`, or it will fail on upstream
    code we deliberately did not touch.
-4. Verify before pushing: `pio test -e native` **225/225**, all three ESP32 envs build. Then push and report
+4. **Fix a claim in this repo's `docs/link2_protocol.md` that is now false.** Its ownership section closes by
+   saying cross-repo CI enforcement is **"not built yet"**. It exists as of 2026-07-25: `w17-soundlight-fw`
+   `2d22f85` adds a `link2-drift` job that anonymously shallow-clones this repo into `$RUNNER_TEMP` and runs
+   `tools/link2_copy_check.sh --strict`. Correct the line and cite where the enforcement lives. While there,
+   re-read that section from a **receiver's** point of view — the soundlight re-sync found it names
+   `tools/link2_copy_check.sh` as though local to whichever repo holds the doc (it lives only here) and cites
+   `test_crc_matches_crsf_implementation` against `lib/crsf` (which board #2 does not have). Those are fine in
+   *this* repo; the fix is to mark clearly which statements are control-fw-local so the next copy doesn't
+   inherit false claims.
+
+5. Verify before pushing: `pio test -e native` **225/225**, all three ESP32 envs build. Then push and report
    the final branch name + HEAD.
 
 ## Phase B — workspace docs
@@ -116,10 +126,28 @@ script and four owner decisions).
      (`W17_SIM_WDT_STALL`, marker present once in the stall ELF, absent from all three shipping envs).
      `SIMULATION.md` leads with a run-status table, **every box unchecked**. Nothing promoted to PASS; the
      2 s TWDT stays **provisional**. Do not let this line read as hardware-blocked.
-   - **Mapper:** `f0a18f3` — `go.bug.st/serial` **v1.5.0 → v1.6.0**, and `go build ./...` is now **fully
-     green** on this host; the long-standing go1.26 × cgo blocker is cleared. Update the four places that
-     describe it as a temporary-and-reverted v1.7.1 bump only where they describe *current* state; leave the
-     historical narrations alone. Push stays disabled; no upstream.
+   - **Mapper — three corrections, one of them safety-relevant.** HEAD is **`0e11d6b`**, not `59d1739`:
+     `f0a18f3` (`go.bug.st/serial` v1.5.0 → v1.6.0; `go build ./...` now **fully green**, the go1.26 × cgo
+     blocker cleared), `8fc1915` (fork notice: provenance, GPL-3.0-or-later election, GPL §5(a) modification
+     notice, safety boundary), `0e11d6b` (the pre-push guard tracked at `.githooks/pre-push` + the written
+     push-review rule). Update the four places describing a temporary-and-reverted v1.7.1 bump **only** where
+     they describe *current* state; leave the historical narrations alone.
+     **`CURRENT_STATUS.md` line ~39 and the checkpoint row at line ~380 both still say "push disabled" — both
+     are now wrong, and that is safety-relevant drift.** The fork has a remote: `origin` =
+     `github.com/beforethenexttolast/w17-mapper`, created 2026-07-25T04:11Z, **PUBLIC**, and
+     `origin/w17-headtrack` carries all of the above. `upstream`'s push URL remains disabled. Record that the
+     accidental "no remote" protection is gone and what replaced it: a tracked `.githooks/pre-push`
+     (enable per clone with `git config core.hooksPath .githooks`; refuses a `w17_first_active` build tag, a
+     `FIRST_ACTIVE` identifier in Go/proto, or an active head-intent enum; verified to pass clean HEAD and
+     bite on all three injections) **plus** the push-review rule in `FORK-NOTICE.md` — the hook is the
+     accident guard, the rule is the control. What is published distributes **no control path**: proto still
+     ends at `ACTIVE_LOG_ONLY = 8`, no `FIRST_ACTIVE` in tracked source, upstream licence files unmodified.
+   - **Durable backups now exist** (2026-07-25, outside any scratchpad):
+     `~/Documents/w17-backups/w17-mapper-allrefs-2026-07-25.bundle` (5.2 MB, `git bundle verify` = complete
+     history, 10 refs; clone-tested with `go test ./pkg/headintent/` green) and
+     `~/Documents/w17-backups/spent-gs-artifacts-2026-07-25.tgz` (SHA-256 matches the scratchpad original,
+     15 entries; copied not moved, so the scratchpad copy can expire on its own). Honest limit: same physical
+     disk — protects against repo deletion and session cleanup, not drive failure; GitHub now covers that axis.
 2. **Closed since the last pass — record as done, not pending:** the viewer-only disclaimer (relocated,
    `769003b`), the four unpinned CSS rules (`12896fb`), the audit §3 staleness (`7c29a6b`), R01's
    implementation (`16d3d0a`), the `feelConstants.js:5` guard gap (`9c2d723`), and the `DESIGN_NOTES.md`
@@ -129,7 +157,36 @@ script and four owner decisions).
    intentional improvement (in the mockup its position is residue of the RUSSELL-plate/clock widths plus
    `.top`'s `right:calc(var(--gap) + 3em)` ⚙ inset, so it *cannot* be top-centre).
 
-3. **Open items to carry forward** (all no-hardware): **HUD BATT ordering + intra-row pill order deferred to
+3. **Soundlight (2026-07-25, prompt 9) — record it; `ec5ddf8` is no longer that repo's HEAD.** Two commits:
+   `2d22f85` CI enforcement and `5919685` the protocol-doc re-sync. Native **94/94**, `esp32dev` +
+   `esp32dev_sim` both build, canonical guard re-run exit 0.
+   - **The "two drift-checkers" joke had already landed before we got there.** That repo already had a
+     `link2-drift` job (from `74b59f4`) with a hand-rolled inline diff loop — and that loop treated
+     `docs/link2_protocol.md` as **fatal**, so control-fw's doc edit turned soundlight's `main` **CI red for a
+     non-bug**. Verified by replaying the old logic (flags the doc and nothing else, exit 1), not assumed.
+     `2d22f85` replaces it with a single source of truth.
+   - **Design: fetch, don't fork.** The job anonymously shallow-clones control-fw into `$RUNNER_TEMP` (outside
+     `GITHUB_WORKSPACE`, so the sibling never enters soundlight's source tree) and runs *this* repo's
+     `tools/link2_copy_check.sh --strict`. Cost: a build-time dependency on control-fw's `main` — which fails
+     **loudly** (exit 2) rather than quietly, exactly what `--strict` is for. Anonymous clone avoids the
+     cross-repo token-scope question.
+   - Exit codes fully disambiguated: 0 pass (plus a `::warning` when the doc tier reports, so the non-fatal
+     tier is never invisible), 1 DRIFT, 2 COULD-NOT-CHECK (neither pass nor drift), 3 CI-bug/usage, anything
+     else unexpected — all non-zero fail with distinct text. **Trap recorded:** GitHub's default shell is
+     `bash -e`, which would collapse every exit code into one anonymous red X; `set +e` is load-bearing and
+     commented as such.
+   - **Verified by watching it fail:** the step's real `run:` body extracted from the YAML (not paraphrased)
+     and run against throwaway fake siblings across **7 scenarios** — clean, injected `kPayloadLen`, deleted
+     shared file, sibling missing `lib/link2`, checker absent, exit 3, exit 42.
+   - Doc re-sync was **one-sided**, not three-way: soundlight's copy was byte-identical with zero local
+     content, so the diff was purely additive. Upstream prose was corrected to receiver POV (see phase A item
+     4), and stripping the two adapted blocks leaves the normative content — frame layout, payload table,
+     state matrix, timing rule, worked example — **byte-identical across both repos**. No drift against the
+     recorded decisions: the copy already read 1-based display gear, 1…4, TRAINING / RACE / ERS.
+   - Consequence for the R06 record: once these are pushed the cross-repo guard is **enforced, not advisory** —
+     drop that caveat.
+
+4. **Open items to carry forward** (all no-hardware): **HUD BATT ordering + intra-row pill order deferred to
    a live 13" pass** (prompt 8) — code ships BATT-first with `BOOST·OVERTAKE·DRS`, mockup `05-hud.html` says
    BATT-last with `DRS·OVERTAKE·BOOST`; recorded as an open two-row table in `DESIGN_NOTES.md` §11 with
    `screens/05-hud.html` untouched and neither declared canonical. The **soundlight CI `--strict` step**,
@@ -141,7 +198,24 @@ script and four owner decisions).
    still lists "SEAT FIT-before-PIT WALL order" as net-new, twice-superseded (by §2 on 2026-07-20, then by
    the SETUP split).
 
-4. **New host limitation worth recording, because it changes every future GS session's gate list:**
+5. **Add this hardware-class unknown to Pending validations** — drafted 2026-07-25, ready to paste as a
+   sibling to the bullet ending ~line 522. It belongs with the Windows-hardware items, not buried in a
+   dependency-bump record:
+
+   > - **ELRS TX enumeration on real Windows (`go.bug.st/serial` v1.6.0): UNVALIDATED.**
+   >   The v1.6.0 bump (`w17-mapper` `f0a18f3`) was cleared on timing grounds on this macOS
+   >   host — `Write`/`Read` byte-identical v1.5.0 → v1.6.0 in both `serial_unix.go` and
+   >   `serial_windows.go`, delta confined to enumeration / `Open` error wrapping / an
+   >   uncalled `Drain()` / cgo wrappers, and `crsf.PackChannels` byte-identical (12 frames /
+   >   312 bytes, one SHA across off / on-valid / on-stale / on-invalid). The one residual is
+   >   **real Windows enumeration of the ELRS TX**, which no macOS host can exercise. Runs
+   >   with the other Windows-hardware unknowns above (netsh/WinRT, camera→mediamtx→WHEP,
+   >   real iPhone W2/W3, Windows DPAPI). Evidence ledgers, not duplicated here:
+   >   `w17-ground-station/docs/setup_flow_bench_checklist.md` + the matrix in
+   >   `w17-ground-station/docs/audits/2026-07-12-pre-hardware-hardening-audit.md`;
+   >   `w17-control-fw/project-review/11_hardware_validation_plan.md`.
+
+6. **New host limitation worth recording, because it changes every future GS session's gate list:**
    `npm run smoke:electron` **cannot run on this macOS host** — Gatekeeper denies the `node_modules` Electron
    binary ("library load denied by system policy"). Reproduced at a clean `e09369b` before any change, so it
    is the **machine, not the code**. Windows CI covers it and passes. Record it so no future session reports
