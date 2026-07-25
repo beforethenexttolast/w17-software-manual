@@ -45,6 +45,18 @@ Non-negotiables:
   clients). Build it, test it hermetically with fixtures, and mark real-device verification PENDING —
   do not claim the path works end-to-end.
 
+## Also do this first — the 24-key gate is not the tripwire we've been calling it
+
+Found 2026-07-25: `test/ipcSurface.test.js` asserts **symmetry plus `exposedKeys.length > 15`**, not a hard
+24. The count was verified out of band as 24, and `smoke:electron` does assert `apiKeys: 24` — but that smoke
+**cannot run on this macOS host** (Gatekeeper), so locally there is no tripwire at all, and every prompt in
+this series (including this one) has described the surface as "pinned at exactly 24". It isn't.
+
+Hard-pin it: assert the exact expected key set — names, not just a count — so an added or renamed preload
+method fails hermetically instead of waiting for Windows CI. Do this **before** CB4, since CB4 is the batch
+most likely to want a 25th key: with a real pin, adding one becomes a deliberate, reviewed test change rather
+than an invisible drift. Verify the pin bites on an injected extra key and on a rename.
+
 ## Both
 
 `npx vitest run` (baseline **1082/1082 across 56 files** at HEAD `9c2d723`), `npm run proto:check`,

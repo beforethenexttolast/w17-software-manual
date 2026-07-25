@@ -100,13 +100,38 @@ decision:
   the most transient, most glanceable indicator — belongs nearest that edge. This is a **weaker** preference
   than the BATT call; record it as such.
 
-### B2. Record the SETUP single-column decision
+### B2. Record the SETUP single-column decision — phase A is DONE, use its measured numbers
 
-§14 (and §2 if it describes SETUP's layout) must reflect phase A: SETUP is a **single centred column**, not
-two. Record *why* — the split relocated §14(b)'s column-imbalance problem rather than solving it (3.0–3.2 : 1,
-~300 px dead left column at 1024×640) — and that SEAT FIT is deliberately left alone because its right column
-is the taller one (1.31–1.38 : 1), inverting the original assumption. Follow the §10/Decision-B pattern:
-state what supersedes what and on whose decision, keeping the superseded intent legible.
+Phase A shipped: `17ec1be` (rail comments), **`2c96eb1`** (SETUP → one centred column), **`1a6f9f2`**
+(`#gamepadPanel` rhythm). HEAD `1a6f9f2`, CI `30150690390` green, suite **1090/1090 in 56 files**.
+
+§14 (and §2 if it describes SETUP's layout) must reflect that SETUP is a **single centred column**, not two.
+Record *why*, with the real figures — the split relocated §14(b)'s column-imbalance problem rather than
+solving it:
+
+| Viewport | DRIVE | CAMERA | ratio |
+|---|---|---|---|
+| 1470×956 | 110.9 | 360.8 | 3.25 : 1 |
+| 1280×800 | 106.5 | 351.3 | 3.30 : 1 |
+| 1366×768 | 109.8 | 358.5 | 3.27 : 1 |
+| 1024×640 | 97.8 | 291.6 | 2.98 : 1 |
+
+**Two corrections to the earlier premise, both now pinned by tests — carry them into the doc:**
+- The dead left column is **~191 px, not ~300 px**. The 41.8% / 71.6% column-end figures reproduced exactly.
+- **SEAT FIT stays split.** Its right column is the *taller* one (1.31–1.38 : 1), so the original
+  "right column reads empty" assumption was inverted. A test now asserts `.cols.seatcols` never receives
+  `.stack`, specifically so a later reader doesn't "fix" the taller column.
+
+Also record the overflow honestly, because it looks worse than it is: stacked SETUP exceeds the viewport at
+three of four sizes (30 / 72 / 95 px at 1280×800 · 1366×768 · 1024×640), and **every pixel of that is the
+`--gate-toast-reserve`** (121.6 px of `.gate` bottom padding held for the `position:fixed` `.radioLog`), not
+content. All content plus BACK/NEXT stays visible unscrolled at every size — worst case nav bottom at 95.8%
+of a 640 px viewport — and an all-elements intersection sweep found **zero** hits against the radio band.
+`.gate` already carries `overflow-y:auto` + `justify-content:safe center`, which is the designed response.
+Owner chose scroll.
+
+Follow the §10/Decision-B pattern: state what supersedes what and on whose decision, keeping the superseded
+intent legible.
 
 ### B3. Fix the stale "Adoption path" entry
 

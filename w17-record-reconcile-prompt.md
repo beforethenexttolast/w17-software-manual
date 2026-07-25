@@ -215,11 +215,39 @@ script and four owner decisions).
      `renderer/index.html:131` / `renderer/setupFlow.js:129`); prompt 3a had **not** swept them. Landing onto
      `main` is prompt 12 item A0.
 
-5. **Open items to carry forward** (all no-hardware). Everything else previously listed here is now closed —
+5. **Prompt 12 phase A DONE 2026-07-25 — ground station HEAD is `1a6f9f2`**, pushed, CI **`30150690390`**
+   green (both jobs), suite **1090/1090 in 56 files**, `responsiveLayout` now **34** assertions.
+   `17ec1be` (rail comments, own CI `30149835990` green, branch deleted) · `2c96eb1` (SETUP → one centred
+   column) · `1a6f9f2` (`#gamepadPanel` rhythm).
+   - **D1 overflow — record what it actually is, or it reads as a shipped defect.** Stacked SETUP exceeds the
+     viewport at three of four sizes (30 / 72 / 95 px at 1280×800 · 1366×768 · 1024×640), and **every pixel is
+     the `--gate-toast-reserve`** (121.6 px of `.gate` bottom padding held for the `position:fixed`
+     `.radioLog`), **not content**. All content plus BACK/NEXT stays visible unscrolled at every size (worst
+     case nav bottom 95.8% of a 640 px viewport); an all-elements intersection sweep found **zero** hits
+     against the radio band. `.gate` already had `overflow-y:auto` + `justify-content:safe center`. Owner
+     chose scroll.
+   - **Two premise corrections, now test-pinned:** the dead left column was **~191 px, not ~300 px** (the
+     41.8% / 71.6% figures reproduced exactly); and **SEAT FIT stays split** — a test asserts
+     `.cols.seatcols` never gets `.stack`, because its right column is the *taller* one and the original
+     assumption was inverted.
+   - **D2:** defect reproduced before fixing (all six row boundaries measured exactly 0 px, then 11.2 px).
+     Uses a new `--col-gap` token on `:root` consumed by both `.col` and `#gamepadPanel` so they cannot drift.
+     One boundary reads 16.79 px because `.errdetail` has a pre-existing `margin-top:.35em` — deliberately
+     left, since `.errdetail` is shared with the PIT WALL error panes.
+   - **19 injected regressions** (9 for A1, 10 for A2) each proven to fail the intended assertion, including
+     the silent-pass modes: `minmax(0,56ch)` vs `min(100%,56ch)`, the gap re-guessed as a literal `.7em`,
+     `--col-gap` deleted or zeroed, and the rows wrapped in an inner `<div>` (satisfies every CSS assertion
+     while collapsing the gap to 0).
+
+6. **Correct a claim this file and every prompt in the series has been making:** the preload surface is
+   **not** hermetically pinned at 24 keys. `test/ipcSurface.test.js` asserts symmetry plus
+   `exposedKeys.length > 15`; the exact count is asserted only by `smoke:electron` (`apiKeys: 24`), which
+   **cannot run on this macOS host**. So locally there is no tripwire — the pin exists in Windows CI only.
+   Record it as an open item; the hard pin is assigned to prompt 6, to land **before** CB4 (the batch most
+   likely to want a 25th key).
+
+7. **Open items to carry forward** (all no-hardware). Everything else previously listed here is now closed —
    verify each before you keep it:
-   - **Prompt 12 phase A** (`w17-ground-station`): land `17ec1be` onto `main`, SETUP → single centred column
-     (D1), `#gamepadPanel` gap (D2). Flag the one live risk: stacking may overflow vertically at 1024×640,
-     where the right column already runs to ~70% — that session must measure and report rather than pick.
    - **Prompt 12 phase B** (`w17-design-system`): §11 + `screens/05-hud.html` amended to the shipped BATT and
      pill-row order, §14/§2 updated for the single-column SETUP, and the twice-superseded **"Adoption path"**
      entry ("SEAT FIT-before-PIT WALL order" as net-new) finally fixed.
@@ -228,7 +256,7 @@ script and four owner decisions).
      upload firmware to Wokwi's servers.
    - `w17-3d-codex` has **2 unpushed commits** (`59a1634`, `2325fd9`) — Codex-owned; record, don't act.
 
-6. **Add this hardware-class unknown to Pending validations** — drafted 2026-07-25, ready to paste as a
+8. **Add this hardware-class unknown to Pending validations** — drafted 2026-07-25, ready to paste as a
    sibling to the bullet ending ~line 522. It belongs with the Windows-hardware items, not buried in a
    dependency-bump record:
 
@@ -245,7 +273,7 @@ script and four owner decisions).
    >   `w17-ground-station/docs/audits/2026-07-12-pre-hardware-hardening-audit.md`;
    >   `w17-control-fw/project-review/11_hardware_validation_plan.md`.
 
-7. **New host limitation worth recording, because it changes every future GS session's gate list:**
+9. **New host limitation worth recording, because it changes every future GS session's gate list:**
    `npm run smoke:electron` **cannot run on this macOS host** — Gatekeeper denies the `node_modules` Electron
    binary ("library load denied by system policy"). Reproduced at a clean `e09369b` before any change, so it
    is the **machine, not the code**. Windows CI covers it and passes. Record it so no future session reports
