@@ -239,14 +239,29 @@ script and four owner decisions).
      `--col-gap` deleted or zeroed, and the rows wrapped in an inner `<div>` (satisfies every CSS assertion
      while collapsing the gap to 0).
 
-6. **Correct a claim this file and every prompt in the series has been making:** the preload surface is
+6. **Prompt 12 phase B DONE 2026-07-25 — `w17-design-system` HEAD is `1415686`** (from `d53e6c4`), clean and
+   pushed. §11's OPEN DECISION block became **§11(f)**: the right-column order is resolved **toward the code**
+   (BATT → pillrow → ERS, `BOOST · OVERTAKE · DRS`), with the bottom-edge reasoning recorded, the old table
+   kept as canonical-vs-superseded, and the ground-station test pin's "provisional" note corrected — it is now
+   a guard backed by a ruling. `screens/05-hud.html` reordered to match. New **§14(d)** records the
+   single-column SETUP with (a)/(b)/(c) amended in place per the §10 pattern, including that SEAT FIT is
+   deliberately left split (1.31–1.38 : 1 — the premise behind (b)'s balancing argument was inverted). §2
+   needed no edit (step order and screen count only). The twice-superseded **"Adoption path"** entry is gone,
+   with a dated parenthetical.
+   **One error to carry into this pass:** `DESIGN_NOTES.md:208` says "~300 px dead left column at 1024×640".
+   The measured figure is **~191 px** — that session ran a pre-correction copy of the prompt. Fix it in
+   `w17-design-system` (one line) and do not propagate ~300 px anywhere in `CURRENT_STATUS.md`. Also unverified
+   there: the `screens/05-hud.html` reorder was never rendered (the browser pane refuses `file://` outside the
+   project folder; serving `screens/` over a local `http://` server is the workaround phase A used).
+
+7. **Correct a claim this file and every prompt in the series has been making:** the preload surface is
    **not** hermetically pinned at 24 keys. `test/ipcSurface.test.js` asserts symmetry plus
    `exposedKeys.length > 15`; the exact count is asserted only by `smoke:electron` (`apiKeys: 24`), which
    **cannot run on this macOS host**. So locally there is no tripwire — the pin exists in Windows CI only.
    Record it as an open item; the hard pin is assigned to prompt 6, to land **before** CB4 (the batch most
    likely to want a 25th key).
 
-7. **Open items to carry forward** (all no-hardware). Everything else previously listed here is now closed —
+8. **Open items to carry forward** (all no-hardware). Everything else previously listed here is now closed —
    verify each before you keep it:
    - **Prompt 12 phase B** (`w17-design-system`): §11 + `screens/05-hud.html` amended to the shipped BATT and
      pill-row order, §14/§2 updated for the single-column SETUP, and the twice-superseded **"Adoption path"**
@@ -256,7 +271,7 @@ script and four owner decisions).
      upload firmware to Wokwi's servers.
    - `w17-3d-codex` has **2 unpushed commits** (`59a1634`, `2325fd9`) — Codex-owned; record, don't act.
 
-8. **Add this hardware-class unknown to Pending validations** — drafted 2026-07-25, ready to paste as a
+9. **Add this hardware-class unknown to Pending validations** — drafted 2026-07-25, ready to paste as a
    sibling to the bullet ending ~line 522. It belongs with the Windows-hardware items, not buried in a
    dependency-bump record:
 
@@ -273,7 +288,7 @@ script and four owner decisions).
    >   `w17-ground-station/docs/audits/2026-07-12-pre-hardware-hardening-audit.md`;
    >   `w17-control-fw/project-review/11_hardware_validation_plan.md`.
 
-9. **New host limitation worth recording, because it changes every future GS session's gate list:**
+10. **New host limitation worth recording, because it changes every future GS session's gate list:**
    `npm run smoke:electron` **cannot run on this macOS host** — Gatekeeper denies the `node_modules` Electron
    binary ("library load denied by system policy"). Reproduced at a clean `e09369b` before any change, so it
    is the **machine, not the code**. Windows CI covers it and passes. Record it so no future session reports
