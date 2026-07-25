@@ -142,6 +142,11 @@ script and four owner decisions).
      accident guard, the rule is the control. What is published distributes **no control path**: proto still
      ends at `ACTIVE_LOG_ONLY = 8`, no `FIRST_ACTIVE` in tracked source, upstream licence files unmodified.
    - **Durable backups now exist** (2026-07-25, outside any scratchpad):
+     `~/Documents/w17-backups/w17-mapper-allrefs-2026-07-25b.bundle` — **use this one**, it caps at
+     `0e11d6b` (clone-tested 2026-07-25 13:02; `.githooks/pre-push` + `FORK-NOTICE.md` present). The earlier
+     `w17-mapper-allrefs-2026-07-25.bundle` caps at `8fc1915` and therefore does **not** contain the pre-push
+     guard — i.e. it is missing the very commit that replaced the "no remote" safety accident. Record the `b`
+     bundle, not the first one; the stale one is kept only as a second copy. Original wording follows:
      `~/Documents/w17-backups/w17-mapper-allrefs-2026-07-25.bundle` (5.2 MB, `git bundle verify` = complete
      history, 10 refs; clone-tested with `go test ./pkg/headintent/` green) and
      `~/Documents/w17-backups/spent-gs-artifacts-2026-07-25.tgz` (SHA-256 matches the scratchpad original,
@@ -296,16 +301,18 @@ script and four owner decisions).
    test authors: **vitest scans an entire test file for the environment docblock token, including inside
    prose** — writing it in a comment silently switched `responsiveLayout.test.js` to jsdom and broke its
    `import.meta.url` file reads. There is now a warning note in that file.
-3. **Branch cleanup:** `w17-batch1-measurements` (`c5d32c7`) is fully merged into `main` — confirm that, then
-   delete it local and on origin.
-4. **Commit the prompt files:** the session-prompt set has uncommitted edits and five new files
-   (`w17-gs-followups-prompt.md`, `w17-design-system-sync-prompt.md`, `w17-gs-live-13in-pass-prompt.md`,
-   `w17-soundlight-guard-prompt.md`, `w17-wokwi-run-prompt.md`, plus edits to
-   `w17-workspace-bookkeeping-prompt.md`). `w17-gs-audit-followups-prompt.md` is **superseded** and carries a
-   banner saying so — keep it as the provenance record, don't delete it.
-5. Apply `05157b2`'s own rule to this pass: for every `PENDING` / `NOT_STARTED` line you keep, say whether
-   you verified it still holds. Staleness here runs toward **over-reporting open work** — five instances so
-   far (the nine audit findings, R05, R19, the `loopTask` watchdog question, and this file itself).
+11. **Branch cleanup:** `w17-batch1-measurements` (`c5d32c7`) is fully merged into `main` — confirm that, then
+    delete it local and on origin. Same for `w17-control-fw`'s redundant `docs/bom-cassette-electrical` if it
+    still exists on origin. (The prompt files are **already committed** — `cbaf0c5`, `4edd43b`, `f35c49a`,
+    `fbd5c7e`, `71290f6`, `34e8a72`. Nothing to do there; `w17-gs-audit-followups-prompt.md` stays as the
+    superseded provenance record.)
+
+12. **Apply `05157b2`'s own rule to this pass — this is the item most easily skipped, so do it explicitly.**
+    For every `PENDING` / `NOT_STARTED` line you keep, say whether you verified it still holds. Staleness here
+    runs toward **over-reporting open work**, now **eight** instances: the nine audit findings, R05, R19, the
+    `loopTask` watchdog question, this file itself, `w17-design-system`'s "1 unpushed commit", the
+    "Windows CI not re-verified" claim, and the `~300 px` dead-column figure. Two of those were caught by
+    sessions refusing to act on a stale instruction rather than by this file being right.
 
 Show all diffs before committing. Docs-only. Do not edit any Codex-owned repo (`w17-3d-codex`,
 `../Codex/*`). No gate changes: **A2 stays NOT-EXECUTED, Phase B stays BLOCKED.**
