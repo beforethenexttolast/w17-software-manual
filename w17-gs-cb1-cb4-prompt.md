@@ -47,6 +47,13 @@ Non-negotiables:
 
 ## Both
 
-`npx vitest run`, `npm run smoke:electron` 4/4, `npm run proto:check`, `noControlPath` / `ipcSurface` /
-`responsiveLayout` green before anything ships. Show diffs before committing. Update the VR-FPV batch table
+`npx vitest run` (baseline **1082/1082 across 56 files** at HEAD `9c2d723`), `npm run proto:check`,
+`npm run feel:check` (new — firmware feel-constant drift guard, exit 1/2/3), `noControlPath` / `ipcSurface`
+(24 keys) / `responsiveLayout` (26) green before anything ships.
+
+**`npm run smoke:electron` cannot run on this macOS host** — Gatekeeper denies the `node_modules` Electron
+binary ("library load denied by system policy"), reproduced at a clean `e09369b`. It is the machine, not the
+code. Rely on Windows CI for that surface and do not report the local denial as a regression — but do say
+explicitly in your report that the smoke surface went unverified locally, especially for CB4, where a new
+dependency could break `electron-builder --dir`. Show diffs before committing. Update the VR-FPV batch table
 row in `../CURRENT_STATUS.md` with one line of evidence when the batch is done.
