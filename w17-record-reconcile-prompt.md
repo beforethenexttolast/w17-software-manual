@@ -304,7 +304,48 @@ script and four owner decisions).
      later. So this pass starts from `f8e4ce3`, **not** `05157b2`; re-read those two rows rather than assuming
      they are stale.
 
-9. **Open items to carry forward** (all no-hardware). Everything else previously listed here is now closed —
+9. **Prompt 13 DONE 2026-07-27 — both phases.**
+   - **`w17-design-system` HEAD `26ec870`** (from `1415686`), clean. **Check whether it is pushed.** The
+     `~300 px` → **`~191 px`** correction landed at `DESIGN_NOTES.md:208`, and the session added the
+     41.8% / 71.6% column-end figures beside it because they *derive* the corrected number:
+     **(0.716 − 0.418) × 640 = 190.7 px** — independent arithmetic corroboration that ~191 is right and ~300
+     was an estimate. The ratio 3.0–3.2 : 1 and SEAT FIT's 1.31–1.38 : 1 were verified present and correct
+     rather than assumed. The accepted-overflow note is in as its own paragraph, with the reserve arithmetic
+     independently confirmed read-only in the ground station (`--radio-bottom 3.6em` + `--radio-2stack 3.6em`
+     + `.4em` = 7.6em = **121.6 px** @16px, and `.gate` does carry `overflow-y:auto` +
+     `justify-content:safe center` at `renderer/hud.css:208`).
+   - **`screens/05-hud.html` was finally rendered** — served over `127.0.0.1` since `file://` is refused —
+     and measured rather than eyeballed: BATT 649→688, pillrow 696→727, ERS 735→786, all 283 px wide. Order
+     and pill sequence confirmed, and the bottom edge is a **full-width 283 px block**. It reproduces
+     §11(f)'s own arithmetic: **283 − 99 = 184**, the notch the ruling rests on. The ruling is backed by
+     geometry the rendered screen actually has.
+   - **`w17-3d-codex` inspected read-only — 2 unpushed commits, a clean fast-forward** (`origin/main` at
+     `ae42b5f`, exactly 2 behind; tree clean, only ignored files). `59a1634` is the owed
+     arrival-tracking cleanup (2 files, +48/−26, asserts no new physical facts). `2325fd9` is large (107
+     files, +20,130): fit studies, wire schedule + connection-joint register, ~7,000 lines of evidence
+     generators, ~30 self-contained HTML visualisations, a 1,135-line manual expansion.
+   - **It asserts no unearned hardware facts** — checked specifically. The `*_output_validation` PASS tables
+     validate **generated artifacts** ("HTML exists", "inline-only CSP present", "link resolves"), not
+     physical parts, despite the commit subject reading as hardware validation. Where it does touch hardware
+     the hedging is disciplined (VERIFIED / DERIVED / DOCUMENTED / ASSUMPTION per row; "Physical scales own
+     the result"; "NO PRINT AUTHORIZATION — GATE P1 NOT PASSED"; MG90S official dimensions "do not prove the
+     purchased clones").
+   - **One real inconsistency, flagged not fixed** (Codex-owned): `2325fd9` adds two *new* rows asserting the
+     ESC is **44.2 × 37 × 24.2 mm** as "DOCUMENTED owner physical ground truth" (`DRV-ESC-CURRENT`) and that
+     its envelope is "closed" (`OP-01`) — but the 2026-07-24 caliper measured **44.2 × 33.7 × 34.0**, and
+     24.2 is the documented figure that measurement *superseded*. The same commit's ZK study carries the
+     correct 34.0, so the repo contradicts itself and the stale half wears the strongest confidence tag.
+     Handoff written: **`w17-codex-esc-groundtruth-fixup.md`**. Record it as an open Codex item.
+   - Everything else cross-checks clean (MH-ET board decision, DS3235SG side-on, §E ⏳ rows treated as
+     not-in-hand). The DS3235SG **1.5 vs 1.7 mm** is **not** a contradiction — the study predicted, the
+     caliper refined; the workspace already records it as "predicted ~1.5 mm — confirmed".
+   - **Nothing sensitive blocks a push:** no credentials, keys, tokens, prices, order numbers or binaries.
+     One minor item for the owner: `p0_d36_wire_schedule_validation.md` adds three lines carrying the
+     absolute path `/Users/vitaliykhomenko/…`, a small deanonymisation vector against a pseudonymous account.
+     Near-zero marginal exposure — `01_inventory/build_inventory.py` already contains it and is already
+     public — so it blocks nothing, but it is trivially relativisable.
+
+10. **Open items to carry forward** (all no-hardware). Everything else previously listed here is now closed —
    verify each before you keep it:
    - **Prompt 12 phase B** (`w17-design-system`): §11 + `screens/05-hud.html` amended to the shipped BATT and
      pill-row order, §14/§2 updated for the single-column SETUP, and the twice-superseded **"Adoption path"**
@@ -314,7 +355,7 @@ script and four owner decisions).
      upload firmware to Wokwi's servers.
    - `w17-3d-codex` has **2 unpushed commits** (`59a1634`, `2325fd9`) — Codex-owned; record, don't act.
 
-10. **Add this hardware-class unknown to Pending validations** — drafted 2026-07-25, ready to paste as a
+11. **Add this hardware-class unknown to Pending validations** — drafted 2026-07-25, ready to paste as a
    sibling to the bullet ending ~line 522. It belongs with the Windows-hardware items, not buried in a
    dependency-bump record:
 
@@ -331,7 +372,7 @@ script and four owner decisions).
    >   `w17-ground-station/docs/audits/2026-07-12-pre-hardware-hardening-audit.md`;
    >   `w17-control-fw/project-review/11_hardware_validation_plan.md`.
 
-11. **New host limitation worth recording, because it changes every future GS session's gate list:**
+12. **New host limitation worth recording, because it changes every future GS session's gate list:**
    `npm run smoke:electron` **cannot run on this macOS host** — Gatekeeper denies the `node_modules` Electron
    binary ("library load denied by system policy"). Reproduced at a clean `e09369b` before any change, so it
    is the **machine, not the code**. Windows CI covers it and passes. Record it so no future session reports
@@ -339,13 +380,13 @@ script and four owner decisions).
    test authors: **vitest scans an entire test file for the environment docblock token, including inside
    prose** — writing it in a comment silently switched `responsiveLayout.test.js` to jsdom and broke its
    `import.meta.url` file reads. There is now a warning note in that file.
-12. **Branch cleanup:** `w17-batch1-measurements` (`c5d32c7`) is fully merged into `main` — confirm that, then
+13. **Branch cleanup:** `w17-batch1-measurements` (`c5d32c7`) is fully merged into `main` — confirm that, then
     delete it local and on origin. Same for `w17-control-fw`'s redundant `docs/bom-cassette-electrical` if it
     still exists on origin. (The prompt files are **already committed** — `cbaf0c5`, `4edd43b`, `f35c49a`,
     `fbd5c7e`, `71290f6`, `34e8a72`. Nothing to do there; `w17-gs-audit-followups-prompt.md` stays as the
     superseded provenance record.)
 
-13. **Apply `05157b2`'s own rule to this pass — this is the item most easily skipped, so do it explicitly.**
+14. **Apply `05157b2`'s own rule to this pass — this is the item most easily skipped, so do it explicitly.**
     For every `PENDING` / `NOT_STARTED` line you keep, say whether you verified it still holds. Staleness here
     runs toward **over-reporting open work**, now **eight** instances: the nine audit findings, R05, R19, the
     `loopTask` watchdog question, this file itself, `w17-design-system`'s "1 unpushed commit", the
