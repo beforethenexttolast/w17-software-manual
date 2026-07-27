@@ -8,9 +8,11 @@ workspace-level source for all of those and for project execution status.
 Overwrite it in place when state changes; do not append history. Instruction files
 (`CLAUDE.md` / `AGENTS.md`) must not duplicate anything below.
 
-_Last updated: **2026-07-25** (workspace bookkeeping sync — see the 2026-07-25 entry below and the
-corrected Checkpoints table; the dated entries that follow are preserved as an as-of log, so read the
-Checkpoints table and the newest entry for current truth).
+_Last updated: **2026-07-27** (workspace bookkeeping **delta** — see the 2026-07-27 entry below and the
+corrected Checkpoints table. The 2026-07-25 sync ran before three sessions finished, so the tables were
+stale again; this pass updated them and did not re-do that pass's still-correct work. The dated entries
+that follow are preserved as an as-of log — **read the Checkpoints table and the newest entry for
+current truth**, and treat any bare present-tense claim inside an older dated entry as as-of that date.
 
 Earlier baseline, 2026-07-17. Control-firmware remediation through R5-b is complete:
 validated delivery NVS loading, configurable steering endpoints, console parsing
@@ -36,8 +38,9 @@ control relay; Electron and mapper receiver modes are mutually exclusive (Electr
 
 2026-07-15: **CB8 slice 1 (mapper log-only head-intent ingest) IMPLEMENTED** in the new
 owned fork **`w17-mapper`** (owner-approved name; branch `w17-headtrack` off upstream
-`2b8031a`; GPL-3.0-or-later; registered in `WORKSPACE_MAP.md`; push disabled; git-ignored
-in the manual repo). Go toolchain installed here (`brew install go`, go1.26.5). New
+`2b8031a`; GPL-3.0-or-later; registered in `WORKSPACE_MAP.md`; push disabled — **⚠ true only
+as of 2026-07-15; the fork has had a PUBLIC `origin` since 2026-07-25, see the Checkpoints
+row for `w17-mapper` and the 2026-07-27 entry**; git-ignored in the manual repo). Go toolchain installed here (`brew install go`, go1.26.5). New
 self-contained package `pkg/headintent` (validator + state machine + non-blocking UDP
 receiver, all with injectable seams); diagnostics **in-process only** this slice (Electron
 transport deferred — owner picks gRPC vs localhost-HTTP later per unlock plan item 14).
@@ -370,17 +373,179 @@ still BLOCKED.** Nothing here touched firmware, gates, or any control path.
   Live session prompts, the six Codex handoff docs, and the steering-servo fit diagram were committed
   instead. `.claude/` and `.preview-tmp/` are now git-ignored; `.preview-tmp/` was deleted.
 
+2026-07-27: **Workspace bookkeeping delta (docs-only, no hardware) — A2 still NOT-EXECUTED,
+Phase B still BLOCKED.** The 2026-07-25 sync (`05157b2`) ran *before* three sessions finished, so
+the tables above were stale again. This is a delta, not a re-run: the audit-findings closure, the
+CI run list, the test counts and the staleness warning from that pass were re-checked and kept.
+
+- **Live 13" pass (prompt 8) — DONE.** Three items closed, two defects opened.
+  - **BATT ordering RESOLVED toward the code** (owner, 2026-07-25): shipped order stands — BATT
+    above the merged pill row, `BOOST · OVERTAKE · DRS` within it. The decisive measurement is
+    not aesthetic: both stacks occupy an **identical envelope** (y 643→782 at 1280×800), but the
+    mockup order terminates the right column's bottom edge — the HUD's strongest horizontal
+    alignment line, registering against the bottom-left R-STK panel — with a **99 px chip leaving
+    a 184 px notch**, versus a full-width **283 px** block.
+  - **`.revwrap` centering CONFIRMED** — offset from viewport centre **0.00 px**, holding under a
+    forced 30-char driver name, a 52-char team string, a long clock, and tiny values. `e01eb9f`
+    did exactly what it set out to.
+  - **`#addrStatus:empty` reserve works as designed** — empty ⇒ height 0; after CHECK ⇒ 33.6 px
+    with the hint shifting down by exactly that. The one-time shift is a deliberate, code-commented
+    trade.
+  - **Viewer-only disclaimer verified genuinely once per session** — visible on boot GARAGE (36 px,
+    in normal flow, crossing nothing), hidden on every later screen, still hidden after a full
+    CHANGE SETUP → back-to-GARAGE round trip; both homes carry byte-identical copy.
+  - Clean at all four sizes × both paths: rail `01..05`, GRID reads 05, solo shows `02 PIT WALL`
+    struck through as `SKIPPED · DESKTOP`, zero horizontal overflow, no wrap. Invariants held in
+    every screenshot (HEAD TRACKING LOCKED · SAFETY GATE NOT COMPLETE, ACTIVE AUTHORITY NOT
+    REPORTED BY MAPPER, violet `STICK INPUT · PAD`, `ARM / FAILSAFE · NOT REPORTED BY CAR`).
+- **Prompt 12 phase A — DONE, GS `1a6f9f2`** (CI `30150690390` green, 1090/1090 in 56 files,
+  `responsiveLayout` 34 assertions). `17ec1be` rail comments · `2c96eb1` SETUP → one centred
+  column · `1a6f9f2` `#gamepadPanel` rhythm.
+  - **D1 overflow — record what it actually is, or it reads as a shipped defect.** Stacked SETUP
+    exceeds the viewport at three of four sizes (30 / 72 / 95 px at 1280×800 · 1366×768 ·
+    1024×640) and **every pixel of it is the `--gate-toast-reserve`** (121.6 px of `.gate` bottom
+    padding held for the `position:fixed` `.radioLog`) — **not content**. All content plus
+    BACK/NEXT stays visible unscrolled at every size (worst case nav bottom 95.8% of a 640 px
+    viewport); an all-elements intersection sweep found **zero** hits against the radio band.
+    `.gate` already had `overflow-y:auto` + `justify-content:safe center`. Owner chose scroll.
+  - **Two premise corrections, now test-pinned:** the dead left column was **~191 px, not
+    ~300 px**; and **SEAT FIT stays split** — a test asserts `.cols.seatcols` never gets `.stack`,
+    because its right column is the *taller* one (1.31–1.38 : 1) and the original "SEAT FIT reads
+    empty" assumption was **inverted**.
+  - **D2** reproduced before fixing (all six row boundaries measured exactly 0 px, then 11.2 px).
+    Uses a new `--col-gap` token on `:root` consumed by both `.col` and `#gamepadPanel` so they
+    cannot drift. One boundary reads 16.79 px because `.errdetail` has a pre-existing
+    `margin-top:.35em`, deliberately left since `.errdetail` is shared with the PIT WALL error panes.
+  - **19 injected regressions** (9 for A1, 10 for A2) each proven to fail the intended assertion,
+    including the silent-pass modes: `minmax(0,56ch)` vs `min(100%,56ch)`, the gap re-guessed as a
+    literal `.7em`, `--col-gap` deleted or zeroed, and the rows wrapped in an inner `<div>`
+    (satisfies every CSS assertion while collapsing the gap to 0).
+- **Prompts 12 phase B + 13 — DONE, `w17-design-system` `26ec870`**, pushed. §11(f) resolves the
+  right-column order toward the code; §14(d) records the single-column SETUP; the twice-superseded
+  "Adoption path" entry is gone. The `~300 px` → **`~191 px`** correction landed with the
+  41.8% / 71.6% column-end figures beside it **because they derive it**:
+  **(0.716 − 0.418) × 640 = 190.7 px** — independent arithmetic corroboration that ~191 is right
+  and ~300 was an estimate. `screens/05-hud.html` was **finally rendered** (served over `127.0.0.1`,
+  since the browser pane refuses `file://` outside the project folder) and **measured rather than
+  eyeballed**: BATT 649→688, pillrow 696→727, ERS 735→786, all **283 px** wide — reproducing
+  §11(f)'s own arithmetic, **283 − 99 = 184**, the notch the ruling rests on. The ruling is backed
+  by geometry the rendered screen actually has.
+- **Prompt 6 (CB1 + CB4) — DONE and PUSHED, GS `92cd894`, CI `30263115532` GREEN.** At report time
+  these were unpushed and CI-unverified; both were checked this pass rather than assumed, and CB4
+  touches **main-process startup**, so that Windows CI run is the first real check of the surface.
+  - **CB1 was already shipped** on 2026-07-16 with the SEAT FIT slice — the `NOT_STARTED` row was
+    stale bookkeeping, not open work. `92a0dce` is the closeout only.
+  - **`/code-review high` found 7 real defects, two self-introduced**, all fixed: a socket error
+    handler missing the identity guard (a dead socket's late error would tear down its live
+    replacement); a comment claiming the backwards-pointer rule *alone* prevents DNS decompression
+    loops — it does not, the jump cap is load-bearing, and the comment invited deleting it; and a
+    plain multicast send following the routing table, which on a deliberately multi-homed bench
+    host would never reach the hotspot subnet (now sends on every local IPv4 interface).
+    **Mutation-testing the fixes then caught two tests that didn't bite**, one guarding already-dead
+    code (`·` is U+00B7, above the printable-ASCII ceiling, so the extra check was unreachable).
+- **Control-fw zero-hardware batch + this pass — `main` = `8d0309e`, pushed.** Native **225/225**,
+  all three envs build. **CB3 DONE** (anchor had drifted one line). **R05** closed: 4 gears
+  canonical; the phantom "6" was `Gearbox::kMaxGears` (array capacity) misread as a count, and the
+  only fix needed was the stale mock at `docs/f1_hud.html:286`. **R19** closed: TRAINING/RACE/ERS is
+  canonical for display, and the wire enum `TRAINING/GEARBOX/GEARBOX_ERS` **deliberately differs**
+  — recorded as a decision, not drift; one stale comment at `Link2Sender.hpp:21`. **R06** closed:
+  the link2 copy is **permanent-but-guarded** — `tools/link2_copy_check.sh` (`--strict`; exit 1
+  drifted / 2 could-not-check; verified to bite on an injected `kPayloadLen` change and a deleted
+  file) plus a hermetic feel-constant pin. R06's conflation of wire format vs feel constants is now
+  recorded as **two separate guards**. **R01** decided: armed/failsafe stay **simulated but must be
+  labelled** — adding `A1F0` to FLIGHTMODE was rejected because 15 chars exactly fits, R13 is
+  unproven, and mid-token truncation could show a *wrong* armed state; the label itself was the
+  ground-station follow-up, implemented in `16d3d0a`.
+  **The cross-repo link2 guard is now ENFORCED, not advisory** (soundlight `2d22f85`) — that caveat
+  is dropped wherever it appeared.
+- **`feelConstants` drift guard (GS `9c2d723`) — scope went beyond the brief, correctly.** All
+  **four** firmware-derived constants are bound, not the three in `ErsSystem.hpp`: `GEARS`'s
+  "matches the firmware gearbox `numGears=4`" was an unguarded claim of exactly the same kind, so it
+  binds to `Gearbox.hpp`; `TOP_SPEED_KMH` stays unbound with a test asserting that positively. Exit
+  codes **1/2/3** match `link2_copy_check.sh` and **deliberately differ** from `proto:check`'s 2/3 —
+  stated in the script header so nobody silently "harmonizes" them. `--strict` /
+  `W17_FEEL_CHECK_STRICT=1` makes an absent sibling exit 2, as does a renamed firmware member —
+  never a silent pass. Every new assertion was verified to **bite on an injected regression** first
+  (16 injections across four test files), and `../w17-control-fw` was verified clean after each.
+- **Viewer-only disclaimer restored (GS `769003b`) — the constraint is worth keeping.** It lives in
+  the ⚙ settings panel, shown once per app session via a module-level `viewerNoteShown` flag driving
+  `updateViewerNote()` from `showStep()`, and deliberately has **no dismiss button**: a focusable in
+  GARAGE would enter the document order that finding 6's boot-only focus depends on, and
+  `test/viewerOnlyNotice.test.js` asserts `boot()` still focuses `fastPathBtn`. A `settings.json`
+  key was rejected because it would have to pass `normalizeSettings` and would break
+  `settings.test.js`'s 12-key persisted-shape pins.
+- **RETRACTION — the preload surface IS hermetically pinned.** An earlier instruction claimed
+  `test/ipcSurface.test.js` asserts only symmetry plus `exposedKeys.length > 15`, leaving the exact
+  24 pinned solely by `smoke:electron` (which cannot run on this host). **That was false.**
+  `test/ipcSurface.test.js:153` asserts the **exact sorted 24-name key set** — and has since
+  `e0a5cdc` (2026-07-15). The `length > 15` at `:90` is a separate vacuity sanity-check, not the
+  pin. Verified 2026-07-26 by injecting an extra key (2 failures incl. the exact-set pin) and a
+  rename `probeHost → probeHostX` (3 failures), both hermetically, no Windows CI involved.
+  **The error's shape matters more than the fact:** the claim entered via a session report that read
+  `:90` and missed `:153`, and was accepted without opening the file — because it confirmed a
+  suspicion already held. Staleness in this workspace runs toward **over-reporting open work**; this
+  one ran toward **inventing** it. The countermeasure is the same either way: **open the file.**
+- **Durable backups now exist** (2026-07-25, outside any scratchpad, both verified present
+  2026-07-27): **`~/Documents/w17-backups/w17-mapper-allrefs-2026-07-25b.bundle` — use this one.**
+  It caps at `0e11d6b` (clone-tested 2026-07-25 13:02; `.githooks/pre-push` + `FORK-NOTICE.md`
+  present). The earlier `w17-mapper-allrefs-2026-07-25.bundle` caps at `8fc1915` and therefore does
+  **not** contain the pre-push guard — i.e. it is missing the very commit that replaced the "no
+  remote" safety accident. It is kept only as a second copy. Also
+  `~/Documents/w17-backups/spent-gs-artifacts-2026-07-25.tgz` (SHA-256 matches the scratchpad
+  original, 15 entries; copied not moved, so the scratchpad copy can expire on its own).
+  **Honest limit: same physical disk** — this protects against repo deletion and session cleanup,
+  **not** drive failure. GitHub now covers that axis for the mapper.
+- **Branch cleanup:** `w17-batch1-measurements` (`c5d32c7`) confirmed fully merged into `main`
+  (`git branch --merged` + empty `main..branch`) and deleted local and on origin.
+  `w17-control-fw`'s redundant `docs/bom-cassette-electrical` was already gone from both.
+- **Open Codex item (recorded, not acted on):** `w17-3d-codex` `2325fd9` adds two *new* rows
+  asserting the ESC is **44.2 × 37 × 24.2 mm** as "DOCUMENTED owner physical ground truth"
+  (`DRV-ESC-CURRENT`) and that its envelope is "closed" (`OP-01`) — but the 2026-07-24 caliper
+  measured **44.2 × 33.7 × 34.0**, and 24.2 is precisely the documented figure that measurement
+  *superseded*. The same commit's ZK study carries the correct 34.0, so **the repo contradicts
+  itself and the stale half wears the strongest confidence tag.** Handoff written:
+  `w17-codex-esc-groundtruth-fixup.md` (workspace root, not `_handoff/`). Everything else
+  cross-checks clean — note that the "2 commits unpushed" half of that same prompt-13 finding
+  **had already gone stale by 2026-07-27** (Codex pushed them; verified by `git ls-remote`, not
+  by the local tracking ref, which can lag). The inconsistency below is the part that survived.
+  Other cross-checks clean (MH-ET board
+  decision, DS3235SG side-on, §E ⏳ rows treated as not-in-hand). The DS3235SG **1.5 vs 1.7 mm** is
+  **not** a contradiction — the study predicted, the caliper refined, and this file already records
+  it as "predicted ~1.5 mm — confirmed".
+
+**Staleness audit for this pass (the rule from `05157b2`, applied explicitly).** Every
+`PENDING` / `NOT_STARTED` / `BLOCKED` line kept above was re-checked rather than carried:
+A2 unexecuted and Phase B blocked (unchanged, no hardware touched this pass); CB2 `NOT_STARTED`
+(optional, genuinely untouched); CB5/CB6/CB7/CB9 `BLOCKED_HARDWARE` and CB10 `BLOCKED_EXTERNAL`
+(no parts arrived, no bench network — §E rows still ⏳); CB8 `IN_PROGRESS` (U4 still design-only and
+gate-held); the Wokwi observation (re-verified as credential-blocked, not bench-blocked); real-iPhone
+W2/W3 and the Windows real-OS matrix (no device, no non-isolated network); CB4's real-device leg (byte
+fixtures only). Newly **closed** this pass rather than carried: CB1, CB3, the mDNS "NOT BUILT" line,
+the GS "uncommitted WIP" claim, the audit §3 staleness, and the design-system "1 unpushed commit".
+**Over-reporting open work is now the documented failure mode of this file — eleven instances:** the
+nine audit findings, R05, R19, the `loopTask` watchdog question, this file itself, the design-system
+"1 unpushed commit", the "Windows CI not re-verified" claim, the `~300 px` dead-column figure, CB1's
+`NOT_STARTED` row, the mDNS "Windows side NOT BUILT" line, and — found *during* this pass —
+`w17-3d-codex`'s "2 commits unpushed", which Codex had already pushed. **The `ipcSurface` retraction
+above is the one instance that ran the other way** — inventing open work — and it is the more
+dangerous direction, because nothing forces a recheck. Several of these were caught by sessions
+*refusing to act on a stale instruction* rather than by this file being right. The eleventh is worth
+the extra sentence because of **how** it was caught: the recorded hashes were re-checked against the
+repos one by one before commit, and the `git ls-remote` disagreed with the local tracking ref. Cheap
+mechanical verification beat careful reading of a confident instruction — which is the same lesson as
+`ipcSurface`, arriving from the opposite direction.
+
 ## Checkpoints
 
 | Repo / folder | Checkpoint | Notes |
 |---|---|---|
 | `projects` (manual repo, `w17-software-manual`) | — | contains this CURRENT_STATUS.md; do not self-record its own exact hash — use `git HEAD` for the current commit |
-| `w17-control-fw` | `1834852` (branch `docs/bom-cassette-electrical`) · `fbf22f0` (`main`) | **Checked out on a branch, not `main`.** `main` = `fbf22f0` (docs: FIRST_ACTIVE decisions + Alt-C bench controls), pushed. Branch `docs/bom-cassette-electrical` is 2 ahead and pushed to its own remote: `78e1e88` (BOM — 2× D1-Mini ESP32 on-car, IMX335 camera, cassette PDB/charge/connectors) → `1834852` (BOM — name the onboard 2S charger, IP2326 primary / BQ25887 alt). Nothing unpushed. The previously recorded `8ed0a6c` is a real ancestor of both, just 3 commits stale. Firmware unchanged by any of it (docs-only): R1–R5-b remediation complete (`72d5347`); 224/224 native tests; all ESP32 environments build; live watchdog-cycle observation and physical reset-path validation still pending. **Branch is unmerged — decide merge-vs-keep before relying on `main` for BOM content.** |
-| `w17-ground-station` | `3119180` | **Windows CI GREEN at this HEAD: run `29724061397` (2026-07-20) — 1046/1046, 53 files**, both the ubuntu `test` job and the windows-latest `package-smoke` job (suite + `smoke:electron` + `electron-builder --dir`). `main` level with `origin/main`. `3119180` = setup-flow follow-through (reorder PIT WALL before SEAT FIT, DRIVE MODE display preference, SEAT FIT rebalance, start-lights off by default) — the four changes from the 2026-07-19 planning handoff. **All 9 findings of the 2026-07-17 setup-flow audit are now CLOSED** (see the 2026-07-25 entry); the audit document's own §3 still reads "none applied" and is the stale artifact. **An uncommitted 7-file WIP sits on top of this HEAD** (`renderer/hud.css`, `renderer/index.html`, `renderer/setupFlow.js`, `shared/setupSteps.mjs`, + 3 test files) splitting a new `SETUP` step out of SEAT FIT — not reviewed, not committed, and NOT covered by the CI run above. Real-OS/Windows-hardware paths remain bench-unvalidated. |
-| `w17-mapper` | `59d1739` | owned fork (`w17-headtrack` off upstream `2b8031a`); CB8 slices 1–3A committed: LOG-ONLY UDP 5602 head-intent ingest + read-only gRPC diagnostics; go build/test green; push disabled. Verified unchanged 2026-07-25. |
-| `w17-soundlight-fw` | `ec5ddf8` | **PUSHED 2026-07-25** (`4f25856..ec5ddf8`, 11 commits — the previously recorded `4f25856` was exactly the stale remote tip). Native `pio test -e native` **94/94 across 8 suites**, verified green immediately before the push. Content: audio-decision centralization, graceful audio-startup/runtime-write failure handling, wrap-safe engine effect timers, exact synth-smoothing convergence, signed engine inertia preserved, widened noise multiplication, low-battery period validation, UART0 diagnostics gated by firmware mode, README host-test count corrected 40→94. |
-| `w17-design-system` | `6a59c96` | **PUSHED 2026-07-25** (`b301de0..6a59c96`, 1 commit, `DESIGN_NOTES.md` only): sync with the shipped setup flow (PIT WALL first, DRIVE MODE, SEAT FIT layout) — the "FINAL, SEPARATE" half of the same planning handoff that produced GS `3119180`. Newly carried in this table. |
-| `w17-3d-codex` | `59a1634` | **1 commit UNPUSHED.** Recorded `80e7f74` (2026-07-10 bootstrap: 210 files classified, 37 required staged, docs + gates written, 4 human gates open, nothing printed) is a real ancestor but **8 commits stale**. The unpushed tip `59a1634` (2026-07-22, *"docs: stop this repo tracking arrivals; point to HARDWARE_INVENTORY.md"*) closes the cross-repository follow-up that `HARDWARE_INVENTORY.md` had recorded as owed — verified read-only: it touches `GENERAL_PLAN.md` + `10_assembly_architecture/B_component_envelope_register.md`. **Not pushed and not edited from this session** (repo treated as Codex-owned per the session brief). |
+| `w17-control-fw` | `8d0309e` (`main`) | **On `main`, level with `origin/main`, nothing unpushed.** The `docs/bom-cassette-electrical` branch problem is **resolved and gone**: `main` was fast-forwarded `fbf22f0 → 34eba89` (16 files, no merge commit) on 2026-07-25, so the electrical BOM (`78e1e88`, `1834852`) is on `main`; the redundant branch has been deleted local and on origin (verified absent 2026-07-27). Since then, the 2026-07-25 zero-hardware batch and this pass: CB3 comment fixes, owner decisions R05/R19, the R06 link2 drift guard, honest Wokwi run-status, then `d6395c8` (link2 doc: the cross-repo guard is enforced, not "not built yet"; control-fw-local statements marked for the receiver) and `8d0309e` (unlock plan: serial bump recorded as shipped at **v1.6.0**, and the false "push remains disabled" claim corrected). Firmware behaviour unchanged by any of it — docs + comments only. **Native `pio test -e native` 225/225** (was 224; +1 with the R06 guard), `esp32dev` + `esp32dev_tuning` + `esp32dev_sim` all build, `tools/link2_copy_check.sh --strict` exit 0 — all re-run 2026-07-27. Live watchdog-cycle observation and physical reset-path validation still pending. |
+| `w17-ground-station` | `92cd894` | **Windows CI GREEN at this HEAD: run `30263115532` (2026-07-27)**, both the ubuntu `test` job and the windows-latest `package-smoke` job. Suite **1185/1185 across 59 files**; `proto:check` OK, `feel:check` OK; `noControlPath` + `ipcSurface` green at the pinned **24-key** preload surface. `main` level with `origin/main`, nothing unpushed. **The 7-file WIP recorded here previously is long since reviewed, split, and shipped** — do not read this row as carrying uncommitted work. The chain since `3119180`: `42319ad` (SETUP split out of SEAT FIT — five steps, `garage → pitwall → seatfit → setup → grid`, solo `garage → seatfit → setup → grid`, rail `01..05` with GRID = 05) · `e01eb9f` (HUD `.revwrap` viewport-centred, BATT above the merged pill row) · `0950298` (viewer-only footnote overlay removed — isolated deliberately so it was revertable alone) · `e09369b` (GRID `wide`, `#addrStatus:empty` reserve collapse) → CI `30128883953`; then `769003b` (viewer-only disclaimer **restored** in the ⚙ settings panel, once per app session) · `12896fb` (the four unasserted CSS rules pinned, `responsiveLayout` 22 → 26) · `7c29a6b` (audit annotated, 91 insertions / 0 deletions) · `16d3d0a` (**R01 implemented** — armed/failsafe labelled as simulated) · `9c2d723` (**`feelConstants` drift guard made real** — hermetic snapshot + `scripts/check-firmware-feel.js`) → CI `30144513077`, 1082/1082 in 56 files; then `17ec1be` (stale rail comments, own CI `30149835990`, branch deleted) · `2c96eb1` (SETUP → one centred column) · `1a6f9f2` (`#gamepadPanel` rhythm) → CI `30150690390`, 1090/1090 in 56 files, `responsiveLayout` 34; then `92a0dce` (CB1 closeout) · `92cd894` (**CB4** iPhone HUD mDNS discovery) → CI `30263115532`, 1185/1185 in 59 files. **All 9 findings of the 2026-07-17 setup-flow audit are CLOSED, and the audit's own §3 staleness is fixed too** (`7c29a6b`) — that artifact is no longer stale. Real-OS/Windows-hardware paths remain bench-unvalidated. |
+| `w17-mapper` | `0e11d6b` | owned fork (`w17-headtrack` off upstream `2b8031a`); CB8 slices 1–3A: LOG-ONLY UDP 5602 head-intent ingest + read-only gRPC diagnostics. Since `59d1739`: `f0a18f3` (`go.bug.st/serial` v1.5.0 → **v1.6.0** — `go build ./...` now **fully green**, the go1.26 × cgo blocker cleared; **not** the approved v1.7.1, which would have bumped the `go` directive 1.20 → 1.25.0 in both `go.mod` and `go.work` and with it go1.22 loop-var semantics for the whole module — reasoning in `w17-control-fw/project-review/head_tracking_unlock_plan.md` §2.3.12.9 item 2) · `8fc1915` (fork notice: provenance, GPL-3.0-or-later election, GPL §5(a) modification notice, safety boundary) · `0e11d6b` (tracked `.githooks/pre-push` + the written push-review rule). **⚠ "push disabled" is NO LONGER TRUE — do not rely on it.** The fork has `origin` = `github.com/beforethenexttolast/w17-mapper`, created 2026-07-25T04:11Z, **PUBLIC**, with `origin/w17-headtrack` carrying all of the above (`upstream`'s push URL remains disabled). The accidental "no remote, so push is impossible" protection is **gone** — and it was never a control, only an accident of setup. What replaced it: a tracked **`.githooks/pre-push`** (enable per clone with `git config core.hooksPath .githooks`; refuses a `w17_first_active` build tag, a `FIRST_ACTIVE` identifier in Go/proto, or an active head-intent enum; verified to pass a clean HEAD and bite on all three injections) as the **accident guard**, plus the push-review rule in `FORK-NOTICE.md` as the **control**. What is published distributes **no control path**: proto still ends at `ACTIVE_LOG_ONLY = 8`, no `FIRST_ACTIVE` in tracked Go or proto source, upstream licence files unmodified — re-verified read-only 2026-07-27. `go vet ./...` is **not** green and that is **not a regression** — see the same §2.3.12.9 item 2. |
+| `w17-soundlight-fw` | `5919685` | **PUSHED, level with origin.** Through `ec5ddf8` (`4f25856..ec5ddf8`, 11 commits): audio-decision centralization, graceful audio-startup/runtime-write failure handling, wrap-safe engine effect timers, exact synth-smoothing convergence, signed engine inertia preserved, widened noise multiplication, low-battery period validation, UART0 diagnostics gated by firmware mode, README host-test count corrected 40→94. Then 2026-07-25: **`2d22f85`** (CI enforcement — see below) and **`5919685`** (link2 protocol-doc re-sync). Native **94/94 across 8 suites**, `esp32dev` + `esp32dev_sim` both build, canonical guard re-run exit 0. **`2d22f85` matters beyond bookkeeping:** this repo already had a `link2-drift` job (`74b59f4`) with a hand-rolled inline diff loop that treated `docs/link2_protocol.md` as **fatal** — so a control-fw doc edit turned soundlight's `main` CI **red for a non-bug**. Verified by replaying the old logic (flags the doc and nothing else, exit 1), not assumed. `2d22f85` replaces it with a single source of truth: the job anonymously shallow-clones control-fw into `$RUNNER_TEMP` (outside `GITHUB_WORKSPACE`, so the sibling never enters soundlight's source tree) and runs *control-fw's* `tools/link2_copy_check.sh --strict`. Exit codes fully disambiguated — 0 pass (plus a `::warning` when the doc tier reports, so the non-fatal tier is never invisible), 1 DRIFT, 2 COULD-NOT-CHECK, 3 CI-bug/usage, anything else unexpected. **Trap recorded in-file:** GitHub's default `bash -e` would collapse every exit code into one anonymous red X, so `set +e` is load-bearing and commented as such. Verified by watching it fail — the step's real `run:` body extracted from the YAML and run against throwaway fake siblings across **7 scenarios** (clean, injected `kPayloadLen`, deleted shared file, sibling missing `lib/link2`, checker absent, exit 3, exit 42). The doc re-sync was **one-sided, not three-way** (soundlight's copy was byte-identical with zero local content, so purely additive); upstream prose corrected to receiver POV. |
+| `w17-design-system` | `26ec870` | **PUSHED, clean, level with origin** (verified 2026-07-27 — the earlier "1 unpushed commit" reading was itself over-reporting). `6a59c96` synced the shipped setup flow; then `d53e6c4` (§1/§2/§9/§11/§14 amendment — §11(d)'s pill-row merge is **not** a supersede: the mockup always drew one `.pillrow` and the app carried two, so the merge brought the *app to the bundle*; §11(e) records `.revwrap` as an intentional improvement, since in the mockup its position is residue of the RUSSELL-plate/clock widths plus `.top`'s `right:calc(var(--gap) + 3em)` ⚙ inset and so *cannot* be top-centre); then `1415686` (§11's OPEN DECISION → **§11(f)**, right-column order resolved toward the code — BATT → pillrow → ERS, `BOOST · OVERTAKE · DRS` — old table kept as canonical-vs-superseded, the GS test pin's "provisional" note corrected to a guard backed by a ruling; `screens/05-hud.html` reordered; new **§14(d)** single-column SETUP with (a)/(b)/(c) amended in place; the twice-superseded "Adoption path" entry removed with a dated parenthetical); then `26ec870` (the `~300 px` → **`~191 px`** dead-column correction at `DESIGN_NOTES.md:208`). |
+| `w17-3d-codex` | `2325fd9` | **PUSHED — level with origin** (`git ls-remote` 2026-07-27 shows `refs/heads/main` = `2325fd9`; working tree clean apart from ignored files). Prompt 13 recorded these as *2 commits unpushed* with `origin/main` at `ae42b5f`; Codex has pushed them since, so **that reading is stale — do not re-open it as owed work.** `59a1634` (2026-07-22) is the owed arrival-tracking cleanup (2 files, +48/−26; asserts no new physical facts). `2325fd9` is large (107 files, +20,130): fit studies, wire schedule + connection-joint register, ~7,000 lines of evidence generators, ~30 self-contained HTML visualisations, a 1,135-line manual expansion. **Inspected read-only 2026-07-27; not edited, not pushed** (Codex-owned). It asserts **no unearned hardware facts** — checked specifically: the `*_output_validation` PASS tables validate *generated artifacts* ("HTML exists", "inline-only CSP present", "link resolves"), **not physical parts**, despite commit subjects that read like hardware validation; where it does touch hardware the hedging is disciplined (VERIFIED / DERIVED / DOCUMENTED / ASSUMPTION per row; "Physical scales own the result"; "NO PRINT AUTHORIZATION — GATE P1 NOT PASSED"; MG90S official dimensions "do not prove the purchased clones"). **One real inconsistency, flagged not fixed — see Open Codex items below.** Nothing sensitive blocks a push (no credentials, keys, tokens, prices, order numbers, or binaries); one minor item: `p0_d36_wire_schedule_validation.md` adds three lines carrying the absolute path `/Users/vitaliykhomenko/…`, a small deanonymisation vector against a pseudonymous account — near-zero marginal exposure, since `01_inventory/build_inventory.py` already contains it and is already public, so it blocks nothing but is trivially relativisable. |
 | `iPhone_rc` (Codex) | `84532ed` | VR FPV plan consolidation (H1–H11 applied; canonical contract sync revision); Batch 1 VR-calibration work remains uncommitted in its working tree |
 | `w17-rc-print-codex` (Codex) | `75b408c` | has existing untracked reports |
 
@@ -440,9 +605,17 @@ still BLOCKED.** Nothing here touched firmware, gates, or any control path.
     version.
   - Tuning and simulation builds print the boot reset reason and retained-session count;
     delivery remains silent.
-  - Native tests: 224/224 passing.
+  - Native tests: **225/225 passing** (was 224; +1 with the R06 link2 drift guard). Re-run 2026-07-27.
   - All ESP32 environments build successfully.
-  - Live Wokwi stall → watchdog panic → reboot observation: PENDING.
+  - **Live Wokwi stall → watchdog panic → reboot observation: PENDING — `[OWNER/tooling]`,
+    NOT hardware-blocked.** Retagged from `[HW]` 2026-07-25, and the distinction is the point:
+    `esp32dev_sim` **builds but has never been run**, and what blocks the run is a **Wokwi
+    credential** (`wokwi-cli` absent, `WOKWI_CLI_TOKEN` unset), not the bench. Every route
+    uploads the firmware to Wokwi's servers, so it is an owner decision, not an A2/Phase-B gate.
+    The stall injector already existed (`W17_SIM_WDT_STALL`; marker present once in the stall
+    ELF, absent from all three shipping envs) — nothing was owed there.
+    `w17-control-fw/SIMULATION.md` leads with a run-status table, **every box unchecked**.
+    **Nothing has been promoted to PASS; the 2 s TWDT timeout stays provisional.**
   - Physical reset reason, RTC retention, panic/reboot-to-safe-output timing,
     GPIO13/GPIO14 reset state, and real ESC signal-loss behavior remain Phase-B evidence.
     (POWER_ON reset-reason path + `retained=no` fresh-session behavior confirmed on real
@@ -459,7 +632,7 @@ at the end of every VR-FPV session; one-line evidence only.
 | CB0 | Mapper feasibility investigation | `DONE` | 2026-07-14: upstream `elrs-joystick-control` (`2b8031a`) read read-only in `_vendor/`; unlock plan §2.3 = verified findings (no UDP/plugin/virtual-axis ingest — fork needed; diagnostics republish already exists over gRPC; minimal-fork shape + dual GPL/Fair-Source license documented); decision package + options (a)/(b)/(c) presented → **owner decision #1 now actionable** (topology + fork ownership + fork license) |
 | CB1 | GS right-stick indicator | `DONE` | 2026-07-25: this row was STALE — the batch actually shipped **2026-07-16** with the SEAT FIT slice (`renderer/padPreview.js` draws both stick wells with live `data-stick` dots fed by `setupFlow.js` seatfitTick; captions `RIGHT STICK · PAN / TILT` + `CAMERA · STICK INPUT`; `test/padPreview.test.js` rewritten to pin the relaxed boundary; recorded in `docs/camera_aim_display_semantics.md` §5). Closed out at GS `92a0dce`: invariant recorded in the repo `CLAUDE.md` guardrails + stale `inputPresets.mjs` comment corrected. Display-only; `noControlPath` unchanged |
 | CB2 | Gimbal explainer artifact | `NOT_STARTED` | optional |
-| CB3 | Firmware comment hygiene | `NOT_STARTED` | tiny; ChannelDecoder.hpp:57-58 |
+| CB3 | Firmware comment hygiene | `DONE` | 2026-07-25 in `w17-control-fw`: the anchor had **drifted one line** — the real target was `ChannelDecoder.hpp:58`, not 57-58. Also retired a vacuous `PinMap.hpp` comment by naming the real declared-but-unwired `kBoard2UartRxPin` (`Serial1.begin(..., rxPin=-1, ...)`). Comments only; no behaviour change |
 | CB4 | Windows mDNS discovery | `DONE (real-device validation PENDING)` | 2026-07-25 at GS `92cd894`: `_w17hud._udp.local.` discovery — `shared/dnsWire.js` (wire codec) + `shared/hudDiscovery.js` (contract policy) + `main/HudDiscovery.js` (node:dgram transport); **no new dependency**, **no new IPC/preload key** (rides `setup:addr-hint`; preload still 24). Advisory hints only: offered on the PIT WALL chip, filled only on an explicit click, GRID ping still ground truth; demand-driven (queries only while PIT WALL is active, never under `W17_WIFI_SIM`). Hardened against hostile multicast (bounded name decompression, capped counts/labels, sender/address match, TTL-0 goodbye retires the entry); query sent out every local IPv4 interface (multi-homed bench host). 1185/1185 in 59 files; proto:check + feel:check exit 0. **PENDING: no iPhone observed — byte fixtures only**; `smoke:electron` unverified locally (macOS Gatekeeper), relies on Windows CI. Residual limits in `docs/proposals/iphone_mdns_discovery.md` "As built" |
 | CB5 | Video baseline verification (Windows) | `BLOCKED_HARDWARE` | needs camera; pairs with Codex Batch 0 |
 | CB6 | Real-device W2/W3 validation | `BLOCKED_HARDWARE` | needs iPhone + non-isolated bench network |
@@ -520,13 +693,44 @@ deadman; right thumb free); live mapper-binding validation still required; NOT f
       **UNVALIDATED**. Runbook with evidence boxes:
       `w17-ground-station/docs/setup_flow_bench_checklist.md`; the authoritative evidence
       ledger is the matrix in `w17-ground-station/docs/audits/2026-07-12-pre-hardware-hardening-audit.md`.
-- **mDNS discovery of the iPhone HUD: ADOPTED canonically, Windows side NOT BUILT.**
+- **ELRS TX enumeration on real Windows (`go.bug.st/serial` v1.6.0): UNVALIDATED.**
+  The v1.6.0 bump (`w17-mapper` `f0a18f3`) was cleared on timing grounds on this macOS
+  host — `Write`/`Read` byte-identical v1.5.0 → v1.6.0 in both `serial_unix.go` and
+  `serial_windows.go`, delta confined to enumeration / `Open` error wrapping / an
+  uncalled `Drain()` / cgo wrappers, and `crsf.PackChannels` byte-identical (12 frames /
+  312 bytes, one SHA across off / on-valid / on-stale / on-invalid). The one residual is
+  **real Windows enumeration of the ELRS TX**, which no macOS host can exercise. Runs
+  with the other Windows-hardware unknowns above (netsh/WinRT, camera→mediamtx→WHEP,
+  real iPhone W2/W3, Windows DPAPI). Evidence ledgers, not duplicated here:
+  `w17-ground-station/docs/setup_flow_bench_checklist.md` + the matrix in
+  `w17-ground-station/docs/audits/2026-07-12-pre-hardware-hardening-audit.md`;
+  `w17-control-fw/project-review/11_hardware_validation_plan.md`.
+- **`npm run smoke:electron` CANNOT RUN on this macOS host — machine limitation, not a code
+  gap.** Gatekeeper denies the `node_modules` Electron binary ("library load denied by system
+  policy"). Reproduced at a clean `e09369b` **before** any change, which is what makes it the
+  machine and not the code. **Windows CI covers it and passes** (the `package-smoke` job).
+  Recorded so no future session reports a failed local smoke as a regression, or treats its
+  absence as an untested surface.
+  - Also for test authors: **vitest scans an entire test file for the environment docblock
+    token, including inside prose.** Writing it in a comment silently switched
+    `responsiveLayout.test.js` to jsdom and broke its `import.meta.url` file reads. There is
+    now a warning note in that file.
+- **mDNS discovery of the iPhone HUD: BUILT 2026-07-25 (CB4) — real-device validation PENDING.**
   The canonical contract carries a Discovery section (`_w17hud._udp.local.`, advisory
   user-confirmed hints only; canonical 2026-07-10, mirrored at rev `84532ed`
-  2026-07-14) and the iPhone advertises since `1e332ef`. The Windows-side
-  implementation remains unbuilt; the proposal
-  (`w17-ground-station/docs/proposals/iphone_mdns_discovery.md`) can proceed as
-  ordinary reviewed work against the canonical section.
+  2026-07-14) and the iPhone advertises since `1e332ef`. **The Windows side is no longer
+  unbuilt** — it shipped at GS `92cd894` with no new dependency and no 25th preload key
+  (hand-rolled `node:dgram`: `shared/dnsWire.js` wire codec + `shared/hudDiscovery.js`
+  contract policy + `main/HudDiscovery.js` transport; discovered HUDs ride the **existing**
+  `setup:addr-hint` channel, which already answers "what could the iPhone's address be?",
+  so the surface stays at 24). Queries only while PIT WALL is active, **never** under
+  `W17_WIFI_SIM`; advisory user-confirmed hints only; **W3 stays LOG-ONLY**.
+  **Still PENDING: real-device verification.** Every test is a byte fixture — no advertising
+  iPhone has ever been seen by this code. Residual limits recorded in
+  `w17-ground-station/docs/proposals/iphone_mdns_discovery.md`: subnet-broadcast addresses,
+  wall-clock timing, the QU-bit assumption. That proposal's "nothing is implemented on either
+  side" header was itself the real contract drift and is corrected; the service definition
+  matched the mirrored section exactly, and contract §1–§7 + Discovery were **not** touched.
 - **Active iPhone-derived pan/tilt: BLOCKED** behind a separate, reviewed safety milestone.
   Until then: no iPhone → CRSF, no iPhone → servo/gimbal, firmware stays iPhone-unaware, and
   the Windows W3 (UDP 5602) receiver is LOG-ONLY.
