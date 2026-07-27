@@ -259,14 +259,52 @@ script and four owner decisions).
    there: the `screens/05-hud.html` reorder was never rendered (the browser pane refuses `file://` outside the
    project folder; serving `screens/` over a local `http://` server is the workaround phase A used).
 
-7. **Correct a claim this file and every prompt in the series has been making:** the preload surface is
-   **not** hermetically pinned at 24 keys. `test/ipcSurface.test.js` asserts symmetry plus
-   `exposedKeys.length > 15`; the exact count is asserted only by `smoke:electron` (`apiKeys: 24`), which
-   **cannot run on this macOS host**. So locally there is no tripwire — the pin exists in Windows CI only.
-   Record it as an open item; the hard pin is assigned to prompt 6, to land **before** CB4 (the batch most
-   likely to want a 25th key).
+7. **RETRACTED — do not record this. The preload surface IS hermetically pinned.** An earlier version of
+   this file claimed `test/ipcSurface.test.js` asserts only symmetry plus `exposedKeys.length > 15`, leaving
+   the exact 24 pinned solely by `smoke:electron` (which cannot run on this host). **That is false.**
+   `test/ipcSurface.test.js:153` asserts the **exact sorted 24-name key set** — "the exposed surface is the
+   pinned 24-method contract — additions are deliberate" — and has since `e0a5cdc` (2026-07-15). The
+   `length > 15` at `:90` is a separate vacuity sanity-check, not the pin. Verified 2026-07-26 by injecting
+   an extra key (2 failures incl. the exact-set pin) and a rename `probeHost → probeHostX` (3 failures), both
+   hermetically, with no Windows CI involved.
+   **Record the error itself, because its shape matters more than the fact:** the claim entered via a session
+   report that read `:90` and missed `:153`, and was accepted without opening the file — because it confirmed
+   a suspicion already held. Staleness in this workspace runs toward over-reporting open work; this one ran
+   toward inventing it. The countermeasure is the same either way: open the file.
 
-8. **Open items to carry forward** (all no-hardware). Everything else previously listed here is now closed —
+8. **Prompt 6 DONE 2026-07-26 — CB1 and CB4 both closed.** Ground station `92a0dce` + `92cd894` on top of
+   `1a6f9f2`; suite **1185/1185 across 59 files** (from 1090/56). **Check whether these are pushed and
+   whether CI has run** — they were unpushed at report time, and CB4 touches **main-process startup**, so
+   Windows CI is the first real check of that surface (`smoke:electron` is unverifiable here).
+   - **CB1 was already shipped** on 2026-07-16 with the SEAT FIT slice (`renderer/padPreview.js:23-28`, live
+     `data-stick` dots fed by `seatfitTick`, captions `RIGHT STICK · PAN / TILT` and `CAMERA · STICK INPUT`,
+     recorded in `docs/camera_aim_display_semantics.md:78` §5). The `NOT_STARTED` row was stale bookkeeping.
+     `92a0dce` is the closeout: the relaxed camera-aim depiction invariant recorded in the repo `CLAUDE.md`,
+     and the stale `BUTTON_ROLES` comment at `shared/inputPresets.mjs:75-78` corrected.
+   - **CB4 built with no new dependency and no 25th preload key.** Hand-rolled `node:dgram`:
+     `shared/dnsWire.js` (wire codec), `shared/hudDiscovery.js` (contract policy), `main/HudDiscovery.js`
+     (transport). Discovered HUDs ride the **existing** `setup:addr-hint` channel — which already answers
+     "what could the iPhone's address be?" — so the 24-key surface is unchanged. Queries only while PIT WALL
+     is active, and **never** under `W17_WIFI_SIM`. Advisory, user-confirmed hints only; W3 stays LOG-ONLY.
+   - **`/code-review high` found 7 real defects, two self-introduced**, all fixed: a socket error handler
+     missing the identity guard (a dead socket's late error would tear down its live replacement); a comment
+     claiming the backwards-pointer rule *alone* prevents DNS decompression loops — it doesn't, the jump cap
+     is load-bearing, and the comment invited deleting it; and a plain multicast send following the routing
+     table, which on a deliberately multi-homed bench host would never reach the hotspot subnet (now sends on
+     every local IPv4 interface). **Mutation-testing the fixes then caught two tests that didn't bite**, one
+     guarding already-dead code (`·` is U+00B7, above the printable-ASCII ceiling, so the extra check was
+     unreachable).
+   - **Real-device verification PENDING** — every test is a byte fixture; no advertising iPhone has been seen
+     by this code. Residual limits recorded in `docs/proposals/iphone_mdns_discovery.md`: subnet-broadcast
+     addresses, wall-clock timing, the QU-bit assumption. The proposal's "nothing is implemented on either
+     side" header was itself the real contract drift and is corrected; the service definition matched the
+     mirrored section exactly, and contract §1–§7 + Discovery were **not** touched.
+   - **`CURRENT_STATUS.md` has already moved** — workspace `f8e4ce3` updated the CB1/CB4 batch rows. That was
+     prompt 6 following its own (my) instruction, which contradicted the single-writer rule established
+     later. So this pass starts from `f8e4ce3`, **not** `05157b2`; re-read those two rows rather than assuming
+     they are stale.
+
+9. **Open items to carry forward** (all no-hardware). Everything else previously listed here is now closed —
    verify each before you keep it:
    - **Prompt 12 phase B** (`w17-design-system`): §11 + `screens/05-hud.html` amended to the shipped BATT and
      pill-row order, §14/§2 updated for the single-column SETUP, and the twice-superseded **"Adoption path"**
@@ -276,7 +314,7 @@ script and four owner decisions).
      upload firmware to Wokwi's servers.
    - `w17-3d-codex` has **2 unpushed commits** (`59a1634`, `2325fd9`) — Codex-owned; record, don't act.
 
-9. **Add this hardware-class unknown to Pending validations** — drafted 2026-07-25, ready to paste as a
+10. **Add this hardware-class unknown to Pending validations** — drafted 2026-07-25, ready to paste as a
    sibling to the bullet ending ~line 522. It belongs with the Windows-hardware items, not buried in a
    dependency-bump record:
 
@@ -293,7 +331,7 @@ script and four owner decisions).
    >   `w17-ground-station/docs/audits/2026-07-12-pre-hardware-hardening-audit.md`;
    >   `w17-control-fw/project-review/11_hardware_validation_plan.md`.
 
-10. **New host limitation worth recording, because it changes every future GS session's gate list:**
+11. **New host limitation worth recording, because it changes every future GS session's gate list:**
    `npm run smoke:electron` **cannot run on this macOS host** — Gatekeeper denies the `node_modules` Electron
    binary ("library load denied by system policy"). Reproduced at a clean `e09369b` before any change, so it
    is the **machine, not the code**. Windows CI covers it and passes. Record it so no future session reports
@@ -301,13 +339,13 @@ script and four owner decisions).
    test authors: **vitest scans an entire test file for the environment docblock token, including inside
    prose** — writing it in a comment silently switched `responsiveLayout.test.js` to jsdom and broke its
    `import.meta.url` file reads. There is now a warning note in that file.
-11. **Branch cleanup:** `w17-batch1-measurements` (`c5d32c7`) is fully merged into `main` — confirm that, then
+12. **Branch cleanup:** `w17-batch1-measurements` (`c5d32c7`) is fully merged into `main` — confirm that, then
     delete it local and on origin. Same for `w17-control-fw`'s redundant `docs/bom-cassette-electrical` if it
     still exists on origin. (The prompt files are **already committed** — `cbaf0c5`, `4edd43b`, `f35c49a`,
     `fbd5c7e`, `71290f6`, `34e8a72`. Nothing to do there; `w17-gs-audit-followups-prompt.md` stays as the
     superseded provenance record.)
 
-12. **Apply `05157b2`'s own rule to this pass — this is the item most easily skipped, so do it explicitly.**
+13. **Apply `05157b2`'s own rule to this pass — this is the item most easily skipped, so do it explicitly.**
     For every `PENDING` / `NOT_STARTED` line you keep, say whether you verified it still holds. Staleness here
     runs toward **over-reporting open work**, now **eight** instances: the nine audit findings, R05, R19, the
     `loopTask` watchdog question, this file itself, `w17-design-system`'s "1 unpushed commit", the
