@@ -48,6 +48,15 @@ script and four owner decisions).
    Amend §2.3.12.9 to record **v1.5.0 → v1.6.0 as shipped** with the above, the original v1.7.1 approval
    preserved as superseded. Do not rewrite history elsewhere in that document — the four earlier "temporary
    v1.7.1 bump, reverted" narrations are accurate accounts of what happened at the time and stay as they are.
+
+   **Line triage, verified 2026-07-25** — the file contains **zero** occurrences of `v1.6.0` and six live
+   `v1.7.1` references, splitting three ways. Re-verify the line numbers before editing; they drift.
+   - **line 942** — §2.3.12.9 item 2, the approval itself → **amend** (this is the one the decision changes).
+   - **line 1099** — decision row E, still reads "approved, not started" when it has **shipped** as v1.6.0 →
+     **amend**.
+   - **lines 339 / 342 / 344** — §2.3.9 *current-state* recommendation text → **amend**; they describe what
+     should happen, and it already has.
+   - **line 449** — historical narration → **leave**, per the rule above.
 3. **Record the `go vet` situation so nobody misreads it as a regression.** `go vet ./...` is **not green**
    in the fork — but the bump did not break it, it **revealed** it: before v1.6.0, `cmd` never compiled, so
    vet never reached it. What surfaces is one pre-existing **upstream** diagnostic
