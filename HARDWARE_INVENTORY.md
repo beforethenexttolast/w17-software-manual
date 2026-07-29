@@ -4,8 +4,9 @@ Single **workspace-level** log of **physical hardware arrival** for the W17 buil
 arrived, when, and how confidently each delivery maps to a Bill-of-Materials line. It records
 *arrival evidence and mapping confidence only* — never gates, software status, or commit hashes.
 
-_Last updated: 2026-07-25 (added the §E cassette-electrical rows ordered 2026-07-24, all ⏳; the
-2026-07-22 correction pass + owner arrival/identity confirmations are unchanged)._
+_Last updated: 2026-07-29 (recorded the 2026-07-29 delivery: small ESPs, 3 micro servos, thermal
+paste, XT60/XT30 connectors, rear shocks, both capacitor kits, USB charging boards, one LiPo. The
+2026-07-25 §E rows and the 2026-07-22 correction pass are otherwise unchanged)._
 
 ## What this file is (and is not) authoritative for
 
@@ -92,32 +93,33 @@ completion.
 | Item (BOM) | Exp. qty | Status | Arrived | Notes |
 |---|---|---|---|---|
 | ESP32-WROOM-32 DevKit V1 (3 pcs) | ×1 | ✅ | 2026-07-17 | on hand; USB-C 30-pin clones (ESP32-D0WD-V3, CH340C). Per the owner's 2026-07-24 board decision these are **TEST/SPARE**, not the cassette controllers — see the MH-ET row in §E |
-| MH-ET Live D1-Mini ESP32 (USB-C) | ×2 | ⏳ | — | the **cassette** controllers #1 + #2 — ordered 2026-07-24 (see §E) |
+| MH-ET Live D1-Mini ESP32 (USB-C) | ×2 ordered | ✅ | 2026-07-29 | the **cassette** controllers #1 + #2 — **3 on hand** (owner-stated count, 2026-07-29); see §E for the count note. Caliper + weight still owed |
 | MAX98357A I2S amplifier | ×1 | ✅ | 2026-07-21 | "amplifier interface" — **owner-confirmed** MAX98357A I2S (2026-07-22) |
 | Speaker 4 Ω 3 W | ×1 | ✅ | 2026-07-21 | "speaker" — the single speaker line (impedance/power a bench spec-check) |
 | WS2812B LED strip (1 m / 30 LED) | ×1 | ✅ | 2026-07-21 | "led strip" — the single LED-strip line (addressable WS2812B type to eyeball at wiring) |
 
 → **All four sound/light-specific modules are confirmed on hand** (ESP32, MAX98357A amp, speaker,
 WS2812B LED), and so are their bench power (UBEC §5 ✅) and LED series resistor (§5 resistor kit
-✅). The only remaining bench dependencies are the **§D build-from-stock passives / interconnect**
-(1000 µF WS2812 reservoir + servo-rail decoupling, 100 nF, Dupont/wire/connectors) — owned from
-stock but **not individually delivery-verified here**. So: the sound/light bench is effectively
-ready **pending confirmation of those stock passives**; this file still does not stamp the
-subsystem "hardware-complete" until they are confirmed present.
+✅). Since 2026-07-29 the **capacitor positions are covered by delivered parts** rather than by stock:
+the §E ceramic + electrolytic kits arrived (100 nF decoupling, 1000 µF WS2812 reservoir + servo-rail),
+so the only remaining bench dependency is the **§D build-from-stock interconnect**
+(Dupont/wire/connectors) — owned from stock but **not individually delivery-verified here**. So: the
+sound/light bench is effectively ready **pending confirmation of that stock interconnect**; this file
+still does not stamp the subsystem "hardware-complete", and arrival of the caps is not a bench result.
 
 **§5 Power / Telemetry**
 | Item (BOM) | Exp. qty | Status | Arrived | Notes |
 |---|---|---|---|---|
 | UBEC 5 A (2 pcs) | ×1 | ✅ | 2026-07-21 | "ubec x2"; Rail A (clean) + Rail B (servos) |
-| XT connectors (XT30 + XT60) | ×2 lines | 🏠 | — | **on hand from office/local stock** (owner, 2026-07-22 — can bring them in); additional units were **⏳ ordered to be safe, not yet delivered** |
+| XT connectors (XT30 + XT60) | ×2 lines | ✅ | 2026-07-29 | the **ordered** extra units arrived 2026-07-29 ("XT60 and XT30 connectrs") — both lines. Office/local stock was already available on top of these (owner, 2026-07-22); no per-line count is established here |
 | BX100 voltage buzzer | ×1 | ✅ | 2026-07-17 | logged as "LiPo voltage tester" — **owner-confirmed** BX100 low-voltage buzzer (2026-07-22). BOM marks BX100 *"optional"* |
 | Resistor kit (600 pcs) | ×1 | ✅ | 2026-07-17 | 330 Ω / 10 kΩ / 27 kΩ for LED + Hall pull-up + divider |
 
-**§6 Servos** — *requirement only partially satisfied*
+**§6 Servos** — *requirement now fully satisfied on arrival evidence*
 | Item (BOM) | Exp. qty | Status | Arrived | Notes |
 |---|---|---|---|---|
 | DS3235SG steering servo (35 kg-class) | ×1 | ✅ | 2026-07-21 | "35kg servo set (servo + thing it rotates)" — the "thing" = 25T horn |
-| MG90S micro servos (3 pcs) | ×1 | ⏳ | — | pan / tilt / DRS — **ordered / on the way** (owner, 2026-07-22). The steering servo above is on hand; the three micro servos are still in transit, so the servo requirement is **partially satisfied**. |
+| MG90S micro servos (3 pcs) | ×1 | ✅ | 2026-07-29 | "3 servos for gimbal and drs" — pan / tilt / DRS, the single 3-micro-servo line. Both servo lines are now on hand; *fit* (MG90S mount checks) stays a `w17-3d-codex` item, not an arrival fact |
 
 **§7 Speed sensor**
 | Item (BOM) | Exp. qty | Status | Arrived | Notes |
@@ -138,11 +140,11 @@ subsystem "hardware-complete" until they are confirmed present.
 | MR128ZZ front bearings (10 pcs) | ×1 | ✅ | 2026-07-17 | "MR128ZZ front bearings ×10" |
 | APE 6801 rear bearings 12×21×5 ZZ (5 pcs) | ×1 | ✅ | 2026-07-21 | "bearing 6801 ZZ (metal seal) x5" |
 
-**§10 Suspension** — *requirement only partially satisfied*
+**§10 Suspension** — *requirement now fully satisfied on arrival evidence*
 | Item (BOM) | Exp. qty | Status | Arrived | Notes |
 |---|---|---|---|---|
 | Front oil shocks 52 mm (4-set) | ×1 | ✅ | 2026-07-21 | "52 mm shock absorbers set" (front measure 51 vs 52 mm is a `w17-3d-codex` fit item) |
-| Rear oil shock 68 mm (2 pc) | ×1 | ⏳ | — | central rear damper — **ordered / on the way** (owner, 2026-07-22). Front 52 mm set is on hand; the rear is in transit, so the suspension requirement is **partially satisfied**. |
+| Rear oil shock 68 mm (2 pc) | ×1 | ✅ | 2026-07-29 | "remaining shock observers" [absorbers] — the only outstanding shock line, so the mapping is unambiguous; central rear damper. Length/fit measurement stays a `w17-3d-codex` item |
 
 **§11 Steering**
 | Item (BOM) | Exp. qty | Status | Arrived | Notes |
@@ -166,7 +168,7 @@ subsystem "hardware-complete" until they are confirmed present.
 | Item (BOM) | Exp. qty | Status | Arrived | Notes |
 |---|---|---|---|---|
 | Blower fan 5 V 20 mm | ×1 | ✅ | 2026-07-21 | "turbine cooler" — **owner-confirmed** 5 V 20 mm camera blower (2026-07-22) |
-| Thermal paste (15 g) | ×1 | ⏳ | — | **ordered / on the way** (owner, 2026-07-22) |
+| Thermal paste (15 g) | ×1 | ✅ | 2026-07-29 | "thermal paste" — the single thermal-paste line |
 
 ### B. rcMart order (genuine Tamiya tyres)
 | Item (BOM) | Exp. qty | Status | Arrived | Notes |
@@ -177,28 +179,29 @@ subsystem "hardware-complete" until they are confirmed present.
 ### D. Local / stock / not-an-AliExpress-line
 | Item | Status | Notes |
 |---|---|---|
-| 2S LiPo ×2 (soft-case, ≤75×45×25 mm, XT60) | ⏳ | **superseded in part** by the §E ZEEE order of 2026-07-24 (69×35×18 mm — inside the ≤75×45×25 mm envelope). This row's **quantity is no longer established here**: the §E entry records one ZEEE pack as ordered; whether a second pack is still wanted is a packaging/purchasing question, not an arrival fact, so it is left open rather than guessed |
+| 2S LiPo ×2 (soft-case, ≤75×45×25 mm, XT60) | partially ✅ | **superseded in part** by the §E ZEEE pack, which **arrived 2026-07-29** ("one battery"; 69×35×18 mm — inside the ≤75×45×25 mm envelope). **One pack on hand.** This row's **quantity remains unestablished here**: whether a second pack is still wanted is a packaging/purchasing question, not an arrival fact, so it is left open rather than guessed |
 | RT5370 USB Wi-Fi (GS bench SoftAP) | ✅ | **on hand** (owner-confirmed 2026-07-22); AP-mode support on Win 10/11 still to verify on the bench |
 | Build-from-stock, consumables, tools, paint, decals | 🏠 | see BOM §D — not delivery-tracked |
 
-### E. Cassette electrical — ordered 2026-07-24 (all ⏳ / in transit)
+### E. Cassette electrical — ordered 2026-07-24, mostly arrived 2026-07-29
 
-Cited source: the owner, via the `CURRENT_STATUS.md` 2026-07-24 (later) entry — *"Electrical BOM
-FINALIZED + all items ORDERED"*. Every row here is **⏳ ordered / in transit**; none has arrived, and
-per the legend ⏳ is an arrival-evidence mark, not a claim about fit, function, or any gate. Part
-identities and envelopes come from the Claude-side electrical inputs
+Order source: the owner, via the `CURRENT_STATUS.md` 2026-07-24 (later) entry — *"Electrical BOM
+FINALIZED + all items ORDERED"*. Arrival source: the owner's 2026-07-29 delivery report (see the
+delivery log). **Two rows remain ⏳** (XT90-S master switch, XT60→XT90 adapter); the rest are ✅ on
+hand. Per the legend these are arrival-evidence marks only — not a claim about fit, function, or any
+gate. Part identities and envelopes come from the Claude-side electrical inputs
 (`w17-electrical-inputs-for-codex.md`) and the build guide
 (`w17-pdb-build-and-connector-guide.md`); if those and this file disagree on what a part *is*, they win.
 
 | Item | Exp. qty | Status | Arrived | Notes |
 |---|---|---|---|---|
-| MH-ET Live D1-Mini ESP32 (USB-C) | ×2 | ⏳ | — | cassette controllers #1 (control) + #2 (sound/light); ESP32-WROOM-32, ~39×31 mm. Also listed in §4 next to the on-hand DevKit V1 clones it replaces. Physical caliper + weight still owed once on hand |
-| Ceramic capacitor kit | ×1 | ⏳ | — | covers the 100 nF decoupling and the optional 1–10 nF positions |
-| Electrolytic capacitor kit | ×1 | ⏳ | — | covers the 1000 µF servo-rail and WS2812 LED reservoir positions; the actual 1000 µF part still needs calipering on arrival |
-| Amass XT90-S anti-spark master switch | ×1 | ⏳ | — | pack-side master disconnect (anti-spark) |
-| XT60 → XT90 adapter | ×1 | ⏳ | — | mates the XT60 harness side to the XT90-S switch |
-| IP2326 2S Type-C balancing charger | ×1 | ⏳ | — | onboard USB-C charging, 18.3×31 mm; balancing confirmed at selection |
-| ZEEE 1500 mAh 2S LiPo | ×1 | ⏳ | — | 69×35×18 mm, JST-XH balance lead; **the owner will re-terminate the main lead to XT60**. Supersedes part of the §D "2S LiPo ×2" row |
+| MH-ET Live D1-Mini ESP32 (USB-C) | ×2 ordered | ✅ | 2026-07-29 | cassette controllers #1 (control) + #2 (sound/light); ESP32-WROOM-32, ~39×31 mm. **3 on hand** per the owner (2026-07-29) against ×2 recorded as ordered — the surplus is recorded as delivered; it is the *order quantity* that is unverified here, not the arrival. Also listed in §4 next to the DevKit V1 clones it replaces. **Physical caliper + weight still owed** (`w17-3d-codex` input) |
+| Ceramic capacitor kit | ×1 | ✅ | 2026-07-29 | "both capasitor packs" — covers the 100 nF decoupling and the optional 1–10 nF positions |
+| Electrolytic capacitor kit | ×1 | ✅ | 2026-07-29 | "both capasitor packs" — covers the 1000 µF servo-rail and WS2812 LED reservoir positions; **the actual 1000 µF part still needs calipering** now that it is on hand |
+| Amass XT90-S anti-spark master switch | ×1 | ⏳ | — | pack-side master disconnect (anti-spark). **Not named in the 2026-07-29 delivery** — stays in transit |
+| XT60 → XT90 adapter | ×1 | ⏳ | — | mates the XT60 harness side to the XT90-S switch. **Not named in the 2026-07-29 delivery** — stays in transit. (The 07-29 "XT60 and XT30 connectrs" maps to the §5 connector line, not to this adapter) |
+| IP2326 2S Type-C balancing charger | ×1 ordered | ✅ | 2026-07-29 | onboard USB-C charging, 18.3×31 mm; balancing confirmed at selection. **2 on hand** per the owner (2026-07-29) against ×1 recorded as ordered — same reading as the MH-ET row: the arrival count is owner-stated, the order count is what is unverified |
+| ZEEE 1500 mAh 2S LiPo | ×1 | ✅ | 2026-07-29 | "one battery" — 69×35×18 mm, JST-XH balance lead; **the owner will re-terminate the main lead to XT60** (not yet done, and not an arrival fact). Supersedes part of the §D "2S LiPo ×2" row |
 | 1N5819 Schottky diode | — | 🏠 | — | **from office stock** (owner, 2026-07-24) — not an ordered delivery line; not individually delivery-verified here |
 
 ---
@@ -206,29 +209,55 @@ identities and envelopes come from the Claude-side electrical inputs
 ## Not on hand yet — what to chase next
 
 Ranked by how much they block downstream work. Status marks per the legend; **⏳ = ordered/in
-transit per the owner (2026-07-22)**, ⬜ = not on hand / not yet sourced.
+transit per a cited source**, ⬜ = not on hand / not yet sourced. **The 2026-07-29 delivery cleared
+six of the eight entries this list previously carried**; what is left:
 
-1. **Neodymium magnets (§7)** — ⏳ ordered/in transit; the A3144 Hall sensor + ESC are on hand, but the wheel-speed pickup can't be exercised without its axle magnets.
-2. **MG90S micro servos ×3 (§6)** — ⏳ ordered/in transit (pan / tilt / DRS). Steering servo is on hand, so the servo requirement is only **partially** satisfied.
-3. **Rear oil shock 68 mm (§10)** — ⏳ ordered/in transit; only the front 52 mm set is on hand (suspension **partially** satisfied).
-4. **MH-ET D1-Mini ESP32 ×2 (§E)** — ⏳ ordered/in transit. These are the *cassette* controllers; the
-   on-hand DevKit V1 clones are TEST/SPARE only, so the cassette-controller requirement is **not**
-   satisfied by them. Their real caliper + weight is also an open mechanical input.
-5. **ZEEE 1500 mAh 2S LiPo (§E)** — ⏳ ordered/in transit; needs owner re-termination to XT60 before use.
-6. **Tamiya tyres (§B)** — ⏳ ordered/on the way; full rcMart order not yet on hand.
-7. **Cassette electrical remainder (§E)** — ⏳ cap kits, XT90-S master switch + XT60→XT90 adapter,
-   IP2326 charger. No sourcing decisions remain open on any of them; only delivery.
-8. **Thermal paste (§13)** — ⏳ ordered/in transit (camera-cooling consumable).
+1. **Neodymium magnets 3×1 mm (§7)** — ⏳ ordered/in transit (owner, 2026-07-22); the A3144 Hall
+   sensor + ESC are on hand, but the wheel-speed pickup can't be exercised without its axle magnets.
+2. **Amass XT90-S anti-spark master switch + XT60→XT90 adapter (§E)** — ⏳ ordered/in transit
+   (owner, 2026-07-24); not named in the 2026-07-29 delivery. These are the pack-side master
+   disconnect and its mating adapter — the rest of the cassette electrical set is now on hand.
+3. **Tamiya tyres (§B)** — ⏳ ordered/on the way (owner, 2026-07-22); the rcMart order has not landed.
 
-> The ESC + motor combo (§3) is now **on hand** (arrived 2026-07-17), so it no longer blocks parts
+> **Cleared by the 2026-07-29 delivery:** MH-ET D1-Mini ESP32 (§4/§E), MG90S micro servos ×3 (§6),
+> rear 68 mm oil shock (§10), thermal paste (§13), ceramic + electrolytic cap kits (§E), IP2326
+> charger (§E), ZEEE 2S LiPo (§E), and the ordered XT60/XT30 connector units (§5).
+>
+> The ESC + motor combo (§3) has been **on hand** since 2026-07-17, so it no longer blocks parts
 > availability for Phase C — but powered drivetrain work remains gated on A2 / Phase B regardless.
-> XT connectors (§5) are covered by office stock (extra units ordered). The §E cassette-electrical
-> order of 2026-07-24 closes the last **sourcing** questions for the electronics, but **ordering is
-> not arrival and arrival is not a gate**: A2 stays unexecuted and Phase B stays blocked.
+> **Arrival is not a gate:** with almost the whole electrical set now physically present, A2 still
+> stays unexecuted, Phase B stays blocked, and the no-unattended-powering rule stands. What the
+> delivery does unblock is *measurement* work (MH-ET caliper + weight, the actual 1000 µF part,
+> MG90S and rear-shock fit checks) — and that is owned by `w17-3d-codex`, not by this file.
 
 ---
 
 ## Delivery log (newest first)
+
+### 2026-07-29 — cassette-electrical + remaining-mechanical drop
+Owner's arrival list recorded **verbatim** in the first column (typos preserved); interpretation and
+mapping confidence kept in separate columns. This drop is mostly the 2026-07-24 §E electrical order
+plus the last three ⏳ mechanical/consumable lines from the 2026-07-22 in-transit set.
+
+| As delivered (owner's words, verbatim) | Mapped BOM line | § | Mapping |
+|---|---|---|---|
+| new smaller ESPs | MH-ET Live D1-Mini ESP32 (USB-C) | §4 / §E | ✅ — "smaller" vs the on-hand DevKit V1 uniquely identifies the MH-ET line; **3 on hand** (owner-stated) vs ×2 recorded as ordered |
+| 3 servos for gimbal and drs | MG90S micro servos (3 pcs) | §6 | ✅ — the only 3-micro-servo line; pan / tilt / DRS named by the owner |
+| thermal paste | Thermal paste (15 g) | §13 | ✅ — single line |
+| XT60 and XT30 connectrs | XT connectors (XT30 + XT60) | §5 | ✅ — the ordered extra units; **not** the §E XT60→XT90 adapter, which is a separate line and did not arrive |
+| remaining shock observers | Rear oil shock 68 mm (2 pc) | §10 | ✅ — "observers" reads as *absorbers*; the rear damper was the only outstanding shock line |
+| both capasitor packs | Ceramic capacitor kit + Electrolytic capacitor kit | §E | ✅ — "both" maps 1:1 onto the two §E kit lines |
+| USB charging boards | IP2326 2S Type-C balancing charger | §E | ✅ — the only USB-charging line; **2 on hand** (owner-stated) vs ×1 recorded as ordered |
+| one battery | ZEEE 1500 mAh 2S LiPo | §E / §D | ✅ — the single ordered pack; still needs owner re-termination to XT60 |
+
+**Not in this drop** (still ⏳, and deliberately not inferred from "and one battery" or from the
+electrical order landing as a whole): neodymium magnets (§7), Amass XT90-S master switch + XT60→XT90
+adapter (§E), Tamiya tyres (§B).
+
+**Two counts exceed the recorded order** — 3 MH-ET boards against ×2, and 2 IP2326 chargers against
+×1. Both arrival counts are the owner's own statement (2026-07-29) and are recorded as given; the
+uncertainty is in the *order* quantity recorded on 2026-07-24, not in the arrival. No BOM line is
+changed here — the BOM stays the authority on what each part is.
 
 ### 2026-07-21 — major mechanical + electronics drop
 The owner's arrival list is recorded **verbatim** in the first column; interpretation and mapping
@@ -266,8 +295,9 @@ servos, king pins, belt set, blower, rear 6801 bearings, RT5370). After the 07-2
 - **Now on hand:** belt set (§8), rear 6801 bearings (§9), blower (§13), king pins (§11), RT5370
   (§D).
 - **Partially satisfied:** shocks — front 52 mm on hand (§10), rear 68 mm ⏳ in transit; servos —
-  DS3235SG steering on hand (§6), 3× MG90S ⏳ in transit.
-- **Still ⏳ ordered / on the way:** Tamiya tyres (§B).
+  DS3235SG steering on hand (§6), 3× MG90S ⏳ in transit. *(As of 2026-07-21 — both were
+  **superseded by the 2026-07-29 drop**, which closed the rear shock and the MG90S ×3.)*
+- **Still ⏳ ordered / on the way:** Tamiya tyres (§B). *(Still true as of 2026-07-29.)*
 
 Alongside the mechanical items, core electronics landed and are now all mapping-confirmed: RP1 rx
 (§2), FTDI (§1), UBEC ×2 (§5), Hall sensor (§7), and the sound/light modules — amplifier (§4),

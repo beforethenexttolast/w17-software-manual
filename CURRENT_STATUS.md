@@ -8,7 +8,9 @@ workspace-level source for all of those and for project execution status.
 Overwrite it in place when state changes; do not append history. Instruction files
 (`CLAUDE.md` / `AGENTS.md`) must not duplicate anything below.
 
-_Last updated: **2026-07-27** (workspace bookkeeping **delta** — see the 2026-07-27 entry below and the
+_Last updated: **2026-07-29** (hardware **arrival** entry only — see the 2026-07-29 entry below; no gate,
+checkpoint, or software state changed, and `HARDWARE_INVENTORY.md` remains the carve-out owner for
+arrival detail. The 2026-07-27 bookkeeping **delta** below is otherwise current — see that entry and the
 corrected Checkpoints table. The 2026-07-25 sync ran before three sessions finished, so the tables were
 stale again; this pass updated them and did not re-do that pass's still-correct work. The dated entries
 that follow are preserved as an as-of log — **read the Checkpoints table and the newest entry for
@@ -547,6 +549,29 @@ the extra sentence because of **how** it was caught: the recorded hashes were re
 repos one by one before commit, and the `git ls-remote` disagreed with the local tracking ref. Cheap
 mechanical verification beat careful reading of a confident instruction — which is the same lesson as
 `ipcSurface`, arriving from the opposite direction.
+
+2026-07-29: **Hardware delivery (owner) — arrival only, NO GATE CHANGE.** The 2026-07-24 §E
+electrical order landed almost complete, together with the last mechanical/consumable ⏳ lines from
+the 2026-07-22 in-transit set. Owner's words: *"new smaller ESPs, 3 servos for gimbal and drs,
+thermal paste, XT60 and XT30 connectrs, remaining shock observers, both capasitor packs, USB
+charging boards and one battery."* Mapped to: MH-ET D1-Mini ESP32 (**3 on hand** vs ×2 recorded as
+ordered), MG90S ×3 (pan/tilt/DRS), thermal paste, XT60/XT30 connector units, rear 68 mm oil shock,
+ceramic + electrolytic cap kits, IP2326 charger (**2 on hand** vs ×1 recorded as ordered), ZEEE
+1500 mAh 2S LiPo. **Still in transit:** neodymium magnets (§7), Amass XT90-S master switch +
+XT60→XT90 adapter (§E), Tamiya tyres (§B). Full arrival detail and per-line mapping confidence are
+in `HARDWARE_INVENTORY.md` (the carve-out owner) — not duplicated here.
+- **No status in this file moves.** **A2 stays NOT-EXECUTED, Phase B stays BLOCKED**; parts arriving
+  is not powering, and the harness must still be built and A2 run first. CB5/CB6/CB7 stay
+  `BLOCKED_HARDWARE` on their own blockers (camera bench, iPhone + non-isolated network, printed
+  dry-fit) — **none of them was waiting on anything in this delivery** — and CB9 stays gated on
+  A2 + Phase B. The no-unattended-powering rule stands; the LiPo also still needs owner
+  re-termination to XT60 before it is usable at all.
+- **What it does unblock is measurement, not power:** the MH-ET caliper + weight, the actual 1000 µF
+  electrolytic, and the MG90S / rear-shock fit checks are now performable. Those are **`w17-3d-codex`
+  inputs** and were not touched from here (one repo at a time; that repo is Claude-owned but separate).
+- Note for the next bookkeeping pass: the 2026-07-27 staleness-audit paragraph above says
+  *"no parts arrived … §E rows still ⏳"*. That was true as of 2026-07-27 and is preserved as an
+  as-of statement per this file's header rule — **do not read it as current**.
 
 ## Checkpoints
 
