@@ -8,13 +8,18 @@ workspace-level source for all of those and for project execution status.
 Overwrite it in place when state changes; do not append history. Instruction files
 (`CLAUDE.md` / `AGENTS.md`) must not duplicate anything below.
 
-_Last updated: **2026-07-30** — two **gate-definition** changes, no code and no hardware state change:
+_Last updated: **2026-07-30** — two **gate-definition** changes plus one investigation entry, no
+code and no hardware state change in this pass:
 (1) **A2 restructured into staged build gates** and its "why not executed" corrected (nothing is
 soldered), plus two A2 decisions closed and A2 closure made a two-part gate — see **Hardware gates**;
 (2) **FIRST_ACTIVE gained I10 / R15 / an input-provenance rule** after an adversarial review found
 gamepad-device-loss uncovered, and a **related pre-existing throttle-freeze defect** on the stick path
-recorded as separately tracked — see the 2026-07-30 entry under **VR-FPV batch status**. No checkpoint
-hash moved; both target repos are `w17-control-fw` docs plus this file. Prior context: the 2026-07-29
+recorded as separately tracked — see the 2026-07-30 entry under **VR-FPV batch status**;
+(3) **mapper channel-node config findings** — no persisted mapper config exists on this Mac, and the
+default channel endpoints (0 / 1984) fall outside the firmware plausibility band from `91f830f`, so
+**with defaults the car cannot arm**; investigation only, nothing committed in `w17-mapper` — see the
+newest 2026-07-30 entry under **VR-FPV batch status**. No checkpoint
+hash moved; target repos are `w17-control-fw` docs plus this file. Prior context: the 2026-07-29
 hardware **arrival** entry below changed no gate or software state, and `HARDWARE_INVENTORY.md` remains
 the carve-out owner for arrival detail. The 2026-07-27 bookkeeping **delta** below is otherwise current
 — see that entry and the corrected Checkpoints table. The 2026-07-25 sync ran before three sessions
@@ -797,6 +802,73 @@ native **229/229** (was 225; the old `test_normalization_clamps_out_of_range_raw
 superseded behaviour — its own comment named the zero-initialized frame case — and is replaced by
 five tests), all three ESP32 envs build, link2 guard exit 0. **Does not close the mapper-side
 defect**, which is separately tracked.
+
+**2026-07-30 — mapper channel-node config findings (INVESTIGATION ONLY; no code, nothing
+committed in `w17-mapper`, whose tree stays clean at its then-current `5a28106` head).** A session tasked with
+setting `failsafe: 172` on the switch-like channels of the live mapper config found first that
+**no persisted mapper config exists on this Mac in any form**, and then two defects that bite
+*before* failsafe ever matters.
+
+- **There is no config to edit.** The webapp keeps the live graph in **browser localStorage**
+  only (`webapp/src/components/misc/storage.jsx`); it becomes a file only on an explicit
+  save-to-file (`config-access-base.jsx:63`, `<key>-<UTC>.json`), and the Go side reads a file
+  only under `-config-file-path`. Searched and came up empty: `~` by name glob and by content
+  (`crsf_max`, `inputs_config`); **Chrome localStorage enumerated — 37 origins, no `localhost`
+  or `127.0.0.1` at all**, so the webapp has never been opened in Chrome here; Safari/WebKit
+  nil; no Firefox profile; `w17-ground-station` + `Electron` localStorage empty; no mapper
+  launch in shell history. The repo carries only `default-config.json` (the Home/telemetry
+  graph) and `mock-device-fields.json`. **Owner decision: the graph will be built in the UI by
+  hand and NOT committed** — the `read` nodes bind to a gamepad device id not visible from this
+  Mac, so a committed config would be guesswork, and `630ea96` already made "no config" the safe
+  state (no frames → the receiver's own link-loss failsafe fires). An unverified tracked config
+  would replace that safe state with a wrong one.
+- **DEFECT 1 — default channel endpoints fall outside the firmware's plausibility band, so full
+  deflection decodes as ABSENT.** `ChannelT.UnmarshalJSON` defaults `crsf_min`/`crsf_max` to
+  `util.CRSFMinValue`/`CRSFMaxValue` = **0 / 1984**, and `util.MapRange` clamps to exactly those.
+  A full-scale input therefore emits raw **0 or 1984** — both outside
+  `kChannelRawPlausibleMin/Max` = **100 / 1900** established by `91f830f` above — so the decoder
+  reads the channel as absent (analog 0 / switch OFF). A button's ON value is
+  `DefaultTruthyRawValue` = `MaxRaw` = 32767 → 1984 → **implausible → arm forced OFF: with
+  default endpoints the car can never arm**, and analog extremes read *centered* rather than full.
+  The two halves were written against each other's assumptions: `91f830f`'s band was sized to
+  catch "the degenerate 11-bit extremes (0 and 2047)" and did not anticipate the mapper's own
+  default endpoints landing there. **Config fix: `crsf_min` = 172, `crsf_max` = 1811 on every
+  channel node** (then full deflection lands on the CRSF anchors and normalizes to exactly
+  ±1000). Firmware needs no change; the band stays PROVISIONAL pending Phase B calibration.
+- **DEFECT 2 — a button-fed switch channel sits at CENTER when OFF, i.e. hold-last on the LIVE
+  path.** With the default `raw_min`/`raw_max` = −32768/32767, a button's OFF value
+  (`DefaultFalsyRawValue` = 0) is mid-range and maps to ≈**991** — inside the decoder's
+  ±250 dead band, so `decodeSwitch` **holds the previous state**. Same failure class as the
+  `2dc7c5a` failsafe gap but reachable with the gamepad fully connected. **Config fix: make OFF
+  reach the channel's `raw_min`** — either `raw_min` = 0 on the channel node, or
+  `inactive_value` = −32768 on the button node.
+- **Per-channel failsafe values** (the original task): **172** on the six `decodeSwitch`
+  channels — **ch5 arm, ch6 DRS, ch7 gear-up, ch8 gear-down, ch11 boost, ch12 overtake**; leave
+  the **992** default on the analog channels — **ch1 steering, ch3 throttle** (note: throttle is
+  `throttleIndex = 2` → ch**3**, not ch2), **ch9 pan, ch10 tilt**. **ch13 drive mode keeps 992**
+  even though it is switch-like: it decodes through `decodeTriState`, not `decodeSwitch`, and
+  center → `1` = RACE, which that code calls the safe middle; 172 would instead force TRAINING
+  on a dropout. The failsafe value bypasses `MapRange` (`output_tx.go:92` writes it straight
+  into `Values`), so 172 goes on the wire as raw 172 regardless of the endpoint fix above.
+- **PREREQUISITE (added 2026-07-30) — the firmware channel map is itself unverified, so every
+  ch-number above is conditional.** `ChannelMapConfig`'s indices are labelled placeholders in
+  `w17-control-fw/lib/channels/include/channels/ChannelDecoder.hpp:10-12` ("DEFAULTS ARE
+  PLACEHOLDERS … verify every assignment at the bench and remap HERE only"). The table above is
+  correct *relative to the firmware's current map*; confirm the TX assignments at the bench
+  **first**, or the 172s land on the wrong channels. Two supporting checks done the same pass:
+  raw **172 → −1000** (`normalizeRaw` is exact at the anchors 172/992/1811), well below
+  `switchOffBelow` = −250, so 172 is unambiguously OFF and not a dead-band value; and there is
+  **no per-switch inversion** in the firmware — the header calls it a deliberately deferred
+  extension point, and `invert*` applies only to `normalizedAnalog` — so nothing on either side
+  can flip 172 into ON.
+- **UI trap:** the `crsf` autocomplete offers only **0 / 992 / 1984** — **172 is not in the
+  list**, and the nearest offered value, "CRSF Min (0)", is the one the schema explicitly warns
+  against. The field is `freeSolo` (`GenericForm.jsx:135`) and `visitIntegerField` `parseInt`s
+  it, so **172 must be typed by hand** and does persist. `onAutoChange` debounces 250 ms, so
+  type, pause, then save.
+
+Entry spec for bench use handed to the owner separately. **No hardware powered, nothing flashed,
+no head-intent / FIRST_ACTIVE path touched.**
 
 Open owner decisions: #1 UDP 5602 topology + fork ownership/license — **RESOLVED 2026-07-15
 (topology (a); fork = `w17-mapper` @ GPL-3.0-or-later, §2.3.12.9)** · #2 video-loss —
