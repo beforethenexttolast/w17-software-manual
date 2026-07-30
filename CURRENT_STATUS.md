@@ -8,11 +8,17 @@ workspace-level source for all of those and for project execution status.
 Overwrite it in place when state changes; do not append history. Instruction files
 (`CLAUDE.md` / `AGENTS.md`) must not duplicate anything below.
 
-_Last updated: **2026-07-29** (hardware **arrival** entry only — see the 2026-07-29 entry below; no gate,
-checkpoint, or software state changed, and `HARDWARE_INVENTORY.md` remains the carve-out owner for
-arrival detail. The 2026-07-27 bookkeeping **delta** below is otherwise current — see that entry and the
-corrected Checkpoints table. The 2026-07-25 sync ran before three sessions finished, so the tables were
-stale again; this pass updated them and did not re-do that pass's still-correct work. The dated entries
+_Last updated: **2026-07-30** — two **gate-definition** changes, no code and no hardware state change:
+(1) **A2 restructured into staged build gates** and its "why not executed" corrected (nothing is
+soldered), plus two A2 decisions closed and A2 closure made a two-part gate — see **Hardware gates**;
+(2) **FIRST_ACTIVE gained I10 / R15 / an input-provenance rule** after an adversarial review found
+gamepad-device-loss uncovered, and a **related pre-existing throttle-freeze defect** on the stick path
+recorded as separately tracked — see the 2026-07-30 entry under **VR-FPV batch status**. No checkpoint
+hash moved; both target repos are `w17-control-fw` docs plus this file. Prior context: the 2026-07-29
+hardware **arrival** entry below changed no gate or software state, and `HARDWARE_INVENTORY.md` remains
+the carve-out owner for arrival detail. The 2026-07-27 bookkeeping **delta** below is otherwise current
+— see that entry and the corrected Checkpoints table. The 2026-07-25 sync ran before three sessions
+finished, so the tables were stale again; that pass updated them and did not re-do still-correct work. The dated entries
 that follow are preserved as an as-of log — **read the Checkpoints table and the newest entry for
 current truth**, and treat any bare present-tense claim inside an older dated entry as as-of that date.
 
@@ -578,7 +584,7 @@ in `HARDWARE_INVENTORY.md` (the carve-out owner) — not duplicated here.
 | Repo / folder | Checkpoint | Notes |
 |---|---|---|
 | `projects` (manual repo, `w17-software-manual`) | — | contains this CURRENT_STATUS.md; do not self-record its own exact hash — use `git HEAD` for the current commit |
-| `w17-control-fw` | `8d0309e` (`main`) | **On `main`, level with `origin/main`, nothing unpushed.** The `docs/bom-cassette-electrical` branch problem is **resolved and gone**: `main` was fast-forwarded `fbf22f0 → 34eba89` (16 files, no merge commit) on 2026-07-25, so the electrical BOM (`78e1e88`, `1834852`) is on `main`; the redundant branch has been deleted local and on origin (verified absent 2026-07-27). Since then, the 2026-07-25 zero-hardware batch and this pass: CB3 comment fixes, owner decisions R05/R19, the R06 link2 drift guard, honest Wokwi run-status, then `d6395c8` (link2 doc: the cross-repo guard is enforced, not "not built yet"; control-fw-local statements marked for the receiver) and `8d0309e` (unlock plan: serial bump recorded as shipped at **v1.6.0**, and the false "push remains disabled" claim corrected). Firmware behaviour unchanged by any of it — docs + comments only. **Native `pio test -e native` 225/225** (was 224; +1 with the R06 guard), `esp32dev` + `esp32dev_tuning` + `esp32dev_sim` all build, `tools/link2_copy_check.sh --strict` exit 0 — all re-run 2026-07-27. Live watchdog-cycle observation and physical reset-path validation still pending. |
+| `w17-control-fw` | `fa07690` (`main`) | **On `main`, 2 commits AHEAD of `origin/main` and UNPUSHED** as of 2026-07-30: `e5abc20` (A2 restructured into staged build gates + the WS2812/link2-RX decisions + the two-part closure gate) and `fa07690` (FIRST_ACTIVE I10 / R15 / input-provenance rule). **Docs only in `project-review/` — no code, no test, and no build state changed by either**, so every native-test and build claim below still stands as last re-run 2026-07-27. Previously `8d0309e`, which was level with origin: **On `main`, level with `origin/main`, nothing unpushed.** The `docs/bom-cassette-electrical` branch problem is **resolved and gone**: `main` was fast-forwarded `fbf22f0 → 34eba89` (16 files, no merge commit) on 2026-07-25, so the electrical BOM (`78e1e88`, `1834852`) is on `main`; the redundant branch has been deleted local and on origin (verified absent 2026-07-27). Since then, the 2026-07-25 zero-hardware batch and this pass: CB3 comment fixes, owner decisions R05/R19, the R06 link2 drift guard, honest Wokwi run-status, then `d6395c8` (link2 doc: the cross-repo guard is enforced, not "not built yet"; control-fw-local statements marked for the receiver) and `8d0309e` (unlock plan: serial bump recorded as shipped at **v1.6.0**, and the false "push remains disabled" claim corrected). Firmware behaviour unchanged by any of it — docs + comments only. **Native `pio test -e native` 225/225** (was 224; +1 with the R06 guard), `esp32dev` + `esp32dev_tuning` + `esp32dev_sim` all build, `tools/link2_copy_check.sh --strict` exit 0 — all re-run 2026-07-27. Live watchdog-cycle observation and physical reset-path validation still pending. |
 | `w17-ground-station` | `92cd894` | **Windows CI GREEN at this HEAD: run `30263115532` (2026-07-27)**, both the ubuntu `test` job and the windows-latest `package-smoke` job. Suite **1185/1185 across 59 files**; `proto:check` OK, `feel:check` OK; `noControlPath` + `ipcSurface` green at the pinned **24-key** preload surface. `main` level with `origin/main`, nothing unpushed. **The 7-file WIP recorded here previously is long since reviewed, split, and shipped** — do not read this row as carrying uncommitted work. The chain since `3119180`: `42319ad` (SETUP split out of SEAT FIT — five steps, `garage → pitwall → seatfit → setup → grid`, solo `garage → seatfit → setup → grid`, rail `01..05` with GRID = 05) · `e01eb9f` (HUD `.revwrap` viewport-centred, BATT above the merged pill row) · `0950298` (viewer-only footnote overlay removed — isolated deliberately so it was revertable alone) · `e09369b` (GRID `wide`, `#addrStatus:empty` reserve collapse) → CI `30128883953`; then `769003b` (viewer-only disclaimer **restored** in the ⚙ settings panel, once per app session) · `12896fb` (the four unasserted CSS rules pinned, `responsiveLayout` 22 → 26) · `7c29a6b` (audit annotated, 91 insertions / 0 deletions) · `16d3d0a` (**R01 implemented** — armed/failsafe labelled as simulated) · `9c2d723` (**`feelConstants` drift guard made real** — hermetic snapshot + `scripts/check-firmware-feel.js`) → CI `30144513077`, 1082/1082 in 56 files; then `17ec1be` (stale rail comments, own CI `30149835990`, branch deleted) · `2c96eb1` (SETUP → one centred column) · `1a6f9f2` (`#gamepadPanel` rhythm) → CI `30150690390`, 1090/1090 in 56 files, `responsiveLayout` 34; then `92a0dce` (CB1 closeout) · `92cd894` (**CB4** iPhone HUD mDNS discovery) → CI `30263115532`, 1185/1185 in 59 files. **All 9 findings of the 2026-07-17 setup-flow audit are CLOSED, and the audit's own §3 staleness is fixed too** (`7c29a6b`) — that artifact is no longer stale. Real-OS/Windows-hardware paths remain bench-unvalidated. |
 | `w17-mapper` | `0e11d6b` | owned fork (`w17-headtrack` off upstream `2b8031a`); CB8 slices 1–3A: LOG-ONLY UDP 5602 head-intent ingest + read-only gRPC diagnostics. Since `59d1739`: `f0a18f3` (`go.bug.st/serial` v1.5.0 → **v1.6.0** — `go build ./...` now **fully green**, the go1.26 × cgo blocker cleared; **not** the approved v1.7.1, which would have bumped the `go` directive 1.20 → 1.25.0 in both `go.mod` and `go.work` and with it go1.22 loop-var semantics for the whole module — reasoning in `w17-control-fw/project-review/head_tracking_unlock_plan.md` §2.3.12.9 item 2) · `8fc1915` (fork notice: provenance, GPL-3.0-or-later election, GPL §5(a) modification notice, safety boundary) · `0e11d6b` (tracked `.githooks/pre-push` + the written push-review rule). **⚠ "push disabled" is NO LONGER TRUE — do not rely on it.** The fork has `origin` = `github.com/beforethenexttolast/w17-mapper`, created 2026-07-25T04:11Z, **PUBLIC**, with `origin/w17-headtrack` carrying all of the above (`upstream`'s push URL remains disabled). The accidental "no remote, so push is impossible" protection is **gone** — and it was never a control, only an accident of setup. What replaced it: a tracked **`.githooks/pre-push`** (enable per clone with `git config core.hooksPath .githooks`; refuses a `w17_first_active` build tag, a `FIRST_ACTIVE` identifier in Go/proto, or an active head-intent enum; verified to pass a clean HEAD and bite on all three injections) as the **accident guard**, plus the push-review rule in `FORK-NOTICE.md` as the **control**. What is published distributes **no control path**: proto still ends at `ACTIVE_LOG_ONLY = 8`, no `FIRST_ACTIVE` in tracked Go or proto source, upstream licence files unmodified — re-verified read-only 2026-07-27. `go vet ./...` is **not** green and that is **not a regression** — see the same §2.3.12.9 item 2. |
 | `w17-soundlight-fw` | `5919685` | **PUSHED, level with origin.** Through `ec5ddf8` (`4f25856..ec5ddf8`, 11 commits): audio-decision centralization, graceful audio-startup/runtime-write failure handling, wrap-safe engine effect timers, exact synth-smoothing convergence, signed engine inertia preserved, widened noise multiplication, low-battery period validation, UART0 diagnostics gated by firmware mode, README host-test count corrected 40→94. Then 2026-07-25: **`2d22f85`** (CI enforcement — see below) and **`5919685`** (link2 protocol-doc re-sync). Native **94/94 across 8 suites**, `esp32dev` + `esp32dev_sim` both build, canonical guard re-run exit 0. **`2d22f85` matters beyond bookkeeping:** this repo already had a `link2-drift` job (`74b59f4`) with a hand-rolled inline diff loop that treated `docs/link2_protocol.md` as **fatal** — so a control-fw doc edit turned soundlight's `main` CI **red for a non-bug**. Verified by replaying the old logic (flags the doc and nothing else, exit 1), not assumed. `2d22f85` replaces it with a single source of truth: the job anonymously shallow-clones control-fw into `$RUNNER_TEMP` (outside `GITHUB_WORKSPACE`, so the sibling never enters soundlight's source tree) and runs *control-fw's* `tools/link2_copy_check.sh --strict`. Exit codes fully disambiguated — 0 pass (plus a `::warning` when the doc tier reports, so the non-fatal tier is never invisible), 1 DRIFT, 2 COULD-NOT-CHECK, 3 CI-bug/usage, anything else unexpected. **Trap recorded in-file:** GitHub's default `bash -e` would collapse every exit code into one anonymous red X, so `set +e` is load-bearing and commented as such. Verified by watching it fail — the step's real `run:` body extracted from the YAML and run against throwaway fake siblings across **7 scenarios** (clean, injected `kPayloadLen`, deleted shared file, sibling missing `lib/link2`, checker absent, exit 3, exit 42). The doc re-sync was **one-sided, not three-way** (soundlight's copy was byte-identical with zero local content, so purely additive); upstream prose corrected to receiver POV. |
@@ -597,10 +603,38 @@ in `HARDWARE_INVENTORY.md` (the carve-out owner) — not duplicated here.
 ## Hardware gates
 
 - **A1.1–A1.6 software / pre-power validation: COMPLETE.**
-- **A2 no-power bench checklist: committed but NOT EXECUTED.** No measurements recorded; A2
-  is not closed. Canonical checklist:
+- **A2 no-power bench checklist: NOT EXECUTED, and RESTRUCTURED 2026-07-30.** No measurements
+  recorded; A2 is not closed. Canonical checklist:
   `w17-control-fw/project-review/13_phase_a_a2_no_power_checklist.md`.
+- **Why A2 has not run — corrected 2026-07-30.** Previous revisions of this file left A2
+  reading as owner-owed bench work. It is not: **nothing is soldered** (owner-confirmed
+  2026-07-30 — the ESP32 boards arrived with pre-soldered pin headers, and the 3D-printed
+  parts on hand are test/measurement-quality prints, not build parts). A2 as written assumed a
+  finished harness, so there was nothing for it to measure. There is **no untracked assembly
+  gate and no A1.7** — the restructure below makes A2 *be* the build order.
+- **A2 is now staged, not a single pass.** Eight gates run on isolated subassemblies as the
+  harness is built — S1 divider → S2 Hall → S3 link2 → S4/S4b CRSF + actuator leads and
+  cross-signal isolation → S5 WS2812 → S6 attach UBECs → S7 whole-harness ground sweep → S8
+  ESC red-wire isolation. Only S7/S8 are true whole-harness gates. **Driver for the change:
+  several expected values are only valid while the subassembly is isolated** — the worked case
+  is the divider's `batt+ → GND ≈ 37 kΩ`, which after S6 is measured in parallel with two UBEC
+  input stages and would false-FAIL a correctly-built car against the old §13 hard stops.
+- **Two A2 decisions taken 2026-07-30** (both previously unfalsifiable "per your build" rows
+  that made the old PASS criterion unsatisfiable): **WS2812 supply = option A, the 1N5819
+  diode** (on hand; no 74AHCT125 in inventory or BOM v2; 74AHCT125 stays the documented
+  fallback — recorded honestly as a ~10 mV nominal V<sub>IH</sub> margin), and **link2 RX
+  (GPIO26) = do not wire**, since the firmware hard-disables it (`Serial1.begin(..., rxPin=-1,
+  txPin_)`); the row is now falsifiable as "verify no wire present."
+- **A2 closure is a two-part gate (2026-07-30).** Part 1 = reviewer check (completeness, gate
+  attribution, tolerance, cross-reference, **plus mandatory direct inspection of the §10
+  photos** — the one part that is independent observation rather than trust in transcription).
+  Part 2 = owner attestation that the measurements were physically performed. **A2 closed means
+  the record is complete, coherent, and photo-corroborated — NOT that the hardware is safe.**
+  Opening Phase B is the owner's call, informed by A2, not a reviewer verdict.
 - **Phase B (powered) is BLOCKED** until A2 is filled in, pasted back, reviewed, and approved.
+  Also still outstanding: the ZEEE pack's main lead is **not** re-terminated to XT60, and the
+  XT90-S master switch + XT60→XT90 adapter were in transit as of 2026-07-29
+  (`HARDWARE_INVENTORY.md` §E). S7's "probe from battery −" reference depends on the XT60.
 - Golden rule: ESC motor power stays disconnected until the failsafe + arm chain is proven
   live (Phase A → B).
 
@@ -678,6 +712,38 @@ at the end of every VR-FPV session; one-line evidence only.
 | CB8 | Mapper implementation | `IN_PROGRESS` | decision #1 RESOLVED (topology (a), §2.3.7). **Slice 1 DONE 2026-07-15:** `w17-mapper` fork (`w17-headtrack` @ `2b8031a`, GPL-3.0) — new pure-Go `pkg/headintent` log-only UDP 5602 ingest + in-process diagnostics; go build/vet/test/-race all green; `go list -deps` proves no config/link/crossfire/serial dep; no existing file imports it (output unchanged); 299/300/301 + port-exclusivity proven. **Slice 2 DONE 2026-07-15:** `cmd` wired behind disabled-by-default `-headtrack-ingest`/`W17_HEADTRACK_INGEST` (+`-headtrack-port`) — starts receiver and nothing else; `pack_deadend_test.go` proves `crsf.PackChannels` byte-identical flag-off vs on (valid/stale/invalid); host `go build ./...` blocked only by pre-existing go1.26×`go.bug.st/serial` cgo incompat (temp `v1.7.1` bump builds green, reverted — send-path dep = owner decision). **Slice 3A DONE 2026-07-15:** mapper-side gRPC diagnostics — read-only `WatchHeadIntentDiagnostics` stream (enum state, server-computed age, 4-stream cap→ResourceExhausted, nil→Unavailable, bounded latest-value buffers); stubs regenerated with pinned drift-checked toolchain via `pkg/proto/generate.sh`; `go build`/`test ./...` green, webpack compiles; CRSF byte-identical with subscribers connected/slow/disconnected; :10000 still `[::]` (unchanged). **Slices 1–3A COMMITTED 2026-07-15** in `w17-mapper` @ `59d1739`. **Slice 3B DONE** (GS Electron subscriber @ `03f43e2`). **Slice 3C DONE 2026-07-15** (GS @ `dce91f8`): hermetic proto-drift guard (`test/protoDrift.test.js` vs a live-mapper-generated canonical snapshot, regen zero-diff, bites on drift) + real cross-process run vs live mapper gRPC :10000 (every HeadIntentState, ingest-off→UNAVAILABLE, 4-cap→RESOURCE_EXHAUSTED, restart→bounded reconnect, byte-identical CRSF, topology-(a) mutual exclusivity); GS 746/746; validation-only serial bump reverted (modules pristine). Evidence: `w17-ground-station/docs/2026-07-15_cb8_slice3c_integration_evidence.md`. **Slice U4 DONE 2026-07-15 (DESIGN ONLY, SAFETY-GATED):** shaping/arbitration model + 9 safety invariants + Group A/B/C test matrix + two-part FIRST_ACTIVE flag + FIRST_ACTIVE review checklist R1–R14 written to `head_tracking_unlock_plan.md §2.3.11`; **no code** (deliberate — gated behind the review), `w17-mapper` clean at `59d1739`, no active enum value, PackChannels byte-identity + GS 746/746 + proto:check unchanged. Next (GATED): **first U4 implementation slice — only if/after FIRST_ACTIVE review approved** |
 | CB9 | Gimbal endpoints + console | `BLOCKED_HARDWARE` | HARD GATE: A2 + Phase B; needs CB7 mount |
 | CB10 | Integration + bench milestone | `BLOCKED_EXTERNAL` | needs CB8, CB9, Codex Batches 5–7, FIRST_ACTIVE review |
+
+**2026-07-30 — FIRST_ACTIVE gate strengthened: I10 + R15 + an input-provenance rule** (adversarial
+review of the §2.3.11.6 checklist; documentation only, no code). The gate had a hole: **nothing in
+R1–R14, I1–I9, or Groups A/B/C/D covered the *gamepad itself disappearing*.** D15 tests deadman
+*release* (a value transition); the Group D "Disconnect/reconnect" row is about the **iPhone/UDP
+5602** stream. Device *disappearance* was never distinguished from value *release*.
+
+**The defect that makes it matter is confirmed present in the fork**, traced 2026-07-30:
+`pkg/config/input_button.go:77` returns `nan=true` when the gamepad is absent from the device
+registry, and `pkg/config/output_tx.go:43` does `if nan || ch < 1 || ch > 16 { continue }` over a
+**persistent `*[16]util.CRSFValue` struct field that is never reset to neutral at the top of a
+tick** — so `continue` means the channel **retains its previous tick's value indefinitely**. Hold-last
+semantics at the channel level. Failure it would produce: deadman held in `ACTIVE`, gamepad drops,
+the deadman channel **latches**, head intent still fresh/centered/enabled ⇒ arbiter reads
+`armed == true` and stays ACTIVE; the C1 right-stick override is dead too (same frozen array). Added:
+**I10** (device loss ⇒ disarm, identical to release), **R15** (demonstrated by physically unplugging,
+from `ARMING`/`ACTIVE`/`OVERRIDDEN`, reconnect proves no restore), **Group D rows D19–D22**, and an
+**input-provenance rule in §2.3.11.1** — the arbiter must source arm/deadman/override from a signal
+carrying explicit validity, never from the hold-last channel array. R15 is hardware-*procedure* class,
+**not** Phase-B class. Overall FIRST_ACTIVE verdict unchanged: **NO-GO / BLOCKED**.
+
+**⚠ Related pre-existing defect, NOT closed by the above and outside CB8's scope.** The same hold-last
+behaviour affects **every** gamepad-driven channel today, **including throttle and steering**, with no
+head tracking involved. A USB gamepad dropout while driving through the mapper freezes the last
+throttle command, and **the firmware's failsafe does not fire** — this is not radio loss, the mapper
+keeps transmitting well-formed CRSF at full rate with stale payload (link up, CRC valid, throttle
+frozen). Sits directly under the "failsafe first" priority in `w17-control-fw/CLAUDE.md`. **Tracked as
+a separate item; not yet investigated or fixed.** Residual uncertainty deliberately recorded: whether
+`AlertDeviceChan` / device-removal handling elsewhere invalidates the config or zeroes the array
+before the next tick was **not** traced — the *mechanism* is confirmed, the *end-to-end outcome* is
+PLAUSIBLE and needs a test. Also open: `EvalNoData` is `{0,…,0}`, i.e. below the valid CRSF 172–1811
+range, so what the firmware decoder does with an all-zeros payload is a second unanswered question.
 
 Open owner decisions: #1 UDP 5602 topology + fork ownership/license — **RESOLVED 2026-07-15
 (topology (a); fork = `w17-mapper` @ GPL-3.0-or-later, §2.3.12.9)** · #2 video-loss —
