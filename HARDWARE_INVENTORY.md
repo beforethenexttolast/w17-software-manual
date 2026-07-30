@@ -179,16 +179,18 @@ still does not stamp the subsystem "hardware-complete", and arrival of the caps 
 ### D. Local / stock / not-an-AliExpress-line
 | Item | Status | Notes |
 |---|---|---|
-| 2S LiPo ×2 (soft-case, ≤75×45×25 mm, XT60) | partially ✅ | **superseded in part** by the §E ZEEE pack, which **arrived 2026-07-29** ("one battery"; 69×35×18 mm — inside the ≤75×45×25 mm envelope). **One pack on hand.** This row's **quantity remains unestablished here**: whether a second pack is still wanted is a packaging/purchasing question, not an arrival fact, so it is left open rather than guessed |
+| 2S LiPo ×2 (soft-case, ≤75×45×25 mm, XT60) | partially ✅ | **superseded in part** by the §E ZEEE pack, which **arrived 2026-07-29** ("one battery"; 69×35×18 mm — inside the ≤75×45×25 mm envelope). **One in-envelope pack on hand.** The quantity question is now **answered by the owner (2026-07-30): a second 1500 mAh pack will be bought**, because the 5200 mAh pack that arrived 2026-07-30 is out-of-envelope and is bench-only (see §E). That second pack is **⬜ not yet ordered** — intent stated, no order evidence |
 | RT5370 USB Wi-Fi (GS bench SoftAP) | ✅ | **on hand** (owner-confirmed 2026-07-22); AP-mode support on Win 10/11 still to verify on the bench |
 | Build-from-stock, consumables, tools, paint, decals | 🏠 | see BOM §D — not delivery-tracked |
 
-### E. Cassette electrical — ordered 2026-07-24, mostly arrived 2026-07-29
+### E. Cassette electrical — ordered 2026-07-24, arrived 2026-07-29 + 2026-07-30
 
 Order source: the owner, via the `CURRENT_STATUS.md` 2026-07-24 (later) entry — *"Electrical BOM
-FINALIZED + all items ORDERED"*. Arrival source: the owner's 2026-07-29 delivery report (see the
-delivery log). **Two rows remain ⏳** (XT90-S master switch, XT60→XT90 adapter); the rest are ✅ on
-hand. Per the legend these are arrival-evidence marks only — not a claim about fit, function, or any
+FINALIZED + all items ORDERED"*. Arrival source: the owner's 2026-07-29 and 2026-07-30 delivery
+reports (see the delivery log). **The 2026-07-30 drop cleared the last two ⏳ rows** (XT90-S master
+switch, XT60→XT90 adapter — delivered together as a pigtail set) — every §E row is now ✅ on
+hand. The same drop brought an **out-of-envelope 5200 mAh pack**, logged here as bench-only.
+Per the legend these are arrival-evidence marks only — not a claim about fit, function, or any
 gate. Part identities and envelopes come from the Claude-side electrical inputs
 (`w17-electrical-inputs-for-codex.md`) and the build guide
 (`w17-pdb-build-and-connector-guide.md`); if those and this file disagree on what a part *is*, they win.
@@ -198,10 +200,13 @@ gate. Part identities and envelopes come from the Claude-side electrical inputs
 | MH-ET Live D1-Mini ESP32 (USB-C) | ×2 ordered | ✅ | 2026-07-29 | cassette controllers #1 (control) + #2 (sound/light); ESP32-WROOM-32, ~39×31 mm. **3 on hand** per the owner (2026-07-29) against ×2 recorded as ordered — the surplus is recorded as delivered; it is the *order quantity* that is unverified here, not the arrival. Also listed in §4 next to the DevKit V1 clones it replaces. **Physical caliper + weight still owed** (`w17-3d-codex` input) |
 | Ceramic capacitor kit | ×1 | ✅ | 2026-07-29 | "both capasitor packs" — covers the 100 nF decoupling and the optional 1–10 nF positions |
 | Electrolytic capacitor kit | ×1 | ✅ | 2026-07-29 | "both capasitor packs" — covers the 1000 µF servo-rail and WS2812 LED reservoir positions; **the actual 1000 µF part still needs calipering** now that it is on hand |
-| Amass XT90-S anti-spark master switch | ×1 | ⏳ | — | pack-side master disconnect (anti-spark). **Not named in the 2026-07-29 delivery** — stays in transit |
-| XT60 → XT90 adapter | ×1 | ⏳ | — | mates the XT60 harness side to the XT90-S switch. **Not named in the 2026-07-29 delivery** — stays in transit. (The 07-29 "XT60 and XT30 connectrs" maps to the §5 connector line, not to this adapter) |
+| Amass XT90-S anti-spark master switch | ×1 | ✅ | 2026-07-30 | **arrived as a two-piece pigtail set, not as a discrete "switch" part**: (a) XT90-S **female** anti-spark → XT60 **male**, 12 AWG, and (b) **XT90H-M male** with a 12 AWG bare tail. Mated, the pair *is* the pull-apart master; the anti-spark (resistor) half is the female, which per the build guide's gender rule is the one that faces the live pack. Assembled chain = pack XT60 f → (a) → (b) → PDB input. **This row and the XT60→XT90 row below are satisfied together by these two items** — that re-mapping is an interpretation, not the owner's words |
+| XT60 → XT90 adapter | ×1 | ✅ | 2026-07-30 | see the row above — item (a) **is** the XT60↔XT90 transition, delivered pre-wired rather than as a separate adapter. Nothing is owed against this line. (The 07-29 "XT60 and XT30 connectrs" still maps to the §5 connector line, not here) |
+| XT60 **female** + 12 AWG tail | ×1 | ✅ | 2026-07-30 | the **pack re-termination** connector — pack side = female per the build guide's gender rule. Unblocks the owner task noted on the ZEEE 1500 row below (re-termination itself still **not done**) |
+| JST-XH 2S 3-pin extension (male–female) | ×1 | ✅ | 2026-07-30 | pack balance lead → IP2326 charger. Fits either pack (both ZEEE packs use JST-XH) |
+| ZEEE 1500 mAh 2S LiPo | ×1 | ✅ | 2026-07-29 | "one battery" — 69×35×18 mm, JST-XH balance lead; **the owner will re-terminate the main lead to XT60** (not yet done, and not an arrival fact). Supersedes part of the §D "2S LiPo ×2" row. **This is the car pack** |
+| ZEEE 5200 mAh 2S LiPo — **BENCH ONLY, not a car pack** | not ordered as such | ✅ (received) | 2026-07-30 | **138×47×37 mm — exceeds the ≤75×45×25 mm envelope on all three axes** (+63 / +2 / +12 mm; ≈3.9× the volume). Wrong-size delivery; **the owner is attempting a replacement** (2026-07-30). Two independent reasons it cannot be the car pack: `w17-3d-codex/BUILD_SHEET.md` already ruled a **115**×35×24 pack won't fit the 2024 body (this one is 23 mm longer still), and the Z3 central tub is only **14–40 mm wide where it is ≥45 mm tall**, so a 47-wide × 37-tall pack does not drop in. **Assumption, not measured:** a 2S 5200 typically weighs ~250–300 g vs ~80–90 g for the 1500 — weigh it before any CG argument cites a number. Bench use stays **A2 + Phase B gated** like every other powered activity, and its higher fault energy is a *new* bench-safety consideration, not a cleared one |
 | IP2326 2S Type-C balancing charger | ×1 ordered | ✅ | 2026-07-29 | onboard USB-C charging, 18.3×31 mm; balancing confirmed at selection. **2 on hand** per the owner (2026-07-29) against ×1 recorded as ordered — same reading as the MH-ET row: the arrival count is owner-stated, the order count is what is unverified |
-| ZEEE 1500 mAh 2S LiPo | ×1 | ✅ | 2026-07-29 | "one battery" — 69×35×18 mm, JST-XH balance lead; **the owner will re-terminate the main lead to XT60** (not yet done, and not an arrival fact). Supersedes part of the §D "2S LiPo ×2" row |
 | 1N5819 Schottky diode | — | 🏠 | — | **from office stock** (owner, 2026-07-24) — not an ordered delivery line; not individually delivery-verified here |
 
 ---
@@ -209,14 +214,15 @@ gate. Part identities and envelopes come from the Claude-side electrical inputs
 ## Not on hand yet — what to chase next
 
 Ranked by how much they block downstream work. Status marks per the legend; **⏳ = ordered/in
-transit per a cited source**, ⬜ = not on hand / not yet sourced. **The 2026-07-29 delivery cleared
-six of the eight entries this list previously carried**; what is left:
+transit per a cited source**, ⬜ = not on hand / not yet sourced. The 2026-07-29 delivery cleared six
+of the eight entries this list previously carried, and **2026-07-30 cleared the master-switch pair**;
+what is left:
 
 1. **Neodymium magnets 3×1 mm (§7)** — ⏳ ordered/in transit (owner, 2026-07-22); the A3144 Hall
    sensor + ESC are on hand, but the wheel-speed pickup can't be exercised without its axle magnets.
-2. **Amass XT90-S anti-spark master switch + XT60→XT90 adapter (§E)** — ⏳ ordered/in transit
-   (owner, 2026-07-24); not named in the 2026-07-29 delivery. These are the pack-side master
-   disconnect and its mating adapter — the rest of the cassette electrical set is now on hand.
+2. **Second 1500 mAh 2S LiPo (§D/§E)** — ⬜ **intent stated, not ordered** (owner, 2026-07-30). Not a
+   blocker: one in-envelope pack is already on hand and one pack is enough to run the car. This exists
+   as a line only because the 5200 mAh pack that arrived cannot serve as the car pack.
 3. **Tamiya tyres (§B)** — ⏳ ordered/on the way (owner, 2026-07-22); the rcMart order has not landed.
 
 > **Cleared by the 2026-07-29 delivery:** MH-ET D1-Mini ESP32 (§4/§E), MG90S micro servos ×3 (§6),
@@ -233,6 +239,26 @@ six of the eight entries this list previously carried**; what is left:
 ---
 
 ## Delivery log (newest first)
+
+### 2026-07-30 — master-switch pigtail set + a wrong-size battery
+Owner's arrival list recorded **verbatim** in the first column. This drop closes the last two §E
+electrical lines and adds one item that was **not ordered as delivered**.
+
+| As delivered (owner's words, verbatim) | Mapped BOM line | § | Mapping |
+|---|---|---|---|
+| XT90-S female anti-spark → XT60 male, 12 AWG cable | Amass XT90-S anti-spark master switch + XT60→XT90 adapter (**jointly**, with the item below) | §E | ✅ part-identity certain; **the two-rows-one-set reading is an interpretation.** The anti-spark half is the female, which is the half that should face the live pack |
+| XT90H-M male with 12 AWG cable | same pair as above — the pull-apart key half | §E | ✅ as above. Its bare tail takes an **XT60 female** to reach the PDB input; **the owner will make up that end at the office** from §5 stock (2026-07-30) — 🏠, not a chase line |
+| XT60 female with 12 AWG cable | pack re-termination lead | §E (new row) | ✅ unambiguous; matches the pack-side-female gender rule in `w17-pdb-build-and-connector-guide.md` |
+| JST-XH 2S 3-pin male–female extension | pack balance → IP2326 charge path | §E (new row) | ✅ unambiguous |
+| ZEEE 5200 mAh battery, 138×47×37 mm | **no BOM line** — wrong size for the ordered pack | §E (new row) | ⚠ **received but not accepted as a car part.** Out of the ≤75×45×25 envelope on all three axes; owner is attempting a replacement and will buy a second 1500 mAh instead. Recorded as **bench-only** hardware |
+
+**Consequence for the build spec:** none of the four connector items changes
+`w17-pdb-build-and-connector-guide.md` — they *implement* the topology already drawn there. The one
+open detail — terminating the XT90H tail into the PDB input with an XT60 female — is **owner-made at
+the office from §5 stock** (2026-07-30), so nothing is owed from a supplier. Making it is not doing
+it: the joint is still unbuilt, and building it is still A2 / Phase-B gated like the rest of the harness.
+
+**Still ⏳ after this drop:** neodymium magnets (§7), Tamiya tyres (§B).
 
 ### 2026-07-29 — cassette-electrical + remaining-mechanical drop
 Owner's arrival list recorded **verbatim** in the first column (typos preserved); interpretation and

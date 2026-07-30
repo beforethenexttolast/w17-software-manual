@@ -19,7 +19,10 @@ recorded as separately tracked — see the 2026-07-30 entry under **VR-FPV batch
 default channel endpoints (0 / 1984) fall outside the firmware plausibility band from `91f830f`, so
 **with defaults the car cannot arm**; investigation only, nothing committed in `w17-mapper` — see the
 newest 2026-07-30 entry under **VR-FPV batch status**. No checkpoint
-hash moved; target repos are `w17-control-fw` docs plus this file. Prior context: the 2026-07-29
+hash moved; target repos are `w17-control-fw` docs plus this file. **Also 2026-07-30 (separate,
+later): a hardware arrival entry** — the master-switch pigtail set closed the last §E electrical
+lines, and a **wrong-size 5200 mAh battery** was received and classed **bench-only**; no gate moved,
+see the dated entry. Prior context: the 2026-07-29
 hardware **arrival** entry below changed no gate or software state, and `HARDWARE_INVENTORY.md` remains
 the carve-out owner for arrival detail. The 2026-07-27 bookkeeping **delta** below is otherwise current
 — see that entry and the corrected Checkpoints table. The 2026-07-25 sync ran before three sessions
@@ -560,6 +563,28 @@ the extra sentence because of **how** it was caught: the recorded hashes were re
 repos one by one before commit, and the `git ls-remote` disagreed with the local tracking ref. Cheap
 mechanical verification beat careful reading of a confident instruction — which is the same lesson as
 `ipcSurface`, arriving from the opposite direction.
+
+2026-07-30: **Hardware delivery (owner) — arrival only, NO GATE CHANGE.** Four connector items
+(XT90-S female anti-spark → XT60 male 12 AWG; XT90H-M male 12 AWG; XT60 female 12 AWG; JST-XH 2S
+3-pin extension) plus a **wrong-size battery**. The connector items **close the last two §E lines** —
+the XT90-S master switch and the XT60→XT90 adapter arrived as one two-piece pigtail set rather than
+as two discrete parts, so the pack-side master chain is now fully sourced. They implement the
+topology already drawn in `w17-pdb-build-and-connector-guide.md`; **no build-spec change is owed.**
+The only end not delivered ready-made — an XT60 female on the XT90H tail — the **owner will make up
+at the office** from §5 connector stock (2026-07-30), so no supplier line is outstanding.
+- **The battery is a wrong-size delivery, not a packaging decision to make.** The pack sent is a
+  **ZEEE 5200 mAh at 138×47×37 mm** against the **≤75×45×25 mm** envelope of record — over on all
+  three axes (+63 / +2 / +12 mm). `w17-3d-codex/BUILD_SHEET.md` had already ruled a *115*×35×24 pack
+  won't fit the 2024 body, and the Z3 tub is only 14–40 mm wide where it is ≥45 mm tall. **Owner
+  decision (2026-07-30): attempt a replacement, buy a second 1500 mAh pack, and keep the 5200 as a
+  BENCH supply only.** It is not a car pack and must not be treated as one in any CG or packaging work.
+- **No status in this file moves.** A2 stays NOT-EXECUTED, Phase B stays BLOCKED. Bench use of the
+  5200 is powered activity like any other — **still A2 + Phase B gated**, still no unattended
+  powering, and its larger fault energy is a new bench-safety input rather than a cleared one. The
+  in-envelope 1500 mAh pack **still needs owner re-termination to XT60**; the XT60 female lead that
+  just arrived is what that re-termination uses.
+- Arrival detail and per-line mapping confidence live in `HARDWARE_INVENTORY.md` (the carve-out
+  owner) — not duplicated here.
 
 2026-07-29: **Hardware delivery (owner) — arrival only, NO GATE CHANGE.** The 2026-07-24 §E
 electrical order landed almost complete, together with the last mechanical/consumable ⏳ lines from
