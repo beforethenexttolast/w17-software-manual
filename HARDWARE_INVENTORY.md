@@ -179,7 +179,7 @@ still does not stamp the subsystem "hardware-complete", and arrival of the caps 
 ### D. Local / stock / not-an-AliExpress-line
 | Item | Status | Notes |
 |---|---|---|
-| 2S LiPo ×2 (soft-case, ≤75×45×25 mm, XT60) | partially ✅ | **superseded in part** by the §E ZEEE pack, which **arrived 2026-07-29** ("one battery"; 69×35×18 mm — inside the ≤75×45×25 mm envelope). **One in-envelope pack on hand.** The quantity question is now **answered by the owner (2026-07-30): a second 1500 mAh pack will be bought**, because the 5200 mAh pack that arrived 2026-07-30 is out-of-envelope and is bench-only (see §E). That second pack is **⬜ not yet ordered** — intent stated, no order evidence |
+| 2S LiPo ×2 (soft-case, ≤75×45×25 mm, XT60) | ⬜ **none on hand** | ⚠ **corrected 2026-07-31** — this row previously read "partially ✅" on the strength of a 1500 mAh pack that **never arrived** (see §E). **Zero in-envelope packs exist.** The only battery on hand is the out-of-envelope 5200, which is bench-only. **The ×2 is a convenience target, not a gate** ("carry 2 — runtime insurance", `learning-manual/05…:395`): **one** pack makes the car drivable; the second only removes charge-downtime and single-point-of-failure. Buying two *at once* is nonetheless the practical call given how hard the owner is finding it to source a pack in-envelope at all (2026-07-31) |
 | RT5370 USB Wi-Fi (GS bench SoftAP) | ✅ | **on hand** (owner-confirmed 2026-07-22); AP-mode support on Win 10/11 still to verify on the bench |
 | Build-from-stock, consumables, tools, paint, decals | 🏠 | see BOM §D — not delivery-tracked |
 
@@ -202,10 +202,10 @@ gate. Part identities and envelopes come from the Claude-side electrical inputs
 | Electrolytic capacitor kit | ×1 | ✅ | 2026-07-29 | "both capasitor packs" — covers the 1000 µF servo-rail and WS2812 LED reservoir positions; **the actual 1000 µF part still needs calipering** now that it is on hand |
 | Amass XT90-S anti-spark master switch | ×1 | ✅ | 2026-07-30 | **arrived as a two-piece pigtail set, not as a discrete "switch" part**: (a) XT90-S **female** anti-spark → XT60 **male**, 12 AWG, and (b) **XT90H-M male** with a 12 AWG bare tail. Mated, the pair *is* the pull-apart master; the anti-spark (resistor) half is the female, which per the build guide's gender rule is the one that faces the live pack. Assembled chain = pack XT60 f → (a) → (b) → PDB input. **This row and the XT60→XT90 row below are satisfied together by these two items** — that re-mapping is an interpretation, not the owner's words |
 | XT60 → XT90 adapter | ×1 | ✅ | 2026-07-30 | see the row above — item (a) **is** the XT60↔XT90 transition, delivered pre-wired rather than as a separate adapter. Nothing is owed against this line. (The 07-29 "XT60 and XT30 connectrs" still maps to the §5 connector line, not here) |
-| XT60 **female** + 12 AWG tail | ×1 | ✅ | 2026-07-30 | the **pack re-termination** connector — pack side = female per the build guide's gender rule. Unblocks the owner task noted on the ZEEE 1500 row below (re-termination itself still **not done**) |
+| XT60 **female** + 12 AWG tail | ×1 | ✅ | 2026-07-30 | the **pack re-termination** connector — pack side = female per the build guide's gender rule. **Currently has no pack to terminate** (2026-07-31 correction): keep it for whichever car pack is sourced, if that pack doesn't ship XT60-native |
 | JST-XH 2S 3-pin extension (male–female) | ×1 | ✅ | 2026-07-30 | pack balance lead → IP2326 charger. Fits either pack (both ZEEE packs use JST-XH) |
-| ZEEE 1500 mAh 2S LiPo | ×1 | ✅ | 2026-07-29 | "one battery" — 69×35×18 mm, JST-XH balance lead; **the owner will re-terminate the main lead to XT60** (not yet done, and not an arrival fact). Supersedes part of the §D "2S LiPo ×2" row. **This is the car pack** |
-| ZEEE 5200 mAh 2S LiPo — **BENCH ONLY, not a car pack** | not ordered as such | ✅ (received) | 2026-07-30 | **138×47×37 mm — exceeds the ≤75×45×25 mm envelope on all three axes** (+63 / +2 / +12 mm; ≈3.9× the volume). Wrong-size delivery; **the owner is attempting a replacement** (2026-07-30). Two independent reasons it cannot be the car pack: `w17-3d-codex/BUILD_SHEET.md` already ruled a **115**×35×24 pack won't fit the 2024 body (this one is 23 mm longer still), and the Z3 central tub is only **14–40 mm wide where it is ≥45 mm tall**, so a 47-wide × 37-tall pack does not drop in. **Assumption, not measured:** a 2S 5200 typically weighs ~250–300 g vs ~80–90 g for the 1500 — weigh it before any CG argument cites a number. Bench use stays **A2 + Phase B gated** like every other powered activity, and its higher fault energy is a *new* bench-safety consideration, not a cleared one |
+| In-envelope 2S car pack (≤75×45×25) | ×1 minimum | ⬜ | — | **NOT ON HAND — nothing that fits the car has ever arrived.** ⚠ **Corrected 2026-07-31:** this file previously carried a "ZEEE 1500 mAh, 69×35×18, ✅ arrived 2026-07-29" row. **That pack never existed.** The 07-29 owner report said only *"one battery"*; this file mapped those words to the *ordered* 1500 line and then wrote in the **order-spec dimensions as if they were measured**. The pack that actually came is the 5200 below (supplier mix-up, owner 2026-07-31). Nothing is owed *against an order* here — the owner is sourcing a replacement and **may buy to spec rather than to the ZEEE part number**; see the sourcing spec in the delivery-log entry for 2026-07-31 |
+| ZEEE 5200 mAh 2S LiPo — **BENCH ONLY, not a car pack** | not ordered as such | ✅ (received) | 2026-07-30 | **The only battery on hand.** **138×47×37 mm — exceeds the ≤75×45×25 mm envelope on all three axes** (+63 / +2 / +12 mm; ≈3.9× the volume). Wrong item (owner: *"some misunderstanding"*, 2026-07-31); a replacement is being sought. Two independent reasons it cannot be the car pack: `w17-3d-codex/BUILD_SHEET.md` already ruled a **115**×35×24 pack won't fit the 2024 body (this one is 23 mm longer still), and the Z3 central tub is only **14–40 mm wide where it is ≥45 mm tall**, so a 47-wide × 37-tall pack does not drop in. **Assumption, not measured:** a 2S 5200 typically weighs ~250–300 g — weigh it before any CG argument cites a number. Bench use stays **A2 + Phase B gated** like every other powered activity, and its higher fault energy is a *new* bench-safety consideration, not a cleared one |
 | IP2326 2S Type-C balancing charger | ×1 ordered | ✅ | 2026-07-29 | onboard USB-C charging, 18.3×31 mm; balancing confirmed at selection. **2 on hand** per the owner (2026-07-29) against ×1 recorded as ordered — same reading as the MH-ET row: the arrival count is owner-stated, the order count is what is unverified |
 | 1N5819 Schottky diode | — | 🏠 | — | **from office stock** (owner, 2026-07-24) — not an ordered delivery line; not individually delivery-verified here |
 
@@ -218,16 +218,21 @@ transit per a cited source**, ⬜ = not on hand / not yet sourced. The 2026-07-2
 of the eight entries this list previously carried, and **2026-07-30 cleared the master-switch pair**;
 what is left:
 
-1. **Neodymium magnets 3×1 mm (§7)** — ⏳ ordered/in transit (owner, 2026-07-22); the A3144 Hall
+1. **An in-envelope 2S car pack (§D/§E)** — ⬜ **not on hand, not ordered; the owner is having
+   trouble sourcing one** (2026-07-31). **Promoted to the top of this list on 2026-07-31**, when it
+   emerged that the 1500 mAh pack this file had recorded as arrived **never arrived at all**. The car
+   currently has **no battery that fits it**. Not a *gate* — A2 and Phase B block on their own terms
+   and the bench 5200 covers bench work — but it is the only line here that blocks the car ever moving
+   under its own power. Shop to the **dimensions**, not to a capacity number: hard fail above
+   75×45×25 mm; recommended target ≤70×40×22 mm; 2S / soft-case / ≥25C / JST-XH; XT60 preferred.
+2. **Neodymium magnets 3×1 mm (§7)** — ⏳ ordered/in transit (owner, 2026-07-22); the A3144 Hall
    sensor + ESC are on hand, but the wheel-speed pickup can't be exercised without its axle magnets.
-2. **Second 1500 mAh 2S LiPo (§D/§E)** — ⬜ **intent stated, not ordered** (owner, 2026-07-30). Not a
-   blocker: one in-envelope pack is already on hand and one pack is enough to run the car. This exists
-   as a line only because the 5200 mAh pack that arrived cannot serve as the car pack.
 3. **Tamiya tyres (§B)** — ⏳ ordered/on the way (owner, 2026-07-22); the rcMart order has not landed.
 
 > **Cleared by the 2026-07-29 delivery:** MH-ET D1-Mini ESP32 (§4/§E), MG90S micro servos ×3 (§6),
 > rear 68 mm oil shock (§10), thermal paste (§13), ceramic + electrolytic cap kits (§E), IP2326
-> charger (§E), ZEEE 2S LiPo (§E), and the ordered XT60/XT30 connector units (§5).
+> charger (§E), and the ordered XT60/XT30 connector units (§5). ⚠ **"ZEEE 2S LiPo" was struck from
+> this list on 2026-07-31** — see the corrected 07-29 log row; no in-envelope pack arrived.
 >
 > The ESC + motor combo (§3) has been **on hand** since 2026-07-17, so it no longer blocks parts
 > availability for Phase C — but powered drivetrain work remains gated on A2 / Phase B regardless.
@@ -240,6 +245,46 @@ what is left:
 
 ## Delivery log (newest first)
 
+### 2026-07-31 — correction + car-pack sourcing spec (no delivery)
+
+Not a delivery. Two things: a **correction** (the 1500 mAh pack recorded as arrived on 07-29 never
+arrived — see that entry), and the **shopping spec** for the pack that must now be found, recorded
+here because the owner reports difficulty sourcing one and the reasoning should not have to be
+re-derived.
+
+**Shop by dimensions, not by capacity.** Capacity is the free variable; the envelope is the constraint.
+Any 2S pack that fits is acceptable — 1300, 1500, 1800 mAh are all fine. "1500 mAh" was never a
+requirement, only the capacity of the pack that happened to be picked.
+
+| Spec | Hard limit | Recommended target | Why — and what breaks if violated |
+|---|---|---|---|
+| **Cell count** | **2S, exactly** | — | Not negotiable and not a preference. The firmware reads pack voltage through a fixed divider on ADC 34 (`PinMap.hpp:35`) and warns at **7.0 V** (`glossary.md:398`). 3S would read as "always full" *and* over-volt every 5 V rail's input assumption; 1S can't run the ESC |
+| **Length** | **≤75 mm** | **≤70 mm** | The binding dimension, and the origin of the whole envelope — see the note below. The 5 mm margin is for the **lead exit**, which sticks out past the case by 10–20 mm and is *not* counted in a listing's dimensions |
+| **Width** | ≤45 mm | ≤40 mm | Clears with margin per the shell probe; the target leaves room for the retention strap and for not fighting the loom |
+| **Height** | ≤25 mm | ≤22 mm | Strap, velcro and floor tape eat 2–3 mm that the listing never mentions |
+| **Case** | **soft-case** | — | A hardcase spends 2–3 mm per axis on shell you have not got |
+| **C rating** | **≥25C** | 30C+ | Gentle use ≠ gentle *peaks*. A punch into a stalled motor through a 120 A ESC will sag a 10C pack and brown out the receiver. 1500 mAh × 25C ≈ 37 A burst = ample |
+| **Balance lead** | **JST-XH** (2S = 3-pin) | — | Matches the IP2326 charger and the 07-30 extension. Anything else means an adapter in the charge path |
+| **Main lead** | any | **XT60 already fitted** | Otherwise it is a re-termination job. The 07-30 XT60 female lead exists for exactly that job if needed |
+
+**Where the ≤75 mm actually comes from — it is *not* the added electronics.** Ryan's original
+`Parts List.txt` specifies **115×35×24**, and that number is **stale, not wrong-for-another-reason**:
+it belongs to the *older* body. The **2024 body's own READ ME** sets the ≤75 mm limit, and
+`w17-3d-codex/BUILD_SHEET.md` records the conflict and resolves it — *"that battery will not fit the
+2024 body … Buy to 75 mm."* The cassette/deck-2 electronics **do** contest the same Z3 zone, but that
+is a second, independent reason not to push length, not the source of the number.
+
+**Honest caveat:** ≤75 mm is the **designer's stated limit, not a verified measurement**. The 2026-07-10
+probe was a ray-cast of the shell STLs only — it confirms width and height clear with margin but
+**cannot measure usable bay length** (bulkheads, bosses, connector clearance, removal path), and
+nothing has been printed. Final battery choice stays formally blocked on the slicer-assembly measure
+plus a printed dry-fit (`FIRST_PRINT_DECISION.md` §7). Buying to ≤70 mm is buying inside an
+unverified limit — which is the right side to be wrong on.
+
+**Quantity:** **one** makes the car drivable. The BOM's ×2 is runtime insurance, not a gate. The real
+argument for two is not runtime — it is that a pack this constrained is evidently hard to source, so
+buying a matched pair *while a fitting one is in front of you* avoids repeating the search.
+
 ### 2026-07-30 — master-switch pigtail set + a wrong-size battery
 Owner's arrival list recorded **verbatim** in the first column. This drop closes the last two §E
 electrical lines and adds one item that was **not ordered as delivered**.
@@ -250,7 +295,7 @@ electrical lines and adds one item that was **not ordered as delivered**.
 | XT90H-M male with 12 AWG cable | same pair as above — the pull-apart key half | §E | ✅ as above. Its bare tail takes an **XT60 female** to reach the PDB input; **the owner will make up that end at the office** from §5 stock (2026-07-30) — 🏠, not a chase line |
 | XT60 female with 12 AWG cable | pack re-termination lead | §E (new row) | ✅ unambiguous; matches the pack-side-female gender rule in `w17-pdb-build-and-connector-guide.md` |
 | JST-XH 2S 3-pin male–female extension | pack balance → IP2326 charge path | §E (new row) | ✅ unambiguous |
-| ZEEE 5200 mAh battery, 138×47×37 mm | **no BOM line** — wrong size for the ordered pack | §E (new row) | ⚠ **received but not accepted as a car part.** Out of the ≤75×45×25 envelope on all three axes; owner is attempting a replacement and will buy a second 1500 mAh instead. Recorded as **bench-only** hardware |
+| ZEEE 5200 mAh battery, 138×47×37 mm | **no BOM line** — wrong size for the ordered pack | §E (new row) | ⚠ **received but not accepted as a car part.** Out of the ≤75×45×25 envelope on all three axes; owner is attempting a replacement. Recorded as **bench-only** hardware. ⚠ **2026-07-31:** this is the **only** battery on hand — the "second 1500" wording here was written on the false premise that a first one existed |
 
 **Consequence for the build spec:** none of the four connector items changes
 `w17-pdb-build-and-connector-guide.md` — they *implement* the topology already drawn there. The one
@@ -274,7 +319,7 @@ plus the last three ⏳ mechanical/consumable lines from the 2026-07-22 in-trans
 | remaining shock observers | Rear oil shock 68 mm (2 pc) | §10 | ✅ — "observers" reads as *absorbers*; the rear damper was the only outstanding shock line |
 | both capasitor packs | Ceramic capacitor kit + Electrolytic capacitor kit | §E | ✅ — "both" maps 1:1 onto the two §E kit lines |
 | USB charging boards | IP2326 2S Type-C balancing charger | §E | ✅ — the only USB-charging line; **2 on hand** (owner-stated) vs ×1 recorded as ordered |
-| one battery | ZEEE 1500 mAh 2S LiPo | §E / §D | ✅ — the single ordered pack; still needs owner re-termination to XT60 |
+| one battery | ~~ZEEE 1500 mAh 2S LiPo~~ | §E / §D | ❌ **MIS-MAPPED — corrected 2026-07-31.** "One battery" was matched to the *ordered* 1500 line and the order's 69×35×18 dimensions were then written into §E as though observed. No 1500 mAh pack ever arrived. The battery in this delivery was the **5200 mAh** pack (owner: supplier mix-up), whose real dimensions only surfaced on 2026-07-30. **The lesson is the standing one for this file: an owner's word for a part ("one battery") is arrival evidence for *a* part, never for the part the BOM expected** |
 
 **Not in this drop** (still ⏳, and deliberately not inferred from "and one battery" or from the
 electrical order landing as a whole): neodymium magnets (§7), Amass XT90-S master switch + XT60→XT90

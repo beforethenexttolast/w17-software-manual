@@ -572,17 +572,25 @@ as two discrete parts, so the pack-side master chain is now fully sourced. They 
 topology already drawn in `w17-pdb-build-and-connector-guide.md`; **no build-spec change is owed.**
 The only end not delivered ready-made — an XT60 female on the XT90H tail — the **owner will make up
 at the office** from §5 connector stock (2026-07-30), so no supplier line is outstanding.
+- ⚠ **Corrected 2026-07-31 — read this before the paragraph below.** The 5200 is **the only battery
+  that has ever arrived**. The "ZEEE 1500 mAh 2S LiPo" that the 07-29 entry below lists as delivered
+  **never existed**: the owner's word *"one battery"* was mapped to the ordered 1500 line, and the
+  order-spec dimensions were then recorded as if measured. **The car has no pack that fits it**, and
+  sourcing one is now the top hardware line (`HARDWARE_INVENTORY.md`, which carries the full spec:
+  2S, ≤75×45×25 hard / ≤70×40×22 target, soft-case, ≥25C, JST-XH). Quantity ×2 is convenience, not a
+  gate — one pack makes the car drivable.
 - **The battery is a wrong-size delivery, not a packaging decision to make.** The pack sent is a
   **ZEEE 5200 mAh at 138×47×37 mm** against the **≤75×45×25 mm** envelope of record — over on all
   three axes (+63 / +2 / +12 mm). `w17-3d-codex/BUILD_SHEET.md` had already ruled a *115*×35×24 pack
   won't fit the 2024 body, and the Z3 tub is only 14–40 mm wide where it is ≥45 mm tall. **Owner
-  decision (2026-07-30): attempt a replacement, buy a second 1500 mAh pack, and keep the 5200 as a
+  decision (2026-07-30): attempt a replacement, buy an in-envelope pack, and keep the 5200 as a
   BENCH supply only.** It is not a car pack and must not be treated as one in any CG or packaging work.
+  (Said "a *second* 1500" as written on 07-30 — corrected 07-31: there is no first.)
 - **No status in this file moves.** A2 stays NOT-EXECUTED, Phase B stays BLOCKED. Bench use of the
   5200 is powered activity like any other — **still A2 + Phase B gated**, still no unattended
   powering, and its larger fault energy is a new bench-safety input rather than a cleared one. The
-  in-envelope 1500 mAh pack **still needs owner re-termination to XT60**; the XT60 female lead that
-  just arrived is what that re-termination uses.
+  XT60 female lead that just arrived has **no pack to terminate yet** (07-31 correction) — it waits
+  for whichever car pack is sourced, and is only needed if that pack isn't XT60-native.
 - Arrival detail and per-line mapping confidence live in `HARDWARE_INVENTORY.md` (the carve-out
   owner) — not duplicated here.
 
@@ -592,16 +600,18 @@ the 2026-07-22 in-transit set. Owner's words: *"new smaller ESPs, 3 servos for g
 thermal paste, XT60 and XT30 connectrs, remaining shock observers, both capasitor packs, USB
 charging boards and one battery."* Mapped to: MH-ET D1-Mini ESP32 (**3 on hand** vs ×2 recorded as
 ordered), MG90S ×3 (pan/tilt/DRS), thermal paste, XT60/XT30 connector units, rear 68 mm oil shock,
-ceramic + electrolytic cap kits, IP2326 charger (**2 on hand** vs ×1 recorded as ordered), ZEEE
-1500 mAh 2S LiPo. **Still in transit:** neodymium magnets (§7), Amass XT90-S master switch +
+ceramic + electrolytic cap kits, IP2326 charger (**2 on hand** vs ×1 recorded as ordered), and
+~~ZEEE 1500 mAh 2S LiPo~~ — ⚠ **that last mapping was wrong and was corrected on 2026-07-31; no
+in-envelope pack arrived, then or since. See the 07-30 entry above.** **Still in transit:** neodymium magnets (§7), Amass XT90-S master switch +
 XT60→XT90 adapter (§E), Tamiya tyres (§B). Full arrival detail and per-line mapping confidence are
 in `HARDWARE_INVENTORY.md` (the carve-out owner) — not duplicated here.
 - **No status in this file moves.** **A2 stays NOT-EXECUTED, Phase B stays BLOCKED**; parts arriving
   is not powering, and the harness must still be built and A2 run first. CB5/CB6/CB7 stay
   `BLOCKED_HARDWARE` on their own blockers (camera bench, iPhone + non-isolated network, printed
   dry-fit) — **none of them was waiting on anything in this delivery** — and CB9 stays gated on
-  A2 + Phase B. The no-unattended-powering rule stands; the LiPo also still needs owner
-  re-termination to XT60 before it is usable at all.
+  A2 + Phase B. The no-unattended-powering rule stands. (This entry originally ended "the LiPo also
+  still needs owner re-termination to XT60" — moot: **that pack never arrived**, per the 2026-07-31
+  correction.)
 - **What it does unblock is measurement, not power:** the MH-ET caliper + weight, the actual 1000 µF
   electrolytic, and the MG90S / rear-shock fit checks are now performable. Those are **`w17-3d-codex`
   inputs** and were not touched from here (one repo at a time; that repo is Claude-owned but separate).
