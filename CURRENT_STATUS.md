@@ -8,7 +8,22 @@ workspace-level source for all of those and for project execution status.
 Overwrite it in place when state changes; do not append history. Instruction files
 (`CLAUDE.md` / `AGENTS.md`) must not duplicate anything below.
 
-_Last updated: **2026-08-03** — one **verification** pass over the mapper hold-last defect, no code
+_Last updated: **2026-08-03 (later)** — an **adversarial review of the A2 staged checklist**
+(documents only, run deliberately before the first solder joint; precedent: the 2026-07-30
+FIRST_ACTIVE pass that produced I10/R15). **14 findings — 13 CONFIRMED, 1 PLAUSIBLE; verdict:
+A2 must NOT be executed as written, a revision pass is owed first.** Headline defects: §13 hard
+stops 1 and 4 have **no generating measurement** in the staged flow (post-S6 nothing ever
+measures batt+→GND, rail↔rail, rails↔batt+, or signals↔batt+ — the restructure invalidated the
+old whole-harness screens without issuing staged replacements); S8's E1–E3 are **unexecutable as
+sequenced** (the red end is heat-shrunk before S8 arrives) and **unfalsifiable as built** (the
+connector spec's +5-pin removal makes them pass whether or not the cut was made), and ESC
+red→GND is measured nowhere; S7's "battery −" reference **does not exist on hand** (no
+XT60-terminated pack; producing one violates the golden rule); A2's gate order **contradicts the
+PDB guide §5 build order** (UBECs step 3 vs S6). Full list + minimal fixes:
+`w17-control-fw/project-review/14_a2_staged_gates_adversarial_review.md` (branch
+`docs/a2-adversarial-review` in both repos, pending owner review/merge). **No gate moved: A2
+stays NOT-EXECUTED, Phase B stays BLOCKED — a review cannot open a gate.** Prior pass, earlier
+same day: one **verification** pass over the mapper hold-last defect, no code
 and no hardware state change: the 2026-07-30 line calling it "not yet investigated or fixed" was
 **stale** and is corrected; the defect was fixed the same day at `w17-mapper` `2dc7c5a` and is now
 **verified closed against source** (both 2026-07-30 residuals traced and answered, tests proven to
@@ -639,7 +654,7 @@ in `HARDWARE_INVENTORY.md` (the carve-out owner) — not duplicated here.
 | `projects` (manual repo, `w17-software-manual`) | — | contains this CURRENT_STATUS.md; do not self-record its own exact hash — use `git HEAD` for the current commit |
 | `w17-control-fw` | `d102e2f` (`main`) | **On `main`, PUSHED, level with `origin/main`** (`8d0309e..d102e2f`, verified 2026-07-30). Three commits this pass: `e5abc20` (A2 restructured into staged build gates + the WS2812/link2-RX decisions + the two-part closure gate), `fa07690` (FIRST_ACTIVE I10 / R15 / input-provenance rule), and `c5c7d6f` (build-tag-only compile gate, R2 waiver removed, R16 promoted). The first three are **docs only in `project-review/`**. The fourth, `91f830f`, is the **first code change to `lib/channels` this pass** — implausible raw channel values now decode as *absent* rather than full deflection (see the 2026-07-30 decoder entry below). **Re-run at `91f830f` 2026-07-30: native `pio test -e native` 229/229** (was 225 — one test replaced by five), `esp32dev` + `esp32dev_tuning` + `esp32dev_sim` all build, `tools/link2_copy_check.sh --strict` exit 0 (its non-fatal doc tier reports `docs/link2_protocol.md` differs from the soundlight copy — **investigated 2026-07-30 and CLOSED as expected, not drift**: the only differences are two repo-local point-of-view prose blocks, exactly what the guard's two-tier design anticipates. **No normative drift** — frame layout, payload table, lengths, CRC, the 500 ms staleness rule, state matrix and worked example all match. The investigation did find a real doc defect, fixed in `d102e2f`: the reader note claimed everything from *Frame layout* onward was **byte-identical**, which is false — one of the POV blocks sits inside that region. Claim narrowed to what is true.) Live watchdog-cycle observation and physical reset-path validation still pending. The `docs/bom-cassette-electrical` branch problem is **resolved and gone**: `main` was fast-forwarded `fbf22f0 → 34eba89` (16 files, no merge commit) on 2026-07-25, so the electrical BOM (`78e1e88`, `1834852`) is on `main`; the redundant branch has been deleted local and on origin (verified absent 2026-07-27). Since then, the 2026-07-25 zero-hardware batch and this pass: CB3 comment fixes, owner decisions R05/R19, the R06 link2 drift guard, honest Wokwi run-status, then `d6395c8` (link2 doc: the cross-repo guard is enforced, not "not built yet"; control-fw-local statements marked for the receiver) and `8d0309e` (unlock plan: serial bump recorded as shipped at **v1.6.0**, and the false "push remains disabled" claim corrected). Firmware behaviour unchanged by any of it — docs + comments only. **Native `pio test -e native` 225/225** (was 224; +1 with the R06 guard), `esp32dev` + `esp32dev_tuning` + `esp32dev_sim` all build, `tools/link2_copy_check.sh --strict` exit 0 — all re-run 2026-07-27. Live watchdog-cycle observation and physical reset-path validation still pending. |
 | `w17-ground-station` | `92cd894` | **Windows CI GREEN at this HEAD: run `30263115532` (2026-07-27)**, both the ubuntu `test` job and the windows-latest `package-smoke` job. Suite **1185/1185 across 59 files**; `proto:check` OK, `feel:check` OK; `noControlPath` + `ipcSurface` green at the pinned **24-key** preload surface. `main` level with `origin/main`, nothing unpushed. **The 7-file WIP recorded here previously is long since reviewed, split, and shipped** — do not read this row as carrying uncommitted work. The chain since `3119180`: `42319ad` (SETUP split out of SEAT FIT — five steps, `garage → pitwall → seatfit → setup → grid`, solo `garage → seatfit → setup → grid`, rail `01..05` with GRID = 05) · `e01eb9f` (HUD `.revwrap` viewport-centred, BATT above the merged pill row) · `0950298` (viewer-only footnote overlay removed — isolated deliberately so it was revertable alone) · `e09369b` (GRID `wide`, `#addrStatus:empty` reserve collapse) → CI `30128883953`; then `769003b` (viewer-only disclaimer **restored** in the ⚙ settings panel, once per app session) · `12896fb` (the four unasserted CSS rules pinned, `responsiveLayout` 22 → 26) · `7c29a6b` (audit annotated, 91 insertions / 0 deletions) · `16d3d0a` (**R01 implemented** — armed/failsafe labelled as simulated) · `9c2d723` (**`feelConstants` drift guard made real** — hermetic snapshot + `scripts/check-firmware-feel.js`) → CI `30144513077`, 1082/1082 in 56 files; then `17ec1be` (stale rail comments, own CI `30149835990`, branch deleted) · `2c96eb1` (SETUP → one centred column) · `1a6f9f2` (`#gamepadPanel` rhythm) → CI `30150690390`, 1090/1090 in 56 files, `responsiveLayout` 34; then `92a0dce` (CB1 closeout) · `92cd894` (**CB4** iPhone HUD mDNS discovery) → CI `30263115532`, 1185/1185 in 59 files. **All 9 findings of the 2026-07-17 setup-flow audit are CLOSED, and the audit's own §3 staleness is fixed too** (`7c29a6b`) — that artifact is no longer stale. Real-OS/Windows-hardware paths remain bench-unvalidated. |
-| `w17-mapper` | `5a28106` | owned fork (`w17-headtrack` off upstream `2b8031a`); CB8 slices 1–3A: LOG-ONLY UDP 5602 head-intent ingest + read-only gRPC diagnostics. **Row corrected 2026-08-03: it read `0e11d6b`, which had been stale since 2026-07-30.** Five commits landed since then, all on the stick/failsafe path, none touching head-intent or arbitration: `2dc7c5a` (**the hold-last fix** — a nan channel is driven to its configured failsafe instead of skipped; `GetInputGamepad` gates on the new `InputGamepad.Attached()` so a detached device stops resolving; transmitter arrays start centered, not zeroed; +294-line regression test file) · `53f4806` (GPL §5(a) modification table) · `d42a277` (embedded-schema guard around the new `failsafe` field) · `630ea96` (**send no channel frame at all when no config resolves**, so the receiver's link-loss failsafe can fire; `EvalNoData` demoted to display-only) · `5a28106` (GPL §5(a) table again). **Verified against source 2026-08-03 — see the dated closure entry: the throttle-freeze defect is CLOSED, with residuals A/B/C recorded there.** **Re-examined 2026-08-03 (later pass), still `5a28106`, nothing committed: RESIDUALS B and D re-derived from source and all four mechanisms REPRODUCED by execution; the pre-merge review's "six asymmetric node types" corrected to a full 27-type enumeration (14 D-1 stranders, 4 D-2, 1 pass-through) and its filing of the comparisons under D-2 corrected to D-1; B's cited seeding path corrected (it is `GetTransmitters()`→`NewTransmitter`, not unmarshal); B's reachability measured as explicit-user-action-only. B and D confirmed to be ONE change in `output_tx.Eval`. **Approach DECIDED 2026-08-03 (owner): option (c) — suppress frames across a config swap, as `630ea96` does for no-config — plus the stateless subtree walk (on the nan/invalid-`ch` path, collect the `InputChannel`s under the holder and drive each to its own `FailsafeValue()`), as ONE commit. Not yet implemented.** See the dated B+D entry.** Tree clean, `ahead 5` of `origin/w17-headtrack` (unpushed; the push-review rule in `FORK-NOTICE.md` governs). Earlier chain, since `59d1739`: `f0a18f3` (`go.bug.st/serial` v1.5.0 → **v1.6.0** — `go build ./...` now **fully green**, the go1.26 × cgo blocker cleared; **not** the approved v1.7.1, which would have bumped the `go` directive 1.20 → 1.25.0 in both `go.mod` and `go.work` and with it go1.22 loop-var semantics for the whole module — reasoning in `w17-control-fw/project-review/head_tracking_unlock_plan.md` §2.3.12.9 item 2) · `8fc1915` (fork notice: provenance, GPL-3.0-or-later election, GPL §5(a) modification notice, safety boundary) · `0e11d6b` (tracked `.githooks/pre-push` + the written push-review rule). **⚠ "push disabled" is NO LONGER TRUE — do not rely on it.** The fork has `origin` = `github.com/beforethenexttolast/w17-mapper`, created 2026-07-25T04:11Z, **PUBLIC**, with `origin/w17-headtrack` carrying all of the above (`upstream`'s push URL remains disabled). The accidental "no remote, so push is impossible" protection is **gone** — and it was never a control, only an accident of setup. What replaced it: a tracked **`.githooks/pre-push`** (enable per clone with `git config core.hooksPath .githooks`; refuses a `w17_first_active` build tag, a `FIRST_ACTIVE` identifier in Go/proto, or an active head-intent enum; verified to pass a clean HEAD and bite on all three injections) as the **accident guard**, plus the push-review rule in `FORK-NOTICE.md` as the **control**. What is published distributes **no control path**: proto still ends at `ACTIVE_LOG_ONLY = 8`, no `FIRST_ACTIVE` in tracked Go or proto source, upstream licence files unmodified — re-verified read-only 2026-07-27. `go vet ./...` is **not** green and that is **not a regression** — see the same §2.3.12.9 item 2. |
+| `w17-mapper` | `f81ec63` | owned fork (`w17-headtrack` off upstream `2b8031a`); CB8 slices 1–3A: LOG-ONLY UDP 5602 head-intent ingest + read-only gRPC diagnostics. **Row corrected 2026-08-03: it read `0e11d6b`, which had been stale since 2026-07-30.** Five commits landed since then, all on the stick/failsafe path, none touching head-intent or arbitration: `2dc7c5a` (**the hold-last fix** — a nan channel is driven to its configured failsafe instead of skipped; `GetInputGamepad` gates on the new `InputGamepad.Attached()` so a detached device stops resolving; transmitter arrays start centered, not zeroed; +294-line regression test file) · `53f4806` (GPL §5(a) modification table) · `d42a277` (embedded-schema guard around the new `failsafe` field) · `630ea96` (**send no channel frame at all when no config resolves**, so the receiver's link-loss failsafe can fire; `EvalNoData` demoted to display-only) · `5a28106` (GPL §5(a) table again). **Verified against source 2026-08-03 — see the dated closure entry: the throttle-freeze defect is CLOSED, with residuals A/B/C recorded there.** **Re-examined 2026-08-03 (later pass), still `5a28106`, nothing committed: RESIDUALS B and D re-derived from source and all four mechanisms REPRODUCED by execution; the pre-merge review's "six asymmetric node types" corrected to a full 27-type enumeration (14 D-1 stranders, 4 D-2, 1 pass-through) and its filing of the comparisons under D-2 corrected to D-1; B's cited seeding path corrected (it is `GetTransmitters()`→`NewTransmitter`, not unmarshal); B's reachability measured as explicit-user-action-only. B and D confirmed to be ONE change in `output_tx.Eval`. **Approach DECIDED 2026-08-03 (owner): option (c) — suppress frames across a config swap, as `630ea96` does for no-config — plus the stateless subtree walk (on the nan/invalid-`ch` path, collect the `InputChannel`s under the holder and drive each to its own `FailsafeValue()`), as ONE commit.** **✅ IMPLEMENTED 2026-08-03: `e452d55` (the fix, one commit) + `f81ec63` (GPL §5(a) table). B and D are both CLOSED with injected-regression evidence; the injections cover a top-level WRAPPER node, which is the shape the previous closure never built. One parameter the ruling did not specify had to be settled: the swap's no-frame window needs a LOWER bound (1 s, against the firmware's 500 ms `linkTimeoutMs`) or no failsafe fires and suppressing achieves nothing — the exact value is a bench item. Expect visible firmware failsafe on every Apply with the link up. `applyConfig` also now evaluates the synthetic transmitters before publishing them, closing an all-992 transient across every channel. RESIDUALS A and C remain open.** See the dated B+D entries.** Tree clean, `ahead 7` of `origin/w17-headtrack` (unpushed; the push-review rule in `FORK-NOTICE.md` governs). Earlier chain, since `59d1739`: `f0a18f3` (`go.bug.st/serial` v1.5.0 → **v1.6.0** — `go build ./...` now **fully green**, the go1.26 × cgo blocker cleared; **not** the approved v1.7.1, which would have bumped the `go` directive 1.20 → 1.25.0 in both `go.mod` and `go.work` and with it go1.22 loop-var semantics for the whole module — reasoning in `w17-control-fw/project-review/head_tracking_unlock_plan.md` §2.3.12.9 item 2) · `8fc1915` (fork notice: provenance, GPL-3.0-or-later election, GPL §5(a) modification notice, safety boundary) · `0e11d6b` (tracked `.githooks/pre-push` + the written push-review rule). **⚠ "push disabled" is NO LONGER TRUE — do not rely on it.** The fork has `origin` = `github.com/beforethenexttolast/w17-mapper`, created 2026-07-25T04:11Z, **PUBLIC**, with `origin/w17-headtrack` carrying all of the above (`upstream`'s push URL remains disabled). The accidental "no remote, so push is impossible" protection is **gone** — and it was never a control, only an accident of setup. What replaced it: a tracked **`.githooks/pre-push`** (enable per clone with `git config core.hooksPath .githooks`; refuses a `w17_first_active` build tag, a `FIRST_ACTIVE` identifier in Go/proto, or an active head-intent enum; verified to pass a clean HEAD and bite on all three injections) as the **accident guard**, plus the push-review rule in `FORK-NOTICE.md` as the **control**. What is published distributes **no control path**: proto still ends at `ACTIVE_LOG_ONLY = 8`, no `FIRST_ACTIVE` in tracked Go or proto source, upstream licence files unmodified — re-verified read-only 2026-07-27. `go vet ./...` is **not** green and that is **not a regression** — see the same §2.3.12.9 item 2. |
 | `w17-soundlight-fw` | `5919685` | **PUSHED, level with origin.** Through `ec5ddf8` (`4f25856..ec5ddf8`, 11 commits): audio-decision centralization, graceful audio-startup/runtime-write failure handling, wrap-safe engine effect timers, exact synth-smoothing convergence, signed engine inertia preserved, widened noise multiplication, low-battery period validation, UART0 diagnostics gated by firmware mode, README host-test count corrected 40→94. Then 2026-07-25: **`2d22f85`** (CI enforcement — see below) and **`5919685`** (link2 protocol-doc re-sync). Native **94/94 across 8 suites**, `esp32dev` + `esp32dev_sim` both build, canonical guard re-run exit 0. **`2d22f85` matters beyond bookkeeping:** this repo already had a `link2-drift` job (`74b59f4`) with a hand-rolled inline diff loop that treated `docs/link2_protocol.md` as **fatal** — so a control-fw doc edit turned soundlight's `main` CI **red for a non-bug**. Verified by replaying the old logic (flags the doc and nothing else, exit 1), not assumed. `2d22f85` replaces it with a single source of truth: the job anonymously shallow-clones control-fw into `$RUNNER_TEMP` (outside `GITHUB_WORKSPACE`, so the sibling never enters soundlight's source tree) and runs *control-fw's* `tools/link2_copy_check.sh --strict`. Exit codes fully disambiguated — 0 pass (plus a `::warning` when the doc tier reports, so the non-fatal tier is never invisible), 1 DRIFT, 2 COULD-NOT-CHECK, 3 CI-bug/usage, anything else unexpected. **Trap recorded in-file:** GitHub's default `bash -e` would collapse every exit code into one anonymous red X, so `set +e` is load-bearing and commented as such. Verified by watching it fail — the step's real `run:` body extracted from the YAML and run against throwaway fake siblings across **7 scenarios** (clean, injected `kPayloadLen`, deleted shared file, sibling missing `lib/link2`, checker absent, exit 3, exit 42). The doc re-sync was **one-sided, not three-way** (soundlight's copy was byte-identical with zero local content, so purely additive); upstream prose corrected to receiver POV. |
 | `w17-design-system` | `26ec870` | **PUSHED, clean, level with origin** (verified 2026-07-27 — the earlier "1 unpushed commit" reading was itself over-reporting). `6a59c96` synced the shipped setup flow; then `d53e6c4` (§1/§2/§9/§11/§14 amendment — §11(d)'s pill-row merge is **not** a supersede: the mockup always drew one `.pillrow` and the app carried two, so the merge brought the *app to the bundle*; §11(e) records `.revwrap` as an intentional improvement, since in the mockup its position is residue of the RUSSELL-plate/clock widths plus `.top`'s `right:calc(var(--gap) + 3em)` ⚙ inset and so *cannot* be top-centre); then `1415686` (§11's OPEN DECISION → **§11(f)**, right-column order resolved toward the code — BATT → pillrow → ERS, `BOOST · OVERTAKE · DRS` — old table kept as canonical-vs-superseded, the GS test pin's "provisional" note corrected to a guard backed by a ruling; `screens/05-hud.html` reordered; new **§14(d)** single-column SETUP with (a)/(b)/(c) amended in place; the twice-superseded "Adoption path" entry removed with a dated parenthetical); then `26ec870` (the `~300 px` → **`~191 px`** dead-column correction at `DESIGN_NOTES.md:208`). |
 | `w17-3d-codex` | `0386b2f` | **1 commit ahead of origin** (`0386b2f`, the 2026-07-27 ESC ground-truth correction — see the Codex item above; `2325fd9` and earlier are pushed). (`git ls-remote` 2026-07-27 shows `refs/heads/main` = `2325fd9`; working tree clean apart from ignored files). Prompt 13 recorded these as *2 commits unpushed* with `origin/main` at `ae42b5f`; Codex has pushed them since, so **that reading is stale — do not re-open it as owed work.** `59a1634` (2026-07-22) is the owed arrival-tracking cleanup (2 files, +48/−26; asserts no new physical facts). `2325fd9` is large (107 files, +20,130): fit studies, wire schedule + connection-joint register, ~7,000 lines of evidence generators, ~30 self-contained HTML visualisations, a 1,135-line manual expansion. **Inspected read-only 2026-07-27; not edited, not pushed** (Codex-owned). It asserts **no unearned hardware facts** — checked specifically: the `*_output_validation` PASS tables validate *generated artifacts* ("HTML exists", "inline-only CSP present", "link resolves"), **not physical parts**, despite commit subjects that read like hardware validation; where it does touch hardware the hedging is disciplined (VERIFIED / DERIVED / DOCUMENTED / ASSUMPTION per row; "Physical scales own the result"; "NO PRINT AUTHORIZATION — GATE P1 NOT PASSED"; MG90S official dimensions "do not prove the purchased clones"). **One real inconsistency, flagged not fixed — see Open Codex items below.** Nothing sensitive blocks a push (no credentials, keys, tokens, prices, order numbers, or binaries); one minor item: `p0_d36_wire_schedule_validation.md` adds three lines carrying the absolute path `/Users/vitaliykhomenko/…`, a small deanonymisation vector against a pseudonymous account — near-zero marginal exposure, since `01_inventory/build_inventory.py` already contains it and is already public, so it blocks nothing but is trivially relativisable. |
@@ -678,6 +693,15 @@ in `HARDWARE_INVENTORY.md` (the carve-out owner) — not duplicated here.
   fallback — recorded honestly as a ~10 mV nominal V<sub>IH</sub> margin), and **link2 RX
   (GPIO26) = do not wire**, since the firmware hard-disables it (`Serial1.begin(..., rxPin=-1,
   txPin_)`); the row is now falsifiable as "verify no wire present."
+- **A2 adversarial review 2026-08-03 — DO NOT execute A2 as written; a revision pass is owed
+  first.** Documents-only pass over the staged checklist before any solder joint; 14 findings
+  (13 CONFIRMED, 1 PLAUSIBLE), most-severe: no post-S6 batt+→GND / rail-isolation screens
+  (§13 stops 1 and 4 have no generating rows), S8 E1–E3 unexecutable-as-sequenced and
+  unfalsifiable as built (+ ESC red→GND unmeasured), S7 reference point nonexistent on hand,
+  gate order contradicts the PDB guide §5, old A2.5 (GPIO13/14 boot-float pull-downs, R04)
+  dropped without a record-either-way row. Full findings + minimal fixes:
+  `w17-control-fw/project-review/14_a2_staged_gates_adversarial_review.md` (branch
+  `docs/a2-adversarial-review`, pending owner merge). The review changes no gate state.
 - **A2 closure is a two-part gate (2026-07-30).** Part 1 = reviewer check (completeness, gate
   attribution, tolerance, cross-reference, **plus mandatory direct inspection of the §10
   photos** — the one part that is independent observation rather than trust in transcription).
@@ -981,10 +1005,11 @@ exists** — `failsafe: 172` on the six `decodeSwitch` channels, in the 2026-07-
 above — **but no mapper config exists on this Mac to carry it.** Until that config is built by hand,
 the shipped default leaves switch channels latching on a dropout.
 
-**RESIDUAL B (OPEN, with a decision: fix jointly with D, option pending owner choice — see the
-2026-08-03 B+D entry below).** A **mid-session config swap** re-seeds the array to 992 over a switch
-that is currently ON. **Conclusion re-derived from source and REPRODUCED 2026-08-03; the mechanism
-holds, but the cited path was backwards and is corrected here.**
+**RESIDUAL B — ✅ CLOSED 2026-08-03 in `e452d55` (option (c), frame suppression across the swap); the
+mechanism below is retained because it is what the fix keys off, and it is unchanged in the config
+layer by design — see the closing entry at the end of this section.** A **mid-session config swap**
+re-seeds the array to 992 over a switch that is currently ON. **Conclusion re-derived from source and
+REPRODUCED 2026-08-03; the mechanism holds, but the cited path was backwards and is corrected here.**
 
 - `SetConfig` (`server_grpc.go:102`) schema-validates and unmarshals a wholly new `Config`, then calls
   `ConfigCtl.SetConfig` (`:125`) → `alertConfigChan` → `ConfigEventChan`.
@@ -1043,8 +1068,11 @@ neutralization rests entirely on one droppable alert landing on an unbuffered ch
 is not merely "UI-state-dependent" — the entire re-evaluation heartbeat is coupled to something
 watching, which is precisely the condition that does *not* hold while driving. C stands, restated.
 
-**RESIDUAL D (open, arm-safety — added 2026-08-03 by the pre-merge review; two mechanisms, both
-executed against HEAD `5a28106`).** This is the one that breaks the flat CLOSED verdict.
+**RESIDUAL D — ✅ CLOSED 2026-08-03 in `e452d55` (neutral resolved from the owning `channel` node,
+stateless subtree walk on the unusable-result path). Arm-safety; added 2026-08-03 by the pre-merge
+review; two mechanisms, both executed against HEAD `5a28106`, both now covered by injected-regression
+tests — see the closing entry at the end of this section.** This is the one that broke the flat CLOSED
+verdict.
 
 - **D-1, stranding.** A **wrapper node at the top level** of a transmitter's `channels` array —
   `linear`, `map`, `case`, `if`, `trim`, `switch` **and eight more the review missed: `and`, `or`,
@@ -1081,12 +1109,57 @@ executed against HEAD `5a28106`).** This is the one that breaks the flat CLOSED 
   **The subsumption claim is CONFIRMED** — B and D are one change in `output_tx.Eval`, not two.
   Tracked jointly in `w17-mapper-eval-failsafe-bd-prompt.md`.
 
-**Verdict: the defect as reported — a USB gamepad dropout freezing throttle — is CLOSED for
-transmitters whose `channels` are all `channel` nodes, which is every config the tests cover and the
-shape the UI steers toward. It is NOT closed in general: RESIDUAL D re-opens throttle freeze through a
-top-level wrapper node, in a schema-valid config.** The earlier flat "CLOSED" was CLOSED-shaped —
-correct for the covered shape, over-generalized to all configs. A, B and C remain residuals of the fix
-rather than the original defect; **D is the original defect, on a path the fix does not reach.**
+**Verdict (as it stood at `5a28106`, superseded by the closing entry below): the defect as reported —
+a USB gamepad dropout freezing throttle — is CLOSED for transmitters whose `channels` are all
+`channel` nodes, which is every config the tests cover and the shape the UI steers toward. It is NOT
+closed in general: RESIDUAL D re-opens throttle freeze through a top-level wrapper node, in a
+schema-valid config.** The earlier flat "CLOSED" was CLOSED-shaped — correct for the covered shape,
+over-generalized to all configs. A, B and C remain residuals of the fix rather than the original
+defect; **D is the original defect, on a path the fix does not reach.**
+
+⚠ **NARROWED 2026-08-03 by `e452d55` — and the first wording of this supersede was FALSE.** It read:
+*"D is closed for ALL node types at the top level, so the verdict is now general rather than
+shape-limited."* **It is not general.** Corrected by the `e452d55` code review, which reproduced the
+counter-example by execution:
+
+- **What `e452d55` DOES close:** every top-level node type whose result becomes **unusable** when its
+  subtree fails — which is every type when the whole device drops. That is the reported defect and it
+  is genuinely fixed.
+- **What it does NOT close — PARTIAL subtree failure.** `EvalOperation` (`util.go:295-303`),
+  `InputAnd`/`InputOr._Eval` (`input_and.go:63-77`) and `EvalRelational` (`util.go:247-252`) all
+  **ignore a nan operand** and return `nan=false` with a valid channel number. The holder therefore
+  reports healthy, the `output_tx.go:165` healthy branch is taken, and `channelOwners` is never
+  called. Reproduced: `add{ch1←number, ch2←axis on a DETACHED gamepad}` at top level transmits
+  **ch2 = 1984 — full deflection — indefinitely** on a healthy link, with its configured 172 rail
+  never applied; the `and` variant leaves a detached arm channel at **992**, the exact value the
+  change exists to avoid. **Not a regression** — byte-identical pre- and post-fix. The fix does not
+  reach it. **D stays OPEN for this shape.**
+- **Why all 22 tests missed it:** every one detaches the *whole* device, so the left operand goes nan
+  first and the top-level result is genuinely unusable. No test builds a subtree where one channel
+  survives and another dies. Single-device configs are safe (`allNan` ⇒ `nan=true`); a constant-fed
+  channel or a second gamepad is enough to reach it.
+- **The generalization that failed is one level up from the last one.** The 27-type classification is
+  complete and correct (independently re-enumerated; the 14/4/7/1/1 split holds exactly). Nobody asked
+  whether **every way a subtree can fail** makes the holder's result unusable. It does not. This is the
+  fifth error in the chain and the fifth instance of the same shape.
+
+**RESIDUAL D-3 (open, arm-safety): the depth bound reintroduces hold-last, and guards a case it
+cannot reach.** `channelOwnerMaxDepth = 32` (`output_tx.go:63`) truncates a legitimately deep tree to
+**zero owners**, so `ch` is `-1`, the `ch >= 1` guard writes nothing, and the slot keeps its last
+value — the original defect, silently. Reproduced with a 40-deep `linear` chain: `ch1 = 1984` after
+five detached ticks. Its comment claims it is a `read`-cycle backstop, but `InputRead._Eval`
+(`input_read.go:44`) recurses unguarded and **fatally overflows the stack before the walk is ever
+reached** (pre-existing upstream, not introduced here); `TestReadCycleTerminates` passes only because
+it calls `channelOwners` directly and never `Eval`, so it does not test what its name says.
+
+**Also recorded (safe direction, undocumented):** the seven opaque types (`invert`, `seq`, `number`,
+`axis`, `button`, `hat`, `gamepad`) return `ch = -1` on **both** paths, so a healthy top-level
+`invert` is now pinned to its failsafe rail every tick. Pre-fix it sat at 992 forever; neither carries
+live data and 172 is the safer of the two, so this is an improvement — but no test covers it and the
+test file's justification for excluding these seven ("neither can strand a slot") is a statement about
+the *old* defect.
+
+**A remains open (a config obligation), C remains open (timing).**
 
 **✅ TWO OWNER DECISIONS TAKEN 2026-08-03, both downstream of RESIDUAL D.**
 
@@ -1177,6 +1250,84 @@ review's list corrected. NO CODE COMMITTED — `w17-mapper` tree clean at `5a281
   one commit — but this is the owner's call.
 - **No hardware powered, nothing flashed, no head-intent / FIRST_ACTIVE / arbitration path touched.
   A2 stays NOT-EXECUTED, Phase B stays BLOCKED.**
+
+**2026-08-03 (implementation pass) — ✅ RESIDUALS B + D CLOSED IN CODE. `w17-mapper` `5a28106` →
+`f81ec63`, two commits: `e452d55` (the fix, one commit as decided) + `f81ec63` (GPL §5(a) table).
+Tree clean, `ahead 7` of `origin/w17-headtrack`, UNPUSHED.**
+
+- **Everything below was re-derived from the files before any code was written**, per the RETRACTION
+  rule. **Every claim in the brief held**, including the prior pass's own corrections: the 27-type
+  enumeration, the comparisons being D-1 rather than D-2, and B's seeding path running through
+  `GetTransmitters()`→`NewTransmitter` rather than through unmarshal. **Two things the brief did not
+  contain were found by implementing it** — the swap window needs a lower bound (below), and a `read`
+  node at the top level is a D-2 case nobody had named.
+- **D — fixed by resolving the neutral from the node that OWNS the channel number**
+  (`output_tx.go`, `channelOwners` + the rewritten write path). On an unusable result — `nan` **or**
+  an out-of-range `ch` — every `InputChannel` under the holder is driven to its own
+  `FailsafeValue()`. Viable because `channel` is the sole originator of a channel number and the sole
+  `FailsafeValuer`. Two traversal rules earned their place: the walk **stops at** a channel node (an
+  `InputChannel` discards its child's number, so a nested channel is not that holder's to drive) and
+  **follows `read`** through `IOMap` (its `Children()` is nil, yet its `Eval` returns its target's
+  number — a `read` at top level was a D-2 case nobody had named, found this pass).
+- **A refinement was considered and REJECTED on evidence, and it is worth recording because it looks
+  correct.** Keying the neutral off the number the holder reported (rather than walking) would avoid
+  writing several slots. But `EvalOperation` reports the **last right operand's** number while healthy
+  and the **left** one on the nan path, so that version would neutralize ch1 and strand ch2 — the same
+  defect, moved one operand over. The owner's uniform walk-all rule is correct as written. Pinned by
+  `TestSubtreeWithSeveralChannelsNeutralizesAll`.
+- **B — fixed with option (c), frame suppression across the swap** (`send.go`, `configSwapGate`),
+  reusing `630ea96`'s shape. ⚠ **One parameter the decision did not specify, and it is load-bearing:
+  the window needs a LOWER bound.** "Suppress until the new config has produced one full `Eval`" is
+  sub-millisecond in practice, and a gap that short is invisible to the receiver — no failsafe fires,
+  and the dropped switch stays latched exactly as before. The window is therefore sized at **1 s**
+  against the control firmware's **500 ms** `failsafe::Config::linkTimeoutMs`, with margin for the
+  **unmeasured** TX-module/RX hold on top. This is not a departure from the ruling: the ruling's own
+  note 2 (*"each Apply briefly drops frames → firmware failsafe → servos to neutral, arm drops"*) is
+  only true if the window outlasts that timeout. **The exact 1 s is a bench item — no hardware has run
+  this path.** The upper bound is still absent as instructed: a config that never resolves stays
+  suppressed forever.
+- **Also fixed in passing, and it was a real transient:** `EvalLoop` published the synthetic
+  transmitter arrays *before* anything evaluated them, so immediately after every Apply **all 16
+  channels** read 992, not just dropped ones. Now `applyConfig` evaluates first and publishes second.
+- **B's fix and D's fix do NOT conflict, and under the chosen options they are not the same change.**
+  They would have been under option (b): "seed from the configured failsafe" and "resolve the failsafe
+  from the owning node" are one idea seen twice. But (b) cannot work for B at all, and for a sharper
+  reason than the RESIDUAL A composition already recorded — **a dropped channel has no node left in
+  the new config to ask for a neutral.** They are two disjoint edits (`output_tx.go` vs
+  `send.go`/`eval.go`) that compose cleanly, delivered as one commit as decided.
+- **Evidence, this host.** `go build ./...` exit 0 · `go test ./... -count=1` green (`config`,
+  `headintent`, `link`, `server`) · `-race` green on `pkg/config` + `pkg/link` ·
+  `TestPackChannelsUnchangedByReceiver` and `…ByDiagnosticsSubscribers` both PASS (CRSF byte identity
+  holds) · `gofmt` clean on every touched file · `.githooks/pre-push` exit 0 · proto still ends at
+  `HEAD_INTENT_STATE_ACTIVE_LOG_ONLY = 8` · no `FIRST_ACTIVE` / `w17_first_active` in tracked Go or
+  proto · `go vet ./...` reports **exactly one** finding, `cmd/elrs-joystick-control/main.go:130`,
+  pre-existing at upstream `2b8031a` — deliberately not "fixed".
+- **Tests proven non-vacuous — four injections, tree restored and re-verified after each.** The
+  injections deliberately cover the shape the previous closure did not: **a top-level wrapper node**,
+  not only `channel` nodes at top level. (a) pre-fix `Eval` body ⇒ **7 failures** (⚠ corrected
+  2026-08-03 by the code review, which re-ran it: this entry and `e452d55`'s commit message both said
+  **6**, while their own prose enumerates 7; all 7 reproduce for the intended reasons), each printing the
+  defect value — `1984` stranded through `linear`, `gt`, `and` and `switch`-fallthrough, `992` emitted
+  where `172` was configured, `3968` stranded on a subtree's second channel, and the `read` target's
+  rail lost. (b) walk descending past channel nodes ⇒ the nested-channel test bites. (c) swap window
+  set to 0 ⇒ **3 failures**. (d) publish-before-evaluate ⇒ **3 failures**. **22 new tests** in three
+  files (12 + 3 in `pkg/config`, 7 in `pkg/link`); the `switch` case is the one that shows `nan` is the wrong thing to key off — it strands a
+  slot with **no nan at all**.
+- ⚠ **EXPECT VISIBLE FAILSAFE DURING CONFIG ENTRY.** With the link up, every Apply now drops frames
+  for ≥1 s, so the firmware trips failsafe: **servos to neutral, arm drops, each time**. That is
+  correct behaviour, not a fault — but it will look alarming at the bench, so it is stated here, in
+  the commit message, and it is the reason ch13 entry can now proceed.
+- **Consequence for the held ch13 decision:** the reason for holding it (a `switch`/`case` construct
+  at top level is D-1) is now closed in code. The hold can be lifted whenever the owner wants; nothing
+  in this pass forces it.
+- **Durable backup re-bundled:** `~/Documents/w17-backups/w17-mapper-allrefs-2026-08-03b.bundle`,
+  `git bundle verify` reports a complete history, caps at `f81ec63`. The earlier
+  `…2026-08-03.bundle` capped at `5a28106` and the `…2026-07-25b.bundle` at `0e11d6b`; both are now
+  superseded.
+- **No hardware powered, nothing flashed, no head-intent / FIRST_ACTIVE / arbitration path touched.
+  A2 stays NOT-EXECUTED, Phase B stays BLOCKED. Nothing pushed — the push-review rule in
+  `FORK-NOTICE.md` governs, and `origin` is public.**
+
 **No hardware powered, nothing flashed, no head-intent / FIRST_ACTIVE / arbitration path touched.**
 
 Open owner decisions: #1 UDP 5602 topology + fork ownership/license — **RESOLVED 2026-07-15
