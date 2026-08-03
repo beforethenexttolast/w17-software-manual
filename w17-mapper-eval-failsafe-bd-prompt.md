@@ -75,10 +75,42 @@ answer decides whether this is urgent or merely correct. **Report reachability b
 fix**, and don't inflate it — an overstated severity here costs the same credibility as an understated
 one.
 
-## Design options — bring me the trade-offs, do not pick
+## ✅ Approach DECIDED 2026-08-03 (owner) — implement it, don't re-litigate
 
-This is a change on the stick→CRSF control path. Present these (and any better one you find) with the
-failure mode each leaves behind:
+**Option (c) — suppress frames across the swap — plus the stateless subtree walk, as ONE commit.**
+
+- **(c) for B.** During a swap the mapper genuinely does not know what the channel values should be.
+  (a) and (b) both keep transmitting a guess, and (a) *is* hold-last — the exact semantic `2dc7c5a`
+  was written to remove. (c) emits nothing and lets the receiver's link-loss failsafe handle it, which
+  is the designed response to "the mapper is not producing valid output right now." It also reuses the
+  already-reviewed shape from `630ea96`, which counts on a control path.
+- **Stateless subtree walk for D.** On the nan / invalid-`ch` path, collect the `InputChannel`s under
+  the holder and drive each to its own `FailsafeValue()`. Covers D-1 and D-2 uniformly, handles a
+  subtree holding several channels, and needs no per-holder memory. This is viable because `channel`
+  is the **sole originator** of a channel number and the **sole `FailsafeValuer`**, so the owning node
+  is always reachable via the existing `Children()` traversal.
+- **The review's second half is rejected** — "treat healthy-`ch` → nan-`-1` as a nan for that channel"
+  needs new per-holder state, breaks where a subtree holds several channel nodes, misfires because
+  `switch` legitimately changes which channel it reports between ticks, and cannot help when the first
+  tick is already nan. Do not resurrect it.
+
+**Two things to get right in (c):**
+
+1. **The no-frame window needs no bound.** If a bad config never resolves, suppression is permanent —
+   that is the *safe* outcome and it matches `630ea96`. **Do not add a timeout**; a timeout would
+   reintroduce exactly the hazard this fixes.
+2. **Expect visible failsafe during config entry.** With the link up, each Apply briefly drops frames
+   → firmware failsafe → servos to neutral, arm drops. That is correct behaviour, but it will look
+   alarming at the bench, so **say so in the commit message and in `CURRENT_STATUS.md`.**
+
+Options (a), (b) and (d) were considered and rejected — reasoning below, kept so the decision is
+auditable rather than re-argued.
+
+## Design options — considered, not chosen
+
+Recorded so the ruling above is auditable rather than re-argued. **If you find a materially better
+option than (c), say so before implementing — but the bar is "the chosen approach is wrong," not
+"here is another way."**
 
 - **(a) Carry forward.** Preserve the previous `Values` for channels the new config still maps; emit
   each dropped channel's configured failsafe. Most faithful, most state to get wrong.

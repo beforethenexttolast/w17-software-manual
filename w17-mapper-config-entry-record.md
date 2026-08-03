@@ -157,9 +157,20 @@ _Filled in as each node is entered. Nothing recorded here has been entered yet._
   original throttle-freeze defect, on a path the `2dc7c5a` fix does not reach. A `hat` node does
   not have this property.
 
-  **Consequence for entry order:** keeping ch1–ch12 as plain `channel` nodes at top level sidesteps
-  D entirely today, and ch13 is the only place a wrapper is currently planned. So this is a
-  deliberate decision to take **before** entry, not something to discover at the bench. Three ways
-  out, owner's call: pick `hat`; keep `switch`/`case` but nest it *under* a `channel` node rather
-  than at top level (verify that actually avoids the asymmetry before relying on it); or hold ch13
-  until the D fix lands. It still does not block ch1–ch12.
+  ✅ **RESOLVED 2026-08-03 (owner): enter ch1–ch12 now as plain `channel` nodes; HOLD ch13 until the
+  B+D fix lands.** Not a deferral for its own sake — it is the only route that neither relies on an
+  unverified sidestep nor forces an architecture decision under time pressure:
+
+  - `switch`/`case` **at top level** is D-1. Rejected.
+  - **`channel`-wrapping** the construct *should* be safe, because `channel` is the sole originator of
+    a channel number and reports it on every path — but that is a "should," and this defect chain has
+    already punished three unverified "shoulds." Rejected **as a load-bearing assumption**; it becomes
+    available once someone executes it.
+  - **`hat`** is genuinely clean (always-`-1` class, no wrapper at all). **Take it if three positions
+    on a D-pad is ergonomically acceptable** — that is the one route that would let ch13 be entered
+    today.
+  - **Holding costs nothing.** `decodeTriState` returns `1` = RACE at center by design, so an
+    **unmapped ch13 already sits in its safe middle**, and drive mode is not needed for first arming.
+    Once B+D lands, `switch`/`case` is free to use and the question dissolves.
+
+  Nothing here blocks ch1–ch12.
