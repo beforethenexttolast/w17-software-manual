@@ -69,7 +69,13 @@ With default `raw_min`/`raw_max` = −32768/32767, a button's OFF value
 (`DefaultFalsyRawValue` = `ZeroRaw` = 0, `pkg/util/util.go:37`) is mid-range and maps to
 ≈991 — inside the decoder's ±250 dead band, so `decodeSwitch` **holds the previous state**.
 
-**Fix chosen (owner, 2026-08-03): `inactive_value` = −32768 on the button node.** The
+**Fix proposed: `inactive_value` = −32768 on the button node.** ⚠ **Attribution downgraded
+2026-08-03 (pre-merge review): this line originally read "Fix chosen (owner, 2026-08-03)" and
+the owner has not confirmed it.** The record did not distinguish *decision taken* from *decision
+proposed*, which is the same conflation this workspace already corrected once for parts — an
+owner's word for "a battery" was arrival evidence for *a* pack, never the expected one. The same
+applies to decisions. **Treat as PROPOSED until the owner confirms; do not enter it as settled.**
+The
 rejected alternative was `raw_min` = 0 on the channel node; it was rejected because it leaves
 a live trap — if that channel's input is ever re-pointed from a button to an axis, an axis at
 rest (raw 0) would map to `crsf_min` = 172, which normalizes to −1000, i.e. a centred stick
@@ -140,7 +146,20 @@ _Filled in as each node is entered. Nothing recorded here has been entered yet._
 
 ### Open items
 
-- **ch13 drive mode source node type is undecided.** It needs three distinct levels
-  (low = TRAINING, mid = RACE, high = ERS). A gamepad has no native 3-position control, so
-  this needs either a `hat` node or a `switch`/`case` construct. To be resolved when we
-  reach it — it does not block ch1–ch12.
+- **ch13 drive mode source node type is undecided — and as of 2026-08-03 the choice carries a
+  safety dimension, not just an ergonomic one.** It needs three distinct levels (low = TRAINING,
+  mid = RACE, high = ERS). A gamepad has no native 3-position control, so this needs either a
+  `hat` node or a `switch`/`case` construct.
+
+  ⚠ **`switch` and `case` are two of the six node types implicated in RESIDUAL D** (see
+  `CURRENT_STATUS.md` → *VR-FPV batch status*). At the **top level** of a transmitter's `channels`
+  array they propagate `ch` on the healthy path and `-1` on nan, which strands the slot — the
+  original throttle-freeze defect, on a path the `2dc7c5a` fix does not reach. A `hat` node does
+  not have this property.
+
+  **Consequence for entry order:** keeping ch1–ch12 as plain `channel` nodes at top level sidesteps
+  D entirely today, and ch13 is the only place a wrapper is currently planned. So this is a
+  deliberate decision to take **before** entry, not something to discover at the bench. Three ways
+  out, owner's call: pick `hat`; keep `switch`/`case` but nest it *under* a `channel` node rather
+  than at top level (verify that actually avoids the asymmetry before relying on it); or hold ch13
+  until the D fix lands. It still does not block ch1–ch12.
