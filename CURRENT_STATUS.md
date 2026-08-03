@@ -8,7 +8,22 @@ workspace-level source for all of those and for project execution status.
 Overwrite it in place when state changes; do not append history. Instruction files
 (`CLAUDE.md` / `AGENTS.md`) must not duplicate anything below.
 
-_Last updated: **2026-08-03** — one **verification** pass over the mapper hold-last defect, no code
+_Last updated: **2026-08-03 (later)** — an **adversarial review of the A2 staged checklist**
+(documents only, run deliberately before the first solder joint; precedent: the 2026-07-30
+FIRST_ACTIVE pass that produced I10/R15). **14 findings — 13 CONFIRMED, 1 PLAUSIBLE; verdict:
+A2 must NOT be executed as written, a revision pass is owed first.** Headline defects: §13 hard
+stops 1 and 4 have **no generating measurement** in the staged flow (post-S6 nothing ever
+measures batt+→GND, rail↔rail, rails↔batt+, or signals↔batt+ — the restructure invalidated the
+old whole-harness screens without issuing staged replacements); S8's E1–E3 are **unexecutable as
+sequenced** (the red end is heat-shrunk before S8 arrives) and **unfalsifiable as built** (the
+connector spec's +5-pin removal makes them pass whether or not the cut was made), and ESC
+red→GND is measured nowhere; S7's "battery −" reference **does not exist on hand** (no
+XT60-terminated pack; producing one violates the golden rule); A2's gate order **contradicts the
+PDB guide §5 build order** (UBECs step 3 vs S6). Full list + minimal fixes:
+`w17-control-fw/project-review/14_a2_staged_gates_adversarial_review.md` (branch
+`docs/a2-adversarial-review` in both repos, pending owner review/merge). **No gate moved: A2
+stays NOT-EXECUTED, Phase B stays BLOCKED — a review cannot open a gate.** Prior pass, earlier
+same day: one **verification** pass over the mapper hold-last defect, no code
 and no hardware state change: the 2026-07-30 line calling it "not yet investigated or fixed" was
 **stale** and is corrected; the defect was fixed the same day at `w17-mapper` `2dc7c5a` and is now
 **verified closed against source** (both 2026-07-30 residuals traced and answered, tests proven to
@@ -678,6 +693,15 @@ in `HARDWARE_INVENTORY.md` (the carve-out owner) — not duplicated here.
   fallback — recorded honestly as a ~10 mV nominal V<sub>IH</sub> margin), and **link2 RX
   (GPIO26) = do not wire**, since the firmware hard-disables it (`Serial1.begin(..., rxPin=-1,
   txPin_)`); the row is now falsifiable as "verify no wire present."
+- **A2 adversarial review 2026-08-03 — DO NOT execute A2 as written; a revision pass is owed
+  first.** Documents-only pass over the staged checklist before any solder joint; 14 findings
+  (13 CONFIRMED, 1 PLAUSIBLE), most-severe: no post-S6 batt+→GND / rail-isolation screens
+  (§13 stops 1 and 4 have no generating rows), S8 E1–E3 unexecutable-as-sequenced and
+  unfalsifiable as built (+ ESC red→GND unmeasured), S7 reference point nonexistent on hand,
+  gate order contradicts the PDB guide §5, old A2.5 (GPIO13/14 boot-float pull-downs, R04)
+  dropped without a record-either-way row. Full findings + minimal fixes:
+  `w17-control-fw/project-review/14_a2_staged_gates_adversarial_review.md` (branch
+  `docs/a2-adversarial-review`, pending owner merge). The review changes no gate state.
 - **A2 closure is a two-part gate (2026-07-30).** Part 1 = reviewer check (completeness, gate
   attribution, tolerance, cross-reference, **plus mandatory direct inspection of the §10
   photos** — the one part that is independent observation rather than trust in transcription).
