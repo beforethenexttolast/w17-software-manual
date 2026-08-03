@@ -1115,9 +1115,51 @@ a USB gamepad dropout freezing throttle — is CLOSED for transmitters whose `ch
 closed in general: RESIDUAL D re-opens throttle freeze through a top-level wrapper node, in a
 schema-valid config.** The earlier flat "CLOSED" was CLOSED-shaped — correct for the covered shape,
 over-generalized to all configs. A, B and C remain residuals of the fix rather than the original
-defect; **D is the original defect, on a path the fix does not reach.** ⚠ **Superseded 2026-08-03 by
-`e452d55`: D is closed for ALL node types at the top level, so the verdict is now general rather than
-shape-limited. A remains open (a config obligation), C remains open (timing).**
+defect; **D is the original defect, on a path the fix does not reach.**
+
+⚠ **NARROWED 2026-08-03 by `e452d55` — and the first wording of this supersede was FALSE.** It read:
+*"D is closed for ALL node types at the top level, so the verdict is now general rather than
+shape-limited."* **It is not general.** Corrected by the `e452d55` code review, which reproduced the
+counter-example by execution:
+
+- **What `e452d55` DOES close:** every top-level node type whose result becomes **unusable** when its
+  subtree fails — which is every type when the whole device drops. That is the reported defect and it
+  is genuinely fixed.
+- **What it does NOT close — PARTIAL subtree failure.** `EvalOperation` (`util.go:295-303`),
+  `InputAnd`/`InputOr._Eval` (`input_and.go:63-77`) and `EvalRelational` (`util.go:247-252`) all
+  **ignore a nan operand** and return `nan=false` with a valid channel number. The holder therefore
+  reports healthy, the `output_tx.go:165` healthy branch is taken, and `channelOwners` is never
+  called. Reproduced: `add{ch1←number, ch2←axis on a DETACHED gamepad}` at top level transmits
+  **ch2 = 1984 — full deflection — indefinitely** on a healthy link, with its configured 172 rail
+  never applied; the `and` variant leaves a detached arm channel at **992**, the exact value the
+  change exists to avoid. **Not a regression** — byte-identical pre- and post-fix. The fix does not
+  reach it. **D stays OPEN for this shape.**
+- **Why all 22 tests missed it:** every one detaches the *whole* device, so the left operand goes nan
+  first and the top-level result is genuinely unusable. No test builds a subtree where one channel
+  survives and another dies. Single-device configs are safe (`allNan` ⇒ `nan=true`); a constant-fed
+  channel or a second gamepad is enough to reach it.
+- **The generalization that failed is one level up from the last one.** The 27-type classification is
+  complete and correct (independently re-enumerated; the 14/4/7/1/1 split holds exactly). Nobody asked
+  whether **every way a subtree can fail** makes the holder's result unusable. It does not. This is the
+  fifth error in the chain and the fifth instance of the same shape.
+
+**RESIDUAL D-3 (open, arm-safety): the depth bound reintroduces hold-last, and guards a case it
+cannot reach.** `channelOwnerMaxDepth = 32` (`output_tx.go:63`) truncates a legitimately deep tree to
+**zero owners**, so `ch` is `-1`, the `ch >= 1` guard writes nothing, and the slot keeps its last
+value — the original defect, silently. Reproduced with a 40-deep `linear` chain: `ch1 = 1984` after
+five detached ticks. Its comment claims it is a `read`-cycle backstop, but `InputRead._Eval`
+(`input_read.go:44`) recurses unguarded and **fatally overflows the stack before the walk is ever
+reached** (pre-existing upstream, not introduced here); `TestReadCycleTerminates` passes only because
+it calls `channelOwners` directly and never `Eval`, so it does not test what its name says.
+
+**Also recorded (safe direction, undocumented):** the seven opaque types (`invert`, `seq`, `number`,
+`axis`, `button`, `hat`, `gamepad`) return `ch = -1` on **both** paths, so a healthy top-level
+`invert` is now pinned to its failsafe rail every tick. Pre-fix it sat at 992 forever; neither carries
+live data and 172 is the safer of the two, so this is an improvement — but no test covers it and the
+test file's justification for excluding these seven ("neither can strand a slot") is a statement about
+the *old* defect.
+
+**A remains open (a config obligation), C remains open (timing).**
 
 **✅ TWO OWNER DECISIONS TAKEN 2026-08-03, both downstream of RESIDUAL D.**
 
@@ -1262,7 +1304,9 @@ Tree clean, `ahead 7` of `origin/w17-headtrack`, UNPUSHED.**
   pre-existing at upstream `2b8031a` — deliberately not "fixed".
 - **Tests proven non-vacuous — four injections, tree restored and re-verified after each.** The
   injections deliberately cover the shape the previous closure did not: **a top-level wrapper node**,
-  not only `channel` nodes at top level. (a) pre-fix `Eval` body ⇒ **6 failures**, each printing the
+  not only `channel` nodes at top level. (a) pre-fix `Eval` body ⇒ **7 failures** (⚠ corrected
+  2026-08-03 by the code review, which re-ran it: this entry and `e452d55`'s commit message both said
+  **6**, while their own prose enumerates 7; all 7 reproduce for the intended reasons), each printing the
   defect value — `1984` stranded through `linear`, `gt`, `and` and `switch`-fallthrough, `992` emitted
   where `172` was configured, `3968` stranded on a subtree's second channel, and the `read` target's
   rail lost. (b) walk descending past channel nodes ⇒ the nested-channel test bites. (c) swap window
