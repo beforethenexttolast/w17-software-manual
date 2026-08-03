@@ -648,11 +648,19 @@ the most important fact here is a negative, and prose buries negatives.</p>
       <div>
         <h3>The rule that is easiest to break</h3>
         <ul>
-          <li>Arm / deadman / override state must <b>not</b> be read from the <code>[16]CRSFValue</code> array.</li>
-          <li>That array carries <b>hold-last</b> semantics, so a value read from it cannot distinguish
-          "the operator is holding this" from "the input device is gone."</li>
-          <li>Device-absent must be an <b>affirmative disarm</b> (invariant I10, demonstrated by physical
-          unplug under R15) — not an absence of evidence.</li>
+          <li>Arm / deadman / override state must <b>not</b> be read from the <code>[16]CRSFValue</code> array.
+          It must come from a source carrying <b>explicit validity</b>, with device-absent treated as an
+          <b>affirmative disarm</b> (invariant I10, demonstrated by physical unplug under R15) — not as an
+          absence of evidence.</li>
+          <li><b>The defect that motivated this rule has since been fixed</b>, and the unlock plan has not
+          caught up. §2.3.11.1 describes the array as carrying <b>hold-last</b> semantics — a value read from
+          it could not distinguish "the operator is holding this" from "the input device is gone."</li>
+          <li>That was true when the rule was written on 2026-07-30 and is <b>no longer true of the fork</b>:
+          <code>2dc7c5a</code> that same day drives a <code>nan</code> channel to its configured failsafe value
+          (default centre 992) instead of skipping it, and stops a detached gamepad resolving at all;
+          <code>e452d55</code> / <code>c60843e</code> follow up with per-owner neutrals and a
+          transmit-nothing gate. <b>The rule stands anyway</b> — R15 is still open, and an explicit-validity
+          source is the requirement regardless of what the array now does.</li>
         </ul>
       </div>
     </div>
@@ -664,6 +672,8 @@ the most important fact here is a negative, and prose buries negatives.</p>
     <b>observed stick input</b>, the Head Tracking card is <b>LOCKED</b>, and ACTIVE AUTHORITY reads
     <b>NOT REPORTED BY MAPPER</b> rather than being fabricated from what the browser can see.</div>
     <p class="src"><b>Sources:</b> unlock plan §1.3, §1.4, §2.3.11.1–§2.3.11.3, §2.3.12.5, §2.3.12.10 ·
+    <code>w17-mapper</code> <code>2dc7c5a</code>, <code>e452d55</code>, <code>c60843e</code>,
+    <code>pkg/config/output_tx.go</code> (read at HEAD <code>432a809</code>) ·
     <code>w17-ground-station/docs/camera_aim_display_semantics.md</code> §1, §2, §5.4 ·
     <code>w17-design-system/DESIGN_NOTES.md</code> §6 <span class="tag c">C confirmed</span>
     <span class="tag d">D design-only, no code</span></p>
