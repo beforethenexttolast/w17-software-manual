@@ -1,0 +1,701 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>W17 — How camera aim actually works (and why the active path is locked)</title>
+<style>
+:root{
+  --bg:#f2f4f4; --panel:#ffffff; --panel-2:#f8fafa; --well:#eceff0;
+  --ink:#101819; --ink-soft:#4f5f61; --ink-faint:#7b8a8c; --line:#c9d3d3; --hair:#dde4e4;
+  --teal:#00786F; --teal-dim:rgba(0,120,111,.10);
+  --violet:#6539C4; --violet-dim:rgba(101,57,196,.10);
+  --amber:#9A6100; --amber-dim:rgba(154,97,0,.10);
+  --green:#0F7A45; --green-dim:rgba(15,122,69,.10);
+  --red:#B3261E;   --red-dim:rgba(179,38,30,.09);
+  --shadow:0 1px 2px rgba(16,24,25,.07),0 8px 26px rgba(16,24,25,.06);
+  --mono:"SF Mono",ui-monospace,Menlo,"Consolas","Roboto Mono",monospace;
+  --sans:"Arial Narrow","Roboto Condensed","Segoe UI",system-ui,-apple-system,sans-serif;
+  --body:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+}
+@media (prefers-color-scheme:dark){:root{
+  --bg:#080b0c; --panel:#101718; --panel-2:#0c1213; --well:#0a0f10;
+  --ink:#E4EAEC; --ink-soft:#98a5a8; --ink-faint:#6d797c; --line:#25302f; --hair:#1b2323;
+  --teal:#00D2BE; --teal-dim:rgba(0,210,190,.11);
+  --violet:#B98BFF; --violet-dim:rgba(185,139,255,.12);
+  --amber:#FFB200; --amber-dim:rgba(255,178,0,.11);
+  --green:#00E676; --green-dim:rgba(0,230,118,.11);
+  --red:#FF4B4B;   --red-dim:rgba(255,75,75,.11);
+  --shadow:0 1px 2px rgba(0,0,0,.45),0 10px 32px rgba(0,0,0,.4);
+}}
+:root[data-theme="light"]{
+  --bg:#f2f4f4; --panel:#ffffff; --panel-2:#f8fafa; --well:#eceff0;
+  --ink:#101819; --ink-soft:#4f5f61; --ink-faint:#7b8a8c; --line:#c9d3d3; --hair:#dde4e4;
+  --teal:#00786F; --teal-dim:rgba(0,120,111,.10);
+  --violet:#6539C4; --violet-dim:rgba(101,57,196,.10);
+  --amber:#9A6100; --amber-dim:rgba(154,97,0,.10);
+  --green:#0F7A45; --green-dim:rgba(15,122,69,.10);
+  --red:#B3261E;   --red-dim:rgba(179,38,30,.09);
+  --shadow:0 1px 2px rgba(16,24,25,.07),0 8px 26px rgba(16,24,25,.06);
+}
+:root[data-theme="dark"]{
+  --bg:#080b0c; --panel:#101718; --panel-2:#0c1213; --well:#0a0f10;
+  --ink:#E4EAEC; --ink-soft:#98a5a8; --ink-faint:#6d797c; --line:#25302f; --hair:#1b2323;
+  --teal:#00D2BE; --teal-dim:rgba(0,210,190,.11);
+  --violet:#B98BFF; --violet-dim:rgba(185,139,255,.12);
+  --amber:#FFB200; --amber-dim:rgba(255,178,0,.11);
+  --green:#00E676; --green-dim:rgba(0,230,118,.11);
+  --red:#FF4B4B;   --red-dim:rgba(255,75,75,.11);
+  --shadow:0 1px 2px rgba(0,0,0,.45),0 10px 32px rgba(0,0,0,.4);
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);line-height:1.55;
+  -webkit-font-smoothing:antialiased;overflow-x:hidden}
+.wrap{max-width:1120px;margin:0 auto;padding:clamp(20px,4vw,44px) clamp(14px,3.5vw,36px) 72px}
+
+/* ---- type ---- */
+.eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.22em;text-transform:uppercase;
+  color:var(--teal);margin:0 0 10px}
+h1{font-size:clamp(25px,4.2vw,40px);line-height:1.06;letter-spacing:-.015em;margin:0 0 14px;text-wrap:balance}
+h1 em{font-style:normal;color:var(--teal)}
+.lede{font-size:clamp(15px,1.7vw,18px);color:var(--ink-soft);max-width:70ch}
+.lede b{color:var(--ink)}
+h2{font-family:var(--sans);font-size:clamp(15px,1.8vw,19px);letter-spacing:.16em;text-transform:uppercase;
+  font-weight:800;color:var(--ink);margin:0}
+h3{font-family:var(--mono);font-size:11.5px;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--ink-soft);font-weight:700;margin:0 0 6px}
+p{margin:0}
+.sub{color:var(--ink-soft);font-size:14px;margin-top:5px;max-width:80ch}
+.snum{font-family:var(--mono);color:var(--teal);font-size:12px;letter-spacing:.14em;
+  display:block;margin-bottom:4px}
+
+/* ---- structure ---- */
+section{margin-top:clamp(30px,5vw,54px)}
+.board{background:var(--panel);border:1px solid var(--line);box-shadow:var(--shadow);
+  padding:clamp(14px,2.4vw,24px);margin-top:18px;
+  clip-path:polygon(12px 0,100% 0,100% calc(100% - 12px),calc(100% - 12px) 100%,0 100%,0 12px)}
+.scroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
+.cols{display:grid;gap:14px;grid-template-columns:1fr}
+@media(min-width:760px){.cols.two{grid-template-columns:1fr 1fr}}
+@media(min-width:900px){.cols.three{grid-template-columns:repeat(3,1fr)}}
+
+/* ---- the negative, stated first ---- */
+.headline{border:1px solid var(--amber);background:var(--amber-dim);padding:clamp(14px,2.2vw,22px);
+  margin-top:24px;clip-path:polygon(12px 0,100% 0,100% calc(100% - 12px),calc(100% - 12px) 100%,0 100%,0 12px)}
+.headline .k{font-family:var(--mono);font-size:11px;letter-spacing:.2em;text-transform:uppercase;
+  color:var(--amber);font-weight:700}
+.headline .big{font-size:clamp(17px,2.3vw,23px);font-weight:700;line-height:1.3;margin:8px 0 8px;text-wrap:balance}
+.headline .why{color:var(--ink-soft);font-size:14.5px;max-width:78ch}
+
+/* ---- rails ---- */
+.rail{display:flex;align-items:stretch;gap:0;min-width:860px;padding:4px 2px 2px}
+.rail.b{min-width:960px}
+.node{flex:1 1 0;min-width:0;background:var(--panel-2);border:1px solid var(--line);
+  padding:9px 10px 10px;display:flex;flex-direction:column;gap:3px;
+  clip-path:polygon(7px 0,100% 0,calc(100% - 7px) 100%,0 100%)}
+.node .nk{font-family:var(--mono);font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-faint)}
+.node .nt{font-family:var(--sans);font-size:13.5px;font-weight:800;letter-spacing:.06em;line-height:1.2}
+.node .nd{font-size:11.5px;color:var(--ink-soft);line-height:1.35}
+.node code{font-family:var(--mono);font-size:10.5px;color:var(--ink-faint);word-break:break-word;display:block;line-height:1.4}
+.arw{flex:0 0 26px;display:grid;place-items:center;font-family:var(--mono);font-size:15px;font-weight:700}
+.a-v .node{border-color:color-mix(in srgb,var(--violet) 45%,var(--line));background:var(--violet-dim)}
+.a-v .node .nt{color:var(--violet)} .a-v .arw{color:var(--violet)}
+.a-t .node{border-color:color-mix(in srgb,var(--teal) 45%,var(--line));background:var(--teal-dim)}
+.a-t .node .nt{color:var(--teal)} .a-t .arw{color:var(--teal)}
+.node.term{background:var(--well);border-style:dashed}
+.railcap{display:flex;flex-wrap:wrap;gap:8px;align-items:baseline;justify-content:space-between;margin-bottom:8px}
+.railcap .rt{font-family:var(--sans);font-weight:800;letter-spacing:.14em;text-transform:uppercase;font-size:13px}
+.a-v .railcap .rt{color:var(--violet)} .a-t .railcap .rt{color:var(--teal)}
+.railcap .rs{font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-faint)}
+
+/* ---- the gap ---- */
+.gap{margin:16px 0;border:1px dashed var(--red);background:var(--red-dim);padding:clamp(12px,2vw,20px);
+  position:relative;clip-path:polygon(10px 0,100% 0,100% calc(100% - 10px),calc(100% - 10px) 100%,0 100%,0 10px)}
+.gap .glabel{font-family:var(--mono);font-size:11px;letter-spacing:.22em;text-transform:uppercase;
+  color:var(--red);font-weight:700;text-align:center;display:block}
+.gap .gbig{text-align:center;font-size:clamp(15px,2vw,19px);font-weight:700;margin:6px 0 12px;text-wrap:balance}
+.gap .gproof{background:var(--panel);border:1px solid var(--line);padding:12px 13px;
+  clip-path:polygon(8px 0,100% 0,calc(100% - 8px) 100%,0 100%)}
+.gap .gproof p{font-size:13.5px;color:var(--ink-soft)}
+.gap .gproof p+p{margin-top:7px}
+.gap b{color:var(--ink)}
+
+/* ---- chips / tags ---- */
+.tag{font-family:var(--mono);font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;
+  border:1px solid var(--line);color:var(--ink-faint);padding:1px 6px;white-space:nowrap;
+  display:inline-block;clip-path:polygon(4px 0,100% 0,calc(100% - 4px) 100%,0 100%)}
+.tag.c{border-color:color-mix(in srgb,var(--teal) 55%,var(--line));color:var(--teal)}
+.tag.i{border-color:color-mix(in srgb,var(--amber) 55%,var(--line));color:var(--amber)}
+.tag.d{border-color:color-mix(in srgb,var(--violet) 55%,var(--line));color:var(--violet)}
+.st{font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;font-weight:700;
+  padding:2px 7px;display:inline-block;white-space:nowrap;
+  clip-path:polygon(4px 0,100% 0,calc(100% - 4px) 100%,0 100%)}
+.st.pass{color:var(--green);border:1px solid var(--green);background:var(--green-dim)}
+.st.part{color:var(--amber);border:1px solid var(--amber);background:var(--amber-dim)}
+.st.nogo{color:var(--red);border:1px solid var(--red);background:var(--red-dim)}
+.st.off{color:var(--ink-faint);border:1px solid var(--line);background:var(--well)}
+
+/* ---- source line ---- */
+.src{font-family:var(--mono);font-size:10.5px;color:var(--ink-faint);line-height:1.5;
+  border-top:1px solid var(--hair);margin-top:10px;padding-top:8px;word-break:break-word}
+.src b{color:var(--ink-soft);font-weight:600}
+
+/* ---- state machine ---- */
+.sm{display:grid;gap:9px;grid-template-columns:1fr}
+@media(min-width:620px){.sm{grid-template-columns:repeat(2,1fr)}}
+@media(min-width:940px){.sm{grid-template-columns:repeat(3,1fr)}}
+.state{border:1px solid var(--line);background:var(--panel-2);padding:9px 11px 10px;
+  display:flex;flex-direction:column;gap:3px;
+  clip-path:polygon(8px 0,100% 0,100% calc(100% - 8px),calc(100% - 8px) 100%,0 100%,0 8px)}
+.state .snm{font-family:var(--mono);font-size:12.5px;font-weight:700;letter-spacing:.06em;
+  display:flex;gap:8px;align-items:baseline;justify-content:space-between}
+.state .num{color:var(--ink-faint);font-size:11px}
+.state .sds{font-size:12px;color:var(--ink-soft);line-height:1.4}
+.state .sfr{font-family:var(--mono);font-size:10px;color:var(--ink-faint);letter-spacing:.06em}
+.state.life{border-left:3px solid var(--ink-faint)}
+.state.pkt{border-left:3px solid var(--violet)} .state.pkt .snm{color:var(--violet)}
+.state.top{border-left:3px solid var(--teal)} .state.top .snm{color:var(--teal)}
+.state.ghost{border-style:dashed;background:var(--well);opacity:.92}
+.state.ghost .snm{color:var(--ink-faint)}
+.wall{margin-top:12px;border:1px solid var(--red);background:var(--red-dim);padding:12px 14px;
+  clip-path:polygon(10px 0,100% 0,100% calc(100% - 10px),calc(100% - 10px) 100%,0 100%,0 10px)}
+.wall .wk{font-family:var(--mono);font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--red);font-weight:700}
+.wall .wb{font-size:clamp(14.5px,1.9vw,17px);font-weight:700;margin:6px 0 6px}
+.wall .wd{font-size:13.5px;color:var(--ink-soft);max-width:82ch}
+.wall code{font-family:var(--mono);font-size:12.5px;color:var(--ink)}
+
+/* ---- timeline ---- */
+.tl{min-width:660px;padding:6px 0 2px}
+.tl svg{display:block;width:100%;height:auto}
+.tlk{display:flex;flex-wrap:wrap;gap:10px 20px;margin-top:12px}
+.tlk div{font-size:12.5px;color:var(--ink-soft);display:flex;gap:7px;align-items:flex-start}
+.sw{width:11px;height:11px;flex:0 0 11px;margin-top:4px;border:1px solid var(--line)}
+.sw.v{background:var(--violet);border-color:var(--violet)}
+.sw.a{background:var(--amber);border-color:var(--amber)}
+.sw.r{background:var(--red);border-color:var(--red)}
+
+/* ---- tables ---- */
+table{border-collapse:collapse;width:100%;min-width:560px;font-size:13px}
+th{text-align:left;font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--ink-faint);font-weight:700;padding:6px 9px;border-bottom:1px solid var(--line);white-space:nowrap}
+td{padding:7px 9px;border-bottom:1px solid var(--hair);vertical-align:top;color:var(--ink-soft)}
+td:first-child{font-family:var(--mono);font-size:12px;color:var(--ink);white-space:nowrap;font-weight:600}
+tr:last-child td{border-bottom:none}
+tr.total td{border-top:2px solid var(--line);background:var(--well);color:var(--ink);font-weight:600}
+
+/* ---- flag ---- */
+.flag{display:grid;gap:12px;grid-template-columns:1fr}
+@media(min-width:720px){.flag{grid-template-columns:1fr auto 1fr}}
+.fcard{border:1px solid var(--amber);background:var(--amber-dim);padding:12px 14px;
+  clip-path:polygon(9px 0,100% 0,calc(100% - 9px) 100%,0 100%)}
+.fcard .fk{font-family:var(--mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--amber);font-weight:700}
+.fcard .ft{font-family:var(--mono);font-size:14px;font-weight:700;margin:5px 0 6px;color:var(--ink);word-break:break-all}
+.fcard .fd{font-size:12.5px;color:var(--ink-soft)}
+.andop{display:grid;place-items:center;font-family:var(--sans);font-weight:800;letter-spacing:.2em;
+  font-size:15px;color:var(--red);padding:4px 0}
+.note{border-left:3px solid var(--teal);background:var(--panel-2);padding:10px 13px;margin-top:12px;font-size:13.5px;color:var(--ink-soft)}
+.note b{color:var(--ink)}
+.note.warn{border-left-color:var(--amber)}
+.note.unsure{border-left-color:var(--amber);background:var(--amber-dim)}
+
+ul{margin:0;padding-left:17px} li{margin:5px 0;font-size:13.5px;color:var(--ink-soft)}
+li b{color:var(--ink)} code{font-family:var(--mono);overflow-wrap:anywhere}
+.kv{font-family:var(--mono);font-size:12px;color:var(--ink)}
+
+/* ---- theme toggle ---- */
+#tt{position:fixed;top:12px;right:12px;z-index:9;font-family:var(--mono);font-size:10px;
+  letter-spacing:.14em;text-transform:uppercase;cursor:pointer;background:var(--panel);
+  border:1px solid var(--line);color:var(--ink-soft);padding:6px 11px;
+  clip-path:polygon(7px 0,100% 0,calc(100% - 7px) 100%,0 100%)}
+#tt:hover{border-color:var(--teal);color:var(--teal)}
+
+footer{margin-top:44px;border-top:1px solid var(--line);padding-top:16px;font-size:12.5px;color:var(--ink-faint)}
+footer b{color:var(--ink-soft)}
+.legend{display:flex;flex-wrap:wrap;gap:8px 14px;margin:10px 0 0}
+.legend span{font-size:12px;color:var(--ink-soft)}
+</style>
+
+<button id="tt">Theme</button>
+
+<div class="wrap">
+
+<p class="eyebrow">W17 · CB2 · Display-only explainer</p>
+<h1>How camera aim actually works today — and <em>why the active path is locked</em></h1>
+<p class="lede">Two things move a camera command in this project. Only <b>one of them is connected to a servo</b>.
+The other one produces a number on a screen and stops. This page draws that separation literally, because
+the most important fact here is a negative, and prose buries negatives.</p>
+
+<div class="headline">
+  <span class="k">The negative, stated first</span>
+  <p class="big">There is no iPhone → CRSF path, no iPhone → servo / gimbal / ESC path, and the firmware
+  parses no iPhone data at all. There will not be one until a reviewed safety milestone says so.</p>
+  <p class="why">Head tracking exists and runs. It is <b>LOG-ONLY</b>: validated, counted, classified, streamed to
+  the ground station, and rendered as a chip. It never reaches a channel value. The overall FIRST_ACTIVE
+  verdict is <b>NO-GO / BLOCKED</b>, and the protobuf enum that would have to carry an "active" state
+  <b>has no active value in it</b>.</p>
+</div>
+
+<!-- ============================================================ 1 -->
+<section>
+  <span class="snum">01 — SIGNAL PATHS</span>
+  <h2>Two paths, end to end</h2>
+  <p class="sub">Path A is head intent. Path B is camera control. They are drawn on separate rails because
+  they are separate systems that share no code, no process boundary crossing, and no value.</p>
+
+  <div class="board a-v">
+    <div class="railcap">
+      <span class="rt">Path A · head intent</span>
+      <span class="rs">LOG-ONLY · terminates on a screen · <span class="tag d">observed input</span></span>
+    </div>
+    <div class="scroll">
+      <div class="rail">
+        <div class="node">
+          <span class="nk">Source</span><span class="nt">iPhone</span>
+          <span class="nd">Core Motion yaw / pitch / roll, one unicast UDP destination.</span>
+          <code>iPhone_rc · HeadTrackingSender.swift (single NWConnection)</code>
+        </div>
+        <div class="arw">→</div>
+        <div class="node">
+          <span class="nk">Transport</span><span class="nt">UDP 5602</span>
+          <span class="nd">Exactly one owner. Exclusive bind, no <code>reuseAddr</code> — a second binder faults.</span>
+          <code>topology (a), unlock plan §2.3.7</code>
+        </div>
+        <div class="arw">→</div>
+        <div class="node">
+          <span class="nk">Ingest · default OFF</span><span class="nt">pkg/headintent</span>
+          <span class="nd">Validate → classify → count. Own goroutine. Never blocks anything.</span>
+          <code>w17-mapper · packet.go · monitor.go · receiver.go</code>
+        </div>
+        <div class="arw">→</div>
+        <div class="node">
+          <span class="nk">Republish</span><span class="nt">gRPC :10000</span>
+          <span class="nd">Server-stream only. Snapshot on subscribe, ~10 Hz values, 4-subscriber cap.</span>
+          <code>WatchHeadIntentDiagnostics · broadcast.go · headintent_stream.go</code>
+        </div>
+        <div class="arw">→</div>
+        <div class="node term">
+          <span class="nk">Terminus</span><span class="nt">GS chip</span>
+          <span class="nd">Electron main-process subscriber renders one HUD chip. It always reads
+          <b>· NO CONTROL</b>. Nothing continues past here.</span>
+          <code>HeadIntentDiagnosticsClient.js → headIntentView.mjs → hud.js</code>
+        </div>
+      </div>
+    </div>
+    <p class="src"><b>Sources:</b> <code>w17-mapper/pkg/headintent/{packet,monitor,receiver,broadcast}.go</code> ·
+    <code>w17-mapper/pkg/server/headintent_stream.go</code> ·
+    <code>w17-ground-station/docs/head_intent_diagnostics.md</code> ·
+    <code>w17-control-fw/project-review/head_tracking_unlock_plan.md §2.3.7–§2.3.10.1</code>
+    <span class="tag c">C confirmed</span></p>
+  </div>
+
+  <!-- THE GAP -->
+  <div class="gap">
+    <span class="glabel">▲ nothing crosses ▲ &nbsp;·&nbsp; the gap ·&nbsp; ▼ nothing crosses ▼</span>
+    <p class="gbig">These two rails do not touch. That is not a policy statement — it is a compiled,
+    tested, byte-level fact.</p>
+    <div class="gproof">
+      <h3>The proof that matters</h3>
+      <p><b><code>crsf.PackChannels</code> output is byte-identical with head-intent ingest off vs on.</b>
+      12 frames / 312 CRSF bytes from a full 16-channel gamepad sweep (stick sweep plus all-min /
+      all-center / all-max edges), packed with the flag off, then re-packed while a <b>real UDP receiver</b>
+      is running and has demonstrably reached <code>active_log_only</code>, <code>stale</code>, and
+      <code>invalid</code>. Asserted <code>bytes.Equal</code> in all three cases; the emitted hex dumps
+      <code>diff</code> empty. The test fails if the receiver did not actually process the traffic, so no
+      arm of it is vacuous.</p>
+      <p><b>Re-proven twice since.</b> Again with diagnostics subscribers connected, slow, and disconnected
+      (slice 3A), and again after the <code>go.bug.st/serial</code> v1.6.0 bump — all four dumps
+      (off / on-valid / on-stale / on-invalid) share one SHA, identical to the dumps generated at v1.5.0.</p>
+      <p><b>And structurally:</b> <code>go list -deps ./pkg/headintent/</code> reaches
+      <b>no</b> <code>config</code>, <code>link</code>, <code>crossfire</code>, <code>serial</code>,
+      <code>devices</code>, <code>server</code>, <code>http</code>, or <code>client</code> package. The only
+      production importer of <code>headintent</code> is <code>cmd/elrs-joystick-control/main.go</code>,
+      which starts the receiver <b>and does nothing else with it</b> — it is not passed to the gRPC server,
+      the device controller, the config controller, the serial controller, or the link controller.
+      On the Electron side, <code>elrsLauncher.js</code> is launch-only (detached spawn, stdio ignored,
+      unref'd, no kill / stop / IPC), pinned by <code>test/noControlPath.test.js:125-137</code>.</p>
+      <p class="src"><b>Sources:</b> <code>w17-mapper/pkg/headintent/pack_deadend_test.go</code> ·
+      unlock plan §2.3.9, §2.3.10.1, §2.3.12.9 item 2 ·
+      <code>w17-ground-station/test/noControlPath.test.js</code>
+      <span class="tag c">C confirmed</span></p>
+    </div>
+  </div>
+
+  <div class="board a-t">
+    <div class="railcap">
+      <span class="rt">Path B · camera control</span>
+      <span class="rs">the only path that reaches a servo · <span class="tag c">confirmed live</span></span>
+    </div>
+    <div class="scroll">
+      <div class="rail b">
+        <div class="node">
+          <span class="nk">Source</span><span class="nt">Right stick</span>
+          <span class="nd">Gamepad axes 2/3, read by SDL inside the mapper.</span>
+          <code>pkg/devices/controller.go:40 (INIT_GAMECONTROLLER)</code>
+        </div>
+        <div class="arw">→</div>
+        <div class="node">
+          <span class="nk">Mix</span><span class="nt">Node graph</span>
+          <span class="nd">Every graph leaf resolves to a physical gamepad axis. Eval → <code>[16]CRSFValue</code>.</span>
+          <code>pkg/config/input_axis.go:85-99 · pkg/config/eval.go:60-113</code>
+        </div>
+        <div class="arw">→</div>
+        <div class="node">
+          <span class="nk">Encode + TX</span><span class="nt">CRSF ch9/ch10</span>
+          <span class="nd"><code>crsf.PackChannels</code> → FT232 serial held exclusively for write → ELRS TX.</span>
+          <code>pkg/link/send.go:118-144</code>
+        </div>
+        <div class="arw">→</div>
+        <div class="node">
+          <span class="nk">Radio → RX → MCU</span><span class="nt">Firmware decode</span>
+          <span class="nd">UART2 @ 420 k, <code>RC_CHANNELS_PACKED</code> (0x16), CRC8. Indices 8/9 = ch9/ch10 → pan/tilt; anchors 172 / 992 / 1811 → ±1000.</span>
+          <code>ChannelDecoder.hpp:20-21 (panIndex=8, tiltIndex=9)</code>
+        </div>
+        <div class="arw">→</div>
+        <div class="node">
+          <span class="nk">Output</span><span class="nt">ServoOutput</span>
+          <span class="nd">Normalized ±1000 → µs, double-clamped (range clamp, then a defensive clamp to physical endpoints regardless of trim).</span>
+          <code>ServoOutput.cpp:7-31</code>
+        </div>
+        <div class="arw">→</div>
+        <div class="node">
+          <span class="nk">Hardware</span><span class="nt">MG90S ×2</span>
+          <span class="nd">LEDC 50 Hz PWM. Pan GPIO19, tilt GPIO23.</span>
+          <code>PinMap.hpp — kGimbalPanPin=19, kGimbalTiltPin=23</code>
+        </div>
+      </div>
+    </div>
+    <div class="note"><b>The firmware is source-agnostic by construction.</b> It sees an 11-bit number on
+    channel 9 and channel 10 and converts it to microseconds. It cannot tell a stick from anything else —
+    and it has no way to receive anything else, because it parses no iPhone JSON and receives no iPhone UDP.
+    That is why "firmware stays iPhone-unaware" is an architectural property here, not a promise.</div>
+    <p class="src"><b>Sources:</b> <code>w17-control-fw/lib/channels/…/ChannelDecoder.hpp</code> ·
+    <code>lib/outputs/src/ServoOutput.cpp</code> · <code>lib/config/include/config/PinMap.hpp</code> ·
+    unlock plan §2.1, §2.3.1 <span class="tag c">C confirmed</span></p>
+  </div>
+
+  <div class="note unsure"><b>Where this drawing is less certain.</b> Path A's first hop is the only one
+  not verified from Claude-side source in this pass: <code>HeadTrackingSender.swift</code> lives in the
+  Codex-owned <code>iPhone_rc</code> repo and is cited here from the unlock plan §2.2, not read directly.
+  Everything downstream of UDP 5602 was read from <code>w17-mapper</code>, <code>w17-ground-station</code>,
+  and <code>w17-control-fw</code> at the commits listed in the footer.</div>
+</section>
+
+<!-- ============================================================ 2 -->
+<section>
+  <span class="snum">02 — STATE MACHINE</span>
+  <h2>Nine enum values. None of them is "active".</h2>
+  <p class="sub">Two sources feed one reported state: the receiver's lifecycle (is it running at all?) and
+  the monitor's packet-derived classification. <code>Receiver.State()</code> returns fault first, then
+  disabled, then delegates to the monitor.</p>
+
+  <div class="board">
+    <div class="sm">
+      <div class="state ghost">
+        <span class="snm">UNSPECIFIED <span class="num">= 0</span></span>
+        <span class="sds">Never sent. A zero-value guard so a defaulted protobuf field cannot be mistaken for a real state.</span>
+        <span class="sfr">proto only · not emitted</span>
+      </div>
+      <div class="state ghost">
+        <span class="snm">DISABLED <span class="num">= 1</span></span>
+        <span class="sds">Receiver present but not running. In topology (a) the <code>cmd</code> wiring never produces this shape: with ingest on the receiver runs; with ingest off the broadcaster is <code>nil</code> and the RPC returns <code>UNAVAILABLE</code> instead.</span>
+        <span class="sfr">unit-tested · not observed live</span>
+      </div>
+      <div class="state life">
+        <span class="snm">FAULT <span class="num">= 2</span></span>
+        <span class="sds">Socket or config error. Observed live by starting a second mapper against an already-bound 5602 — the exclusive bind fails.</span>
+        <span class="sfr">receiver lifecycle</span>
+      </div>
+      <div class="state pkt">
+        <span class="snm">IDLE <span class="num">= 3</span></span>
+        <span class="sds">Running, no valid packet has ever arrived.</span>
+        <span class="sfr">packet-derived</span>
+      </div>
+      <div class="state pkt">
+        <span class="snm">INVALID <span class="num">= 4</span></span>
+        <span class="sds">Only invalid packets seen. Invalid packets bump counters and <b>never</b> replace the last valid packet.</span>
+        <span class="sfr">packet-derived</span>
+      </div>
+      <div class="state pkt">
+        <span class="snm">STALE <span class="num">= 5</span></span>
+        <span class="sds">Had a valid packet, then silence past the stale bound. Last-valid values are preserved separately for display.</span>
+        <span class="sfr">packet-derived · 300 ms</span>
+      </div>
+      <div class="state pkt">
+        <span class="snm">INACTIVE <span class="num">= 6</span></span>
+        <span class="sds">Fresh valid packet, but <code>tracking_enabled = false</code>.</span>
+        <span class="sfr">packet-derived</span>
+      </div>
+      <div class="state pkt">
+        <span class="snm">NOT_CENTERED <span class="num">= 7</span></span>
+        <span class="sds">Fresh, enabled, but not centered (or explicitly <code>calibrated = false</code>).</span>
+        <span class="sfr">packet-derived</span>
+      </div>
+      <div class="state top">
+        <span class="snm">ACTIVE_LOG_ONLY <span class="num">= 8</span></span>
+        <span class="sds">Fresh + enabled + centered. Everything the system can ask for is true — and it
+        <b>still produces no output.</b> This is the ceiling.</span>
+        <span class="sfr">packet-derived · the top of the enum</span>
+      </div>
+    </div>
+
+    <div class="wall">
+      <span class="wk">The enum ends here</span>
+      <p class="wb">There is no value 9. <code>HEAD_INTENT_STATE_ACTIVE_LOG_ONLY = 8</code> is the last
+      line of the enum.</p>
+      <p class="wd" style="margin-bottom:8px"><code>w17-mapper/pkg/proto/server.proto:527</code></p>
+      <p class="wd">This is the design's load-bearing detail, and it is the reason the ground-station chip
+      can hardcode <b>· NO CONTROL</b>. There is no wire representation for "head tracking is aiming the
+      camera", so no subscriber can render one, and no future value can appear without a proto change that
+      trips the ground station's hermetic proto-drift guard (<code>test/protoDrift.test.js</code>) and the
+      mapper's own <code>.githooks/pre-push</code> scan. <b>ACTIVE_LOG_ONLY is the strongest state that
+      exists, and it means "fully healthy, still doing nothing."</b></p>
+    </div>
+    <p class="src"><b>Sources:</b> <code>w17-mapper/pkg/proto/server.proto:519-528</code> ·
+    <code>pkg/headintent/monitor.go:13-19,130-145</code> · <code>pkg/headintent/receiver.go:15-16,165-178</code> ·
+    <code>w17-ground-station/docs/2026-07-15_cb8_slice3c_integration_evidence.md</code> (live coverage table)
+    <span class="tag c">C confirmed</span></p>
+  </div>
+</section>
+
+<!-- ============================================================ 3 -->
+<section>
+  <span class="snum">03 — TIMING</span>
+  <h2>Two boundaries, 50 ms apart, doing different jobs</h2>
+  <p class="sub">These get conflated constantly. They are not two opinions about the same number — one
+  classifies for display and exists in code; the other would gate motion and exists only on paper.</p>
+
+  <div class="board">
+    <div class="scroll">
+      <div class="tl">
+        <svg viewBox="0 0 900 200" role="img" aria-label="Timeline comparing the 250 ms active gate with the 300 ms log-only stale boundary">
+          <!-- axis -->
+          <line x1="60" y1="150" x2="850" y2="150" stroke="currentColor" stroke-width="1.5" opacity=".45"/>
+          <g font-family="var(--mono)" font-size="11" fill="currentColor" opacity=".6">
+            <text x="60" y="172" text-anchor="middle">0 ms</text>
+            <text x="450" y="172" text-anchor="middle">250</text>
+            <text x="606" y="172" text-anchor="middle">300</text>
+            <text x="850" y="172" text-anchor="middle">receive-time age →</text>
+          </g>
+          <g opacity=".5"><line x1="450" y1="145" x2="450" y2="156" stroke="currentColor"/>
+            <line x1="606" y1="145" x2="606" y2="156" stroke="currentColor"/></g>
+
+          <!-- log-only bar -->
+          <text x="60" y="46" font-family="var(--mono)" font-size="11" fill="var(--violet)" letter-spacing="1.4">LOG-ONLY · 300 ms · IN CODE</text>
+          <rect x="60" y="54" width="546" height="26" fill="var(--violet)" opacity=".28"/>
+          <rect x="60" y="54" width="546" height="26" fill="none" stroke="var(--violet)" stroke-width="1.5"/>
+          <rect x="606" y="54" width="244" height="26" fill="none" stroke="var(--violet)" stroke-width="1.5" stroke-dasharray="5 4" opacity=".7"/>
+          <text x="333" y="72" text-anchor="middle" font-family="var(--mono)" font-size="12" fill="var(--ink)">fresh — up to and including 300</text>
+          <text x="728" y="72" text-anchor="middle" font-family="var(--mono)" font-size="12" fill="currentColor" opacity=".75">STALE from 301</text>
+
+          <!-- active bar -->
+          <text x="60" y="108" font-family="var(--mono)" font-size="11" fill="var(--amber)" letter-spacing="1.4">ACTIVE GATE · 250 ms · DESIGN ONLY, NO CODE</text>
+          <rect x="60" y="116" width="390" height="26" fill="var(--amber)" opacity=".26"/>
+          <rect x="60" y="116" width="390" height="26" fill="none" stroke="var(--amber)" stroke-width="1.5" stroke-dasharray="5 4"/>
+          <text x="255" y="134" text-anchor="middle" font-family="var(--mono)" font-size="12" fill="var(--ink)">would permit motion — 249 / 250 ok</text>
+
+          <!-- divergence band -->
+          <rect x="450" y="116" width="156" height="26" fill="var(--red)" opacity=".2"/>
+          <rect x="450" y="116" width="156" height="26" fill="none" stroke="var(--red)" stroke-width="1.5"/>
+          <text x="528" y="134" text-anchor="middle" font-family="var(--mono)" font-size="11" fill="var(--red)" font-weight="700">251–300</text>
+          <line x1="528" y1="88" x2="528" y2="112" stroke="var(--red)" stroke-width="1.2" stroke-dasharray="3 3"/>
+          <text x="528" y="26" text-anchor="middle" font-family="var(--mono)" font-size="11" fill="var(--red)">the divergence band</text>
+          <text x="528" y="40" text-anchor="middle" font-family="var(--mono)" font-size="10.5" fill="currentColor" opacity=".7">display still says healthy · motion would already be decaying</text>
+        </svg>
+      </div>
+    </div>
+
+    <div class="tlk">
+      <div><span class="sw v"></span><span><b>300 ms — the log-only stale authority.</b> Receive-time silence.
+        <span class="kv">299 fresh / 300 fresh / 301 stale</span>, test-proven. This is what decides
+        <code>STALE</code> vs <code>ACTIVE_LOG_ONLY</code> and what the receiver and broadcaster already report.
+        <code>const DefaultStaleMs int64 = 300</code>, <code>pkg/headintent/packet.go:19</code>. Ratified
+        canonically at contract revision <code>84532ed</code> §3. It supersedes the 400 ms figure that still
+        appears in older readiness docs.</span></div>
+      <div><span class="sw a"></span><span><b>≤ 250 ms — the active freshness gate.</b> Stricter, and it exists
+        <b>only in the U4 design</b> (unlock plan §2.3.11.2 item 4). Head-derived motion would be permitted only
+        while receive-time age ≤ 250 ms; 251 ms would run the failsafe decay. Its test row (B5: 249/250 permitted,
+        251 decay) is specified, not written. <b>No code implements this today.</b></span></div>
+      <div><span class="sw r"></span><span><b>Why they differ, and why the gap is the point.</b> Between 251 and
+        300 ms the diagnostic state can still read <code>ACTIVE_LOG_ONLY</code> while the future arbiter would
+        already be decaying to centre. That is deliberate: the active gate must always be at least as strict as
+        the log-only boundary and <b>must never be relaxed past 300 ms</b>. Classification is allowed to be more
+        generous than motion; motion is never allowed to be more generous than classification.</span></div>
+    </div>
+
+    <div class="note warn"><b>Two more numbers that are not these two.</b> The packet's own
+    <code>timeout_ms</code> field (app default 250 ms, validated 1..5000) is an <b>advisory diagnostic hint
+    only and can never weaken the receiver threshold</b>. Separately, the iPhone's local motion-sample
+    freshness is Codex-owned: it was 500 ms, and the ratified requirement before any active use is that the
+    sender stops emitting when its Core Motion sample is older than 250 ms. Those are two independent
+    250 ms guards — sender-side sample age and mapper-side receive age — and the mapper <b>never</b> trusts
+    the iPhone's <code>timestamp_ms</code> for freshness. Receive time only.</div>
+    <p class="src"><b>Sources:</b> <code>w17-mapper/pkg/headintent/packet.go:19</code> ·
+    unlock plan §1.1, §1.2, §2.3.11.2 item 4, §2.3.11.5 row B5, §2.3.12.9 item 4
+    <span class="tag c">C confirmed</span> · <span class="tag i">I</span> inferred — the 251–300 divergence
+    band is derived from the two stated boundaries, not quoted from a doc</p>
+  </div>
+</section>
+
+<!-- ============================================================ 4 -->
+<section>
+  <span class="snum">04 — THE GATES</span>
+  <h2>FIRST_ACTIVE: two flags, both off, both required</h2>
+  <p class="sub">Neither flag alone does anything. This is not defence-in-depth decoration — the two
+  mechanisms prove different things, which is why one of them was deleted from the design rather than kept
+  as a fallback.</p>
+
+  <div class="board">
+    <div class="flag">
+      <div class="fcard">
+        <span class="fk">Gate 1 · compile-time</span>
+        <p class="ft">//go:build w17_first_active</p>
+        <p class="fd">A Go build tag, <b>and only a build tag</b>, absent by default. When absent the
+        arbiter file <b>is not compiled at all</b> and the build links a passthrough stub — so the shipped
+        default binary physically cannot produce head-derived motion. Assertable by symbol absence
+        (<code>go tool nm</code>), not just by a runtime default.</p>
+      </div>
+      <div class="andop">AND</div>
+      <div class="fcard">
+        <span class="fk">Gate 2 · runtime</span>
+        <p class="ft">W17_FIRST_ACTIVE_ARM<br><span style="font-size:11px;color:var(--ink-soft)">(working name)</span></p>
+        <p class="fd">Even inside a FIRST_ACTIVE build, an explicit runtime enable is required, default off,
+        <b>plus</b> the per-tick armed precondition. Runtime-on inside a non-FIRST_ACTIVE build does nothing,
+        because there is no active branch to reach.</p>
+      </div>
+    </div>
+
+    <div class="note warn"><b>Why the <code>const</code> alternative was deleted, not demoted.</b> An earlier
+    revision allowed gating via <code>const firstActive = false</code> as a linker-dropped dead branch. That
+    silently disarms the shipped accident guard: <code>w17-mapper/.githooks/pre-push</code> scanned for exactly
+    two literals — lowercase <code>w17_first_active</code> and the uppercase word <code>FIRST_ACTIVE</code> —
+    and <code>const firstActive = false</code> matches <b>neither</b>, so arbiter code gated that way would have
+    passed both checks and reached a <b>public</b> remote. The two mechanisms also prove different things: a
+    build tag makes the branch <i>absent</i>; a const makes it <i>eliminated</i> — compiled, type-checked, and
+    flippable by a one-character edit. Hence the naming contract: the tag must be lowercase
+    <code>w17_first_active</code> exactly, because that is the literal the hook greps.
+    <b>Status note:</b> the hook was extended to catch the const form in <code>w17-mapper</code>
+    <code>432a809</code> (2026-08-04), which discharges the "owed" item recorded in unlock plan §2.3.11.4.</div>
+
+    <div class="note"><b>A weaker, separate gate sits below this one.</b> <code>-headtrack-ingest</code> /
+    <code>W17_HEADTRACK_INGEST</code> is also default-off, but it only gates the <i>receiver</i>. FIRST_ACTIVE
+    is a second, stricter gate on the <i>arbiter</i>, and it stays off even when ingest is on.
+    <b>Ingest on + FIRST_ACTIVE off = exactly today's behaviour.</b></div>
+  </div>
+
+  <div class="board">
+    <h3>FIRST_ACTIVE review checklist — R1 … R16</h3>
+    <p class="sub" style="margin-bottom:12px">Every row must pass before the first line of arbiter code is
+    committed or the flag is added to any build. Statuses are as recorded in the go/no-go table.</p>
+    <div class="scroll">
+      <table>
+        <thead><tr><th>Item</th><th>What it requires</th><th>Status</th><th>Blocker</th></tr></thead>
+        <tbody>
+          <tr><td>R1</td><td>Codex-owned FIRST_ACTIVE milestone checklist passed, go/no-go table filled with evidence</td><td><span class="st nogo">NO-GO</span></td><td>not run; milestone doc has uncommitted edits in <code>iPhone_rc</code></td></tr>
+          <tr><td>R2</td><td>All 7 readiness §8 blockers accounted for — rewritten 2026-07-30 as cross-references, blanket waiver clause deleted</td><td><span class="st nogo">NO-GO</span></td><td>passes only when R7/R12/R13/R4/R8/R9/R16 do; most are hardware-evidence class</td></tr>
+          <tr><td>R3</td><td>Video-loss reaction decided (owner decision #2)</td><td><span class="st pass">PASS</span></td><td>decision: sender-side suppression → ordinary stale decay</td></tr>
+          <tr><td>R4</td><td>Radio-loss hold-vs-centre recorded (owner decision #3 / U8)</td><td><span class="st part">PASS · BENCH ONLY</span></td><td>driving-scope re-review still required</td></tr>
+          <tr><td>R5</td><td>First head-tracked driving protocol / spotter recorded</td><td><span class="st pass">PASS</span></td><td>FIRST_ACTIVE is bench-only; driving is a separate milestone</td></tr>
+          <tr><td>R6</td><td>A2 closed + Phase B approved, for any powered validation</td><td><span class="st nogo">NO-GO</span></td><td><b>A2 unexecuted; Phase B blocked</b></td></tr>
+          <tr><td>R7</td><td>Real gimbal endpoints measured + deg↔CRSF-count table recorded</td><td><span class="st nogo">NO-GO</span></td><td>hardware (U3/CB9), gated by R6</td></tr>
+          <tr><td>R8</td><td>iPhone axis/mount validation — real signs, ranges, roll isolation</td><td><span class="st nogo">NO-GO</span></td><td>hardware (U5, Codex Batch 5)</td></tr>
+          <tr><td>R9</td><td>Real iPhone↔Windows log-only bridge validated end-to-end</td><td><span class="st nogo">NO-GO</span></td><td>hardware / network (U1/CB6)</td></tr>
+          <tr><td>R10</td><td>iPhone sender-side 250 ms sample-age suppression implemented + verified</td><td><span class="st part">PARTIAL</span></td><td>automated evidence only; real-device lifecycle/axes/mount + canonical commit + mirror pending</td></tr>
+          <tr><td>R11</td><td>Fork repo path / name / remote / branch and licence approved and recorded</td><td><span class="st pass">PASS</span></td><td><code>w17-mapper</code> @ <code>w17-headtrack</code>, GPL-3.0-or-later</td></tr>
+          <tr><td>R12</td><td>Exact shaping constants reviewed and signed — no placeholder constants ship</td><td><span class="st nogo">NO-GO</span></td><td>derivation policy recorded; values need R7 measurement</td></tr>
+          <tr><td>R13</td><td>Full Group A/B/C test matrix implemented and green</td><td><span class="st nogo">NO-GO</span></td><td>no U4 code exists — by design, gated</td></tr>
+          <tr><td>R14</td><td>Written rollback to log-only</td><td><span class="st pass">PASS</span></td><td>flag off ⇒ identity passthrough is the resting state</td></tr>
+          <tr><td>R15</td><td>Input-device-loss disarm demonstrated by <b>physically unplugging</b> the gamepad</td><td><span class="st nogo">NO-GO</span></td><td>added 2026-07-30; no U4 code to test. Hardware-<i>procedure</i> class, so it does <b>not</b> require Phase B</td></tr>
+          <tr><td>R16</td><td>Bench-only scripted servo sweep before any driving use — no waiver clause</td><td><span class="st nogo">NO-GO</span></td><td>promoted out of R2 blocker 7; requires Phase B, gated behind R6</td></tr>
+          <tr class="total"><td>Overall</td><td>FIRST_ACTIVE verdict</td><td><span class="st nogo">NO-GO / BLOCKED</span></td><td>R1, R2, R6–R9, R12, R13, R15, R16 open</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="note warn"><b>Two rules that keep this table honest.</b> First: <b>missing hardware evidence
+    is never converted into PASS</b> anywhere in it. Second, the <b>precedence rule</b> added 2026-07-30 — a
+    deferral or sign-off recorded under any one R-item <b>cannot</b> waive an obligation that another R-item
+    states independently; where two items cover the same ground, the stricter governs.</div>
+    <p class="src"><b>Sources:</b> unlock plan §2.3.11.4, §2.3.11.6, §2.3.12.11 (go/no-go table) ·
+    <code>w17-mapper/.githooks/pre-push</code> · <code>w17-mapper 432a809</code>
+    <span class="tag c">C confirmed</span></p>
+  </div>
+</section>
+
+<!-- ============================================================ 5 -->
+<section>
+  <span class="snum">05 — WHAT WOULD CHANGE</span>
+  <h2>If the gate ever opened, this is the shape of it</h2>
+  <p class="sub">Recorded so the locked state is legible as a decision, not an omission. None of this exists
+  in code. Deliberately no scaffolding was added either — even dead-ended shaping code would bake in
+  constants and a control-path stage the review has not approved.</p>
+  <div class="board">
+    <div class="cols three">
+      <div>
+        <h3>Where it would live</h3>
+        <ul>
+          <li>A <b>single post-node-graph stage</b>, between the eval loop's <code>[16]CRSFValue</code> and
+          <code>crsf.PackChannels</code> — one auditable choke point, not nodes inside the user-editable mixer graph.</li>
+          <li>A pure function of (eval array, read-only diagnostics snapshot, arbiter memory, monotonic now).</li>
+          <li>It would touch <b>only indices 8/9</b> and never write back into the receiver, monitor, broadcaster, or graph.</li>
+        </ul>
+      </div>
+      <div>
+        <h3>What would gate motion</h3>
+        <ul>
+          <li>All simultaneously, every tick: compile flag <b>and</b> runtime flag <b>and</b> armed
+          <b>and</b> <code>tracking_enabled</code> <b>and</b> centred <b>and</b> fresh (≤ 250 ms).</li>
+          <li>Losing any one drops immediately into a rate-limited decay to commanded <b>992</b>.</li>
+          <li>Right-stick-wins takeover is global across both axes, latches, and <b>never auto-restores</b>.</li>
+        </ul>
+      </div>
+      <div>
+        <h3>The rule that is easiest to break</h3>
+        <ul>
+          <li>Arm / deadman / override state must <b>not</b> be read from the <code>[16]CRSFValue</code> array.</li>
+          <li>That array carries <b>hold-last</b> semantics, so a value read from it cannot distinguish
+          "the operator is holding this" from "the input device is gone."</li>
+          <li>Device-absent must be an <b>affirmative disarm</b> (invariant I10, demonstrated by physical
+          unplug under R15) — not an absence of evidence.</li>
+        </ul>
+      </div>
+    </div>
+    <div class="note"><b>Commanded, never measured.</b> There is no gimbal position feedback anywhere in this
+    system — not in firmware telemetry, not on the CRSF uplink, not on the bridge. So every pan/tilt number
+    this project displays or exports is a <b>command</b>, "near limit" means <b>command saturation</b> rather
+    than confirmed mechanical contact, and CRSF 992 is an authoritative <i>commanded</i> centre whose physical
+    safety still needs bench validation. The ground station honours this: the camera dot is violet
+    <b>observed stick input</b>, the Head Tracking card is <b>LOCKED</b>, and ACTIVE AUTHORITY reads
+    <b>NOT REPORTED BY MAPPER</b> rather than being fabricated from what the browser can see.</div>
+    <p class="src"><b>Sources:</b> unlock plan §1.3, §1.4, §2.3.11.1–§2.3.11.3, §2.3.12.5, §2.3.12.10 ·
+    <code>w17-ground-station/docs/camera_aim_display_semantics.md</code> §1, §2, §5.4 ·
+    <code>w17-design-system/DESIGN_NOTES.md</code> §6 <span class="tag c">C confirmed</span>
+    <span class="tag d">D design-only, no code</span></p>
+  </div>
+</section>
+
+<footer>
+  <p><b>Scope.</b> Display-only. This page changes no gate, no status, and no code path. A2 remains
+  <b>NOT EXECUTED</b>; Phase B remains <b>BLOCKED</b>; W3 remains <b>LOG-ONLY</b>; FIRST_ACTIVE remains
+  <b>NO-GO / BLOCKED</b>.</p>
+  <div class="legend" style="margin-top:12px">
+    <span><span class="tag c">C</span> read from source at the commits below</span>
+    <span><span class="tag i">I</span> inferred from cited facts, marked where it appears</span>
+    <span><span class="tag d">D</span> design record only — no code exists</span>
+  </div>
+  <p style="margin-top:14px"><b>Read at:</b> <code>w17-mapper</code> <code>432a809</code> (branch
+  <code>w17-headtrack</code>) · <code>w17-control-fw</code> · <code>w17-ground-station</code> ·
+  workspace <code>16dad6d</code>. Built 2026-08-04 for VR-FPV batch <b>CB2</b>.
+  Canonical narrative source: <code>w17-control-fw/project-review/head_tracking_unlock_plan.md</code>.
+  The canonical safety milestone is Codex-owned (<code>iPhone_rc/docs/FIRST_ACTIVE_PAN_TILT_MILESTONE.md</code>)
+  — where the two disagree, the Codex milestone gates movement.</p>
+</footer>
+
+</div>
+
+<script>
+(function(){
+  var b=document.getElementById('tt'), r=document.documentElement;
+  function cur(){ return r.getAttribute('data-theme') ||
+    (window.matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light'); }
+  function set(t){ r.setAttribute('data-theme',t); b.textContent = t==='dark'?'☀ Light':'☾ Dark'; }
+  set(cur());
+  b.addEventListener('click',function(){ set(cur()==='dark'?'light':'dark'); });
+})();
+</script>
