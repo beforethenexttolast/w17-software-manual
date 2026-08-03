@@ -925,13 +925,20 @@ Nothing committed in `w17-mapper`; its tree is clean at **`5a28106`** and this p
   `input_button.go:77` returns `nan=true` when `GetInputGamepad` misses; `output_tx.go:43` is
   `if nan || ch < 1 || ch > 16 { continue }` over a persistent `*[16]util.CRSFValue` never reset at
   the top of a tick. The 2026-07-30 description was exact, line numbers included.
-- **The fix is real and complete for the reported defect.** At HEAD `output_tx.go:91-94` drives a
-  nan channel to `failsafeFor(ic)` instead of skipping it, and `input_channel.go:107,112,115` returns
-  the channel number on **every** path including both nan returns — which is what makes neutralization
-  possible at all. **No surviving `continue` can strand a written slot:** the only remaining skips are
-  a nil holder and `ch < 1 || ch > 16`, and the only node type that ever writes a slot
-  (`InputChannel`) reports its number on both paths. Non-channel node types return `ch = -1` on the
-  healthy path too, so they never write a slot and cannot hold one.
+- **The fix is real for the reported defect, in the config shape the tests cover.** At HEAD
+  `output_tx.go:91-94` drives a nan channel to `failsafeFor(ic)` instead of skipping it, and
+  `input_channel.go:107,112,115` returns the channel number on **every** path including both nan
+  returns — which is what makes neutralization possible at all. **For a transmitter whose `channels`
+  are all `channel` nodes, no surviving `continue` can strand a written slot:** the only remaining
+  skips are a nil holder and `ch < 1 || ch > 16`, and `InputChannel` reports its number on both paths.
+
+  ⚠ **NARROWED 2026-08-03 (pre-merge review) — the original wording was a universal claim and it is
+  false.** It read: *"Non-channel node types return `ch = -1` on the healthy path too, so they never
+  write a slot and cannot hold one."* Six node types do the opposite — `linear`, `map`, `case`, `if`,
+  `trim` and `switch` **propagate the child's `ch` on the healthy path and return `-1` on the nan
+  path**, which is exactly the asymmetry that strands a slot. Verified directly:
+  `input_linear.go:67` returns `nil, out, ch, false`, `:48` returns `nil, 0, -1, true`. The proof
+  generalized over ~30 node types after checking two. **See RESIDUAL D.**
 - **`Attached()` gates every resolution path, not just the one the commit exercised.** All three
   config-side resolvers — `input_axis.go:87`, `input_button.go:77`, `input_hat.go:52` — go through
   `Config.GetInputGamepad`, which is where the gate sits. `devices.Controller.Gamepad()` and
@@ -981,7 +988,9 @@ frames; the *replaced*-config case is not covered. Reachable while the link is r
 
 **RESIDUAL C (open, timing).** Neutralization needs at least one `Eval` tick after the removal.
 `AlertDeviceChan`'s send is non-blocking on an **unbuffered** channel with **two competing consumers**
-(`eval.go:104` and the streaming RPCs at `server_grpc.go:201`/`:233`), so the `JOYDEVICEREMOVED` alert
+(`eval.go:104` and the gamepad stream at `server_grpc.go:201` — **corrected: my own `:233` here was
+wrong, that line consumes `EvalEventChan`, not `DeviceEventChan`; the count "two" was right, the
+second citation was not**), so the `JOYDEVICEREMOVED` alert
 can be dropped, or taken by a stream handler instead of the eval loop; the device is gone, so no
 further SDL event follows and `Eval` never re-runs on the stale array. Not observed; identified by
 reading the loop.
@@ -1002,8 +1011,42 @@ neutralization rests entirely on one droppable alert landing on an unbuffered ch
 is not merely "UI-state-dependent" — the entire re-evaluation heartbeat is coupled to something
 watching, which is precisely the condition that does *not* hold while driving. C stands, restated.
 
-**Verdict: the defect as reported — a USB gamepad dropout freezing throttle — is CLOSED.** A, B and C
-are residuals of the fix, not the original defect, and none of them re-opens throttle freeze.
+**RESIDUAL D (open, arm-safety — added 2026-08-03 by the pre-merge review; two mechanisms, both
+executed against HEAD `5a28106`).** This is the one that breaks the flat CLOSED verdict.
+
+- **D-1, stranding.** A **wrapper node at the top level** of a transmitter's `channels` array —
+  `linear`, `map`, `case`, `if`, `trim`, `switch` — propagates its child's `ch` on the healthy path
+  and returns `-1` on the nan path (`input_linear.go:67` vs `:48`). The healthy tick writes the slot;
+  the nan tick hits `ch < 1` and `continue`s, so **the slot keeps its last value**. Executed: a
+  `linear` over an axis channel held `ch1 = 1984` across five detached ticks instead of neutralizing
+  to 992. **That is the original reported defect — full-deflection throttle frozen across a dropout —
+  unmitigated at HEAD.**
+- **D-2, configured failsafe silently discarded.** The `EvalOperation` family (`add`, `subtract`,
+  `min`, `max`, the comparisons) propagates `ch` on **both** paths, so it does write the slot — but
+  `failsafeFor(ic)` (`output_tx.go:49-54`) type-asserts `FailsafeValuer` on the **top-level holder**,
+  which a wrapper is not, and falls back to center. Executed: an arm channel with a correctly
+  configured `failsafe: 172` emitted **992** on dropout → inside the ±250 dead band → **arm stays
+  latched ON**.
+- **This is schema-valid, not a contrived config.** `schema.yaml:314` types `channels` as
+  `$ref: '#/definitions/input'` — the full node union. The `expected: channel` at `:311` is `$meta`
+  UI metadata and is enforced nowhere in Go.
+- **Reachability: PLAUSIBLE-but-unlikely in the config we plan today** (the UI steers toward `channel`
+  nodes at top level, and the test harness only ever builds that shape) — **but not hypothetical.**
+  `w17-mapper-config-entry-record.md` already plans a `switch`/`case` construct for ch13 drive mode,
+  which is one of the six asymmetric types. What is **CONFIRMED** is that the closure's proof was
+  invalid as written and that a schema-valid config still freezes throttle.
+- **Structural fix (for a future session, not yet done):** resolve the failsafe from the node that
+  *owns* the channel number rather than the top-level holder, and treat a valid-`ch`-when-healthy →
+  `-1`-when-nan transition as a nan **for that channel**. This **subsumes RESIDUAL B** — both are
+  `output_tx.Eval` re-seed/resolution bugs, and fixing them separately would touch that function twice
+  with two sets of injections. Tracked jointly in `w17-mapper-config-swap-reseed-prompt.md`.
+
+**Verdict: the defect as reported — a USB gamepad dropout freezing throttle — is CLOSED for
+transmitters whose `channels` are all `channel` nodes, which is every config the tests cover and the
+shape the UI steers toward. It is NOT closed in general: RESIDUAL D re-opens throttle freeze through a
+top-level wrapper node, in a schema-valid config.** The earlier flat "CLOSED" was CLOSED-shaped —
+correct for the covered shape, over-generalized to all configs. A, B and C remain residuals of the fix
+rather than the original defect; **D is the original defect, on a path the fix does not reach.**
 **No hardware powered, nothing flashed, no head-intent / FIRST_ACTIVE / arbitration path touched.**
 
 Open owner decisions: #1 UDP 5602 topology + fork ownership/license — **RESOLVED 2026-07-15
