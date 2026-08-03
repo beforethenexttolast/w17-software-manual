@@ -16,14 +16,20 @@ for UI purposes only. **A2 stays NOT-EXECUTED. Phase B stays BLOCKED.**
 ## ⚠ The channel numbers below are PROVISIONAL
 
 The firmware channel map has **not** been bench-verified against the TX. Verified 2026-08-03
-by five independent checks:
+by the checks below. ⚠ **Framing corrected 2026-08-03 (pre-merge review):** these are **two
+independent lines of evidence plus three restatements**, not five independent checks. Check 1 is
+load-bearing and carries the conclusion on its own; check 3 is semi-independent (a different axis —
+the Windows enumeration path); checks 2, 4 and 5 all collapse into the single proposition *nothing
+physical has happened*. The conclusion stands; only the "five independent checks" claim was
+overstated. Line-number citations replaced with section references, which do not drift:
 
 1. The placeholder banner is still present at HEAD —
    `w17-control-fw/lib/channels/include/channels/ChannelDecoder.hpp:9-11`: "DEFAULTS ARE
    PLACEHOLDERS … confirm every assignment at the bench and remap HERE only." Had the
    verification happened, that comment is what would have been edited.
-2. Nothing is soldered; A2 `NOT EXECUTED` (`CURRENT_STATUS.md:656-660`).
-3. `ELRS TX enumeration on real Windows: UNVALIDATED` (`CURRENT_STATUS.md:1047`). The TX
+2. Nothing is soldered; A2 `NOT EXECUTED` (`CURRENT_STATUS.md` → *Hardware gates*).
+3. `ELRS TX enumeration on real Windows: UNVALIDATED` (`CURRENT_STATUS.md` → *Pending
+   validations*). The TX
    arrived 2026-07-17 but no macOS host can exercise that path.
 4. No bench work recorded between the 2026-07-30 entry that raised the prerequisite and
    today; the 2026-08-03 pass was source verification only.
@@ -106,7 +112,7 @@ Supporting checks (verified against source this session):
 - The `crsf` autocomplete offers **only 0 / 992 / 1984**
   (`webapp/src/components/misc/autocomplete.jsx:73-78`). **172 is not in the list**, and the
   nearest offered value — "CRSF Min (0)" — is the one the schema explicitly warns against.
-  The field is `freeSolo` (`GenericForm.jsx:136`) and `visitIntegerField` `parseInt`s it
+  The field is `freeSolo` (`GenericForm.jsx:135`) and `visitIntegerField` `parseInt`s it
   (`node-access-base.jsx:335-336`), so **172 must be typed by hand** and does persist.
 - `onAutoChange` debounces **250 ms** (`GenericForm.jsx:82-90`) — **type, pause, then save.**
 - The `raw` autocomplete *does* offer −32768 ("RAW Min"), so the DEFECT 2 value is selectable

@@ -42,4 +42,7 @@ shipped accident guard. The naming contract is that the tag must be lowercase `w
 
 **Safety:** no hardware. No FIRST_ACTIVE code, no arbiter, no active enum value — the proto must still
 end at `HEAD_INTENT_STATE_ACTIVE_LOG_ONLY = 8`. Remember the fork's `origin` is **public**: verify what
-you are about to push distributes no control path. Show diffs before committing; branch off main.
+you are about to push distributes no control path. In `w17-mapper`, **branch from `w17-headtrack`, not
+from `main`** — `main` there tracks upstream `2b8031a`, where both `.githooks/pre-push` and
+`FORK-NOTICE.md` are **absent**; they exist only on the fork branch. Show diffs before committing.
+A2 stays NOT-EXECUTED, Phase B stays BLOCKED.

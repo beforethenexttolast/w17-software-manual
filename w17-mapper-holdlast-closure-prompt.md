@@ -1,5 +1,14 @@
 # Session prompt — close (or re-open) the mapper hold-last throttle-freeze defect
 
+> **⚠ ALREADY EXECUTED 2026-08-03 — do not re-run as a fresh job.** Its output is the
+> `docs/mapper-holdlast-closure` branch. Verdict: the defect *as reported* is closed, with residuals
+> A/B/C recorded — but the pre-merge review then found the closure's central proof **over-generalized**
+> (a wrapper node at top level still strands a slot; the `EvalOperation` family bypasses a configured
+> failsafe), so the verdict is being narrowed and **RESIDUAL D** added. Kept for its method, not its
+> conclusion: the §1–§5 structure (re-derive pre-fix state → verify at HEAD → close recorded residuals
+> → prove tests bite → reconcile the record) is the shape to reuse. **Read the RESIDUAL D entry in
+> `CURRENT_STATUS.md` before reusing anything here.**
+
 Paste into a Claude Code session started at `~/Documents/projects`. **No hardware.** Highest-value
 software job on the board: it sits directly under the "failsafe first" priority in
 `w17-control-fw/CLAUDE.md`.
@@ -74,4 +83,5 @@ Whichever way it lands:
 
 **Safety:** no hardware, nothing flashed or powered. No head-intent, no FIRST_ACTIVE, no arbitration
 code — the fork's `.githooks/pre-push` must stay clean. A2 stays NOT-EXECUTED, Phase B stays BLOCKED.
-Show diffs before committing; work in `w17-mapper` and the workspace repo only; branch off main.
+Show diffs before committing; work in `w17-mapper` and the workspace repo only. In `w17-mapper`,
+**branch from `w17-headtrack`, not from `main`** — `main` there tracks upstream `2b8031a`.

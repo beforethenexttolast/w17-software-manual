@@ -77,4 +77,5 @@ recommend an explicit save-to-file as a local backup outside the repo.
 
 **Safety:** the mapper may run for UI purposes only. **Nothing connected to the car, no TX bound, no
 ESC, no servos, no battery.** A2 stays NOT-EXECUTED, Phase B stays BLOCKED. Do not commit a config
-into `w17-mapper`. Show diffs before committing; branch off main.
+into `w17-mapper` — nothing in this session commits to that repo at all, so the only branch involved is
+in the **workspace** repo, off its `main`. Show diffs before committing.
