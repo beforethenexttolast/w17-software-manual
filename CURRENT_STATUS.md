@@ -981,12 +981,26 @@ frames; the *replaced*-config case is not covered. Reachable while the link is r
 
 **RESIDUAL C (open, timing).** Neutralization needs at least one `Eval` tick after the removal.
 `AlertDeviceChan`'s send is non-blocking on an **unbuffered** channel with **two competing consumers**
-(`eval.go:104` and `server_grpc.go:201`), and `AlertStreamChan` is **defined but never called**, so
-`StreamEventChan` never fires. If the `JOYDEVICEREMOVED` alert is dropped — consumer busy, or the
-gamepad-stream handler takes it — and no further SDL event follows (the device is gone, so none will),
-`Eval` never re-runs and the array keeps its last value. Mitigated **only** while a gamepad stream is
-open, which synthesizes an alert every 25 ms (`server_grpc.go:199-200`) — a UI-state-dependent
-mitigation, not a guarantee. Not observed; identified by reading the loop.
+(`eval.go:104` and the streaming RPCs at `server_grpc.go:201`/`:233`), so the `JOYDEVICEREMOVED` alert
+can be dropped, or taken by a stream handler instead of the eval loop; the device is gone, so no
+further SDL event follows and `Eval` never re-runs on the stale array. Not observed; identified by
+reading the loop.
+
+⚠ **Corrected 2026-08-03 — the closure session got C's mitigation wrong, in the direction of
+overstating C.** The entry as first written read: "`AlertStreamChan` is **defined but never called**,
+so `StreamEventChan` never fires." Both halves are false, and the same paragraph then credited a 25 ms
+synthetic-alert mitigation which *is that very mechanism* — an internal contradiction that should have
+caught it. Verified against source: there are **three** 25 ms tickers, one per streaming RPC —
+`server_grpc.go:195` and `:222` poke `AlertDeviceChan`, and `:246` pokes **`AlertStreamChan`** at
+`:256` — and `StreamEventChan` is consumed at `eval.go:95`, whose branch re-evaluates **every**
+top-level holder in `config.IOMap`, transmitters included. It is a second, independent route to the
+neutralizing tick, not a dead one.
+
+**What survives the correction is the sharper claim.** All three synthetic tick sources live *inside
+streaming RPCs*, so **with no gRPC subscriber there is no periodic eval tick at all**, and
+neutralization rests entirely on one droppable alert landing on an unbuffered channel. The mitigation
+is not merely "UI-state-dependent" — the entire re-evaluation heartbeat is coupled to something
+watching, which is precisely the condition that does *not* hold while driving. C stands, restated.
 
 **Verdict: the defect as reported — a USB gamepad dropout freezing throttle — is CLOSED.** A, B and C
 are residuals of the fix, not the original defect, and none of them re-opens throttle freeze.
