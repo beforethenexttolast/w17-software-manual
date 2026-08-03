@@ -1039,7 +1039,7 @@ executed against HEAD `5a28106`).** This is the one that breaks the flat CLOSED 
   *owns* the channel number rather than the top-level holder, and treat a valid-`ch`-when-healthy →
   `-1`-when-nan transition as a nan **for that channel**. This **subsumes RESIDUAL B** — both are
   `output_tx.Eval` re-seed/resolution bugs, and fixing them separately would touch that function twice
-  with two sets of injections. Tracked jointly in `w17-mapper-config-swap-reseed-prompt.md`.
+  with two sets of injections. Tracked jointly in `w17-mapper-eval-failsafe-bd-prompt.md`.
 
 **Verdict: the defect as reported — a USB gamepad dropout freezing throttle — is CLOSED for
 transmitters whose `channels` are all `channel` nodes, which is every config the tests cover and the
