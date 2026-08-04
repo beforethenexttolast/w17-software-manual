@@ -1,6 +1,10 @@
 # W17 mapper — hand-entered node-graph config record
 
-**Created:** 2026-08-03 · **Status:** IN PROGRESS (entry underway)
+**Created:** 2026-08-03 · **Last updated:** 2026-08-04 · **Status:** IN PROGRESS (entry underway)
+
+**Verified against `w17-mapper` `9ba6e06` and `w17-control-fw` `fff1ab7` on 2026-08-04.** All
+source claims below were re-checked at those heads; two citations had drifted and are corrected
+in place (see *Supporting checks* and *UI traps*).
 
 > **This file is a record of what was typed into the mapper webapp UI. It is not a config.**
 > It lives at the workspace root and is **deliberately NOT committed into `w17-mapper`**
@@ -39,6 +43,14 @@ overstated. Line-number citations replaced with section references, which do not
 map* and nothing more. Arming is NOT ready.** If the bench later shows a different TX
 assignment, every `failsafe` value below lands on the wrong channel.
 
+**Re-verified 2026-08-04 at `w17-control-fw` `fff1ab7` — still PROVISIONAL, nothing has moved.**
+The load-bearing check was re-run: the placeholder banner is present at HEAD, and the only two
+commits that have *ever* touched `ChannelDecoder.hpp` are `37ebe46` and `8ce670a`, both docs-only
+(retiring stale gimbal comments; aligning link2 gear/drive-mode docs) — **neither is a remap**. A2
+is still `NOT-EXECUTED` and Phase B still `BLOCKED` as of the newest `CURRENT_STATUS.md` entry, and
+`ELRS TX enumeration on real Windows` is still `UNVALIDATED`. This session's own envelope forbids
+binding a TX, so it could not be closed here either.
+
 ## Why nothing is committed into `w17-mapper`
 
 The `read`/gamepad nodes bind to a gamepad device id not visible from this Mac, so a
@@ -69,12 +81,14 @@ With default `raw_min`/`raw_max` = −32768/32767, a button's OFF value
 (`DefaultFalsyRawValue` = `ZeroRaw` = 0, `pkg/util/util.go:37`) is mid-range and maps to
 ≈991 — inside the decoder's ±250 dead band, so `decodeSwitch` **holds the previous state**.
 
-**Fix proposed: `inactive_value` = −32768 on the button node.** ⚠ **Attribution downgraded
-2026-08-03 (pre-merge review): this line originally read "Fix chosen (owner, 2026-08-03)" and
-the owner has not confirmed it.** The record did not distinguish *decision taken* from *decision
-proposed*, which is the same conflation this workspace already corrected once for parts — an
-owner's word for "a battery" was arrival evidence for *a* pack, never the expected one. The same
-applies to decisions. **Treat as PROPOSED until the owner confirms; do not enter it as settled.**
+✅ **Fix DECIDED (owner, 2026-08-04): `inactive_value` = −32768 on the button node.** The owner
+was asked explicitly, with the rejected alternative presented alongside, and chose this one.
+
+> *Attribution history, kept because the correction is the point:* this line first read "Fix
+> chosen (owner, 2026-08-03)" when no owner had confirmed it; the 2026-08-03 pre-merge review
+> downgraded it to PROPOSED. It is now genuinely decided — the 2026-08-04 confirmation is what
+> promoted it, not the passage of time.
+
 The
 rejected alternative was `raw_min` = 0 on the channel node; it was rejected because it leaves
 a live trap — if that channel's input is ever re-pointed from a button to an axis, an axis at
@@ -108,8 +122,12 @@ Supporting checks (verified against source this session):
 - **No per-switch inversion exists** in the firmware — the header calls it a deliberately
   deferred extension point, and `invert*` applies only to `normalizedAnalog`. Nothing on
   either side can flip 172 into ON.
-- The failsafe value **bypasses `MapRange`** — `output_tx.go:92` writes it straight into
-  `Values` — so 172 goes on the wire as raw 172 regardless of the endpoint fix.
+- The failsafe value **bypasses `MapRange`** — `output_tx.go` writes it straight into `Values`
+  (`(*i.Values)[number-1] = owner.FailsafeValue()`) — so 172 goes on the wire as raw 172
+  regardless of the endpoint fix. ⚠ **Citation corrected 2026-08-04: this read `output_tx.go:92`,
+  which drifted when `c60843e` landed; the write now happens at two sites (lines 293 and 325 at
+  `9ba6e06`), one per failsafe path. Behaviour is unchanged — both bypass `MapRange`.** Cited by
+  code rather than line, since line numbers in this file have now drifted twice.
 - `decodeTriState` returns `1` for any normalized value within ±333
   (`ChannelDecoder.cpp:94-101`), confirming ch13 at 992 → RACE.
 
@@ -120,12 +138,29 @@ Supporting checks (verified against source this session):
   nearest offered value — "CRSF Min (0)" — is the one the schema explicitly warns against.
   The field is `freeSolo` (`GenericForm.jsx:135`) and `visitIntegerField` `parseInt`s it
   (`node-access-base.jsx:335-336`), so **172 must be typed by hand** and does persist.
+- ⚠ **ADDED 2026-08-04 — the trap above also applies to the `failsafe` field, which this list
+  previously did not mention.** `failsafe` is `$meta.autocomplete: crsf` in `pkg/config/schema.yaml`
+  (title "Failsafe CRSF value", `default: 992`), so its dropdown offers the same 0 / 992 / 1984 and
+  **the six 172s must be hand-typed there too**. Same freeSolo path, same 250 ms debounce. The field
+  *is* present in the UI — the form is generated from the embedded schema, so there is no
+  fork-specific React component to grep for, and its absence from `webapp/src` is not evidence of
+  absence from the form. The schema's own description already prescribes the value: "Switch-like
+  channels should not be left at center … Set those channels to their OFF rail instead — typically
+  `172`."
 - `onAutoChange` debounces **250 ms** (`GenericForm.jsx:82-90`) — **type, pause, then save.**
 - The `raw` autocomplete *does* offer −32768 ("RAW Min"), so the DEFECT 2 value is selectable
   rather than typed (`autocomplete.jsx:79-86`).
 - With no TX connected, the transmitter port autocomplete falls back to a synthetic
   `COM1..COM16` list (`autocomplete.jsx:67-71`) — those are placeholders, not detected
   hardware.
+- ⚠ **ADDED 2026-08-04 — the `gamepads` autocomplete has NO such fallback.** It returns whatever
+  `getGamepads()` yields and an **empty map** otherwise (`autocomplete.jsx:123-133`), with no
+  synthetic entries. So the gamepad `id` field is blank-with-no-options when no pad is attached.
+  Every auto-complete field in this form is `freeSolo` (`GenericForm.jsx:135` — it is set on the
+  shared `Autocomplete`, not per field), so an id *can* be typed blind, **but a typed-blind id is
+  exactly the guesswork this session exists to avoid**: `GetInputGamepad` would not resolve it, and
+  post-`c60843e` an unresolvable device drives every owned channel to its failsafe rail. **Attach
+  the pad before entering node 1 and pick the id from the list.**
 
 ---
 
@@ -135,14 +170,16 @@ _Filled in as each node is entered. Nothing recorded here has been entered yet._
 
 ### Node inventory (planned)
 
+Revised 2026-08-04 after the ch13 deferral: **10** `channel` nodes in this pass, not 11.
+
 | # | Node type | Purpose | Status |
 |---|---|---|---|
-| 1 | `gamepad` | device id for all inputs | ⬜ not entered |
-| 2 | `axis` ×4 | steering, throttle, pan, tilt | ⬜ not entered |
+| 1 | `gamepad` ×1 | device id for all inputs | ⬜ not entered |
+| 2 | `axis` ×4 | ch1 steering, ch3 throttle, ch9 pan, ch10 tilt | ⬜ not entered |
 | 3 | `button` ×6 | arm, DRS, gear-up, gear-down, boost, overtake | ⬜ not entered |
-| 4 | ch13 source | 3-position drive mode — **node type OPEN, see below** | ⬜ not entered |
-| 5 | `channel` ×11 | ch1, 3, 5, 6, 7, 8, 9, 10, 11, 12, 13 | ⬜ not entered |
-| 6 | `tx` | port + channels array | ⬜ not entered |
+| 4 | `channel` ×10 | ch1, 3, 5, 6, 7, 8, 9, 10, 11, 12 | ⬜ not entered |
+| 5 | `tx` ×1 | port + channels array (10 entries this pass) | ⬜ not entered |
+| — | ch13 source + `channel` | 3-position drive mode | ⏸ DEFERRED by owner choice, not blocked — see the 2026-08-04 update above |
 
 ### Open items
 
@@ -174,3 +211,22 @@ _Filled in as each node is entered. Nothing recorded here has been entered yet._
     Once B+D lands, `switch`/`case` is free to use and the question dissolves.
 
   Nothing here blocks ch1–ch12.
+
+  ### ⏫ UPDATE 2026-08-04 — the hold condition is SATISFIED, and the choice is deferred by choice
+
+  **B+D landed.** `w17-mapper` `f81ec63` → **`9ba6e06`** (`c60843e` fix + `9ba6e06` GPL §5(a)
+  table), 2026-08-04. D-partial is closed **"for every shape in which a top-level entry's subtree
+  stops resolving, whether or not the entry's own result stays usable"**, and the unusable-result
+  path explicitly **still drives ALL owners** — the dated entry names `switch` fallthrough as the
+  reason it must. **`switch`/`case` at top level is therefore no longer D-1**, and the reason this
+  item was held has gone.
+
+  Still open and deliberately not folded in: **`InputRead._Eval`'s unguarded recursion** (a `read`
+  cycle kills the process by stack overflow, pre-existing upstream at `2b8031a`). It does not touch
+  this decision — no `read` node appears anywhere in this graph. **RESIDUALS A and C remain open.**
+
+  ✅ **DECIDED 2026-08-04 (owner): decide ch13's node type AFTER ch1–ch12 are entered.** All three
+  routes — `switch`/`case`, `channel`-wrapped, `hat` — are now available; none is blocked. This is a
+  deferral of a now-free choice, **not** the earlier safety hold, and the two must not be conflated
+  in any later reading of this file. The cost of deferring is still nil, for the reason above:
+  `decodeTriState` returns `1` = RACE at center, so an unmapped ch13 sits in its safe middle.
