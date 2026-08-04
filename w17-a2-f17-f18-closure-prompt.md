@@ -17,8 +17,16 @@ Close **F17** and **F18** from
 F15/F16 closure and recorded rather than fixed — correctly. That register is authoritative; read the
 full write-ups, not just the summary below.
 
-Work on `docs/a2-revision-pass` in each repo (control-fw `92f3b0d`, workspace merged to `main`), not
-on a fresh branch off `main`.
+⚠ **Branch off `main` in both repos.** (Corrected 2026-08-04: an earlier version of this line said to
+work on `docs/a2-revision-pass`. That was true when written and became wrong at consolidation — the
+workspace branch is merged and deleted, and control-fw's is **fully contained in `main`**, which is
+now *ahead* of it at `d295f70`. Branching off the old ref would fork from a stale base and buy you a
+merge for nothing. Verify with `git log --oneline main..docs/a2-revision-pass` — empty means
+contained.)
+
+**Note on control-fw's working tree:** it may still be *checked out* on that stale merged branch from
+the F15/F16 session. That is not an invitation to use it. Follow the concurrency rule — if the tree
+is on a branch that is not yours, work in your own worktree off `main`.
 
 ## F17 — the enlarged set was never walked
 
