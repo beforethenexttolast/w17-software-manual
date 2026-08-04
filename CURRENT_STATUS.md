@@ -8,7 +8,37 @@ workspace-level source for all of those and for project execution status.
 Overwrite it in place when state changes; do not append history. Instruction files
 (`CLAUDE.md` / `AGENTS.md`) must not duplicate anything below.
 
-_Last updated: **2026-08-04 (consolidation pass)** — **five branches across two repos merged to
+_Last updated: **2026-08-04 (A2 third closure pass — F17/F18)** — **F17 and F18 are CLOSED;
+F19 and F20 recorded.** Branched off `main` in both repos (`docs/f17-f18-closure`; control-fw's
+own tree was still checked out on the merged-and-stale `docs/a2-revision-pass`, so this pass
+worked in its own worktree per the concurrency rule). **The premise this pass was commissioned
+on was wrong, and finding that out is most of its content:** F17's and F18's document edits were
+**already applied** — by the F15/F16 pass, in the same edit that recorded them, across the
+checklist, plan §A2.5 and the PDB guide (which *does* mention PD1, in §3's "what lives where"
+and §5 step 4). What was missing was the register's **closure-table rows**; the register's
+finding bodies said "Fix applied", the checklist said "closed here", and only
+`CURRENT_STATUS.md` and commit `92f3b0d`'s subject said "recorded, not quietly fixed" — which
+reads as *not fixed*. Every prescribed edit was verified line by line against the artifacts,
+all present; the rows are now written, with the walk that goes with them. **F19** records that
+closure-record defect (the register's own recurring class — a document asserting a state the
+artifacts no longer match — this time about the register's bookkeeping, where nothing
+downstream could catch it) and adopts the rule that **a finding is closed when it has a
+closure-table row**. **F20** is new and **open, recorded not fixed** per the standing
+instruction: checklist row S1r's *membership* covers the five actuator signals only, and
+**GPIO34 ↔ GPIO35 is measured by no row in the document** — a bridge there passes D1, H1, C10,
+C11 and (in beeper mode) S2r, i.e. every check that looks. Severity below F1–F4 — both pins are
+input-only, so the cost is corrupted battery telemetry and wheel speed, not a fire or a dead
+board — and partially mitigated by §2's every-joint beeper sweep, which is an instruction, not
+an auditable §11 row. S1r and the guide's soldering bullet now carry scope statements saying
+so; the fix (extend the matrix to 13/14/18/19/23/34/35) is deliberately left for a pass that
+can walk the enlarged set, because enlarging a set §3 rule 2 quantifies over is precisely what
+produced F13.1, F15 and F17. **Both F12 bench measurements re-checked and still OWED** — the
+socket-stack caliper and the MH-ET adjacency list, neither promoted anywhere in either repo;
+**the caliper-first precondition to SF's first socket joint is unchanged by this pass**, and
+F17 in fact leans on it, since the hard-wired fallback is the variant its exception exists for.
+**Documents only — nothing built, powered, flashed, or connected; nothing pushed. A2 stays
+NOT-EXECUTED, Phase B stays BLOCKED.**
+Prior pass, **2026-08-04 (consolidation pass)** — **five branches across two repos merged to
 their `main`s; nothing pushed.** Four sessions had left work split across branches with both
 `main`s behind, which is how sessions kept building on stale context. `w17-control-fw`
 `dd9a445` → **`d295f70`**, **ahead 8 of `origin/main` (`d102e2f`), UNPUSHED**: absorbed
@@ -57,7 +87,11 @@ asserted-over-unchecked-set class. **NOT closed, owed to the bench before SF's f
 F12's two measurement halves** — the MH-ET adjacency re-derivation and the socket-height
 caliper vs the ZK "S0" ≥ 9.82 mm clearance (the socketing decision stays conditional on it).
 **Closure pass, same day, same branches: F15 and F16 are CLOSED, and closing them generated
-two more — recorded, not quietly fixed. F17:** F15's own exceptions list omits the 13↔14 pair,
+two more. ⤴ Corrected 2026-08-04 (third closure pass): the wording that stood here — "recorded,
+not quietly fixed" — meant *recorded in the register rather than silently patched*, and it read
+as *recorded instead of fixed*. F17's and F18's fixes were applied by this same pass, in both
+repos, in the same edit that recorded them; what was missing was their closure-table rows. That
+gap is now `F19`, and the third pass supplies the rows. F17:** F15's own exceptions list omits the 13↔14 pair,
 which reads ≈2× the fitted pull-down through the star node — a resistance-mode false FAIL at
 S1r reported as "ESC and steering signals bridged"; the list is now closed-by-construction,
 with a standing instruction to extend it whenever a deliberate resistance is added. **F18:**
@@ -824,8 +858,14 @@ in `HARDWARE_INVENTORY.md` (the carve-out owner) — not duplicated here.
   depended on the merge: **A2 is NOT-EXECUTED and Phase B is BLOCKED.** Still OWED to the bench before SF's first
   joint (F12, deliberately not closed on paper): the MH-ET adjacency re-derivation and the
   socket-height caliper vs the ZK "S0" ≥ 9.82 mm clearance. Neither the review nor the
-  revision changes any gate state. The later closure pass adds **F17/F18** to that register,
-  closes F15/F16, and renames the frame gate **S0 → SF** (`S0` = the ZK clearance only).
+  revision changes any gate state. The later closure pass closes F15/F16, adds **F17/F18** to
+  that register **and applies their fixes in the same edit**, and renames the frame gate
+  **S0 → SF** (`S0` = the ZK clearance only). A **third closure pass**, same day, writes the
+  F17/F18 closure rows that pass omitted — records the omission as **F19**, since the workspace
+  record's "recorded, not quietly fixed" read as *not fixed* and cost a session — and records
+  **F20**, open and deliberately not fixed: **S1r's matrix covers the five actuator signals
+  only, so a GPIO34 ↔ GPIO35 bridge is caught by no row.** Open in the register at that point:
+  F12's two measurements, F20, and the unwritten charge-path gate.
 - **Four A2 owner decisions taken 2026-08-03** (recorded in review doc 14, implemented by the
   revision pass; moved here per that doc's note now that its branch has merged):
   **F9a** — the IP2326 charger is **NOT fitted during A2 build week**; the charge path owns

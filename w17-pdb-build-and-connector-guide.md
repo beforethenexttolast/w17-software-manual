@@ -20,6 +20,13 @@ against those headers before soldering**, not against this table.
 > fit moment** (§5 step 4 — F18; expected A2-time state is *not fitted*), and C1 gets a
 > photograph at its fit moment (§5 step 6 — F16 corollary), because no no-power measurement
 > distinguishes a reversed 1000 µF from a correct one.
+>
+> **Third closure pass 2026-08-04:** F17/F18 formally closed — the pull-down placement and fit
+> moment above were verified present and unchanged; **this guide needed no edit for them.** One
+> line was added to §5's soldering notes for the new open finding **F20** (A2's signal matrix
+> covers the five actuator signals only, so the every-joint beeper sweep is the only check
+> looking for a GPIO34 ↔ GPIO35 bridge). Both owed bench measurements in §5 step 1 re-checked:
+> **still OWED.**
 
 ---
 
@@ -175,7 +182,10 @@ toward the strip** — drops ~0.3 V so the ESP32's 3.3 V data reads as a valid l
 - Tin pads and wire tips first; keep joints shiny, not blobby; no bridges between adjacent header pins.
   ⚠ The old call-out "16/17, 25/26, 18/19 are close" was derived from the **DevKit V1** layout; the
   build boards are **MH-ET Live D1-Minis** and the true adjacent-pair list is **owed from the MH-ET
-  silkscreen** (A2 review F12) — until it exists, beeper-check **every** header joint.
+  silkscreen** (A2 review F12) — until it exists, beeper-check **every** header joint. That sweep
+  is carrying more weight than it looks: A2's signal matrix (row S1r) covers the **five actuator
+  signals only**, so a **GPIO34 ↔ GPIO35 bridge is caught by no A2 row** (open finding **F20**) —
+  this bullet is the only thing looking for it.
 - **Heat-shrink every power joint**; the cut ESC red end must be individually insulated (not folded
   bare) — **but only after A2 gate S8a's rows and photos are taken on the bare ends**.
 - **Electrolytic polarity** matters (C1/C2): stripe = negative → GND. Reversed = it vents/pops.
