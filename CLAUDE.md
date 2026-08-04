@@ -47,6 +47,33 @@ Do not edit Codex-owned repos from a Claude Code session.
 Also: no flashing or powering hardware in an unattended session; do not implement active
 pan/tilt; do not create any iPhone-to-control path.
 
+## Concurrent sessions (one session per working tree)
+
+**One session per repo working tree at a time.** A session that needs a repo another session
+already has open does **not** `git checkout` in that tree — it creates its own worktree, somewhere
+**outside** `~/Documents/projects` (the session scratchpad is ideal; a sibling path like
+`../wt-topic` is **not** — from a nested repo that lands inside the workspace repo itself):
+
+```
+git worktree add /path/outside/the/workspace/wt-<topic> -b docs/<topic>
+```
+
+Remove it only once its branch has merged. Before touching any repo, run `git worktree list` and
+`git branch --show-current`; if the tree is on a branch that is not yours, treat it as **occupied**
+and say so in your first report. Re-check HEAD immediately before committing — it can move under you
+mid-session.
+
+**Why.** `git checkout -b` in session A silently relocates session B's checkout, and a `git reset`
+or `git checkout --` in either destroys the other's uncommitted work — no warning, no reflog to
+recover from. This bit the workspace twice on 2026-08-03/04: the hold-last correction had to be
+rescued mid-session, and the pre-push hook commit landed on `docs/mapper-config-entry` instead of
+`main` because the shared tree was on someone else's branch. Both were recoverable; the failure is
+silent, so the next one may not be.
+
+**The corollary that makes this cheap: commit early.** Uncommitted work is the only work a
+concurrent session can destroy. Once it is in git, the worst another session can do is move a branch
+pointer, which is always recoverable.
+
 ## Commit / review rules
 
 - Show diffs before committing; keep commits small and focused.
