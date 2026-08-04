@@ -12,8 +12,28 @@ Read first: `w17-pdb-build-and-connector-guide.md`, `w17-batch1-measurements-for
 `w17-codex-batch1-recalc-prompt.md`, and `w17-control-fw/lib/config/include/config/PinMap.hpp`.
 
 Do these:
+
+0. ⚠ **FIRST, BEFORE ANY JOINT — the socket-stack caliper. This is a precondition, not a to-do.**
+   Measure the **female header** you intend to fit on the PDB, stacked with the boards' pre-soldered
+   male pins, and compare the total against the ZK cassette clearance **`S0` ≥ 9.82 mm**. (Note: that
+   `S0` is the ZK clearance figure. The A2 gate formerly called S0 was **renamed SF** on 2026-08-04
+   precisely to end that collision — there is no gate S0.)
+
+   **Why it gates everything after it:** the owner's F12 decision is *socketed*, and it was recorded
+   with this verification explicitly owed and a stated reopening condition. If the stack breaks the
+   clearance, socketing reopens, the boards go **hard-wired**, and §3 rule 2's unseat-for-isolation
+   method stops being runnable — which changes how the isolation rows execute across **S2, S4b and
+   S8**. In other words this measurement decides *which version of the checklist the bench is
+   running*. **Caliper first, then the first joint — not "start SF and measure as you go."**
+
+   If it fails: **stop, report, and do not solder.** Reopening F12 is a document change before it is
+   a build change.
+
 1. **Caliper + weigh the MH-ET D1-Mini boards** (both): bare L×W×H, height with headers, USB-C plug
-   protrusion, which short edge carries USB-C, mounting-hole span. → closes ZK **CAS-03** + firms the CG.
+   protrusion, which short edge carries USB-C, mounting-hole span. → closes ZK **CAS-03** + firms the
+   CG. The **MH-ET adjacency list** (§2 call-outs, currently an explicit OWED placeholder) is derived
+   here too — read the pairs off the silkscreen. Its fallback, "inspect every joint," stays valid but
+   slower, so this is a to-do rather than a precondition.
 2. **Measure the actual 1000 µF cap** you'll use on Rail B (diameter + length) → confirm the **flat-mount
    ~8–10 mm** assumption; fold the real number into the PDB-height line of the recalc prompt.
 3. **Confirm you have** JST-XH 3/4/5-pin + XT30 for the rail branches (the only connector gaps).
