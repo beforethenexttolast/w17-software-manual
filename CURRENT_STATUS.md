@@ -8,12 +8,13 @@ workspace-level source for all of those and for project execution status.
 Overwrite it in place when state changes; do not append history. Instruction files
 (`CLAUDE.md` / `AGENTS.md`) must not duplicate anything below.
 
-_Last updated: **2026-08-04 (A2 revision pass)** — **the revision the 2026-08-03 adversarial
-review made owed is DONE, on branches pending owner review/merge. A2 becomes executable only
+_Last updated: **2026-08-04 (A2 revision pass, + the later F15/F16 closure pass)** — **the
+revision the 2026-08-03 adversarial review made owed is DONE, on branches pending owner
+review/merge. A2 becomes executable only
 when they merge — and stays NOT-EXECUTED regardless; Phase B stays BLOCKED.** All 14 findings
 addressed. `w17-control-fw` branch `docs/a2-revision-pass` (off `main` = `dd9a445` — main
 moved mid-pass: a concurrent session merged `docs/sim-first-run` and added `dd9a445`): the
-checklist is rebuilt — **S0** (PDB frame) opens the sequence and hosts the pre-S6 rail
+checklist is rebuilt — **SF** (PDB frame) opens the sequence and hosts the pre-S6 rail
 isolation rows (F8/F2); **S7** is now the whole-harness composite gate (grounds + the
 post-S6 batt+→GND / rail→GND screens F1/F2, the mated master-switch pigtail rows incl. the
 owner-made XT60 tail joint, the ESC 12 AWG power-feed rows F13.6); **S8 is split S8a/S8b** —
@@ -30,9 +31,27 @@ section updated (incl. its own stale battery lines — the F5 class lived here t
 register entries found during the revision and recorded, not quietly fixed: F15** (F7's own
 fix would false-FAIL §3 rule 2 when the pull-downs are fitted) **and F16** (C1's fit moment
 was sequenced by neither doc and the F2/F8 rows made it load-bearing) — both the recurring
-asserted-over-unchecked-set class. **NOT closed, owed to the bench before S0's first joint:
+asserted-over-unchecked-set class. **NOT closed, owed to the bench before SF's first joint:
 F12's two measurement halves** — the MH-ET adjacency re-derivation and the socket-height
 caliper vs the ZK "S0" ≥ 9.82 mm clearance (the socketing decision stays conditional on it).
+**Closure pass, same day, same branches: F15 and F16 are CLOSED, and closing them generated
+two more — recorded, not quietly fixed. F17:** F15's own exceptions list omits the 13↔14 pair,
+which reads ≈2× the fitted pull-down through the star node — a resistance-mode false FAIL at
+S1r reported as "ESC and steering signals bridged"; the list is now closed-by-construction,
+with a standing instruction to extend it whenever a deliberate resistance is added. **F18:**
+PD1's pull-downs had no stated location and no fit moment (F16's defect one row over) — now
+harness side at the ESP32 #1 socket positions, fitted at S4, with **not populated** recorded
+as the expected A2-time state since R04's evidence is the Phase-B B1.4 scope. Also: photo
+item 14 (C1's stripe at S6 — no no-power reading distinguishes a reversed 1000 µF), and the
+**`S0` name collision settled by renaming the gate to `SF`** rather than annotating it —
+reference sweep first (clearance: 7 workspace files incl. a rendered diagram and three
+Codex-handoff docs already sent; gate: five files, all unmerged and unpublished), so the gate
+was the cheap rename. `S0` now names **only** the ZK cassette clearance. The register's F8/F2/
+F12 *finding bodies* keep the original wording as written history; every pointer says SF.
+Precedent this sets against R16's annotate-in-place: **rename before publication, annotate
+after.** **Both F12 bench measurements re-checked this pass and confirmed still OWED — neither
+was promoted anywhere in either repo.** control-fw branch tip after the closure pass:
+**`92f3b0d`**, UNPUSHED.
 The four 2026-08-03 owner decisions now live under **Hardware gates**, discharging review
 doc 14's "move on merge" note (the `docs/a2-adversarial-review` branches merged to both
 mains). **No hardware; nothing built, powered, flashed, or connected; nothing pushed.** ⚠
@@ -740,7 +759,7 @@ in `HARDWARE_INVENTORY.md` (the carve-out owner) — not duplicated here.
   finished harness, so there was nothing for it to measure. There is **no untracked assembly
   gate and no A1.7** — the restructure below makes A2 *be* the build order.
 - **A2 is now staged, not a single pass** (2026-07-30, revised 2026-08-04). The gates run on
-  isolated subassemblies as the harness is built — **S0 PDB frame** (XT60 + star + ESP32
+  isolated subassemblies as the harness is built — **SF PDB frame** (XT60 + star + ESP32
   sockets + rail looms, plus the pre-S6 rail isolation rows) → S1 divider → S2 Hall (incl.
   H1b, hard-stop 8's generating row) → S3 link2 → S4/S4b CRSF + actuator leads, isolation
   matrices, boot-float PD1 record (**S8a, the at-the-cut half of the ESC red-wire hard gate,
@@ -771,10 +790,11 @@ in `HARDWARE_INVENTORY.md` (the carve-out owner) — not duplicated here.
   entries F15/F16** found during the revision, and the deliberate non-closures. The revision
   lives on branches `docs/a2-revision-pass` (control-fw: checklist + plan §A2 + register;
   workspace: PDB guide + this file). **Until those branches merge, the `main` copies of the
-  checklist and guide remain do-not-execute.** Still OWED to the bench before S0's first
+  checklist and guide remain do-not-execute.** Still OWED to the bench before SF's first
   joint (F12, deliberately not closed on paper): the MH-ET adjacency re-derivation and the
   socket-height caliper vs the ZK "S0" ≥ 9.82 mm clearance. Neither the review nor the
-  revision changes any gate state.
+  revision changes any gate state. The later closure pass adds **F17/F18** to that register,
+  closes F15/F16, and renames the frame gate **S0 → SF** (`S0` = the ZK clearance only).
 - **Four A2 owner decisions taken 2026-08-03** (recorded in review doc 14, implemented by the
   revision pass; moved here per that doc's note now that its branch has merged):
   **F9a** — the IP2326 charger is **NOT fitted during A2 build week**; the charge path owns

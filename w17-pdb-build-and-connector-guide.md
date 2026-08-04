@@ -13,6 +13,13 @@ against those headers before soldering**, not against this table.
 > during A2 build week** and taps the **pack side** of the XT90-S (owner decisions F9a/F9b); the
 > Hall pull-up lives **at the ESP32 #1 end** (F11); the optional link2 RX conductor is struck
 > (F13.4, closed decision C4).
+>
+> **Closure pass 2026-08-04 (later):** the checklist's frame gate is renamed **SF** — `S0` now
+> names **only** the ZK cassette clearance `S0 ≥ 9.82 mm`, in this guide as well (there is no
+> gate S0). Also folded in: the GPIO13/14 boot-float pull-downs get a stated **location and
+> fit moment** (§5 step 4 — F18; expected A2-time state is *not fitted*), and C1 gets a
+> photograph at its fit moment (§5 step 6 — F16 corollary), because no no-power measurement
+> distinguishes a reversed 1000 µF from a correct one.
 
 ---
 
@@ -88,6 +95,7 @@ Wi-Fi module.
 | 2× UBEC, 1000 µF (Rail B), 27k/10k divider, star ground, XT60 in, rail/signal output headers, ESP32 female header sockets | **PDB** (cassette lower bay) |
 | IP2326 charger + hidden USB-C + balance extension | **pack side of the XT90-S master switch, OFF the PDB** (owner decision 2026-08-03/F9b) — **not fitted during A2 build week** (F9a); the charge path owns its own no-power gate |
 | 100 nF battery-sense filter | **at ESP32 #1 GPIO34 pin** (see §4; A2 F13.3 — this placement wins, fitted at A2 gate S4) |
+| GPIO13 / GPIO14 boot-float pull-downs (R04) — **optional, expected NOT fitted during A2** | **harness side, at the ESP32 #1 socket positions**, each to the star ground; fitted at A2 gate S4 (A2 F18 — a board-side part would vanish when the board is unseated for the isolation rows). A2 row PD1 records populated-with-value-and-placement *or* not-populated; blank is not a pass |
 | A3144 Hall (rear axle) + optional 1–10 nF at the pin; **10k pull-up (to 3V3) at the ESP32 #1 end** (owner decision 2026-08-03/F11) | **sensor at the rear axle; pull-up at ESP32 #1** |
 | 330 Ω LED series + **1000 µF (LED)** + **1N5819** | **soundlight side**, at the WS2812 strip input |
 | MAX98357A, speaker | soundlight audio |
@@ -124,29 +132,37 @@ toward the strip** — drops ~0.3 V so the ESP32's 3.3 V data reads as a valid l
 1. **Plan the board flat** first (paper/CAD): UBECs side-by-side (each 44.3 × 22.1, 9.1 tall), 1000 µF
    C1 flat, XT60 in, divider corner, star-ground node central, output headers along the service edge.
    **Before the first joint, two owed bench measurements** (A2 §2/§3): caliper the ESP32
-   female-header socket stack against the ZK cassette clearance "S0" ≥ 9.82 mm (the socketing
-   decision is conditional on it), and derive the adjacent-pin list from the **MH-ET silkscreen**.
-2. **PDB frame — A2 gate S0:** solder the XT60 input; establish **one** common-ground **star** node —
+   female-header socket stack against the ZK cassette clearance `S0` ≥ 9.82 mm — *the clearance,
+   not a gate; the frame gate below is **SF*** — (the socketing decision is conditional on it),
+   and derive the adjacent-pin list from the **MH-ET silkscreen**. **Both are still OWED.**
+2. **PDB frame — A2 gate SF:** solder the XT60 input; establish **one** common-ground **star** node —
    battery −, both UBEC GND, ESC GND, and every output-connector GND meet **here, at one point** (a
    floating/split ground is the worst UART failure mode — link2 + CRSF both depend on it). Solder both
    ESP32 **female header sockets** (boards out), the Rail A / Rail B output headers (XT30, source =
    female sockets), the signal headers (servo 3-pin, JST-XH per §2), and the rail branch looms.
-   Colour + label everything. **Run S0.**
+   Colour + label everything. **Run SF.**
 3. **Divider — A2 gate S1:** 27 kΩ from **raw battery +** (pre-UBEC) to the tap node; 10 kΩ tap → GND;
    tap → a wire out to ESP32 #1 **GPIO34**. **C3 (100 nF) goes at the GPIO34 pin end and is fitted
    with the board-end wiring at S4-time, not here** (A2 F13.3). **Run S1 — the UBECs must not exist
    on the batt+ node yet.**
 4. **Harness leads — A2 gates S2 / S3 / S4 / S4b, one lead at a time:** Hall (with the board-end 10k
-   pull-up GPIO35→3V3 — F11), link2, CRSF, the five actuator leads, C3 at the pin. **The ESC lead fix
-   (HARD GATE) happens here:** on the ESC's 3-wire servo lead, **cut the RED (+5 V BEC) wire, run A2
-   gate S8a on the bare ends — rows and photos BEFORE insulating — then insulate both ends
+   pull-up GPIO35→3V3 — F11), link2, CRSF, the five actuator leads, C3 at the pin, **and — only if
+   they are being fitted at all — the GPIO13/14 boot-float pull-downs, harness side at the ESP32 #1
+   socket positions, each to the star ground** (A2 F18; same placement rule as the Hall pull-up and
+   C3). **The expected state is NOT fitted:** the evidence for them is a Phase-B scope (B1.4) that
+   has not run, so A2 row PD1 records "not populated" and that is a PASS. Adding them later is fine
+   and breaks no A2 row.
+   **The ESC lead fix (HARD GATE) happens here:** on the ESC's 3-wire servo lead, **cut the RED
+   (+5 V BEC) wire, run A2 gate S8a on the bare ends — rows and photos BEFORE insulating — then insulate both ends
    individually.** Only **signal (→GPIO14)** and **GND** connect. (A ~6 V BEC back-feeding the UBEC
    rail damages the ESC / over-volts the rail.)
 5. **WS2812 path — A2 gate S5** (soundlight side: 330 Ω series, 1N5819, C2 per §4).
 6. **batt+ consumers — A2 gate S6, in one sitting:** both UBEC inputs parallel to battery+ (switched
    side); UBEC-A out = Rail A, UBEC-B out = Rail B; the **ESC 12 AWG direct feed**; and **C1
    (1000 µF) across Rail B**, stripe → GND, laid flat — **C1 waits until this step** so every earlier
-   rail reading is a clean OPEN (A2 F16).
+   rail reading is a clean OPEN (A2 F16). **Photograph C1 with the stripe visible before anything
+   covers it** (A2 §10 item 14): no no-power reading can tell a reversed 1000 µF from a correct one,
+   so that photo plus the visual check is the whole of A2 hard-stop 6's evidence for C1.
 7. **Whole-harness gates S7 and S8b** close the build: grounds, the batt+/rail composite screens, the
    mated master-switch pigtail rows, and the ESC-header +5-position check.
 8. ~~**Charger:** wire IP2326 — USB-C in (hidden port), output to pack, **JST-XH balance** to the
