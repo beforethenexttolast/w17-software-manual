@@ -56,6 +56,10 @@ Support files, used from any chapter:
 
 - [glossary.md](glossary.md) — every term, alphabetical
 - [open_questions.md](open_questions.md) — things only the project owner can confirm
+- [STALENESS_2026-08-17.md](STALENESS_2026-08-17.md) — dated repair list: every known
+  stale claim in chapters 00–13 + support files (counts, board names, repo set, the GS
+  redesign), with severity and suggested fix — consult it before trusting a number in
+  an older chapter
 - `code_explained/` — the **line-by-line source-code deep dives**. Control firmware
   complete + reviewed: batches C1–C10 in `code_explained/control_fw/`; sound/light
   firmware explanation complete: batches S1–S5 in `code_explained/soundlight_fw/`
