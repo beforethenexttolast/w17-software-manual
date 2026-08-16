@@ -31,6 +31,7 @@ Read the chapters in numeric order — each one only uses concepts introduced ea
 11. [11_build_flash_debug_workflow.md](11_build_flash_debug_workflow.md) — how to build, test, flash, and poke everything
 12. [12_the_skeptical_audit_and_f1_f4_fixes.md](12_the_skeptical_audit_and_f1_f4_fixes.md) — the independent audit, its risk register, the F1–F4 fixes, and why "tests green" ≠ "proven"
 13. [13_bare_board_smoke_test.md](13_bare_board_smoke_test.md) — hands-on: first power-up of the real ESP32 boards, bare over USB (owner-approved 2026-07-17 scope)
+14. [15_the_mapper_dualshock_to_crsf_and_head_intent.md](15_the_mapper_dualshock_to_crsf_and_head_intent.md) — the fourth repo (`w17-mapper`, the owned GPL fork): DualShock → node graph → CRSF → ELRS, the W17 profile, and the log-only head-intent pipeline (file number 15; the number 14 belongs to the booklet artifact below)
 
 Product artifacts kept in this manual (not teaching chapters, not in the reading order):
 
