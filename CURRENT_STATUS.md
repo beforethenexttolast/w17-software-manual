@@ -34,18 +34,35 @@ merged; `docs/a2-revision-pass` and `docs/f17-f18-closure` deleted), mapper `w17
 this pass's own commits are ahead). The "ahead 31 UNPUSHED" / "three pushes remain
 outstanding" statements in the entries below are as-of 2026-08-04 — **discharged**. Untracked
 `AGENTS.md` files (mtime 2026-08-11) sit in the workspace root, control-fw, soundlight and GS —
-not created by any Claude pass; owner commit-or-remove decision queued. **Orchestration in
-flight** (Claude = orchestrator/architect per owner, 2026-08-16): Wave-0 truth fixes are this
-entry + the map row + a vision-doc citation; worker branches are being cut in scratchpad
-worktrees for the mapper fixes (defects 1–4 + FORK-NOTICE R16 + hat-direction decode + the
-committed W17 profile with lint — the profile supersedes the old hand-build stance per the
-gift-kit decision, flagged for owner ack), soundlight decision-16 features (ignition animation,
-DRS tell, NeverConnected escalation, V6 profile groundwork), GS giftee trio (low-battery
-banner, plain-language wording, NSIS installer CI), and control-fw comment-drift fixes +
-gimbal decay-to-center (carrying the owed #3/U8 re-review note and the unlock-plan propagation
-of the arbiter amendment). Owner-decision queue for return: showcase-mode gating sentence
-(decision 2 vs done bar), sound-profile selection mechanism, AGENTS.md files, BT design's 11
-enumerated decisions, W17-profile stance ack, one interactive `smoke:electron` run.
+not created by any Claude pass; owner commit-or-remove decision queued. **Orchestration pass COMPLETE (same
+day): all five workers landed green.** Consolidated review packet:
+`2026-08-16_orchestration_review_packet.md` (root). Landed — **control-fw**:
+`docs/comment-drift-fixes` MERGED, `main` = **`94b3615`** (defects 7/8 + the unlock-plan
+amendment propagation; branch deleted after clean ff), plus branch **`feat/gimbal-decay-center`**
+(tip `acce76e`: decision-11 decay-to-center, Settings blob v1→v2 with real migration tests,
+native 229→**253**, both builds green, delivery ELF still console-free; supersedes the
+2026-07-15 "#3/U8 hold-last stands" record below on the stick path — the driving-readiness
+re-review stays OWED). **soundlight**: branch **`feat/audit-wave3-board2`** (ignition halo
+animation, green DRS wingtip tell, NeverConnected 5 s grace → hazard, named V10/V6 synth
+profiles with V10 default and no unilateral selector, 94→**107**, `lib/link2` + protocol doc
+byte-untouched). **GS**: branch **`feat/audit-wave2a-giftee`** (low-battery banner with ⚙
+thresholds 7.0/6.6 V via the a04b07c settings pattern, plain-language GRID hints, unsigned NSIS
+installer in CI — the CI run itself is pending the next push, 1185→**1255**, preload surface
+unchanged at 24 keys). **mapper**: branch **`w17-audit-wave1`** off `w17-headtrack` (all four
+confirmed defects fixed — read-cycle load guard, subscriber-independent 25 ms eval heartbeat,
+per-direction hat decode, FORK-NOTICE R16 — plus the committed `configs/w17-ds4.json` W17
+profile + plausibility lint, 137→**175** tests, proto/headintent/pre-push-hook byte-untouched,
+SHARE/OPTIONS/D-pad test-pinned unbound for the Alt-C head-tracking affordances; the committed
+profile supersedes the old hand-build stance per the gift-kit decision, owner ack pending).
+Drafts in the session scratchpad for owner review: BT show-off design (11 decisions), U4
+arbiter blueprint, glovebox booklet (26 bench-TBDs + 3 questions). **Feature branches are NOT
+merged — owner review first, per the fixes→main / features→branches policy. Nothing pushed
+anywhere.** Owner-decision queue for return (full list in the packet): showcase-mode gating
+sentence (decision 2 vs done bar), sound-profile selection mechanism (+ the volume-control gap
+the booklet surfaced), AGENTS.md files commit-or-remove, the BT design's 11 decisions, booklet
+name/contact + iPhone-section questions, W17-profile stance ack + its two machine-specific
+placeholders (pad GUID, COM port — Windows bench), one interactive `smoke:electron` run, and
+the NSIS proof run on next push.
 **Documents and branches only — no hardware; nothing built, powered, flashed, or connected;
 nothing pushed. A2 stays NOT-EXECUTED, Phase B stays BLOCKED.**
 Prior pass, **2026-08-04 (A2 third closure pass — F17/F18)** — **F17 and F18 are CLOSED;
