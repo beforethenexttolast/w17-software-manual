@@ -18,8 +18,8 @@ Phase B stays BLOCKED.** Current truth lives in `CURRENT_STATUS.md`; the vision 
 | Repo | Branch (tip) | Content | Tests | Notes |
 |---|---|---|---|---|
 | `w17-control-fw` | `feat/gimbal-decay-center` (`acce76e`) | decision 11: failsafe pan/tilt decays to center over `gimbal.decay` (default 2000 ms, NVS-tunable, console-wired); Settings blob v1→v2 with authentic-v1 migration tests; steering/ESC/DRS failsafe µs test-pinned unchanged; unlock plan #3/U8 amended (re-review still owed) | 229→253; both builds; delivery ELF console-free | Based on `3f4f9b7`; needs a trivial rebase onto `94b3615` at merge (both touch the unlock plan in different sections) |
-| `w17-soundlight-fw` | `feat/audit-wave3-board2` (`1c19260`) | ignition starter-comet + crossfade to armed teal (Cranking/Running-keyed); steady-green DRS tell on the rear-bar edge pixels (brake/hazard always win); NeverConnected: 5 s grace then honest hazard; named synth profiles `v10()` (byte-pinned default) + `v6TurboHybrid()` — no runtime selector (your mechanism decision pending) | 94→107; both builds; link2 byte-untouched | |
-| `w17-ground-station` | `feat/audit-wave2a-giftee` (`53471fd`) | low-battery HUD banner (warn 7.0 V amber / critical 6.6 V red-pulsing, ⚙-tunable, hysteresis, no new IPC); plain-language GRID hints; unsigned NSIS installer job in CI | 1185→1255; proto:check OK; preload pinned at 24 keys | NSIS proof = next CI run (needs a push) |
+| `w17-soundlight-fw` | `feat/audit-wave3-board2` (`1c19260`) | ignition starter-comet + crossfade to armed teal (Cranking/Running-keyed); steady-green DRS tell on the rear-bar edge pixels (brake/hazard always win); NeverConnected: 5 s grace then honest hazard; named synth profiles `v10()` (byte-pinned default) + `v6TurboHybrid()` — no runtime selector (your mechanism decision pending) | 94→107; both builds; link2 byte-untouched | **MERGED 2026-08-17** (MERGE_CLEAN review incl. an independent 5.2M-check priority sweep); branch + worktree removed |
+| `w17-ground-station` | `feat/audit-wave2a-giftee` (`53471fd`) | low-battery HUD banner (warn 7.0 V amber / critical 6.6 V red-pulsing, ⚙-tunable, hysteresis, no new IPC); plain-language GRID hints; unsigned NSIS installer job in CI | 1185→1257 incl. review fixup `abaddbd`; proto:check OK; preload pinned at 24 keys | **MERGED + PUSHED 2026-08-17** (review: 3 minor — the critical→ok ratchet skip and the boolean→1 V banner-disarm fixed pre-merge in `abaddbd`; the third is a stale test count in an old commit message, recorded not rewritten). NSIS proof: CI triggered by the push, result pending |
 | `w17-mapper` | `w17-audit-wave1` (`c383972`, off `w17-headtrack`) | all 4 confirmed defects fixed: read-cycle load guard (crash → safe load error), subscriber-independent 25 ms eval heartbeat (dead pad neutralizes with zero gRPC subscribers), per-direction hat decode, FORK-NOTICE R1–R16; **`configs/w17-ds4.json`** W17 profile + plausibility lint | 137→175; race green; proto/headintent/hook byte-untouched | Profile: ch1 steer LX · ch3 throttle R2/L2 · ch5 arm TRIANGLE (liveness-gated `and(seq, probe)`) · ch6 DRS SQUARE · ch7/8 gears R1/L1 · ch9/10 pan/tilt right stick · ERS pinned off · mode pinned TRAINING; switch failsafes 172; SHARE/OPTIONS/D-pad test-pinned **unbound** (reserved for head-tracking Alt-C) |
 
 | `w17-control-fw` | `proto/bt-showoff-flagged` (`138a674`, added 2026-08-17) | BT show-off prototype per the committed design (`docs/bt_showoff_design.md` lives ON the branch): pure-logic `lib/btpad` + Bluepad32 HAL, boot-only mode select, same failsafe/arm-gate code reused, TRAINING-capped envelope, settings blob v2 `btpad.*`, quarantined `esp32dev_btshowoff` env (Bluepad32 pinned **3.10.2** — the design's 3.10.3 has no published artifact) | 229→267; all 4 envs build; delivery/sim/tuning ELF: **0 BT symbols** | **Never merges before you read the design** — 11 `OWNER-PENDING(BT-n)` tags in-tree; settings-v2 reconciliation with the decay branch expected at merge |
@@ -58,8 +58,13 @@ pushing (mapper pushes additionally governed by `FORK-NOTICE.md`).
 7. **W17 profile stance ack**: committed profile supersedes the old hand-build-don't-commit
    stance (gift-kit consequence). Two placeholders need the Windows bench: the physical pad's
    device id and the ELRS TX COM port.
-8. **Interactive `smoke:electron` run** (one command in a normal terminal — agent shells
-   can't boot Electron; suite itself is 1255-green).
+8. **`smoke:electron` on this Mac — diagnosed 2026-08-17 as a machine issue, not a repo
+   defect**: a node/npm security layer (`allow-scripts`, not stock npm) kills electron's
+   postinstall mid-extraction, leaving partial signature-broken bundles that macOS SIGKILLs;
+   something additionally reaps app bundles under `~/Documents`. Canonical boot proof =
+   Windows CI (green at `92cd894`; re-proving + first NSIS artifact on the 2026-08-17 push).
+   Optional owner-side unlock for local smoke: `npm approve-scripts electron` (a security
+   policy — owner's call).
 9. **NSIS CI proof**: next push to GS triggers the new installer job; artifact should appear.
 10. **U4 / BT execution**: both were **started on your standing approvals** from this
     morning's answers (branch-only / design+prototype). Say stop if you want them paused.
@@ -92,7 +97,8 @@ contents/wiring/BOM doc.
    `feat/gimbal-decay-center` (control-fw) and `w17-audit-wave1` (mapper) wait for the
    owner's personal diff review. U4/BT branches never merge pre-gate regardless.
 2. **Push scope:** GS may be pushed to origin — only repo, only purpose: trigger the Windows
-   CI NSIS proof after the local merge. Everything else stays unpushed.
+   CI NSIS proof after the local merge. Everything else stays unpushed. *(Executed
+   2026-08-17: `92cd894..abaddbd` pushed; CI run pending.)*
 3. **Showcase mode:** core-if-cheap — normal wave, NOT on the v1.0 done bar.
 4. **Sound mechanism:** link2 v2 field carrying voice profile + volume/quiet level;
    control-fw first (protocol owner), soundlight consumes; volume control is now a

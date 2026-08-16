@@ -44,9 +44,22 @@ contain 992). The tip is **unpushable by hook construction** (20+ files trip pre
 gated on R1–R16 + bench evidence**; the bench-residual list is committed verbatim in the
 branch README. Scratchpad
 drafts rescued to `_handoff/` as dated non-canonical snapshots naming their canonical homes
-(BT design, U4 blueprint, glovebox booklet). **HOLD otherwise in force per owner: no merges,
-no new waves until the owner announces the session reset.** Review packet updated in place
-(§2/§5). Nothing pushed; no hardware; A2 stays NOT-EXECUTED, Phase B stays BLOCKED.
+(BT design, U4 blueprint, glovebox booklet). **The owner announced the reset 2026-08-17 —
+hold lifted, execution resumed per packet §7½/§6.** Post-reset, same day: soundlight
+`feat/audit-wave3-board2` **MERGED** (main = `1c19260`) on a MERGE_CLEAN adversarial review
+(fresh 107/107 + an independent 5.2M-check priority sweep; worktree and branch removed); GS
+`feat/audit-wave2a-giftee` reviewed (3 minor findings — the two real ones, a critical→ok
+ratchet skip and boolean thresholds silently normalizing to 1 V, **fixed pre-merge in
+`abaddbd`**, suite 1257/1257; the third is a stale test count in an old commit message,
+recorded not rewritten), **MERGED** (main = `abaddbd`) and **PUSHED to origin under the §7½
+GS-only push exception** (`92cd894..abaddbd`) — Windows CI incl. the first NSIS installer
+artifact is running; result to be recorded. The macOS `smoke:electron` failures are
+diagnosed as a **machine-level npm `allow-scripts` policy** killing electron's postinstall
+mid-extraction (partial, signature-broken bundles macOS then SIGKILLs; plus an unidentified
+`~/Documents` app-bundle reaper) — NOT a repo defect; Windows CI is the canonical boot
+proof. Four builders still in flight (link2-v2 voice+volume, race-day orchestration, video
+profiles, manual wave 1). Review packet updated in place (§2/§4/§5/§7½). No hardware
+anywhere; A2 stays NOT-EXECUTED, Phase B stays BLOCKED.
 Prior pass, **2026-08-16 (vision lock + orchestration pass)** — **The product vision is
 LOCKED and canonical** in the new `W17_PRODUCT_VISION.md` (registered in `WORKSPACE_MAP.md`):
 18 owner decisions, the v1.0 done bar (items 1–8, incl. active head tracking, functional DRS,
