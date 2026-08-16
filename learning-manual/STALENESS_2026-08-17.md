@@ -6,28 +6,39 @@ for a later refresh pass*, per the 2026-08-16 vision audit (decision-17 row: "re
 vs current code"). Dated snapshot — reconcile against `../CURRENT_STATUS.md` before
 acting on it later.
 
-**Method.** Every pre-wave manual file was walked against the source repos at their
-current mains: `w17-control-fw` `94b3615`, `w17-soundlight-fw` `5919685`,
-`w17-ground-station` `92cd894`, `w17-mapper` `w17-headtrack` @ `432a809`, workspace
-`f0201c4` — plus the recorded owner decisions in `../W17_PRODUCT_VISION.md` /
-`../CURRENT_STATUS.md`. Suite counts quoted below are the 2026-08-16 audit's
+**Method.** Every pre-wave manual file was walked against the source repos at the
+mains current when the walk ran: `w17-control-fw` `94b3615`, `w17-soundlight-fw`
+`5919685`, `w17-ground-station` `92cd894`, `w17-mapper` `w17-headtrack` @ `432a809`,
+workspace `f0201c4` — plus the recorded owner decisions in `../W17_PRODUCT_VISION.md`
+/ `../CURRENT_STATUS.md`. Suite counts quoted below are the 2026-08-16 audit's
 (`../2026-08-16_vision_audit_report.md` §1: control 229 native, soundlight 94, GS 1185
 vitest, mapper 137), which audited these same commits; they were not re-run here.
+
+**Mid-wave supersession (2026-08-17, workspace `0542e29`) — read before using the
+numbers.** While this report was being written, the post-reset merges landed:
+**soundlight main → `1c19260`** (wave-3 board-2 features; 94 → **107** tests) and
+**GS main → `abaddbd`** (giftee wave + two review fixes; **1257** tests; the unsigned
+NSIS CI job now on main, GS pushed under the GS-only exception to run it).
+Control-fw and mapper mains are unchanged. Consequence: former watch items **W1 and
+W2 are LIVE staleness now** — folded into chapters 07/08/11/glossary below as S37/S38
+and updated fix targets. Where a finding cites a soundlight/GS count, repair to the
+post-merge values (control 229 / soundlight 107 / GS 1257 / mapper 137).
 
 **Severity scale.** **HIGH** = misleads action or contradicts a recorded owner
 decision / resolved defect. **MEDIUM** = concrete claim about current state that is
 now false (counts, names, structure). **LOW** = dated-but-labeled, cosmetic, or a gap
 rather than a falsehood.
 
-**Headline counts: 21 files checked · 36 stale claims (5 HIGH / 19 MEDIUM / 12 LOW)
-· 3 files fully clean · 5 watch items.** (The files this wave created — 14, 15, 16–22,
-this report — are excluded from their own audit.)
+**Headline counts: 21 files checked · 38 stale claims (6 HIGH / 19 MEDIUM / 13 LOW)
+· 3 files fully clean · 3 remaining watch items (2 landed mid-wave).** (The files this
+wave created — 14, 15, 16–22, this report — are excluded from their own audit.)
 
 ## The four systematic drifts (each shows up in many chapters)
 
 1. **Suite counts.** The manual's recurring 147 (control) / 40 (soundlight) /
-   118 (GS) all predate a year of growth: **229 / 94 / 1185**, plus the mapper's 137
-   which the manual never counted at all. Every count is flagged per file below.
+   118 (GS) all predate a year of growth: audited at **229 / 94 / 1185**, and after
+   the mid-wave merges **229 / 107 / 1257** — plus the mapper's 137 which the manual
+   never counted at all. Every count is flagged per file below.
 2. **"Three repositories."** Since the manual's frame was set, the Claude side gained
    `w17-mapper` (owned fork — now taught in chapter 15), `w17-design-system`, and
    `w17-3d-codex` (`../WORKSPACE_MAP.md`). Chapters 00/01/02 still teach a three-repo
@@ -90,14 +101,15 @@ Format: **id** · location · stale claim · severity · suggested fix.
 
 ### 07_soundlight_firmware_architecture.md
 
-- **S16** · :227 · env table: "40 unit tests". **MEDIUM** · 94.
+- **S16** · :227 · env table: "40 unit tests". **MEDIUM** · 107 (94 at the audited `5919685`; wave-3 merge `1c19260` added 13).
 - **S17** · :32 · "review pass pending" for S1–S5. **LOW** — still true, which is itself the news (pending since 2026-07-06). · Keep, add the date.
-- *(NeverConnected calm-teal at :145–157 is **currently accurate** on main — see watch item W1 before "fixing" it.)*
+- **S37** · :145–157 (and :65 "NeverConnected never…") · "**NeverConnected** instead shows a calm teal 'waiting' breathe" *forever*, "pinned by" test. **HIGH** — became false mid-wave: since `1c19260` NeverConnected gets a **5 s grace window, then escalates to an honest hazard** (audit low finding 9's fix, merged). The manual currently teaches a failure-indication semantics the firmware no longer has. · Rewrite the NeverConnected paragraphs + the pinned-test citation against the merged code.
+- **S38** · lights list (:137–145) and synth sections · the wave-3 additions are absent: ignition starter-comet + crossfade-to-armed-teal, steady-green DRS tell on the rear-bar edge pixels (brake/hazard win), and the named voice profiles `v10()` (byte-pinned default) / `v6TurboHybrid()` (no runtime selector yet — link2 v2 mechanism decided but not built). **LOW** (gaps, not falsehoods) · Add when ch07 is refreshed; source: the wave-3 merge commit set on `w17-soundlight-fw` main.
 
 ### 08_ground_station_architecture.md
 
-- **S18** · whole chapter · describes the pre-redesign app: **no setup flow at all** (zero hits for GARAGE/PIT WALL/SEAT FIT/SETUP/GRID — drift 4), no hotspot lifecycle, no GRID checklist engine, no mDNS discovery (CB4, `92cd894`), no HUD-discovery/W2-finalization story. **HIGH** — a reader building a mental model of today's app gets 2026-07-09's app. · Substantial refresh: either new sections per setup step (sources: `shared/setupSteps.mjs`, `shared/checklist.mjs`, `main/HudDiscovery.js`, README §Quick tour) or an explicit "architecture as of 2026-07-09" re-scope plus a delta chapter. Coordinate with the G-campaign resumption (S34/S35) so chapter and deep-dives move together.
-- **S19** · :167 · "implemented + unit-tested (118/118 vitest)". **MEDIUM** · 1185; the surrounding W2/W3 honesty statements (real-device validation pending, W3 log-only) remain true and must survive.
+- **S18** · whole chapter · describes the pre-redesign app: **no setup flow at all** (zero hits for GARAGE/PIT WALL/SEAT FIT/SETUP/GRID — drift 4), no hotspot lifecycle, no GRID checklist engine, no mDNS discovery (CB4, `92cd894`), no HUD-discovery/W2-finalization story — and, since the mid-wave `abaddbd` merge, no low-battery HUD banner / plain-language GRID hints either. **HIGH** — a reader building a mental model of today's app gets 2026-07-09's app. · Substantial refresh: either new sections per setup step (sources: `shared/setupSteps.mjs`, `shared/checklist.mjs`, `main/HudDiscovery.js`, README §Quick tour) or an explicit "architecture as of 2026-07-09" re-scope plus a delta chapter. Coordinate with the G-campaign resumption (S34/S35) so chapter and deep-dives move together.
+- **S19** · :167 · "implemented + unit-tested (118/118 vitest)". **MEDIUM** · 1257 (1185 at the audited `92cd894`); the surrounding W2/W3 honesty statements (real-device validation pending, W3 log-only) remain true and must survive.
 
 ### 09_communication_protocols.md
 
@@ -111,8 +123,8 @@ Format: **id** · location · stale claim · severity · suggested fix.
 
 ### 11_build_flash_debug_workflow.md
 
-- **S22** · :31 · "expect 147 tests" (and the soundlight/GS expectations in the same §2 block). **MEDIUM** · 229/94/1185.
-- **S23** · :123, :171 · "118 tests as of 2026-07-09" / CI "the 118 vitest tests". **MEDIUM** · 1185; CI job *structure* on GS main (test + Windows package-smoke) is still as described.
+- **S22** · :31 · "expect 147 tests" (and the soundlight/GS expectations in the same §2 block). **MEDIUM** · 229/107/1257.
+- **S23** · :123, :171 · "118 tests as of 2026-07-09" / CI "the 118 vitest tests… two jobs". **MEDIUM** · 1257; and since `abaddbd` (mid-wave) the GS workflow gained a **third job — the unsigned NSIS installer build** — so the "two jobs" structure claim is stale too; describe test + package-smoke + NSIS.
 - **S24** · :58–59, :200 · flashing notes assume "the physical DevKit V1 boards" ([A]). **MEDIUM** — cassette boards are MH-ET (drift 3); ch13's evidence retired the [A] for DevKit clones only. · Re-scope: DevKit = test/spare (evidence exists), MH-ET = the delivery target, flash behavior **[A]** until first MH-ET flash (rebuild stub 20 tracks this).
 - **S25** · coverage · no mapper (Go) build/test/run workflow. **LOW** · ch15 §3 carries the basics; add a §here when the mapper enters the campaign (S35).
 
@@ -129,7 +141,7 @@ Format: **id** · location · stale claim · severity · suggested fix.
 
 ### glossary.md
 
-- **S29** · :91 · GS "ci.yml has two [jobs]: `test` (the 118 vitest tests…)". **MEDIUM** · 1185; jobs still two on main (NSIS job exists only on the unmerged wave-2a branch — W2).
+- **S29** · :91 · GS "ci.yml has two [jobs]: `test` (the 118 vitest tests…)". **MEDIUM** · 1257, and **three jobs** since the mid-wave `abaddbd` merge (test, package-smoke, NSIS installer).
 - **S30** · :108 · "…elrs-joystick-control drives the…" — external-tool framing (drift 2). **MEDIUM** · Re-point at `w17-mapper`/ch15.
 - **S31** · coverage · no entries for: w17-mapper, node graph, plausibility band, head intent, FIRST_ACTIVE, ACTIVE_LOG_ONLY, GCS box, MH-ET D1-Mini. **LOW** · Add alongside a ch15 vocabulary pass.
 
@@ -154,12 +166,13 @@ Format: **id** · location · stale claim · severity · suggested fix.
 
 | # | Chapter(s) affected | Becomes stale when… | What changes |
 |---|---|---|---|
-| W1 | 07 (NeverConnected :145–157; lights list; synth) | `w17-soundlight-fw` `feat/audit-wave3-board2` merges | calm-teal-forever → 5 s grace then hazard; + ignition animation, DRS tell, named `v10()`/`v6TurboHybrid()` profiles; 94 → 107 tests |
-| W2 | 08, 11, glossary :91 | `w17-ground-station` `feat/audit-wave2a-giftee` merges | low-battery HUD banner, plain-language GRID hints, NSIS CI job; 1185 → 1255 |
-| W3 | 10 (S21), 06 | `w17-control-fw` `feat/gimbal-decay-center` merges | pan/tilt failsafe: hold-last → decay-to-center (2000 ms, NVS-tunable); 229 → 253; Settings blob v1→v2 |
-| W4 | 15 (already branch-aware by construction) | `w17-mapper` `w17-audit-wave1` merges | ch15 §6/§11 "unmerged" wording flips; defects 2/4 rows close |
+| ~~W1~~ | ~~07~~ | **LANDED mid-wave** (`1c19260`, 2026-08-17) | folded into findings S16/S37/S38 above |
+| ~~W2~~ | ~~08, 11, glossary~~ | **LANDED mid-wave** (`abaddbd`, 2026-08-17; tests 1257, not the branch-time 1255) | folded into S18/S19/S23/S29 above |
+| W3 | 10 (S21), 06 | `w17-control-fw` `feat/gimbal-decay-center` merges (awaits the owner's personal diff review) | pan/tilt failsafe: hold-last → decay-to-center (2000 ms, NVS-tunable); 229 → 253; Settings blob v1→v2 |
+| W4 | 15 (already branch-aware by construction) | `w17-mapper` `w17-audit-wave1` merges (same personal-review gate) | ch15 §6/§11 "unmerged" wording flips; defects 2/4 rows close |
 | W5 | 09, 07 | control-fw lands the decided link2 **v2** field (sound profile + volume — packet §7½.4) | link2 tables gain a field; both repos' protocol copies re-sync |
 
-**Merge-order caveat:** per the owner's pre-reset answers (packet §7½.1), soundlight
-and GS branches may merge before control-fw/mapper ones — so W1/W2 can flip while
-W3/W4 stay pending. Re-check branch state before acting on any watch item.
+**Merge-order caveat, proven mid-wave:** per the owner's pre-reset answers (packet
+§7½.1), soundlight and GS merged first — W1/W2 flipped while this report was being
+written — and control-fw/mapper still await the owner's personal diff review. Re-check
+branch state before acting on any remaining watch item.

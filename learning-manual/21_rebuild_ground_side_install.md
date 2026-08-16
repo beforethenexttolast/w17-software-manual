@@ -20,11 +20,12 @@ dry-run before a car exists (the GS demo mode needs no car).
 
 ## Existing sources to build from (cite, don't copy)
 
-- **[C]** GS packaging: `w17-ground-station/electron-builder.yml` (NSIS target
-  defined) — but note the installer has **never been CI-built**: `ci.yml` packages
-  `--dir` only on main (`92cd894`); an unsigned NSIS CI job exists on the unmerged
-  `feat/audit-wave2a-giftee` branch and its first artifact is still pending a push
-  (audit low finding 10; packet §4 item 9).
+- **[C]** GS packaging: `w17-ground-station/electron-builder.yml` (NSIS target) plus,
+  since the 2026-08-17 merge of the giftee wave (`abaddbd`), an **unsigned NSIS CI
+  job on main** — GS was pushed the same day under the GS-only push exception
+  precisely to produce the first installer artifact (audit low finding 10; workspace
+  `0542e29`). At this stub's writing that first artifact was **still unconfirmed**;
+  verify it exists and installs before writing this chapter.
 - **[C]** Mapper profile: `configs/w17-ds4.json` on the unmerged `w17-audit-wave1`
   branch, with two Windows-bench placeholders (pad id, COM port) — chapter 15 §6.
 - **[C]** GCS box: contents/wiring/BOM are Claude-side, box print is Codex-side; the
