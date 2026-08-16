@@ -117,6 +117,13 @@ invariant — friendliness is delivered by UX, never by relaxing safety.
   shaping/arbitration — is deliberately design-only: full spec + test matrix + R1–R16 review
   checklist exist, **no arbiter code**, FIRST_ACTIVE = NO-GO with hardware-evidence blockers.
   (`w17-control-fw/project-review/head_tracking_unlock_plan.md`.)
+  **Owner amendment 2026-08-16: branch-only implementation approved** — the U4 arbiter and
+  its Groups A/B/C test matrix may be written on a `w17-mapper` feature branch with both
+  FIRST_ACTIVE flags default-off and every shaping constant fail-closed (no invented
+  calibration values); the branch is **never merged or pushed** before R1–R16 pass. This
+  supersedes the blanket "no arbiter code committed" wording of 2026-07-15; propagating the
+  amendment into the unlock plan's own text is owed when `w17-control-fw` is next touched.
+  Activation semantics unchanged: two flags + R-review + bench evidence.
 - **Wheel (10):** the mapper reads devices through SDL's joystick API
   (`w17-mapper/pkg/devices/controller.go` — `JoystickOpen` / `JoystickEventState`), the level
   at which sim wheels enumerate; wheel/pedal axes should therefore map to CRSF channels like
@@ -129,13 +136,16 @@ invariant — friendliness is delivered by UX, never by relaxing safety.
 
 ## Backlog seeded by this pass (recorded, not scheduled; no gate touched)
 
-- **BT show-off mode** (12): DualShock paired directly to ESP32 #1 Bluetooth for a
-  few-metres / one-minute no-laptop demo. Feasible (classic-BT ESP32; Bluepad32-class stack),
-  but it is a **new control-input class into the safety-critical board** — requires its own
-  design + review before any code: BT-loss failsafe, boot-time hard mutual exclusion with
-  CRSF, unchanged arm gate, RAM/latency budget. It dilutes "Windows is the control authority"
-  exactly the way the approved ELRS backup handset does — acceptable per owner, gated per
-  process.
+- **BT show-off mode** (12; scope clarified + commissioned 2026-08-16): DualShock paired
+  directly to ESP32 #1 Bluetooth so the car drives like a **basic RC car at close range with
+  no PC available** — the "look what I have here" scenario. Owner approved **design + a
+  default-off, compile-flagged branch prototype in one pass** (design doc first, prototype on
+  a feature branch, native tests only; nothing merged and nothing bench-run before the owner
+  reads the design). Non-negotiables carried into the design: BT-loss failsafe identical in
+  effect to CRSF failsafe, boot-time hard mutual exclusion with CRSF (never runtime-switched),
+  the arm gate and ESC boot sequence unchanged, a gentler demo throttle envelope, RAM/latency
+  budget proven at the bench later. It dilutes "Windows is the control authority" the same way
+  the approved ELRS backup handset does — acceptable per owner, gated per process.
 - **Wheel-driving bench check** (10): enumerate the wheel in the mapper, map axes/pedals,
   drive the bench rig; expected zero code.
 - **Sound profile selector** (15): synth already parameterized (firings/rev, partial stack,
