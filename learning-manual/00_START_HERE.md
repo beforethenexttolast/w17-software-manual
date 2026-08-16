@@ -33,6 +33,18 @@ Read the chapters in numeric order — each one only uses concepts introduced ea
 13. [13_bare_board_smoke_test.md](13_bare_board_smoke_test.md) — hands-on: first power-up of the real ESP32 boards, bare over USB (owner-approved 2026-07-17 scope)
 14. [15_the_mapper_dualshock_to_crsf_and_head_intent.md](15_the_mapper_dualshock_to_crsf_and_head_intent.md) — the fourth repo (`w17-mapper`, the owned GPL fork): DualShock → node graph → CRSF → ELRS, the W17 profile, and the log-only head-intent pipeline (file number 15; the number 14 belongs to the booklet artifact below)
 
+The **rebuild track** (16–22) is the second track decision 17 requires — the
+stranger-could-rebuild journey. Currently a **skeleton of scope stubs**, most of which
+can only be written from physical-build evidence:
+
+- [16_rebuild_track_overview.md](16_rebuild_track_overview.md) — the journey map + the track's ground rules
+- [17_rebuild_sourcing_and_bom.md](17_rebuild_sourcing_and_bom.md) — parts, substitutes, the MH-ET board decision
+- [18_rebuild_printed_parts.md](18_rebuild_printed_parts.md) — STLs/materials/finishing (pointers into `w17-3d-codex` + Codex territory)
+- [19_rebuild_pdb_and_harness.md](19_rebuild_pdb_and_harness.md) — anchored on `../w17-pdb-build-and-connector-guide.md` by reference
+- [20_rebuild_firmware_flashing.md](20_rebuild_firmware_flashing.md) — both boards, delivery vs tuning builds
+- [21_rebuild_ground_side_install.md](21_rebuild_ground_side_install.md) — giftee-PC installer, headless mapper profile, GCS box
+- [22_rebuild_first_power_up.md](22_rebuild_first_power_up.md) — A2 / Phase-B gate discipline, written only from executed-gate evidence
+
 Product artifacts kept in this manual (not teaching chapters, not in the reading order):
 
 - [14_glovebox_owners_booklet.md](14_glovebox_owners_booklet.md) — the giftee-facing

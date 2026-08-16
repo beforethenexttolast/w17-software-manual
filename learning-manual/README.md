@@ -19,3 +19,7 @@ The manual also hosts one product artifact: the giftee-facing glovebox quick-sta
 booklet, **[14_glovebox_owners_booklet.md](14_glovebox_owners_booklet.md)** —
 an OWNER-UNREVIEWED DRAFT (placed 2026-08-17) that prints only after the owner's
 editorial pass and after the bench confirms its `[TBD-at-bench]` facts.
+
+Two tracks now exist per vision decision 17: the **teaching track** (chapters 01–15)
+and the **rebuild track** (chapters 16–22, currently a skeleton of scope stubs —
+start at [16_rebuild_track_overview.md](16_rebuild_track_overview.md)).
