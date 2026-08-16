@@ -78,6 +78,19 @@ booklet placement) → showcase-mode design (after decision 1) → sound-profile
 (after decisions 2/3) → ELRS backup handset procurement + binding doc → GCS-box
 contents/wiring/BOM doc.
 
+## 7½. Pre-reset owner answers (2026-08-16, recorded live)
+
+1. **Merge authority — split by risk:** the next session may review + merge
+   `feat/audit-wave3-board2` (soundlight) and `feat/audit-wave2a-giftee` (GS) itself;
+   `feat/gimbal-decay-center` (control-fw) and `w17-audit-wave1` (mapper) wait for the
+   owner's personal diff review. U4/BT branches never merge pre-gate regardless.
+2. **Push scope:** GS may be pushed to origin — only repo, only purpose: trigger the Windows
+   CI NSIS proof after the local merge. Everything else stays unpushed.
+3. **Showcase mode:** core-if-cheap — normal wave, NOT on the v1.0 done bar.
+4. **Sound mechanism:** link2 v2 field carrying voice profile + volume/quiet level;
+   control-fw first (protocol owner), soundlight consumes; volume control is now a
+   requirement (decisions queue items 2/3 are thereby answered).
+
 ## 7. Standing hardware-gated ledger (unchanged)
 
 A2 execution → Phase B; F12 caliper pair; F20 matrix extension; wheel bench check; pad

@@ -55,7 +55,7 @@ state, not scope creep.
 | # | Topic | Decision |
 |---|---|---|
 | 1 | Done bar | v1.0 = full list above incl. head tracking + DRS; stranger-rebuildable manual "ideally" in |
-| 2 | Showcase mode | **Core**: stationary demo — lights + engine sound + live camera, drive disarmed ("if we're close — why not") |
+| 2 | Showcase mode | **Core**: stationary demo — lights + engine sound + live camera, drive disarmed ("if we're close — why not"). **Gating settled 2026-08-16: core-if-cheap — built in a normal wave, NOT on the v1.0 done bar.** |
 | 3 | Venue | Both indoor and smooth outdoor |
 | 4 | Speed | Tunable, gentle defaults, no fixed target |
 | 5 | Driver figure vs cockpit cam | Decide on first cockpit test footage; leaning camera-wins |
@@ -68,7 +68,7 @@ state, not scope creep.
 | 12 | No-laptop options | Keep a plain ELRS handset bound to the RP1 as backup (laptop-required main chain accepted). New gated idea: Bluetooth show-off mode (backlog) |
 | 13 | Charging UX | Hidden flap + hard charge/run interlock + charge-state light |
 | 14 | DRS | Functional in v1.0, strong requirement; flap mechanics are Codex territory (cross-repo dependency) |
-| 15 | Engine voice | V10 default; selectable profiles (V6-turbo-hybrid) desired if feasible |
+| 15 | Engine voice | V10 default; selectable profiles (V6-turbo-hybrid) desired if feasible. **Mechanism decided 2026-08-16: a link2 v2 field (control-fw owns the protocol bump) carrying voice profile + volume/quiet level — volume control added as a requirement the same day (booklet-surfaced).** |
 | 16 | Lights | Current set stands; **add** ignition-on animation + DRS-open tell. (Indicators are already steering-driven by design — see reality check) |
 | 17 | Manual | Publishable, stranger-could-rebuild **and** full teaching depth |
 | 18 | Publicness | Public after finalization **and gifting**; GPL-forced parts (mapper) already public |
@@ -148,8 +148,11 @@ invariant — friendliness is delivered by UX, never by relaxing safety.
   the approved ELRS backup handset does — acceptable per owner, gated per process.
 - **Wheel-driving bench check** (10): enumerate the wheel in the mapper, map axes/pedals,
   drive the bench rig; expected zero code.
-- **Sound profile selector** (15): synth already parameterized (firings/rev, partial stack,
-  ERS whine); selection mechanism TBD — board-2 NVS vs link2 vs build flag.
+- **Sound profile selector + volume** (15): mechanism DECIDED 2026-08-16 — a link2 v2 field
+  carrying voice profile + volume/quiet level (control-fw first per protocol ownership, then
+  soundlight consumes; both link2 copies re-synced per the drift guard). The V10/V6 profile
+  pair already exists on the soundlight branch; volume/quiet mode is a new operator-model
+  requirement surfaced by the glovebox booklet draft.
 - **Ignition-on animation + DRS-open tell** (16): board-2 lights compositor.
 - **Showcase mode** (2): small demo-state feature (board-1 disarmed demo feed or board-2
   local trigger); `esp32dev_sim` already proves the sound/light half. A no-laptop variant
@@ -188,5 +191,6 @@ gates govern all hardware work.
 - **5** — driver figure: revisit at first cockpit footage.
 - **GCS box power budget** (gift kit): powered hub (12 V) or bus-powered — measure on the
   bench (see backlog).
-- Mechanisms TBD when scheduled: sound-profile selection, showcase-mode trigger, BT show-off
-  design.
+- Mechanism TBD when scheduled: the showcase-mode trigger (board-1 disarmed demo feed vs
+  board-2 local trigger). Sound selection is decided (link2 v2, see backlog); the BT design
+  is written and awaits owner review.
