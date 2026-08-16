@@ -32,6 +32,13 @@ Read the chapters in numeric order — each one only uses concepts introduced ea
 12. [12_the_skeptical_audit_and_f1_f4_fixes.md](12_the_skeptical_audit_and_f1_f4_fixes.md) — the independent audit, its risk register, the F1–F4 fixes, and why "tests green" ≠ "proven"
 13. [13_bare_board_smoke_test.md](13_bare_board_smoke_test.md) — hands-on: first power-up of the real ESP32 boards, bare over USB (owner-approved 2026-07-17 scope)
 
+Product artifacts kept in this manual (not teaching chapters, not in the reading order):
+
+- [14_glovebox_owners_booklet.md](14_glovebox_owners_booklet.md) — the giftee-facing
+  printed quick-start required by `../W17_PRODUCT_VISION.md` done-bar item 8.
+  **OWNER-UNREVIEWED DRAFT** with its `[TBD-at-bench]` markers intact; prints only after
+  the owner's pass and the bench.
+
 Support files, used from any chapter:
 
 - [glossary.md](glossary.md) — every term, alphabetical

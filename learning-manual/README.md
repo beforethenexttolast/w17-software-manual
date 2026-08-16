@@ -14,3 +14,8 @@ iPhone-bridge batches G5a/G5b of G1–G5b). Chapter-quality audit of **this manu
 
 The `plan/` subfolder holds the original planning documents (2026-07-03) that this
 manual was built from — kept for reference; the numbered chapters here supersede them.
+
+The manual also hosts one product artifact: the giftee-facing glovebox quick-start
+booklet, **[14_glovebox_owners_booklet.md](14_glovebox_owners_booklet.md)** —
+an OWNER-UNREVIEWED DRAFT (placed 2026-08-17) that prints only after the owner's
+editorial pass and after the bench confirms its `[TBD-at-bench]` facts.
