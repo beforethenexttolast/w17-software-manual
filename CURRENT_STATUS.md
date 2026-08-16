@@ -8,7 +8,33 @@ workspace-level source for all of those and for project execution status.
 Overwrite it in place when state changes; do not append history. Instruction files
 (`CLAUDE.md` / `AGENTS.md`) must not duplicate anything below.
 
-_Last updated: **2026-08-16 (vision lock + orchestration pass)** — **The product vision is
+_Last updated: **2026-08-17 (conditional waves: BT lands, U4 resumed)** — **BT show-off
+prototype COMPLETE** on `w17-control-fw` branch **`proto/bt-showoff-flagged`** (5 commits, tip
+`138a674`, off `94b3615`): the design doc now lives at its canonical home
+`docs/bt_showoff_design.md` (on the branch); pure-logic `lib/btpad`
+(PadFrame/IPadSource/PadDecoder → the existing `channels::Controls`, PadLinkMonitor,
+BootModeResolver); Settings blob v1→v2 `btpad.*` + console keys (a merge-time v2
+reconciliation with `feat/gimbal-decay-center`'s own v2 is expected and documented); Bluepad32
+HAL + quarantined `esp32dev_btshowoff` env — **pinned 3.10.2** (the design's 3.10.3 has no
+published core artifact; recorded deviation) and it **builds** (flash 740 KB of the 3 MB
+huge_app slot, real BT stack linked). Native **229→267/267**;
+`esp32dev`/`esp32dev_tuning`/`esp32dev_sim` all build; **ELF evidence: 0 BT symbols in
+delivery/sim/tuning** (btshowoff 216 as positive control) — the check is now a D8 Phase 11a
+runbook step. All **11 `OWNER-PENDING(BT-n)` decision tags** shipped (51 occurrences); link2
+bit-7 stayed DOC-ONLY; the CRSF-path guarantee is structural (btpad not linked in default
+builds; the `controlTick` extraction changes default-build code layout, behavior unchanged —
+proven by unchanged native suites + green builds). **U4 arbiter interrupted, not lost:** the
+implementing agent hit the session usage limit mid-slice-3. Slices **S1 = `aee2450`** (pure
+core: gate files, fail-closed calibration, shaping math) and **S2 = `a032947`** (state
+machine, controls seam, tick pipeline) are **COMMITTED on `u4-arbiter`**; slice-3 WIP (choke
+point in `pkg/link/send.go`/`controller.go`, tag-gated cmd files, the identity-test trio) sat
+uncommitted in its worktree; **resumed 2026-08-17 on the owner's "try again"** — rules
+unchanged (flags default-off, fail-closed, never merged/pushed before R1–R16). Scratchpad
+drafts rescued to `_handoff/` as dated non-canonical snapshots naming their canonical homes
+(BT design, U4 blueprint, glovebox booklet). **HOLD otherwise in force per owner: no merges,
+no new waves until the owner announces the session reset.** Review packet updated in place
+(§2/§5). Nothing pushed; no hardware; A2 stays NOT-EXECUTED, Phase B stays BLOCKED.
+Prior pass, **2026-08-16 (vision lock + orchestration pass)** — **The product vision is
 LOCKED and canonical** in the new `W17_PRODUCT_VISION.md` (registered in `WORKSPACE_MAP.md`):
 18 owner decisions, the v1.0 done bar (items 1–8, incl. active head tracking, functional DRS,
 and giftee-operability — the car is a **gift for a non-hobbyist**, "user friendly af"), the

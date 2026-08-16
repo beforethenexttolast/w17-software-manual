@@ -22,6 +22,8 @@ Phase B stays BLOCKED.** Current truth lives in `CURRENT_STATUS.md`; the vision 
 | `w17-ground-station` | `feat/audit-wave2a-giftee` (`53471fd`) | low-battery HUD banner (warn 7.0 V amber / critical 6.6 V red-pulsing, ⚙-tunable, hysteresis, no new IPC); plain-language GRID hints; unsigned NSIS installer job in CI | 1185→1255; proto:check OK; preload pinned at 24 keys | NSIS proof = next CI run (needs a push) |
 | `w17-mapper` | `w17-audit-wave1` (`c383972`, off `w17-headtrack`) | all 4 confirmed defects fixed: read-cycle load guard (crash → safe load error), subscriber-independent 25 ms eval heartbeat (dead pad neutralizes with zero gRPC subscribers), per-direction hat decode, FORK-NOTICE R1–R16; **`configs/w17-ds4.json`** W17 profile + plausibility lint | 137→175; race green; proto/headintent/hook byte-untouched | Profile: ch1 steer LX · ch3 throttle R2/L2 · ch5 arm TRIANGLE (liveness-gated `and(seq, probe)`) · ch6 DRS SQUARE · ch7/8 gears R1/L1 · ch9/10 pan/tilt right stick · ERS pinned off · mode pinned TRAINING; switch failsafes 172; SHARE/OPTIONS/D-pad test-pinned **unbound** (reserved for head-tracking Alt-C) |
 
+| `w17-control-fw` | `proto/bt-showoff-flagged` (`138a674`, added 2026-08-17) | BT show-off prototype per the committed design (`docs/bt_showoff_design.md` lives ON the branch): pure-logic `lib/btpad` + Bluepad32 HAL, boot-only mode select, same failsafe/arm-gate code reused, TRAINING-capped envelope, settings blob v2 `btpad.*`, quarantined `esp32dev_btshowoff` env (Bluepad32 pinned **3.10.2** — the design's 3.10.3 has no published artifact) | 229→267; all 4 envs build; delivery/sim/tuning ELF: **0 BT symbols** | **Never merges before you read the design** — 11 `OWNER-PENDING(BT-n)` tags in-tree; settings-v2 reconciliation with the decay branch expected at merge |
+
 Recommended merge order once you approve: mapper wave-1 → control-fw decay (rebase) →
 soundlight → GS. I can execute any/all on your word — merges stay local until you decide about
 pushing (mapper pushes additionally governed by `FORK-NOTICE.md`).
@@ -62,13 +64,15 @@ pushing (mapper pushes additionally governed by `FORK-NOTICE.md`).
 10. **U4 / BT execution**: both were **started on your standing approvals** from this
     morning's answers (branch-only / design+prototype). Say stop if you want them paused.
 
-## 5. In flight right now
+## 5. In flight right now (updated 2026-08-17)
 
-- **U4 arbiter** implementation agent — branch `u4-arbiter` off `w17-headtrack`, per blueprint;
-  flags default-off, fail-closed, never merged/pushed before R1–R16.
-- **BT show-off prototype** agent — branch `proto/bt-showoff-flagged` off control-fw `94b3615`;
-  design doc committed into the branch, default-off compile flag, quarantined env, native
-  tests; recommended options as pending-owner defaults.
+- **U4 arbiter** — RESUMED after a session-limit interruption (owner: "try again"). Slices
+  S1 (`aee2450`) + S2 (`a032947`) committed on `u4-arbiter`; slice 3 (choke point, build-tag
+  gating, identity-test trio) was uncommitted WIP at interruption and is being completed;
+  slice 4 (matrix closure + R-review packet) follows. Rules unchanged: flags default-off,
+  fail-closed, never merged/pushed before R1–R16.
+- **BT show-off prototype** — LANDED 2026-08-17; see its row in §2. The HOLD is otherwise in
+  force: no merges, no new waves until the owner announces the session reset.
 
 ## 6. Proposed next waves (after your review)
 
