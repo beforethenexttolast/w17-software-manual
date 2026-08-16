@@ -125,8 +125,8 @@ invariant — friendliness is delivered by UX, never by relaxing safety.
   amendment into the unlock plan's own text is owed when `w17-control-fw` is next touched.
   Activation semantics unchanged: two flags + R-review + bench evidence.
 - **Wheel (10):** the mapper reads devices through SDL's joystick API
-  (`w17-mapper/pkg/devices/controller.go` — `JoystickOpen` / `JoystickEventState`), the level
-  at which sim wheels enumerate; wheel/pedal axes should therefore map to CRSF channels like
+  (`w17-mapper/pkg/devices/util.go:27` `JoystickOpen`; `controller.go` `JoystickEventState`),
+  the level at which sim wheels enumerate; wheel/pedal axes should therefore map to CRSF channels like
   any stick. Owed: one bench check with the real wheel. (GS-side wheel support is display/HUD
   mirroring only — the GS never drives.)
 - **Indicators (16):** already steering-fed by design — `link2` byte 2 `steeringPercent`,
