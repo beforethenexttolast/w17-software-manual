@@ -46,6 +46,7 @@ Every copy must state, in its own header, where the canonical source lives.
 | Manual chapters | `learning-manual/` | — |
 | Setup-flow visual design | `w17-design-system/` (`DESIGN_NOTES.md` + `screens/`) | `w17-ground-station/renderer/` is the **implementation**, not a copy. Per Decision B (`DESIGN_NOTES.md` §10, 2026-07-19) the shipped stacked full-panel BOTH-mode SEAT FIT layout is canonical; `screens/02c-seatfit-both.html` is superseded/historical. |
 | Hardware inventory / delivery log | `HARDWARE_INVENTORY.md` (projects root) | — (single **workspace-level** log for physical-part *arrival / on-hand* + BOM-mapping-confidence status, mapped to BOM v2). Carries no gate status, software/execution state, or commit hashes (those stay in `CURRENT_STATUS.md`); mechanical measure/fit/mount status stays in `w17-3d-codex`, whose arrival notes are historical, not a second ledger. |
+| Product vision / definition of done | `W17_PRODUCT_VISION.md` (projects root) | — (single source; decision numbers match the owner's 2026-08-16 vision Q&A) |
 
 ## Handoff convention
 
