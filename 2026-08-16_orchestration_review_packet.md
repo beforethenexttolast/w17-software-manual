@@ -64,15 +64,18 @@ pushing (mapper pushes additionally governed by `FORK-NOTICE.md`).
 10. **U4 / BT execution**: both were **started on your standing approvals** from this
     morning's answers (branch-only / design+prototype). Say stop if you want them paused.
 
-## 5. In flight right now (updated 2026-08-17)
+## 5. Conditional waves — BOTH LANDED (2026-08-17); hold in force
 
-- **U4 arbiter** — RESUMED after a session-limit interruption (owner: "try again"). Slices
-  S1 (`aee2450`) + S2 (`a032947`) committed on `u4-arbiter`; slice 3 (choke point, build-tag
-  gating, identity-test trio) was uncommitted WIP at interruption and is being completed;
-  slice 4 (matrix closure + R-review packet) follows. Rules unchanged: flags default-off,
-  fail-closed, never merged/pushed before R1–R16.
-- **BT show-off prototype** — LANDED 2026-08-17; see its row in §2. The HOLD is otherwise in
-  force: no merges, no new waves until the owner announces the session reset.
+- **U4 arbiter** — COMPLETE: `u4-arbiter` @ `93be341`, 4 slices, +5375/−0 over `432a809`.
+  One-line seam before `PackChannels`; default builds carry ZERO arbiter object code (nm
+  evidence committed); all 10 identity dumps share one SHA-256; proto/headintent/deps/hook
+  byte-untouched; 51 new tests green in both build modes; `W17_FIRST_ACTIVE_ARM` runtime
+  gate; 9 recorded deviations + the bench-residual list in `docs/u4-branch-README.md`.
+  **Never merges/pushes before R1–R16 + bench evidence** (and the tip trips the pre-push
+  hook by construction). Review = the R-review, not a normal merge review.
+- **BT show-off prototype** — COMPLETE; see its row in §2.
+- **HOLD:** no merges, no new waves, nothing further until the owner announces the session
+  reset. Next session executes per §7½ + §6.
 
 ## 6. Proposed next waves (after your review)
 

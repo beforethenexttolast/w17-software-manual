@@ -8,7 +8,7 @@ workspace-level source for all of those and for project execution status.
 Overwrite it in place when state changes; do not append history. Instruction files
 (`CLAUDE.md` / `AGENTS.md`) must not duplicate anything below.
 
-_Last updated: **2026-08-17 (conditional waves: BT lands, U4 resumed)** — **BT show-off
+_Last updated: **2026-08-17 (conditional waves land: BT + U4 both complete)** — **BT show-off
 prototype COMPLETE** on `w17-control-fw` branch **`proto/bt-showoff-flagged`** (5 commits, tip
 `138a674`, off `94b3615`): the design doc now lives at its canonical home
 `docs/bt_showoff_design.md` (on the branch); pure-logic `lib/btpad`
@@ -23,13 +23,26 @@ delivery/sim/tuning** (btshowoff 216 as positive control) — the check is now a
 runbook step. All **11 `OWNER-PENDING(BT-n)` decision tags** shipped (51 occurrences); link2
 bit-7 stayed DOC-ONLY; the CRSF-path guarantee is structural (btpad not linked in default
 builds; the `controlTick` extraction changes default-build code layout, behavior unchanged —
-proven by unchanged native suites + green builds). **U4 arbiter interrupted, not lost:** the
-implementing agent hit the session usage limit mid-slice-3. Slices **S1 = `aee2450`** (pure
-core: gate files, fail-closed calibration, shaping math) and **S2 = `a032947`** (state
-machine, controls seam, tick pipeline) are **COMMITTED on `u4-arbiter`**; slice-3 WIP (choke
-point in `pkg/link/send.go`/`controller.go`, tag-gated cmd files, the identity-test trio) sat
-uncommitted in its worktree; **resumed 2026-08-17 on the owner's "try again"** — rules
-unchanged (flags default-off, fail-closed, never merged/pushed before R1–R16). Scratchpad
+proven by unchanged native suites + green builds). **U4 arbiter COMPLETE** (interrupted by the
+session usage limit mid-slice-3, resumed on the owner's "try again", finished same day):
+branch **`u4-arbiter` @ `93be341`**, 4 slices — `aee2450` pure core (gate files, fail-closed
+calibration, shaping math) / `a032947` state machine + controls seam + tick pipeline /
+`48994e7` send-loop seam + gated cmd wiring + Group A proofs + identity trio + race pair /
+`93be341` matrix closure + R-review packet. 47 files, **+5375/−0** vs base `432a809`;
+existing-file touches limited to the single seam (+7 in `pkg/link/send.go` before
+`crsf.PackChannels`), an embedded slot (+2 `controller.go`), a hoist in `main.go`, and a
+branch-only FORK-NOTICE §5(a) section. **Byte-untouched, verified by empty diff:**
+go.mod/go.sum/go.work, `pkg/proto` (enum still ends `ACTIVE_LOG_ONLY = 8`), `pkg/headintent`
+incl. the dead-end test, webapp, `.githooks`. Both build modes green at every slice commit
+(default AND `-tags w17_first_active`), `-race` green; **51 branch-new tests**; all 10
+identity hex dumps share **one SHA-256** (`docs/u4-evidence/pack_dumps.sha256`); nm evidence
+committed (default binary **zero** headarbiter symbols, gated 44). Runtime gate =
+`W17_FIRST_ACTIVE_ARM`; 9 recorded deviations in `docs/u4-branch-README.md` (incl. two
+signed-calibration schema fields for blend geometry — R12 signs them; safe ranges must
+contain 992). The tip is **unpushable by hook construction** (20+ files trip pre-push checks
+1/2/4). **FIRST_ACTIVE overall stays NO-GO/BLOCKED — merge, push, and activation remain
+gated on R1–R16 + bench evidence**; the bench-residual list is committed verbatim in the
+branch README. Scratchpad
 drafts rescued to `_handoff/` as dated non-canonical snapshots naming their canonical homes
 (BT design, U4 blueprint, glovebox booklet). **HOLD otherwise in force per owner: no merges,
 no new waves until the owner announces the session reset.** Review packet updated in place
