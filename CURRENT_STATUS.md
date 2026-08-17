@@ -46,8 +46,17 @@ both boards flash together at adoption; the three-way settings-blob-v2 reconcili
 design read (11 OWNER-PENDING tags). **Orchestrator authority note, flagged for owner ack:**
 the 2026-08-16 split-by-risk merge rule was extended by the same principle to branches
 created after the answers — GS/docs → adversarial review + orchestrator merge; firmware →
-owner queue. In flight: showcase-mode design draft, GCS-box + backup-handset docs, manual
-wave 2. Giftee-UX note queued: link2-v2 volume/voice are tuning-console-settable only today —
+owner queue. **All remaining builders landed the same day:** the showcase-mode design draft (rescued to
+`_handoff/2026-08-17_showcase_mode_design_draft.md`, `da6177f` — decisions D1–D9 pend the
+owner; **D2, the wire encoding, must be decided jointly with the link2-v2 review and the BT
+design's BT-7 bit** so the showcase flag rides the one coordinated flash); the GCS-box +
+backup-handset guides (merged `f56593f`: `w17-gcs-box-guide.md` + `w17-elrs-backup-handset.md`
+— 46 honest TBD markers, the USB power budget says a powered hub is likely, **7 owner
+procurement questions incl. the 2.4 GHz hotspot-adapter vs 5.8 GHz camera-link wrinkle**);
+and manual wave 2 (merged `22770aa`: 6/6 HIGH + 19/19 MEDIUM staleness claims fixed across
+15 files, 4 LOW deferred with reasons, disposition table in the tracker). **PHASE-C
+PLATEAU: every vision software item buildable without an owner decision or a bench is now
+built — merged, or sitting on a review branch awaiting the owner.** Giftee-UX note queued: link2-v2 volume/voice are tuning-console-settable only today —
 a giftee-friendly setter is an open decision. **No hardware anywhere; nothing flashed or
 powered; A2 stays NOT-EXECUTED, Phase B stays BLOCKED.**
 Prior pass, **2026-08-17 (conditional waves land: BT + U4 both complete)** — **BT show-off

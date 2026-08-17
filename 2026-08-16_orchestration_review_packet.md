@@ -74,6 +74,16 @@ pushes additionally governed by `FORK-NOTICE.md`).
 9. **NSIS CI proof**: next push to GS triggers the new installer job; artifact should appear.
 10. **U4 / BT execution**: both were **started on your standing approvals** from this
     morning's answers (branch-only / design+prototype). Say stop if you want them paused.
+    *(Both landed complete — see §5.)*
+11. **Showcase mode D1–D9** (2026-08-17): design draft in
+    `_handoff/2026-08-17_showcase_mode_design_draft.md`, each with a recommendation; decide
+    **D2 together with the link2-v2 review and BT-7** so the flag rides the one coordinated
+    flash.
+12. **GCS procurement set** (2026-08-17): 7 questions in `w17-gcs-box-guide.md` /
+    `w17-elrs-backup-handset.md` — headliners: which ELRS TX variant is actually on hand,
+    the missing USB hub, the 2.4-vs-5.8 GHz hotspot/camera wrinkle.
+13. **Giftee volume/voice setter** (2026-08-17): link2-v2 makes both wire-borne, but the
+    only setter today is the tuning console over USB — pick the giftee-facing mechanism.
 
 ## 5. In flight + gated (updated 2026-08-17, post-reset)
 
@@ -87,13 +97,20 @@ pushes additionally governed by `FORK-NOTICE.md`).
   build; delivery ELF BT-free); awaits the owner's design read (11 OWNER-PENDING tags).
 - The 2026-08-16 HOLD was lifted by the owner on 2026-08-17 ("Reset is here").
 
-## 6. Proposed next waves (after your review)
+## 6. Next universe (updated 2026-08-17 — Phase-C plateau)
 
-Race-day one-action orchestration in the GS (now unblocked by the committed mapper profile) →
-video profiles (CB5 config side) → manual waves (mapper/head-intent track, rebuild chapters,
-booklet placement) → showcase-mode design (after decision 1) → sound-profile selector + volume
-(after decisions 2/3) → ELRS backup handset procurement + binding doc → GCS-box
-contents/wiring/BOM doc.
+Everything in this section's original list is DONE (merged, or on a review branch). What
+remains, by gate:
+- **(a) Owner reviews & decisions:** the four firmware merges (§2: decay, mapper wave-1,
+  link2-v2 pair), U4 R-review, BT's 11 decisions, showcase D1–D9 (draft in `_handoff/`; D2
+  jointly with link2-v2 + BT-7), the booklet's 3 questions, `AGENTS.md`, the GCS guides' 7
+  procurement questions, the giftee volume/voice setter, ferrying the Codex handoff file.
+- **(b) Implementation those answers unlock:** showcase-mode build (per the accepted D-set),
+  the sound-setter UX, the settings-blob-v2 reconciliation at the firmware merges.
+- **(c) Bench/hardware-gated:** the §7 ledger, unchanged — A2 → Phase B before anything
+  powers on.
+- **(d) Codex-side:** DRS flap mechanics, GCS-box mechanics, shell/charge-flap work, and the
+  three asks in `_handoff/2026-08-17_iphone_side_sync.md`.
 
 ## 7½. Pre-reset owner answers (2026-08-16, recorded live)
 
