@@ -6,13 +6,21 @@ boards and a laptop ground station. The manual assumes you are a **beginner prog
 — every C++, electronics, embedded, RC, and desktop-app concept is explained when it
 first appears, using this project's real files as examples.
 
-## The three repositories
+## The repositories
 
 | Repo | Nickname in this manual | One-liner |
 |---|---|---|
 | `w17-control-fw` | **the control board** (ESP32 #1) | Radio in → safety + driving logic → servo/motor out. The main module. |
 | `w17-soundlight-fw` | **the sound/light board** (ESP32 #2) | Listens to board #1, makes V10 engine sound and F1 light effects. |
-| `w17-ground-station` | **the ground station** | Laptop app: live video + F1 HUD + telemetry. Viewer only — never drives the car. |
+| `w17-ground-station` | **the ground station** | Laptop app: pre-ride setup flow + live video + F1 HUD + telemetry. Viewer only — never drives the car. |
+| `w17-mapper` | **the mapper** | The DualShock→CRSF translator on the PC — an owned GPL fork of `elrs-joystick-control` — plus the log-only head-intent receiver. Taught in chapter 15. |
+| `w17-design-system` | — | Reference-only visual truth for the ground station's setup-flow screens; no runtime code. |
+| `w17-3d-codex` | — | Fabrication: models, materials, slicing, finishing. Feeds the rebuild track (17–18). |
+
+The first three are the manual's deep-dive spine (chapters 02–13); the mapper joined
+as the fourth *code* repo (chapter 15). Two further repos are **ChatGPT-Codex-owned**
+(`iPhone_rc`, the thin iPhone HUD; `w17-rc-print-codex`, print decisions) — cited,
+never mapped. Registry of everything: `../WORKSPACE_MAP.md`.
 
 ## Reading order
 
@@ -63,10 +71,10 @@ Support files, used from any chapter:
 - `code_explained/` — the **line-by-line source-code deep dives**. Control firmware
   complete + reviewed: batches C1–C10 in `code_explained/control_fw/`; sound/light
   firmware explanation complete: batches S1–S5 in `code_explained/soundlight_fw/`
-  (review pass pending); ground station started: batches G1–G4 in
+  (review pass pending — since 2026-07-06); ground station started: batches G1–G4 in
   `code_explained/ground_station/` (the full viewer-app story; iPhone-bridge batches
-  G5a/G5b pending). Beginner concept-notes companions
-  exist for C9a/C9b/C10 and S1–S5. Status:
+  G5a/G5b pending — the campaign is paused since 2026-07-09). Beginner concept-notes
+  companions exist for C9a/C9b/C10 and S1–S5. Status:
   [source_code_progress.md](source_code_progress.md);
   inventory/order: [source_code_explanation_plan.md](source_code_explanation_plan.md)
 - `plan/` — the original study plan (historical; superseded by these chapters)
@@ -83,8 +91,8 @@ Support files, used from any chapter:
 - Chapters describe architecture and behavior. **Line-by-line code walkthroughs live in
   `code_explained/`** — the control firmware's ten batches (C1–C10) and the sound/light
   firmware's five (S1–S5) are complete; the ground-station campaign (G1–G5b, plan
-  rewritten after the 2026-07-09 re-inventory) has G1–G4 done, the iPhone-bridge
-  batches G5a/G5b next.
+  rewritten after the 2026-07-09 re-inventory) has G1–G4 done, with the iPhone-bridge
+  batches G5a/G5b next *when the paused campaign resumes*.
 - Citation caveat: `w17-control-fw/CLAUDE.md` was **rewritten 2026-07-09** as a
   maintenance guide without the old §0–§8 numbering. Manual references of the form
   "`CLAUDE.md` §N" point at the **pre-rewrite revision**; the underlying facts were
@@ -96,22 +104,28 @@ Support files, used from any chapter:
 A key property of this project: almost everything runs on your computer.
 
 ```bash
-# Firmware unit tests (should report 147 and 40 passing)
+# Firmware unit tests (as of 2026-08-17: 229 and 107 passing — the suites grow, so
+# trust the run, not any number quoted in a chapter)
 cd w17-control-fw   && pio test -e native
 cd w17-soundlight-fw && pio test -e native
 
-# Ground station tests + a live-looking demo (no car, no camera)
+# Ground station tests + a live-looking demo (no car, no camera; 1324 tests as of 2026-08-17)
 cd w17-ground-station && npm install && npm test && npm run demo
+
+# The mapper (Go toolchain; 137 tests as of 2026-08-17)
+cd w17-mapper && go build ./... && go test ./...
 ```
 
 If these pass, you have a working lab for the entire manual.
 
-## Project status snapshot (as of 2026-07-03)
+## Project status
 
-**[C]** All software is written and unit-tested; **no hardware bring-up has happened yet**
-(parts not yet arrived/printed). Source: `w17-control-fw/docs/ROADMAP.md` (all D-items ✅
-except D8 "gated on parts") and `docs/bill_of_materials_v2.md` ("Nothing printed yet").
-Gift deadline: **2026-07-21**.
+Live status is deliberately **not** kept in this manual: checkpoints, hardware gates
+(A2 / Phase B), and pending validations live in `../CURRENT_STATUS.md`; the product
+definition — the 18 owner decisions and the v1.0 done bar — in
+`../W17_PRODUCT_VISION.md`. (The original "gift deadline 2026-07-21" is long past;
+vision decision 18 sets *sequence*, not a date.) What follows is the dated changelog
+of this manual's own campaign — each entry records its own moment:
 
 **Update 2026-07-05:** the control firmware's line-by-line explanation campaign is
 complete (C1–C10, `code_explained/control_fw/`) — verified against the native suite
@@ -123,9 +137,10 @@ repo's `CLAUDE.md` "Delivery vs tuning builds" pins it as a stable invariant. #4
 **ANSWERED** — see `open_questions.md`.)* Hardware status unchanged.
 
 **Update 2026-07-09:** the sound/light explanation campaign is complete (S1–S5,
-`code_explained/soundlight_fw/`, 2026-07-06; 40/40 native tests + both firmware builds
-— review pass pending). Since then the source repos received a **skeptical-audit fix
-round (F1–F4, 2026-07-07/08)** and iPhone-bridge work (W1–W3, ground station).
+`code_explained/soundlight_fw/`, 2026-07-06; 40/40 native tests at the time + both
+firmware builds — review pass pending, still, as of 2026-08-17). Since then the source
+repos received a **skeptical-audit fix round (F1–F4, 2026-07-07/08)** and
+iPhone-bridge work (W1–W3, ground station).
 **The audit and its fixes now have their own chapter:
 [12_the_skeptical_audit_and_f1_f4_fixes.md](12_the_skeptical_audit_and_f1_f4_fixes.md)**;
 the iPhone-bridge chapter is still deliberately deferred (open question #58). Two
@@ -137,11 +152,27 @@ lines by F2–F4 + W1–W3; plan rewritten to batches G1–G5b) and **batches G1
 pure JS core), G2 (the Electron main process + telemetry sources), G3 (the
 renderer — HUD, widget precedence, WHEP video, command mirror), and G4 (scripts,
 Electron packaging, the `mediamtx.yml` config, and CI) were explained** — each
-verified against 118/118 vitest tests (CI green ≠ hardware/video proof — packaging and
-the 118 tests are logic/build evidence only). The iPhone-bridge
+verified against the vitest suite (118/118 at the time; CI green ≠ hardware/video
+proof — packaging and the tests are logic/build evidence only). The iPhone-bridge
 code itself remains **implemented + unit-tested, NOT real-device validated** (#58); its
 W3 head-tracking receiver is LOG-ONLY by safety boundary. Hardware state (per
 `../CURRENT_STATUS.md`): software/pre-power validation A1.1–A1.6 complete; the **A2
 no-power bench checklist is committed but NOT executed**; powered bring-up (Phase B)
 stays blocked behind it. **Source/build/test evidence is still not hardware proof** —
 nothing has been proven on powered hardware.
+
+**Update 2026-08-17 (wave-2 staleness repair):** chapters 00–13 and the support files
+were repaired against the repos as of this date — control-fw `9f00f2e`, soundlight
+`1c19260`, ground station `ca1cb86`, mapper `432a809` (native/vitest suites
+229 / 107 / 1324 / 137; every count in the manual is now either as-of-dated or
+replaced by "run the suite"). The changes the repairs teach: the workspace is
+**six Claude-side repos** (see the table above), the ground station boots into the
+**GARAGE → GRID setup flow** (chapter 08 §7), the car's cassette controllers are
+**MH-ET Live D1-Mini (USB-C)** boards per the 2026-07-24 owner decision — the DevKit
+V1 clones on hand are **test/spare** only (chapter 13's smoke test tested exactly
+those) — and #49 is ANSWERED (the delivery build loads NVS tuning). The line-by-line
+campaign itself is **paused since 2026-07-09** (C1–C10 + S1–S5 + G1–G4 done; G5a/G5b
+and a mapper track pending — `source_code_progress.md`). Per-claim repair ledger:
+[STALENESS_2026-08-17.md](STALENESS_2026-08-17.md). Unchanged and still binding:
+**A2 NOT executed, Phase B blocked, W3 log-only — and test evidence is not hardware
+proof.**
