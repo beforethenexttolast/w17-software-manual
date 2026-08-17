@@ -8,7 +8,49 @@ workspace-level source for all of those and for project execution status.
 Overwrite it in place when state changes; do not append history. Instruction files
 (`CLAUDE.md` / `AGENTS.md`) must not duplicate anything below.
 
-_Last updated: **2026-08-17 (conditional waves land: BT + U4 both complete)** — **BT show-off
+_Last updated: **2026-08-17 (post-reset execution — five waves merged; the first installer
+artifact exists)** — The owner lifted the hold ("Reset is here") and execution ran per packet
+§7½/§6. **Merged to mains, each behind an adversarial review** (review → fix → independent
+re-verify wherever findings warranted): **soundlight** main = `1c19260` (wave-3 board-2
+features; MERGE_CLEAN + an independent 5.2M-check priority sweep). **GS** main advanced
+`92cd894 → abaddbd → 7de119a → ca1cb86 → 2c56898`: the giftee trio (low-battery banner with
+two review fixes pre-merge, plain-language GRID hints, NSIS CI job), the `--publish never` CI
+fix, **video profiles** (DRIVE proven byte-identical at the real seams; two minor review
+fixes incl. the split-brain-on-rejected-apply), and **race-day one-action orchestration** —
+its review found **2 blockers** (a spawn-failure wedge that lied "running" unrecoverably, and
+full-env inheritance that would bind the mapper's log-only 5602 receiver via
+`W17_HEADTRACK_INGEST`, bypassing the argv whitelist) — both **fixed and independently
+re-verified** (live env-scrub probe; an evasion check proving the behavioral pin catches
+class rebuilds that textual bans miss); preload pin deliberately 24→28; GS suite
+**1435/1435 (67 files)**. **Workspace** main = `9654d02`: the manual wave (glovebox booklet
+as ch14 owner-unreviewed, mapper teaching ch15, rebuild stubs 16–22, STALENESS report — 21
+files, 38 claims) and the dated Codex handoff `_handoff/2026-08-17_iphone_side_sync.md`
+(mDNS TXT confirm-ask, low-battery parity suggestion, race-day autoBridge semantics —
+**owner ferries it to Codex**). **Control-fw** main = `9f00f2e` (MCU line corrected to the
+MH-ET decision; staleness find S28). **The §7½ GS push exception is discharged:** run 1
+failed on electron-builder's CI auto-publish (fixed with `--publish never`), run 2
+**GREEN end-to-end on windows-latest** — suite, boot smoke on the deployment OS, `--dir`,
+NSIS build, and the uploaded artifact **`w17-ground-station-nsis-unsigned`
+(80,206,698 bytes) — the project's first installable giftee deliverable** (audit defect 10
+closed). Further pushes are owner-call again. The macOS smoke saga stands diagnosed (prior
+entry): machine-level npm `allow-scripts` policy, not a repo defect. **Awaiting the owner's
+personal review** (split-by-risk): control-fw `feat/gimbal-decay-center`, mapper
+`w17-audit-wave1`, and the new **link2 v2 pair** — control-fw `feat/link2-v2-voice-volume`
+(16-byte frame: version byte, soundProfile with V10 fallback, volume 0–100 default 80;
+golden frame pinned in both repos; NVS `sound.*` + console keys; 229→239 native) +
+soundlight `feat/link2-v2-consume` (codec re-synced verbatim, drift check exit 0 across
+worktrees; wire-selected voice; integer volume at the final gain stage, 0 = true silence,
+100 = bit-transparent; failsafe-over-volume proven; 107→118 native) — merge as one unit,
+both boards flash together at adoption; the three-way settings-blob-v2 reconciliation
+(decay + BT + this) is documented at the constant. U4 stays R-review-gated; BT awaits the
+design read (11 OWNER-PENDING tags). **Orchestrator authority note, flagged for owner ack:**
+the 2026-08-16 split-by-risk merge rule was extended by the same principle to branches
+created after the answers — GS/docs → adversarial review + orchestrator merge; firmware →
+owner queue. In flight: showcase-mode design draft, GCS-box + backup-handset docs, manual
+wave 2. Giftee-UX note queued: link2-v2 volume/voice are tuning-console-settable only today —
+a giftee-friendly setter is an open decision. **No hardware anywhere; nothing flashed or
+powered; A2 stays NOT-EXECUTED, Phase B stays BLOCKED.**
+Prior pass, **2026-08-17 (conditional waves land: BT + U4 both complete)** — **BT show-off
 prototype COMPLETE** on `w17-control-fw` branch **`proto/bt-showoff-flagged`** (5 commits, tip
 `138a674`, off `94b3615`): the design doc now lives at its canonical home
 `docs/bt_showoff_design.md` (on the branch); pure-logic `lib/btpad`

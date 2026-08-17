@@ -24,9 +24,15 @@ Phase B stays BLOCKED.** Current truth lives in `CURRENT_STATUS.md`; the vision 
 
 | `w17-control-fw` | `proto/bt-showoff-flagged` (`138a674`, added 2026-08-17) | BT show-off prototype per the committed design (`docs/bt_showoff_design.md` lives ON the branch): pure-logic `lib/btpad` + Bluepad32 HAL, boot-only mode select, same failsafe/arm-gate code reused, TRAINING-capped envelope, settings blob v2 `btpad.*`, quarantined `esp32dev_btshowoff` env (Bluepad32 pinned **3.10.2** — the design's 3.10.3 has no published artifact) | 229→267; all 4 envs build; delivery/sim/tuning ELF: **0 BT symbols** | **Never merges before you read the design** — 11 `OWNER-PENDING(BT-n)` tags in-tree; settings-v2 reconciliation with the decay branch expected at merge |
 
-Recommended merge order once you approve: mapper wave-1 → control-fw decay (rebase) →
-soundlight → GS. I can execute any/all on your word — merges stay local until you decide about
-pushing (mapper pushes additionally governed by `FORK-NOTICE.md`).
+| `w17-ground-station` | `feat/video-profiles` | DRIVE/SHOWPIECE video profiles (DRIVE = today, proven at the seams) | 1324 | **MERGED 2026-08-17** after review (2 minor fixes pre-merge) |
+| `w17-ground-station` | `feat/race-day-orchestration` | one-press bring-up: hotspot → mapper (managed child, `W17_*` env scrubbed, argv whitelist) → phone link; preload pin 24→28 deliberate | 1435 (67 files) | **MERGED 2026-08-17** after review found **2 blockers** (spawn-failure wedge; env bypass of the whitelist) — fixed and independently re-verified |
+| `w17-control-fw` | `feat/link2-v2-voice-volume` (`dfd0f23`) | link2 protocol v2: 16-byte frame, version byte, soundProfile (V10 fallback) + volume (0–100, default 80); NVS `sound.*` + console keys; golden frame pinned in both repos | 229→239; both builds | **Owner review** (firmware); three-way settings-v2 reconciliation documented at the constant |
+| `w17-soundlight-fw` | `feat/link2-v2-consume` (`37ad050`) | codec re-synced verbatim (drift check exit 0); wire-selected voice; integer volume at final gain (0 = true silence, 100 = transparent); failsafe-over-volume proven | 107→118; both builds | **Owner review** — pairs with the control-fw branch; both boards flash together at adoption |
+
+Remaining merge order once you approve: mapper `w17-audit-wave1` → control-fw
+`feat/gimbal-decay-center` (trivial rebase onto `9f00f2e`) → the link2-v2 pair as one unit
+(after your settings-v2 reconciliation call). Merges stay local; pushing is yours (mapper
+pushes additionally governed by `FORK-NOTICE.md`).
 
 ## 3. Drafts awaiting your read (session scratchpad)
 
@@ -69,18 +75,17 @@ pushing (mapper pushes additionally governed by `FORK-NOTICE.md`).
 10. **U4 / BT execution**: both were **started on your standing approvals** from this
     morning's answers (branch-only / design+prototype). Say stop if you want them paused.
 
-## 5. Conditional waves — BOTH LANDED (2026-08-17); hold in force
+## 5. In flight + gated (updated 2026-08-17, post-reset)
 
-- **U4 arbiter** — COMPLETE: `u4-arbiter` @ `93be341`, 4 slices, +5375/−0 over `432a809`.
-  One-line seam before `PackChannels`; default builds carry ZERO arbiter object code (nm
-  evidence committed); all 10 identity dumps share one SHA-256; proto/headintent/deps/hook
-  byte-untouched; 51 new tests green in both build modes; `W17_FIRST_ACTIVE_ARM` runtime
-  gate; 9 recorded deviations + the bench-residual list in `docs/u4-branch-README.md`.
-  **Never merges/pushes before R1–R16 + bench evidence** (and the tip trips the pre-push
-  hook by construction). Review = the R-review, not a normal merge review.
-- **BT show-off prototype** — COMPLETE; see its row in §2.
-- **HOLD:** no merges, no new waves, nothing further until the owner announces the session
-  reset. Next session executes per §7½ + §6.
+- Building now: the **showcase-mode design draft** (scratchpad, then owner read), the
+  **GCS-box + backup-handset docs** (workspace branch), and **manual wave 2** (the 38-claim
+  staleness repairs).
+- **U4 arbiter** — COMPLETE on `u4-arbiter` @ `93be341` (4 slices, +5375/−0; zero arbiter
+  object code in default builds, nm evidence committed; hook-unpushable by construction).
+  Never merges/pushes before R1–R16 + bench evidence; its review is the R-review.
+- **BT show-off prototype** — COMPLETE on `proto/bt-showoff-flagged` (267/267; all envs
+  build; delivery ELF BT-free); awaits the owner's design read (11 OWNER-PENDING tags).
+- The 2026-08-16 HOLD was lifted by the owner on 2026-08-17 ("Reset is here").
 
 ## 6. Proposed next waves (after your review)
 
@@ -102,7 +107,13 @@ contents/wiring/BOM doc.
 3. **Showcase mode:** core-if-cheap — normal wave, NOT on the v1.0 done bar.
 4. **Sound mechanism:** link2 v2 field carrying voice profile + volume/quiet level;
    control-fw first (protocol owner), soundlight consumes; volume control is now a
-   requirement (decisions queue items 2/3 are thereby answered).
+   requirement (decisions queue items 2/3 are thereby answered). *(Implemented 2026-08-17
+   as the link2-v2 branch pair — §2; awaiting owner review.)*
+5. *(Orchestrator extension, flagged for owner ack.)* The split-by-risk rule was applied to
+   branches created after these answers: GS/docs branches get adversarial review +
+   orchestrator merge (video-profiles, race-day, manual wave, handoff snapshot — all merged
+   so); firmware/mapper branches join the owner queue (the link2-v2 pair). Say the word to
+   tighten or loosen either direction.
 
 ## 7. Standing hardware-gated ledger (unchanged)
 
