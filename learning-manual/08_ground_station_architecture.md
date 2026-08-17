@@ -4,6 +4,12 @@ The laptop app: live FPV video under a Mercedes-style F1 HUD, with real car tele
 overlaid when available. Written in JavaScript on Electron — a different world from the
 firmware, so this chapter starts with the platform.
 
+Since the 2026-07 redesign the app no longer boots straight into that HUD: it opens
+into an F1-styled **pre-ride setup flow** (GARAGE → PIT WALL → SEAT FIT → SETUP →
+GRID), and the HUD is where the flow *ends*. §1–§6 teach the app's constant core —
+processes, video, HUD, telemetry, safety stance; **§7 teaches the setup flow in
+front of it**; §8 the optional iPhone bridge.
+
 > **Deep dive:** the repo's shared pure core (the CRSF decoder port, telemetry model,
 > link-state model, and the cross-repo golden fixture) is explained line-by-line in
 > `code_explained/ground_station/01_shared_pure_core.md` (batch G1, with a
@@ -148,9 +154,91 @@ zero ability to stop the car. The fallback chain is graded:
   `npx electron-rebuild` to match Electron's ABI); if missing, the app still runs — the
   HUD simply stays gamepad-simulated.
 - `npm run build` → Windows .exe via electron-builder; unsigned by default
-  (SmartScreen will prompt once; `docs/CODESIGNING.md` covers opt-in signing).
+  (SmartScreen will prompt once; `docs/CODESIGNING.md` covers opt-in signing). Since
+  2026-08-17, CI also builds and uploads the **unsigned NSIS giftee installer** on
+  every push (the gift-kit deliverable — a step inside the Windows `package-smoke`
+  job, chapter 11 §7).
 
-## 7. The optional iPhone bridge (added 2026-07-08 — validation pending)
+## 7. The pre-ride setup flow (the 2026-07 redesign)
+
+The app opens into a staged, F1-styled setup sequence — the "pit wall" — and the HUD
+(five red lights, then lights-out) is the *reward at the end*:
+
+```
+GARAGE → PIT WALL → SEAT FIT → SETUP → GRID → …lights out (the HUD)
+         (iPhone mode only)
+```
+
+**[C]** `shared/setupSteps.mjs` — a *pure step machine*: `stepsFor('iphone-hud')`
+returns all five stations; `stepsFor('solo')` omits PIT WALL entirely (no iPhone ⇒ no
+network step). The file's own header records the flow's design history (2026-07-19:
+PIT WALL moved before SEAT FIT; 2026-07-20: SETUP split out of SEAT FIT — per the
+`w17-design-system` design notes, the visual source of truth for these screens).
+
+Station by station (**[C]** README "Pre-ride setup flow" + the named modules):
+
+- **GARAGE** — pick the session: *Desktop FPV* (laptop only) or *iPhone Cockpit* (adds
+  the telemetry bridge + the network step). Persisted values stay `solo`/`iphone-hud` —
+  the labels are display-only. Also home of the **video-style chip** (below).
+- **PIT WALL** *(iPhone mode; Windows)* — join a Wi-Fi network or start a local hotspot
+  (SSID `W17-GRID` by default), with an explicit lifecycle: START/STOP HOTSPOT and
+  honest state (STARTING → VERIFYING → **READY** / **NOT READY FOR CLIENTS**) — a
+  successful start *command* is never shown as client-ready on its own, and "ready"
+  means "nothing locally wrong", never proof a phone got a lease. Scanned networks are
+  classified by security *before* you may act (open = join with a warning;
+  WPA2/transition = normal; WPA3-only/enterprise/unidentifiable = rejected up front
+  with a clear message). The iPhone's IP is typed and validated — with *advisory*
+  suggestion chips when the log-only head-track listener is hearing the phone, or when
+  the HUD announces itself over mDNS (`main/HudDiscovery.js`, contract item CB4: a
+  demand-driven name lookup that produces **candidate addresses only** — nothing
+  auto-connects, nothing auto-applies, W3 stays log-only). On macOS/Linux this step is
+  guide-mode: instructions + verify.
+- **SEAT FIT** — purely controller/input: pads auto-detected with manual override,
+  layout preset (DualShock/Xbox/generic) shown as a live button-preview strip
+  (`renderer/padPreview.js` — press a button, watch it light up), keyboard fallback,
+  and optional steering-wheel support (a **display mirror** like everything here — the
+  wheel mirrors steering/throttle/brake on the HUD; no control path).
+- **SETUP** — the session's drive mode + camera mode, on their own screen.
+- **GRID** — the pre-race checklist, decided by a *pure engine*
+  (`shared/checklist.mjs`): video lock, controller, telemetry (when configured),
+  iPhone reachability (iPhone mode), mapper detected — with a LAUNCH button
+  (`main/elrsLauncher.js` starts the mapper detached; launch-only, no coupling).
+  Every failing row carries a **plain-language fix hint** — jargon-free by
+  requirement, because the operator is a non-hobbyist; `test/checklist.test.js` pins
+  both the exact strings and the jargon ban. START enables when required checks pass,
+  and an amber **START ANYWAY** always works: `OVERRIDE_ALWAYS_ALLOWED = true` is an
+  engine-level invariant — a *viewer's* checklist must never lock the driver out of
+  driving (§5's philosophy, restated as code).
+
+Two things to notice as architecture rather than UI:
+
+1. **The flow's brain is pure `shared/` logic** — the same seam discipline as the
+   firmware: `setupSteps.mjs` and `checklist.mjs` know nothing about Electron or the
+   DOM, so the logic is exhaustively vitest-tested while `renderer/setupFlow.js`
+   stays a thin DOM layer.
+2. **Persistence with honest precedence** — choices persist in `settings.json` under
+   Electron's userData dir; **env vars always override persisted settings** (dev/CI
+   behavior unchanged). The one persisted secret, the hotspot password, is encrypted
+   at rest via Electron `safeStorage` (Windows DPAPI) and never written to disk in
+   plaintext; if secure storage is unavailable it is kept for the session only.
+
+Two HUD-adjacent features rode the later waves of the same redesign (both merged
+2026-08-17):
+
+- **Low-battery banner** (`shared/lowBattery.mjs`, merged in `abaddbd`): a HUD banner
+  from real telemetry, with ⚙-tunable thresholds (defaults **7.0 V warn / 6.6 V
+  critical** for the 2S pack).
+- **Video profiles** (`shared/videoProfiles.mjs`, `docs/video_profiles.md`, merged by
+  `ca1cb86`): a **DRIVE vs SHOWPIECE** model — DRIVE pins today's low-latency behavior
+  (a proof test asserts DRIVE ≡ the pre-profile behavior at the real seams), SHOWPIECE
+  trades latency for a smoother picture; switched on GARAGE (the chip) or in ⚙ and
+  applied through a profile-keyed mediamtx supervisor plus WHEP player tuning.
+
+Honest scope, as always: the flow's *logic* is test-proven; real Wi-Fi, hotspot,
+camera, and iPhone behavior stay bench-gated
+(**[C]** `docs/setup_flow_bench_checklist.md`).
+
+## 8. The optional iPhone bridge (added 2026-07-08 — validation pending)
 
 Since this chapter was first written, the repo gained an **off-by-default** iPhone
 bridge (work items W1–W3): **W2** streams the normalized telemetry snapshot plus a
@@ -163,19 +251,29 @@ blocked until a separate safety milestone). Both are dormant unless enabled by e
 (`W17_IPHONE_BRIDGE`, `W17_HEADTRACK`). **[C]** README + `main/main.js` +
 `test/noControlPath.test.js` (structural guards that the bridge opens no control path).
 
+The bridge story has since gained a discovery half: the HUD can announce itself over
+**mDNS/Bonjour**, and PIT WALL turns that into an *advisory address suggestion* (§7;
+`main/HudDiscovery.js`, CB4) — a name lookup producing candidates the operator
+confirms by hand, never an auto-connection.
+
 Two honesty gates apply until further notice (**[C]** `open_questions.md` #58,
-`../CURRENT_STATUS.md`): the bridge is **implemented + unit-tested (118/118 vitest),
-NOT real-device validated** — no end-to-end run against a real iPhone has happened; and
-the manual's own iPhone-bridge chapter is deliberately deferred. Line-by-line coverage
-is planned as batches **G5a/G5b** (`source_code_explanation_plan.md`); the packet
-contract's implementation copy is `docs/windows_bridge_contract.md` (canonical copy
-lives in the Codex-owned `iPhone_rc` repo).
+`../CURRENT_STATUS.md`): the bridge is **implemented + unit-tested** (within the full
+suite — 1324 vitest tests as of 2026-08-17), **NOT real-device validated** — no
+end-to-end run against a real iPhone has happened; and the manual's GS-side bridge
+deep-dive is deliberately deferred (the *head-intent* half of the bridge story is now
+taught in **chapter 15** §9–§10, mapper side). Line-by-line coverage is planned as
+batches **G5a/G5b** (`source_code_explanation_plan.md`); the packet contract's
+implementation copy is `docs/windows_bridge_contract.md` (canonical copy lives in the
+Codex-owned `iPhone_rc` repo).
 
 ## Confirmed vs inferred
 
 **Confirmed [C]:** roles of every file (README layout table), the telemetry contract
 and frame mapping (TELEMETRY.md), the codec risk and fallbacks (SETUP.md), the
-viewer-only rationale (README), run-script behaviors (README + package.json).
+viewer-only rationale (README), run-script behaviors (README + package.json), the
+setup-flow rail and step semantics (§7: `shared/setupSteps.mjs`, `shared/checklist.mjs`,
+`main/HudDiscovery.js`, README "Pre-ride setup flow"; re-verified against main
+`ca1cb86`, 2026-08-17).
 
 **Inferred [I]:** the Electron-anatomy explanation (§1) is platform knowledge applied
 to this repo's structure *(since confirmed against the code by G2, 2026-07-09: the
@@ -207,3 +305,8 @@ WHEP behavior with the real stream. These are precisely SETUP.md's checklist ite
 6. Why does `shared/crsf.js` exist as a *port* of the firmware decoder instead of the
    project sharing one implementation — and what testing strategy keeps the two from
    drifting? (Think: different languages.)
+7. The GRID checklist shows a failing required check, yet the amber START ANYWAY
+   button still works — by an *engine-level invariant*, not a UI choice. Why is
+   "the checklist can never lock the driver out" a safety property for a
+   viewer-only app? And why does the mDNS suggestion chip on PIT WALL only ever
+   *fill the field* rather than apply the address itself?
