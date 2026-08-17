@@ -13,15 +13,16 @@ at the car. Two ESP32 microcontroller boards ride on the car: one drives it, one
 engine sound and light effects. A laptop shows the video with a Formula 1 style dashboard
 overlay. **[C]** Source: `w17-control-fw/CLAUDE.md` §0, `docs/00_BUILD_SHEET.md`.
 
-## 2. The five "computers" involved
+## 2. The six "computers" involved
 
 | # | Device | What it runs | Role |
 |---|---|---|---|
 | 1 | **ESP32 #1 — control board** | `w17-control-fw` (C++) | The car's brain. The only thing allowed to move the car. |
 | 2 | **ESP32 #2 — sound/light board** | `w17-soundlight-fw` (C++) | Cosmetics: engine sound + LED effects. Can't affect driving. |
 | 3 | **OpenIPC camera** (SSC338Q chip) | OpenIPC firmware (pre-flashed, external project) | Streams live video over its own WiFi. |
-| 4 | **Laptop (ground)** | `w17-ground-station` (Electron/JavaScript) + **elrs-joystick-control** (external tool) | Video + HUD viewer; the external tool converts the DualShock gamepad into radio commands. |
-| 5 | **Your dev machine** | The same C++ logic compiled natively + all test suites | The "lab": most of the firmware logic runs and is tested here with **zero hardware**. |
+| 4 | **Laptop (ground)** | `w17-ground-station` (Electron/JavaScript) + **`w17-mapper`** (the owned fork of elrs-joystick-control — chapter 15) | Video + HUD viewer; the mapper converts the DualShock gamepad into radio commands. |
+| 5 | **iPhone (optional HUD)** | the Codex-owned `iPhone_rc` client | A thin second screen: receives telemetry (UDP 5601), sends head-tracking *intent* (UDP 5602) that is **log-only** today. No control path. |
+| 6 | **Your dev machine** | The same C++ logic compiled natively + all test suites | The "lab": most of the firmware logic runs and is tested here with **zero hardware**. |
 
 An "ESP32" is a small, cheap microcontroller board (a complete tiny computer on one
 chip: two 240 MHz CPU cores, ~520 KB RAM, 4 MB flash storage, WiFi, and lots of
@@ -34,12 +35,15 @@ programming one is like.
 ```mermaid
 flowchart LR
   subgraph GROUND["GROUND (you)"]
-    DS["DualShock gamepad"] -->|USB| PC["PC: elrs-joystick-control"]
+    DS["DualShock gamepad"] -->|USB| PC["PC: w17-mapper<br/>(elrs-joystick-control fork, ch15)"]
     PC -->|USB serial, CRSF| FT["FT232 USB-UART adapter"]
     FT -->|CRSF| TXM["ELRS TX module<br/>(ES24TX Pro)"]
     GS["Ground station app<br/>(Electron HUD)"]
     LAPVID["mediamtx server"] -->|WebRTC/WHEP| GS
     FT -.->|telemetry back<br/>(shared serial)| GS
+    IPH["iPhone HUD<br/>(Codex-owned iPhone_rc)"]
+    GS -.->|"UDP 5601 telemetry out<br/>(off by default)"| IPH
+    IPH -.->|"UDP 5602 head intent —<br/>LOG-ONLY dead end (ch15 §9)"| PC
   end
 
   subgraph CAR["CAR"]
@@ -77,9 +81,11 @@ Two facts worth internalizing immediately:
 
 You push the DualShock's throttle. What happens, in order:
 
-1. **elrs-joystick-control** (PC) reads the gamepad and encodes stick positions as
-   **CRSF** — the standard serial protocol RC gear speaks (chapter 09). It sends CRSF
-   frames out the **FT232** (a USB-to-serial adapter) into the **ELRS TX module**.
+1. **The mapper** (`w17-mapper` on the PC — the owned fork of elrs-joystick-control,
+   chapter 15) reads the gamepad, runs each channel through its configured **node
+   graph**, and encodes stick positions as **CRSF** — the standard serial protocol RC
+   gear speaks (chapter 09). It sends CRSF frames out the **FT232** (a USB-to-serial
+   adapter) into the **ELRS TX module**.
 2. The TX module radios the channel values to the **RP1 receiver** on the car over
    **ExpressLRS (ELRS)** — an open-source, low-latency 2.4 GHz RC radio system.
 3. The RP1 outputs the same CRSF frames on a wire into **ESP32 #1** (UART2, pin GPIO16,
@@ -118,6 +124,14 @@ this is the design expectation from the components used.
 - **`w17-ground-station`** — steps 7–8 on the laptop: video + HUD + telemetry overlay.
   Deliberately **viewer-only** so a bug in it can never affect the car
   (`w17-ground-station/README.md`).
+- **`w17-mapper`** — step 1: the *only* producer of driving commands on the ground.
+  Not an external tool anymore: since 2026-07-15 it is an **owned GPL fork** of
+  `elrs-joystick-control` (branch `w17-headtrack`), carrying W17 safety fixes
+  (failsafe-value handling, the config plausibility lint) and the **log-only
+  head-intent receiver** for the iPhone's UDP 5602 packets — which today dead-end in
+  a diagnostics state (`ACTIVE_LOG_ONLY`) and can reach no servo, gimbal, or CRSF
+  output by construction. **[C]** `../WORKSPACE_MAP.md` (mapper row); the full story,
+  including why an RC mapper is safety-relevant code, is **chapter 15**.
 
 ## 6. The physical parts list (abridged)
 
@@ -142,14 +156,17 @@ this is the design expectation from the components used.
 1. **Safety first, and layered.** Failsafe was built and tested before any feature
    (`CLAUDE.md` §6). There are at least five independent safety layers (chapter 10).
 2. **Pure logic, thin hardware.** Almost all code has no idea hardware exists; tiny
-   "HAL" wrappers touch the chip. That's why 187 unit tests run on a laptop (chapter 02).
+   "HAL" wrappers touch the chip. That's why the firmware's native test suites — a few
+   hundred tests (336 across the two boards as of 2026-08-17) — run on a laptop
+   (chapter 02).
 3. **Invalid configuration fails to compile.** Config structs carry a `valid()` check
    enforced at compile time via `static_assert` (chapter 04).
 4. **Protocols are pinned by golden tests.** The exact bytes of every frame are asserted
    in tests in *both* the sender's and receiver's repos, so they can't drift apart
    (chapter 09).
 5. **The gift must work even if the fancy parts fail.** Zero-code fallback: drive with
-   elrs-joystick-control and watch video in VLC (`w17-ground-station/docs/SETUP.md`).
+   the mapper (`w17-mapper`, the elrs-joystick-control fork) and watch video in VLC
+   (`w17-ground-station/docs/SETUP.md`).
 
 ## Confirmed vs inferred in this chapter
 
@@ -158,8 +175,9 @@ step-by-step in §4 matches `CLAUDE.md` §2, `docs/link2_protocol.md`,
 `w17-ground-station/docs/TELEMETRY.md`, and the module list verified in the repo trees.
 
 **Inferred [I]:** the latency remark (§4); "authority flows one way" as a *stated design
-goal* is confirmed, but its enforcement on the ground side depends on elrs-joystick-control
-being the only serial-port writer — see `docs/TELEMETRY.md` "The one obstacle".
+goal* is confirmed, but its enforcement on the ground side depends on the mapper
+(`w17-mapper`) being the only serial-port writer — see `docs/TELEMETRY.md` "The one
+obstacle".
 
 **Assumed [A]:** that the physical car will be wired exactly per the atlas + PinMap —
 nothing is soldered yet, so every pin claim is "as designed," not "as built."
