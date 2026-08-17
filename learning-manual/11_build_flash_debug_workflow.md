@@ -28,9 +28,13 @@ A subtlety documented in the control `platformio.ini` itself: a child env's
 ## 2. Run the unit tests (no hardware — do this first)
 
 ```bash
-cd w17-control-fw    && pio test -e native     # expect 147 tests, all pass
-cd w17-soundlight-fw && pio test -e native     # expect 40 tests, all pass
+cd w17-control-fw    && pio test -e native     # 229 tests as of 2026-08-17, all pass
+cd w17-soundlight-fw && pio test -e native     # 107 tests as of 2026-08-17, all pass
 ```
+
+(The suites grow with the repos — treat the run as the truth, not a quoted number.
+The fourth code repo has its own one-liner: `cd w17-mapper && go test ./...` — 137
+tests as of 2026-08-17; its build/run workflow is chapter 15 §3.)
 
 Useful variations:
 
@@ -55,8 +59,13 @@ pio device monitor                       # serial monitor @ 115200 (monitor_spee
 
 Flashing notes for when hardware exists:
 
-- The DevKit V1 enters bootloader automatically via USB; if a board is stubborn, hold
-  BOOT while the upload starts. **[A]** standard DevKit behavior — untested here.
+- Know your boards (owner decision 2026-07-24, `../CURRENT_STATUS.md`): the on-hand
+  **DevKit V1 clones are test/spare** bench boards — chapter 13's smoke test flashed
+  and tested exactly those, so their enter-bootloader-via-USB behavior is **[C]**
+  (evidence file; a stubborn board may still need BOOT held while the upload starts).
+  The car's **cassette controllers are MH-ET Live D1-Mini ESP32 (USB-C)** boards —
+  same WROOM-32 class and envs, but their flash behavior is **[A] until the first
+  MH-ET flash** (rebuild stub 20 tracks that gap).
 - Which build to flash when (**[C]** `docs/D8_BENCH_BRINGUP.md` preamble): bench =
   `esp32dev_tuning`; the delivered gift = plain `esp32dev` (no console surface). *The
   C10-era caution ("the plain build has no NVS load path, so the delivered firmware runs
@@ -123,8 +132,8 @@ sound/light demo — but it needs a real board + speaker/LEDs to be interesting
 cd w17-ground-station
 npm install
 npm run setup        # repairs Electron if postinstall was blocked; fetches mediamtx v1.9.3
-npm test             # vitest suites — 118 tests as of 2026-07-09 (grew from 20 with
-                     #   the audit F2/F3 + iPhone-bridge W1–W3 work; run it for the live count)
+npm test             # vitest suites — 1324 tests as of 2026-08-17 (the suite grows
+                     #   with every wave; run it for the live count)
 npm run demo         # the app with replay telemetry — no car, no camera
 npm start            # the real thing (needs the camera pipeline configured)
 npm run build        # package the Windows .exe
@@ -170,13 +179,19 @@ soundlight audio HAL depends on **and** whose channel-based LEDC API the control
 depends on; an unpinned bump to core 3.x would delete both. (control-fw pinned in audit fix
 F1/R02.)
 The ground station's cross-platform claim is likewise "proven by CI + the pure-core
-tests" (README). Its own `.github/workflows/ci.yml` (explained line-by-line in batch G4,
-`code_explained/ground_station/04_scripts_packaging_and_ci.md` §8) has two jobs: `npm test` on Ubuntu (the 118 vitest tests), plus a **Windows
-packaging smoke** added by audit fix F2 (R17b/R03) — rebuild `serialport` against
-Electron's ABI, then an unpacked `electron-builder --dir` build, proving the deliverable
-`.exe` actually packages (no installer, no signing, no publish). Practical meaning for
-you: if `pio test -e native`, `pio run -e esp32dev`, and `npm test` pass locally, you've
-reproduced CI (minus that Windows packaging job unless you're on Windows).
+tests" (README). Its own `.github/workflows/ci.yml` (the G4-era two-job skeleton is
+explained line-by-line in `code_explained/ground_station/04_scripts_packaging_and_ci.md`
+§8) still has **two jobs**, but the Windows one has grown far past its F2 origins
+(re-read 2026-08-17 at `ca1cb86`): `test` on Ubuntu (the fast gate — the full vitest
+suite, 1324 tests as of 2026-08-17), and `package-smoke` on windows-latest, which now
+runs the suite again on the deployment target, then `npm run smoke:electron` (a **real
+Electron boot** of the app under a scrubbed, Wi-Fi-simulated environment, passing only
+on a structured readiness handshake), then the F2-era `electron-builder --dir`
+packaging proof, and finally builds + uploads the **unsigned NSIS giftee installer**
+(the gift-kit deliverable; unsigned by design — no signing secrets live in CI).
+Practical meaning for you: if `pio test -e native`, `pio run -e esp32dev`, and
+`npm test` pass locally, you've reproduced the fast gate (the Windows
+boot/package/installer proofs need a Windows machine).
 
 ## 8. Debugging techniques this project is built for
 
@@ -200,8 +215,9 @@ grammar from ROADMAP B2.6.
 **Inferred [I]:** `pio test` filter/verbosity flags and monitor invocation are standard
 PlatformIO usage (not project-documented); expected first-run downloads.
 
-**Assumed [A]:** flashing behavior of the physical DevKit V1 boards (§3 note) — nothing
-has been flashed to real hardware yet in this project's history.
+**Assumed [A]:** flashing behavior of the **MH-ET D1-Mini** cassette boards (§3 note) —
+no MH-ET board has been flashed yet. (The DevKit-clone flashing that used to sit here
+as [A] was retired to [C] by chapter 13's executed smoke test, 2026-07-17.)
 
 ## Questions to check your understanding
 
