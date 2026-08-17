@@ -1,7 +1,10 @@
 # 02 — Repository Map
 
-How the code in all three repos is organized, and — more important — *why* it's organized
-that way. Once you understand the pattern in §1 you can navigate any module without help.
+How the code is organized, and — more important — *why* it's organized that way. Once
+you understand the pattern in §1 you can navigate any module without help. §2–§4 map
+the three *original* code repos in depth; §6 places the repos the workspace has grown
+since (the mapper fork, the design system, the fabrication repo) — the full
+workspace-level registry is `../WORKSPACE_MAP.md`.
 
 ## 1. The house pattern: pure logic + thin hardware shells
 
@@ -57,7 +60,7 @@ w17-control-fw/
 ├── wokwi.toml, diagram.json   virtual-hardware simulation (chapter 11)
 ├── docs/                the documentation home (chapter 05)
 ├── src/
-│   ├── main.cpp         THE entry point (~403 lines): wires everything, runs the loop
+│   ├── main.cpp         THE entry point (~630 lines): wires everything, runs the loop
 │   └── SimCrsfFeeder.{hpp,cpp}   scripted fake radio for the simulator build only
 ├── lib/                 one folder per module — the heart of the repo
 └── test/                one folder per module's Unity test suite + shared mocks
@@ -79,6 +82,7 @@ w17-control-fw/
 | `lib/link2` | `Link2Codec` (encode/decode/assembler), `Link2Sender` | The board#1→#2 protocol |
 | `lib/settings` | `Settings`, `kDefaults` | Bench-tunable values + save/load blob for flash |
 | `lib/console` | `Console`, `ConsoleRunner` | The serial tuning console (`get/set/save…`) |
+| `lib/reset_diag` | `RawResetReason`, `ResetClass`, `classify()` | Boot-reset forensics (R5-b): why did this boot happen, what reset class, boot count — feeds the one-line boot diagnostic |
 
 > Every library above now has a **line-by-line deep dive** in `code_explained/control_fw/`
 > (batches C1–C10; the file↔batch map is in `source_code_progress.md`).
@@ -91,15 +95,17 @@ w17-control-fw/
 | `lib/outputs_hal_esp32` (`Esp32LedcPwm`) | the ESP32 "LEDC" PWM peripheral, 50 Hz | all five servo/ESC outputs |
 | `lib/telemetry_hal_esp32` (`Esp32BatteryAdc`, `Esp32HallPulseCounter`) | ADC pin GPIO34; interrupt on GPIO35 | battery + wheel speed |
 | `lib/link2_hal_esp32` (`Esp32Link2Uart`) | UART1 TX-only on GPIO25 | link2 to board #2 |
-| `lib/settings_hal_esp32` (`Esp32NvsStore`, `Esp32SerialConsole`) | flash storage (NVS) + USB serial | tuning build only |
+| `lib/settings_hal_esp32` (`Esp32NvsStore`) | flash storage (NVS) | **every** build loads saved tuning at boot; only *saving* comes from the console |
+| `lib/console_hal_esp32` (`Esp32SerialConsole`) | USB serial (UART0) | tuning build only |
 
 ### Tests
 
-`test/test_<module>/test_main.cpp` per module, `test/mocks/` shared fakes. **[C]** 147
-tests total (`docs/ROADMAP.md` B2 item 8). Notable: `test_link2` contains
-`test_golden_frame_bytes` pinning the exact wire bytes of the link2 protocol, and
-`test_crsf` pins each outgoing telemetry frame — the ground station asserts the *same
-bytes* in its own tests.
+`test/test_<module>/test_main.cpp` per module (11 suites), `test/mocks/` shared fakes.
+Run `pio test -e native` for the live count — the suite has grown steadily with the
+repo (**229 tests as of 2026-08-17**; the "147" quoted in older docs/chapters is the
+2026-07-03-era size). Notable: `test_link2` contains `test_golden_frame_bytes` pinning
+the exact wire bytes of the link2 protocol, and `test_crsf` pins each outgoing
+telemetry frame — the ground station asserts the *same bytes* in its own tests.
 
 ## 3. `w17-soundlight-fw` — the sound/light board
 
@@ -111,18 +117,21 @@ Same pattern, smaller:
 | `lib/link2` | `Link2Codec`, `Link2FrameAssembler` | **Verbatim copy** from the control repo — the protocol owner. [C] "do not fork; protocol changes happen there first" (`CLAUDE.md`) |
 | `lib/link2monitor` | `Link2Monitor`, `LinkStatus` | Staleness watchdog: last good state while link Up, safe projection when Lost |
 | `lib/enginesim` | `EngineSim`, `Ignition` | Virtual engine: rpm inertia, starter, rev limiter, shift blips, overrun |
-| `lib/soundsynth` | `EngineSynth`, `ISampleSource` | The DSP: turns engine state into audio samples (all integer math) |
-| `lib/lights` | `LightRenderer` | Pixel compositor: brake/indicators/rain/halo/hazard + gamma + power cap |
+| `lib/soundsynth` | `EngineSynth`, `ISampleSource`, `SynthProfiles` | The DSP: turns engine state into audio samples (all integer math); named voice profiles `v10()` (default) / `v6TurboHybrid()` |
+| `lib/lights` | `LightRenderer` | Pixel compositor: brake/indicators/rain/halo/ignition/DRS-tell/hazard + gamma + power cap |
+| `lib/audiodecision` | `audiodecision::*` | Pure audio-task decisions shared verbatim by `main.cpp` and the tests (dead-man boundary can't drift into a test copy) |
+| `lib/audiostartup` | `audiostartup::*` | Graceful degradation when I2S audio startup fails (lights keep running) |
 | `lib/audio_hal_esp32` | `Esp32I2sAudio` | I2S output @ 22,050 Hz to the MAX98357A |
 | `lib/lights_hal_esp32` | `Esp32NeoPixelStrip` | WS2812 via the Adafruit NeoPixel library |
 
 > Every library above now has a **line-by-line deep dive** in `code_explained/soundlight_fw/`
 > (batches S1–S5; the file↔batch map is in `source_code_progress.md`).
 
-`src/main.cpp` (142 lines) is special: it splits work across the ESP32's **two CPU
+`src/main.cpp` (~220 lines) is special: it splits work across the ESP32's **two CPU
 cores** — control logic on core 1, audio rendering on core 0 — sharing exactly one
 atomic 32-bit word + a heartbeat (chapter 07). `src/SimLink2Feeder.{hpp,cpp}` scripts a
-fake board-#1 for the standalone bench demo. Tests: 6 suites, 40 tests, including a pure
+fake board-#1 for the standalone bench demo. Tests: 8 suites (**107 tests as of
+2026-08-17**; run `pio test -e native` for the live count), including a pure
 end-to-end `test_integration` (frames in → audio out).
 
 ## 4. `w17-ground-station` — the laptop app
@@ -136,15 +145,26 @@ w17-ground-station/
 ├── package.json          npm manifest; `main/main.js` is the entry point
 ├── main/                 MAIN PROCESS
 │   ├── main.js           window creation, telemetry source selection, IPC push
+│   ├── appWiring.js + sessionRuntime.js   composition + per-session runtime state
 │   ├── mediamtx.js       starts/supervises the bundled mediamtx video server
+│   │                     (restarted keyed on the selected video profile)
 │   ├── CrsfSerialSource.js  reads CRSF telemetry from a serial port
 │   ├── preload.cjs       the safe bridge exposed to the renderer
+│   ├── wifiManager.js · hotspot*.js · adapterMonitor.js · wifiSim.js
+│   │                     PIT WALL: Wi-Fi scan/join, hotspot lifecycle, adapter picker
+│   ├── settingsStore.js + credentialStore.js   persisted choices; the one secret
+│   │                     (hotspot password) encrypted at rest via safeStorage
+│   ├── HudDiscovery.js   mDNS iPhone-HUD address *suggestions* (advisory-only, CB4)
+│   ├── elrsLauncher.js   launches the mapper detached (GRID's LAUNCH button)
 │   ├── IphoneTelemetryBridge.js + iphoneBridgeConfig.js   W2: telemetry → iPhone,
 │   │                     UDP 5601, SEND-ONLY, off by default (W17_IPHONE_BRIDGE)
 │   └── HeadTrackingReceiver.js + headTrackingConfig.js    W3: iPhone → Windows,
 │                         UDP 5602, LOG-ONLY dead end, off by default (W17_HEADTRACK)
 ├── renderer/             RENDERER (the visible HUD web page)
 │   ├── index.html, hud.css, hud.js   gamepad mirroring + simulated dash + overlay
+│   ├── setupFlow.js      the pre-ride setup-flow UI (GARAGE → … → GRID; ch08 §7)
+│   ├── padPreview.js · wheelPreview.js · uiNav.js · sounds.js   SEAT FIT previews,
+│   │                     keyboard navigation, radio-sound chirps
 │   └── whep.js           WebRTC video client
 ├── shared/               PURE, unit-tested logic used by both worlds
 │   ├── crsf.js           CRSF decoder — a faithful JS port of the firmware's
@@ -152,29 +172,47 @@ w17-ground-station/
 │   ├── crsfTelemetry.js  frames → Telemetry fields
 │   ├── telemetry.js      the normalized Telemetry object (contract: docs/TELEMETRY.md)
 │   ├── linkState.mjs     the 4-state HUD link model (audit F2; ch08 §3)
+│   ├── setupSteps.mjs + checklist.mjs + setupSummary.mjs   the setup-flow step
+│   │                     machine + the GRID checklist engine (ch08 §7)
+│   ├── settings.js · lowBattery.mjs · videoProfiles.mjs · wheelProfile.mjs ·
+│   │   inputPresets.mjs · cameraMode.mjs · …   one pure module per flow concern
 │   ├── replaySource.js   fake telemetry for `npm run demo`
 │   ├── feelConstants.js  ERS feel numbers shared with the firmware
 │   ├── telemetrySnapshot.js  W2: pure iPhone-packet builder (bridge contract)
 │   └── headTracking.js   W3: pure packet validator + diagnostics monitor (LOG-ONLY)
 ├── mediamtx/mediamtx.yml pinned server config (camera RTSP URL goes here)
-├── scripts/              run/setup helpers (Electron repair, mediamtx download)
-├── test/                 8 vitest suites, 118 tests (incl. the shared CRSF golden
-│                         fixture, audit F3, and the no-control-path guards)
-├── .github/workflows/ci.yml   npm test on Linux + a Windows packaging smoke (F2)
+├── scripts/              run/setup helpers (Electron repair, mediamtx download,
+│                         the Electron boot-smoke harness, proto/feel sync checks)
+├── test/                 63 vitest files, 1324 tests as of 2026-08-17 (incl. the
+│                         shared CRSF golden fixture, audit F3, and the
+│                         no-control-path guards); run `npm test` for the live count
+├── .github/workflows/ci.yml   `test` job (Ubuntu fast gate) + `package-smoke` job
+│                         (Windows: suite, real Electron boot smoke, --dir build,
+│                         unsigned NSIS giftee installer + artifact upload)
 └── docs/                 SETUP.md (bench risks), TELEMETRY.md (contract),
-                          CODESIGNING.md, windows_bridge_contract.md (implementation
+                          CODESIGNING.md, video_profiles.md, the setup-flow bench
+                          checklist, windows_bridge_contract.md (implementation
                           copy — canonical lives in Codex-owned iPhone_rc) + bridge
                           readiness/test-plan notes
 ```
 
 > **Inventory note (updated 2026-07-09, G0 pass):** tree re-verified file-by-file; the
 > audit fixes (F2/F3/F4) and the iPhone-bridge work (W1–W3, 2026-07-07/08) added the
-> files marked W2/W3/F above and grew the test suite from 20 to **118 vitest tests**
-> (run this session: 118/118). The W3 head-tracking receiver is **LOG-ONLY by safety
+> files marked W2/W3/F above and grew the test suite from 20 to 118 vitest tests
+> (run that session: 118/118). The W3 head-tracking receiver is **LOG-ONLY by safety
 > boundary** (it must never reach CRSF, servos, or the gimbal) and its real-device
 > validation is **still pending** (open question #58). Batch placement of every file:
 > `source_code_explanation_plan.md` (G1–G5b); the shared pure core now has its
 > line-by-line deep dive.
+
+> **Inventory note 2 (2026-08-17, wave-2 staleness pass):** the tree above was
+> re-drawn against main at `ca1cb86`. Since the G0 pass the repo absorbed the
+> **setup-flow redesign** (GARAGE → PIT WALL → SEAT FIT → SETUP → GRID — chapter 08
+> §7), hotspot lifecycle, mDNS HUD discovery, the low-battery banner, video
+> profiles, and the NSIS installer CI step; the suite is **1324 tests across 63
+> files**. The new `main/` and `shared/` files are *not yet* in the line-by-line
+> campaign inventory (`source_code_explanation_plan.md` still maps the G0-era tree) —
+> the campaign has been paused since 2026-07-09.
 
 > Deep dive: `shared/`'s pure core (CRSF decode, telemetry model, link state, golden
 > fixture) is explained line-by-line in
@@ -208,12 +246,38 @@ pinned by an identical golden vector in *both* the firmware … and here."
 Practical consequence: if you ever want to change a protocol, the change starts in
 `w17-control-fw` and propagates outward — never the reverse.
 
+## 6. The rest of the workspace — repos this chapter doesn't map in depth
+
+The three trees above were the whole Claude-side code world when this chapter was
+written; the workspace has since grown to six Claude-side repos
+(**[C]** `../WORKSPACE_MAP.md`, the authoritative registry):
+
+- **`w17-mapper`** — the fourth *code* repo (Go, not C++/JS): the owned GPL fork of
+  `elrs-joystick-control` that turns the DualShock into CRSF and hosts the log-only
+  head-intent pipeline. Its anatomy, node graph, and safety story have their own
+  chapter — **ch15 §2–§4** (repo shape and Go primer), **§9–§10** (head intent and
+  the guards). Not yet in the line-by-line campaign (see
+  `source_code_explanation_plan.md`).
+- **`w17-design-system`** — reference-only, no runtime code: the visual source of
+  truth for the ground station's setup-flow redesign (`w17.css` tokens, component
+  cards, 1280×800 screen mockups). The `w17-ground-station/renderer/` is the
+  *implementation*, not a copy.
+- **`w17-3d-codex`** — fabrication: model inventory, materials, slicing specs, test
+  prints, finishing/decals, printed-part assembly. Consulted by the rebuild track
+  (chapters 17–18).
+
+Two further repos are **ChatGPT-Codex-owned** and out of Claude-side editing scope:
+`iPhone_rc` (the thin iPhone HUD client) and `w17-rc-print-codex` (print decisions).
+The manual cites them but never maps their internals.
+
 ## Confirmed vs inferred
 
-**Confirmed [C]:** the folder trees and file lists (verified by directory listing
-2026-07-03); the pure-vs-HAL rule and the `lib_ignore` enforcement
-(`platformio.ini [env:native]`); test counts (ROADMAP/READMEs); ownership rules (quoted
-above).
+**Confirmed [C]:** the folder trees and file lists (first verified by directory
+listing 2026-07-03; firmware/GS trees re-verified 2026-08-17 against control-fw
+`9f00f2e`, soundlight `1c19260`, GS `ca1cb86`); the pure-vs-HAL rule and the
+`lib_ignore` enforcement (`platformio.ini [env:native]`); test counts as-of-dated in
+the text above; ownership rules (quoted above); the §6 repo set
+(`../WORKSPACE_MAP.md`).
 
 **Inferred [I]:** the description of *why* the seam pattern exists (testability) is the
 docs' own stated motivation, generalized. *(The old note here — "exactly what
