@@ -31,3 +31,6 @@ coverage/
 *.tmp
 .env
 .env.*
+
+# Transferred from Codex ownership + relocated here 2026-08-17 (own git history).
+iPhone_rc/

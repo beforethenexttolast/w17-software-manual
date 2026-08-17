@@ -29,11 +29,9 @@ docs). See `WORKSPACE_MAP.md` for the full picture and canonical-vs-copy registr
   workspace is a GUEST in these repos: read-only unless the owner's task explicitly names
   one.** All safety boundaries, gates, and commit rules below bind Codex sessions
   identically.
-- **ChatGPT Codex owns/maintains:** `iPhone_rc` (under `../Codex/iPhone_rc`) and
-  `../Codex/w17-rc-print-codex` (printing/mechanical) — both live outside this workspace
-  root by design. (An ownership transfer of Codex-side parts to Claude Code is under owner
-  discussion as of 2026-08-17 — check `CURRENT_STATUS.md` for the current split before
-  acting.)
+- **ChatGPT Codex owns/maintains:** `../Codex/w17-rc-print-codex` (printing/mechanical)
+  only. (`iPhone_rc` transferred to Claude Code and relocated into this workspace on
+  2026-08-17 — a Codex session is a guest there too.)
 
 Do not edit Claude-owned repos from a Codex session unless the task explicitly names one.
 

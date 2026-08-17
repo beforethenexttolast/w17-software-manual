@@ -17,6 +17,9 @@ driven by two ESP32 boards plus a laptop/Windows ground station, with an iPhone 
 - `w17-ground-station` — Electron viewer app (video + HUD + telemetry). Viewer only; the
   Windows side is the control/integration authority.
 - `learning-manual` — the beginner-friendly manual about the whole project.
+- `iPhone_rc` — thin iPhone FPV HUD client (telemetry in on UDP 5601; head-intent out on
+  UDP 5602, LOG-ONLY). Transferred from Codex ownership + relocated here 2026-08-17. The
+  safety boundaries below bind it verbatim — it is a display client, never a control path.
 
 Each nested repo is its **own git repo** (this folder tracks only the manual + workspace
 docs). See `WORKSPACE_MAP.md` for the full picture and canonical-vs-copy registry.
@@ -24,9 +27,9 @@ docs). See `WORKSPACE_MAP.md` for the full picture and canonical-vs-copy registr
 ## Ownership split
 
 - **Claude Code owns/maintains:** `w17-control-fw`, `w17-ground-station`,
-  `w17-soundlight-fw`, `learning-manual`, and hardware bring-up docs/checklists.
-- **ChatGPT Codex owns/maintains:** `iPhone_rc` (lives under `../Codex/iPhone_rc`).
-- **Printing/mechanical Codex repo is separate:** `../Codex/w17-rc-print-codex` — do not
+  `w17-soundlight-fw`, `learning-manual`, `iPhone_rc` (transferred from Codex 2026-08-17,
+  now in this workspace), and hardware bring-up docs/checklists.
+- **Printing/mechanical Codex repo:** `../Codex/w17-rc-print-codex` — Codex-owned; do not
   touch unless explicitly asked.
 
 Do not edit Codex-owned repos from a Claude Code session.

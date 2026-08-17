@@ -22,14 +22,15 @@ pending validations live in `CURRENT_STATUS.md`.
 | `w17-mapper` | projects | Claude Code | Owned fork of `elrs-joystick-control` (upstream `github.com/kaack/elrs-joystick-control`, pinned `2b8031a`; branch `w17-headtrack`; **GPL-3.0-or-later**). The production DualShock→CRSF→ELRS mapper and, per owner decision #1 (topology (a), 2026-07-15), the production owner of UDP 5602 head-intent ingest. Read-only reference copy stays at `_vendor/elrs-joystick-control` (never edited). **Public fork** (`github.com/beforethenexttolast/w17-mapper`, since 2026-07-25); every push is governed by the `FORK-NOTICE.md` push-review rule, with the tracked `.githooks/pre-push` guard as the accident backstop. |
 | `learning-manual` | projects | Claude Code | Beginner-friendly manual for the whole system. Persistent teaching output. |
 | `w17-3d-codex` | projects | Claude Code | 3D printing & fabrication: model inventory, materials, Bambu slicing specs, test prints, finishing/painting/decals, printed-part assembly. Raw STLs live untracked in its `unsorted_stl_raw/`. Consults the Codex `w17-rc-print-codex` reports read-only. |
-| `iPhone_rc` | Codex | ChatGPT Codex | Thin iPhone FPV HUD client. Receives telemetry (UDP 5601), sends head-tracking **intent** (UDP 5602). No control path. |
+| `iPhone_rc` | projects | Claude Code | Thin iPhone FPV HUD client. Receives telemetry (UDP 5601), sends head-tracking **intent** (UDP 5602). No control path. **Transferred from Codex ownership + relocated into this root 2026-08-17 (owner decision); the pre-transfer uncommitted VR-calibration working-tree state moved intact and awaits an onboarding review.** |
 | `w17-rc-print-codex` | Codex | ChatGPT Codex | STL/SCAD print-decision project (3D-print filtering). Isolated from firmware/bridge/electronics. Do not touch unless explicitly asked. |
 
 ## Ownership split (quick reference)
 
 - **Claude Code:** control-fw, soundlight-fw, ground-station, design-system, learning-manual,
-  w17-3d-codex (3D printing/fabrication/finishing), hardware bring-up docs/checklists.
-- **ChatGPT Codex:** iPhone_rc (bridge/HUD) and w17-rc-print-codex (printing/mechanical).
+  w17-3d-codex (3D printing/fabrication/finishing), **iPhone_rc (since 2026-08-17)**, and
+  hardware bring-up docs/checklists.
+- **ChatGPT Codex:** w17-rc-print-codex (printing/mechanical) only.
 
 ## Canonical-vs-copy registry
 
