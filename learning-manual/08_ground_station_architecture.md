@@ -247,8 +247,12 @@ as UDP/JSON on port 5601 — **send-only**, a second consumer of the existing te
 flow; **W3** receives the iPhone's head-tracking intent packets on UDP 5602 —
 **strictly LOG-ONLY**: packets are validated, counted, and summarized to the console,
 and *nothing else happens* (no CRSF, no servos, no camera pan/tilt — that mapping is
-blocked until a separate safety milestone). Both are dormant unless enabled by env vars
-(`W17_IPHONE_BRIDGE`, `W17_HEADTRACK`). **[C]** README + `main/main.js` +
+blocked until a separate safety milestone). Both are off by default. Originally they
+were env-var-only (`W17_IPHONE_BRIDGE`, `W17_HEADTRACK`); since the setup-flow
+redesign the UI can enable them too — *iPhone Cockpit* mode plus a confirmed iPhone IP
+starts the W2 sender, and the ⚙ menu carries the log-only head-track toggle — with the
+rule that **a set env var wins outright** (even `=0`), so dev/CI behavior never
+changes under a persisted setting. **[C]** README + `main/main.js` +
 `test/noControlPath.test.js` (structural guards that the bridge opens no control path).
 
 The bridge story has since gained a discovery half: the HUD can announce itself over

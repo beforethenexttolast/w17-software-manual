@@ -301,9 +301,11 @@ demo-run check. (08, G3 §1/§5.2)
 toward zero — why the dim layers render at 1–3/255 duty (open q #55). (07, S4)
 
 **GCS box** — the planned one-cable, 3D-printed "ground control station" enclosure
-from the gift kit (`../W17_PRODUCT_VISION.md`): the FT232 and ELRS TX module packaged
-so the giftee plugs in a single USB cable. Not built yet — a rebuild-track item
-(chapter 21). (00, 21)
+from the gift kit (**[C]** `../W17_PRODUCT_VISION.md`): the ELRS TX, the hotspot Wi-Fi
+adapter, and a USB hub in one box, a single USB cable to the giftee's PC (optional
+12 V input if the USB power budget falls short — bench measurement owed). Print and
+mechanics are Codex territory; contents/wiring/BOM Claude-side. Not built yet — a
+rebuild-track item (chapter 21). (00, 21)
 
 **GitHub Actions (CI)** — the hosted service running `.github/workflows/ci.yml` on every
 push/PR: native tests + the `esp32dev` and `esp32dev_sim` builds (`esp32dev_tuning` is not in
