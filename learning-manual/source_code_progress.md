@@ -7,7 +7,7 @@ Status values: `not started` → `explained` → `needs review` (you flagged que
 > **Campaign paused (dated entry, 2026-08-17).** No batch has run since G4
 > (2026-07-09) — the "Last updated" block below is a **frozen frontier**, not the live
 > one. Since then the source repos moved substantially (suites at the current mains:
-> control **229**, soundlight **107**, GS **1324**, mapper **137** — vs the 147/40/118
+> control **229**, soundlight **107**, GS **1435**, mapper **137** — vs the 147/40/118
 > the entries below record), the GS tree gained the whole setup-flow redesign (none of
 > those files are in this file's tables — see ch02 §4's inventory note 2), and a
 > **fourth code repo exists**: `w17-mapper` (Go), taught architecturally in chapter 15

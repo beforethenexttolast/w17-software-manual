@@ -109,7 +109,7 @@ A key property of this project: almost everything runs on your computer.
 cd w17-control-fw   && pio test -e native
 cd w17-soundlight-fw && pio test -e native
 
-# Ground station tests + a live-looking demo (no car, no camera; 1324 tests as of 2026-08-17)
+# Ground station tests + a live-looking demo (no car, no camera; 1435 tests as of 2026-08-17)
 cd w17-ground-station && npm install && npm test && npm run demo
 
 # The mapper (Go toolchain; 137 tests as of 2026-08-17)
@@ -163,8 +163,8 @@ nothing has been proven on powered hardware.
 
 **Update 2026-08-17 (wave-2 staleness repair):** chapters 00–13 and the support files
 were repaired against the repos as of this date — control-fw `9f00f2e`, soundlight
-`1c19260`, ground station `ca1cb86`, mapper `432a809` (native/vitest suites
-229 / 107 / 1324 / 137; every count in the manual is now either as-of-dated or
+`1c19260`, ground station `2c56898`, mapper `432a809` (native/vitest suites
+229 / 107 / 1435 / 137; every count in the manual is now either as-of-dated or
 replaced by "run the suite"). The changes the repairs teach: the workspace is
 **six Claude-side repos** (see the table above), the ground station boots into the
 **GARAGE → GRID setup flow** (chapter 08 §7), the car's cassette controllers are

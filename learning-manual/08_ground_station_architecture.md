@@ -222,8 +222,7 @@ Two things to notice as architecture rather than UI:
    at rest via Electron `safeStorage` (Windows DPAPI) and never written to disk in
    plaintext; if secure storage is unavailable it is kept for the session only.
 
-Two HUD-adjacent features rode the later waves of the same redesign (both merged
-2026-08-17):
+Three features rode the later waves of the same redesign (all merged 2026-08-17):
 
 - **Low-battery banner** (`shared/lowBattery.mjs`, merged in `abaddbd`): a HUD banner
   from real telemetry, with ⚙-tunable thresholds (defaults **7.0 V warn / 6.6 V
@@ -233,6 +232,12 @@ Two HUD-adjacent features rode the later waves of the same redesign (both merged
   (a proof test asserts DRIVE ≡ the pre-profile behavior at the real seams), SHOWPIECE
   trades latency for a smoother picture; switched on GARAGE (the chip) or in ⚙ and
   applied through a profile-keyed mediamtx supervisor plus WHEP player tuning.
+- **Race-day one-action orchestration** (`main/raceDayOrchestrator.js` +
+  `main/mapperRunner.js`, merged in `2c56898`): a ⚙ RACE DAY block (drive program,
+  saved mapper profile, phone-link toggle) and a one-action start that spawns the
+  mapper itself — with an **argv whitelist and a scrubbed child environment** so the
+  viewer can never smuggle configuration into the control tool (its pre-merge review
+  caught and fixed exactly that class of hole, plus a spawn-failure status lie).
 
 Honest scope, as always: the flow's *logic* is test-proven; real Wi-Fi, hotspot,
 camera, and iPhone behavior stay bench-gated
@@ -262,7 +267,7 @@ confirms by hand, never an auto-connection.
 
 Two honesty gates apply until further notice (**[C]** `open_questions.md` #58,
 `../CURRENT_STATUS.md`): the bridge is **implemented + unit-tested** (within the full
-suite — 1324 vitest tests as of 2026-08-17), **NOT real-device validated** — no
+suite — 1435 vitest tests as of 2026-08-17), **NOT real-device validated** — no
 end-to-end run against a real iPhone has happened; and the manual's GS-side bridge
 deep-dive is deliberately deferred (the *head-intent* half of the bridge story is now
 taught in **chapter 15** §9–§10, mapper side). Line-by-line coverage is planned as
@@ -277,7 +282,7 @@ and frame mapping (TELEMETRY.md), the codec risk and fallbacks (SETUP.md), the
 viewer-only rationale (README), run-script behaviors (README + package.json), the
 setup-flow rail and step semantics (§7: `shared/setupSteps.mjs`, `shared/checklist.mjs`,
 `main/HudDiscovery.js`, README "Pre-ride setup flow"; re-verified against main
-`ca1cb86`, 2026-08-17).
+`2c56898`, 2026-08-17).
 
 **Inferred [I]:** the Electron-anatomy explanation (§1) is platform knowledge applied
 to this repo's structure *(since confirmed against the code by G2, 2026-07-09: the

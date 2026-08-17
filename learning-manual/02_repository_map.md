@@ -156,6 +156,9 @@ w17-ground-station/
 │   │                     (hotspot password) encrypted at rest via safeStorage
 │   ├── HudDiscovery.js   mDNS iPhone-HUD address *suggestions* (advisory-only, CB4)
 │   ├── elrsLauncher.js   launches the mapper detached (GRID's LAUNCH button)
+│   ├── raceDayOrchestrator.js + mapperRunner.js   one-action race-day start:
+│   │                     spawns the mapper with an argv whitelist + scrubbed env
+│   │                     (companions: shared/racePrep.mjs, shared/raceDayView.mjs)
 │   ├── IphoneTelemetryBridge.js + iphoneBridgeConfig.js   W2: telemetry → iPhone,
 │   │                     UDP 5601, SEND-ONLY, off by default (W17_IPHONE_BRIDGE)
 │   └── HeadTrackingReceiver.js + headTrackingConfig.js    W3: iPhone → Windows,
@@ -183,7 +186,7 @@ w17-ground-station/
 ├── mediamtx/mediamtx.yml pinned server config (camera RTSP URL goes here)
 ├── scripts/              run/setup helpers (Electron repair, mediamtx download,
 │                         the Electron boot-smoke harness, proto/feel sync checks)
-├── test/                 63 vitest files, 1324 tests as of 2026-08-17 (incl. the
+├── test/                 67 vitest files, 1435 tests as of 2026-08-17 (incl. the
 │                         shared CRSF golden fixture, audit F3, and the
 │                         no-control-path guards); run `npm test` for the live count
 ├── .github/workflows/ci.yml   `test` job (Ubuntu fast gate) + `package-smoke` job
@@ -206,13 +209,16 @@ w17-ground-station/
 > line-by-line deep dive.
 
 > **Inventory note 2 (2026-08-17, wave-2 staleness pass):** the tree above was
-> re-drawn against main at `ca1cb86`. Since the G0 pass the repo absorbed the
+> re-drawn against main at `2c56898`. Since the G0 pass the repo absorbed the
 > **setup-flow redesign** (GARAGE → PIT WALL → SEAT FIT → SETUP → GRID — chapter 08
 > §7), hotspot lifecycle, mDNS HUD discovery, the low-battery banner, video
-> profiles, and the NSIS installer CI step; the suite is **1324 tests across 63
-> files**. The new `main/` and `shared/` files are *not yet* in the line-by-line
-> campaign inventory (`source_code_explanation_plan.md` still maps the G0-era tree) —
-> the campaign has been paused since 2026-07-09.
+> profiles, race-day one-action orchestration, and the NSIS installer CI step; the
+> suite is **1435 tests across 67 files**. The new `main/` and `shared/` files are
+> *not yet* in the line-by-line campaign inventory
+> (`source_code_explanation_plan.md` still maps the G0-era tree) — the campaign has
+> been paused since 2026-07-09. (Main moved twice more *during* this repair pass —
+> `ca1cb86` video profiles, then `2c56898` race day; treat any count here as its
+> dated snapshot and trust `npm test`.)
 
 > Deep dive: `shared/`'s pure core (CRSF decode, telemetry model, link state, golden
 > fixture) is explained line-by-line in
@@ -274,7 +280,7 @@ The manual cites them but never maps their internals.
 
 **Confirmed [C]:** the folder trees and file lists (first verified by directory
 listing 2026-07-03; firmware/GS trees re-verified 2026-08-17 against control-fw
-`9f00f2e`, soundlight `1c19260`, GS `ca1cb86`); the pure-vs-HAL rule and the
+`9f00f2e`, soundlight `1c19260`, GS `2c56898`); the pure-vs-HAL rule and the
 `lib_ignore` enforcement (`platformio.ini [env:native]`); test counts as-of-dated in
 the text above; ownership rules (quoted above); the §6 repo set
 (`../WORKSPACE_MAP.md`).

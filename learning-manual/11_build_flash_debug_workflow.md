@@ -132,7 +132,7 @@ sound/light demo — but it needs a real board + speaker/LEDs to be interesting
 cd w17-ground-station
 npm install
 npm run setup        # repairs Electron if postinstall was blocked; fetches mediamtx v1.9.3
-npm test             # vitest suites — 1324 tests as of 2026-08-17 (the suite grows
+npm test             # vitest suites — 1435 tests as of 2026-08-17 (the suite grows
                      #   with every wave; run it for the live count)
 npm run demo         # the app with replay telemetry — no car, no camera
 npm start            # the real thing (needs the camera pipeline configured)
@@ -182,8 +182,8 @@ The ground station's cross-platform claim is likewise "proven by CI + the pure-c
 tests" (README). Its own `.github/workflows/ci.yml` (the G4-era two-job skeleton is
 explained line-by-line in `code_explained/ground_station/04_scripts_packaging_and_ci.md`
 §8) still has **two jobs**, but the Windows one has grown far past its F2 origins
-(re-read 2026-08-17 at `ca1cb86`): `test` on Ubuntu (the fast gate — the full vitest
-suite, 1324 tests as of 2026-08-17), and `package-smoke` on windows-latest, which now
+(re-read 2026-08-17 at `2c56898`): `test` on Ubuntu (the fast gate — the full vitest
+suite, 1435 tests as of 2026-08-17), and `package-smoke` on windows-latest, which now
 runs the suite again on the deployment target, then `npm run smoke:electron` (a **real
 Electron boot** of the app under a scrubbed, Wi-Fi-simulated environment, passing only
 on a structured readiness handshake), then the F2-era `electron-builder --dir`

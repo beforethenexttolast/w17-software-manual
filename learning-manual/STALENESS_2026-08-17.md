@@ -25,11 +25,12 @@ Control-fw and mapper mains are unchanged. Consequence: former watch items **W1 
 W2 are LIVE staleness now** — folded into chapters 07/08/11/glossary below as S37/S38
 and updated fix targets. Where a finding cites a soundlight/GS count, repair to the
 post-merge values (control 229 / soundlight 107 / GS 1257 / mapper 137).
-*(Superseded again by wave-2's own check: GS main had moved to `ca1cb86` — the
-video-profile wave — and **1324**; control-fw main to `9f00f2e` (docs-only, 229). The
-actual repairs used 229 / 107 / **1324** / 137. Two supersessions in one day is the
-count-chasing lesson in miniature — hence every repaired count is as-of-dated or
-replaced by "run the suite".)*
+*(Superseded again by wave-2's own checks — twice: GS main moved to `ca1cb86` (video
+profiles, **1324**) and then, while the repairs were being written, to `2c56898`
+(race-day orchestration, **1435 / 67 files**); control-fw main to `9f00f2e`
+(docs-only, 229). The repairs as landed use 229 / 107 / **1435** / 137 anchored at
+`2c56898`. Three supersessions in one day is the count-chasing lesson in miniature —
+hence every repaired count is as-of-dated or replaced by "run the suite".)*
 
 **Severity scale.** **HIGH** = misleads action or contradicts a recorded owner
 decision / resolved defect. **MEDIUM** = concrete claim about current state that is
@@ -43,14 +44,17 @@ wave created — 14, 15, 16–22, this report — are excluded from their own au
 ## Wave-2 disposition (2026-08-17, branch docs/manual-wave2)
 
 **Outcome: 6/6 HIGH fixed · 19/19 MEDIUM fixed · LOW: 8 fixed, 4 deferred,
-1 no-action-needed.** Baseline moved again mid-wave-2 — repairs were made against
-**GS main `ca1cb86` (1324 tests — the video-profile wave merged after this report's
-1257 figure)** and **control-fw main `9f00f2e` (the MCU-line fix S28 asked of a
-control-fw session: done; docs-only, 229 unchanged)**; soundlight `1c19260` (107) and
-mapper `432a809` (137) as stated above. Wave-2 commits: `d7acaf4` (#49 family),
-`d383b91` (ch01), `866e773` (ch02), `c72245e` (ch07), `291c7e7` (ch08), `e50a697`
-(00_START), `d13f6c0` (ch05/06), `1962803` (ch11), `12d8a09` (ch13), `3117839`
-(glossary), `27fc16d` (campaign files).
+1 no-action-needed.** The baseline moved **twice more during wave-2 itself**: first to
+**GS `ca1cb86` (1324 — the video-profile wave, past this report's 1257 figure)**, then
+— caught by wave-2's closing sweep — to **GS `2c56898` (1435 tests / 67 files; race-day
+one-action orchestration + the ⚙ RACE DAY block + preload pin 24→28)**; all GS counts
+and anchors in the manual were ratcheted to `2c56898`. Also mid-wave:
+**control-fw main `9f00f2e`** (the MCU-line fix S28 asked of a control-fw session:
+done; docs-only, 229 unchanged); soundlight `1c19260` (107) and mapper `432a809` (137)
+as stated above. Wave-2 commits: `d7acaf4` (#49 family), `d383b91` (ch01), `866e773`
+(ch02), `c72245e` (ch07), `291c7e7` (ch08), `e50a697` (00_START), `d13f6c0` (ch05/06),
+`1962803` (ch11), `12d8a09` (ch13), `3117839` (glossary), `27fc16d` (campaign files),
+plus the two verification-sweep commits after this table.
 
 | id | Status | Note |
 |---|---|---|
