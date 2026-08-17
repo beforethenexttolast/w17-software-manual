@@ -84,6 +84,20 @@ pushes additionally governed by `FORK-NOTICE.md`).
     the missing USB hub, the 2.4-vs-5.8 GHz hotspot/camera wrinkle.
 13. **Giftee volume/voice setter** (2026-08-17): link2-v2 makes both wire-borne, but the
     only setter today is the tuning console over USB — pick the giftee-facing mechanism.
+    *(Answered same day — see 17.)*
+
+**Second live Q&A (2026-08-17, owner answers):**
+
+14. **Firmware merge reviews DELEGATED** — adversarial review agents + orchestrator merge
+    for decay, mapper wave-1, and the link2-v2 pair; compact findings digests replace the
+    owner's raw-diff reads. (Supersedes the §7½ item-1 split for these branches.)
+15. **Wire decision:** v2 gains a `modeFlags` byte (bit0 showcase, bit1 awaitingController,
+    6 spare); flags bit 7 stays reserved; one coordinated flash covers both future modes
+    (showcase D2 + BT-7 resolved jointly).
+16. **Showcase D1–D9 accepted as recommended** — the build wave starts after the link2-v2
+    pair merges.
+17. **Volume setter: gift-time preset** (default 80, owner-retunable over USB); an in-drive
+    setter is a post-v1.0 question.
 
 ## 5. In flight + gated (updated 2026-08-17, post-reset)
 
