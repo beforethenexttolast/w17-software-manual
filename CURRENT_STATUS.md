@@ -8,7 +8,44 @@ workspace-level source for all of those and for project execution status.
 Overwrite it in place when state changes; do not append history. Instruction files
 (`CLAUDE.md` / `AGENTS.md`) must not duplicate anything below.
 
-_Last updated: **2026-08-17 (post-reset execution — five waves merged; the first installer
+_Last updated: **2026-08-17 (delegated-review pipeline + the iPhone transfer executed)** —
+Three owner Q&As landed (packet §7½ items 14–21): firmware merge reviews DELEGATED
+(adversarial agent + orchestrator merge), link2-v2 gained the `modeFlags` byte (bit0
+showcase / bit1 awaitingController — the D2/BT-7 collision resolved in one unflashed bump),
+showcase D1–D9 accepted, volume = gift-time preset, BT decisions ALL settled (owner
+simplification: **BT mode is car-control only, camera OFF**), the 5.8 GHz AP-capable
+adapter APPROVED for the box BOM (purchase spec in the GCS guide addendum), handset =
+gamepad-class ELRS, and **iPhone_rc transferred to Claude Code and relocated into this
+workspace** (owner; `262a18d` updated CLAUDE/AGENTS/map/gitignore; breadcrumb left in the
+Codex root). **Delegated-review merges, each review→fix→verify:** control-fw
+`feat/gimbal-decay-center` MERGED (2 minors fixed: three live docs still taught hold-last;
+re-entry regression pinned; suite 254); mapper `w17-audit-wave1` MERGED (`w17-headtrack` =
+**`9cb501e`**) after **2 blockers** — the HIDAPI/raw-HID button-layer mismatch (gear-down
+would have landed on the reserved SHARE button) and **silent re-arm on pad reconnect**
+(fixed: opt-in `reset_on_nan` seq — re-arm now needs a fresh deliberate TRIANGLE press;
+upstream default behavior pinned unchanged) — 180/180, protected surfaces byte-untouched,
+profile-commit stance formally superseded; the **link2-v2 pair MERGED** (cf main =
+**`2d146dc`**, sl main = **`ecfec95`**) after MERGE_CLEAN + a verified unification pass —
+**ONE settings blob v2** (steering/gearbox/battery/gimbalDecay/sound; no v3 needed, nothing
+ever flashed; main's own `settingsEqual` gimbalDecay gap fixed in passing; mutation harness
+proved the migration pins bite) — the coordinated-flash package (voice, volume, mode bits)
+is complete on both trunks. **All four AGENTS.md ports fixed + committed** (workspace
+`519e15e`; nested `a0555e3`/`6b1f426`, `6895095`, `3b44972` — inverted ownership corrected
+to Codex-as-guest, technical drift synced). **iPhone_rc day one:** onboarding audit done
+(boundary-clean: ONE outbound send site; the R10 250 ms gate existed in NO commit);
+inherited WIP preserved on `codex-wip-vr-calibration` (`83b56f3` VR shell + `f0e2c82` R10
+slice, verbatim, owner-approved; main untouched then **PUSHED** `b51ebe0..84532ed`
+owner-approved, tags already remote); `dev_check.sh` GREEN on this Mac (73 tests, Xcode
+26.6); wave-1 building (canonical Discovery acceptance-policy rev, ownership housekeeping +
+repo CLAUDE.md, low-battery banner parity). **In flight:** showcase-mode build (both
+firmware repos, on the merged link2-v2 base), BT-branch reconciliation (rebase + btpad.*
+joins the unified blob v2 + all 11 tags → OWNER-DECIDED incl. camera-off), iPhone wave-1.
+**Parked:** `u4-arbiter` (R-review class; takes a trivial rebase then). **Owner residue:**
+booklet name/contact/iPhone-reveal free-texts; the shopping list (5.8 GHz adapter, USB hub,
+TX label eyeball, TX16S RF check). Firmware/mapper trunk pushes remain owner-call (only GS
+and iPhone_rc had push approvals, both executed). **No hardware; nothing flashed or
+powered; A2 stays NOT-EXECUTED, Phase B stays BLOCKED.**
+Prior pass, **2026-08-17 (post-reset execution — five waves merged; the first installer
 artifact exists)** — The owner lifted the hold ("Reset is here") and execution ran per packet
 §7½/§6. **Merged to mains, each behind an adversarial review** (review → fix → independent
 re-verify wherever findings warranted): **soundlight** main = `1c19260` (wave-3 board-2
