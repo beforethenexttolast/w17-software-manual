@@ -66,6 +66,11 @@ questions every tick: *what did board #1 last say?* and *is that still believabl
 > ages into `Lost`. The three-state `LinkStatus` and the `nowMs`-as-parameter clock seam are
 > confirmed there too. (Full ch07 re-audit + the cross-core atomic-word bit layout, open q #43,
 > still await S2–S5.)
+>
+> *Still true of the **monitor** as of 2026-08-17 — but note the division of labor:
+> since the wave-3 merge (`1c19260`) the **LightRenderer** separately bounds how long a
+> NeverConnected status may *look* calm (a 5 s grace window, then hazard — §5). The
+> monitor's status never changes; the renderer's interpretation of it does.*
 
 ## 3. `EngineSim` — the imaginary engine
 
@@ -113,6 +118,17 @@ All integer math (float only in the one-time sine-table build). Behind `ISampleS
 a future PCM sample player could replace synthesis without touching anything above.
 **[C]** `CLAUDE.md` module map + `lib/soundsynth/` headers.
 
+**Named voice profiles (wave-3, 2026-08-17, `1c19260`):** the synth config now has two
+named voices in `lib/soundsynth/include/soundsynth/SynthProfiles.hpp` — **`v10()`**
+(the shipped default; a `static_assert` pins it byte-identical to the historical
+`EngineSynthConfig{}`, so nothing audible changed) and **`v6TurboHybrid()`** (the
+2014+-power-unit flavor: 3 firings per revolution instead of 5, its own partial
+stack). There is **deliberately no runtime selector yet** — board #2 has no control
+authority and must not choose its own voice; the selection mechanism is decided to be a
+**link2 v2 field** (sound profile + volume) that board #1 will own, which exists today
+only as clearly-labeled in-flight work (branches `feat/link2-v2-voice-volume` in
+control-fw and `feat/link2-v2-consume` here — not merged, not taught as current).
+
 > **[C] S3 verified this section in code**
 > (`soundlight_fw/03_sound_synthesis.md`, 9/9 tests pass + a harness compiled against the
 > real source): the DSP is 32-bit **phase accumulators** feeding a **256-entry ±256 sine
@@ -134,17 +150,33 @@ A layered compositor: (effective state, LinkStatus, nowMs) → 30 RGB values —
 stateful only for indicator hysteresis and harvest edge detection, **[C]** soundlight
 `CLAUDE.md` + `README.md` + (S4) the source:
 
-1. base: halo (teal armed / dim white disarmed) + always-on dim red tail,
-2. brake bar (from the pre-filtered `braking` flag — hysteresis lives on board #1),
-3. turn indicators (steering-threshold latch with 40/20 hysteresis + self-cancel,
+1. base: halo (teal armed / dim white disarmed) + always-on dim red tail — and, since
+   the wave-3 merge (2026-08-17, `1c19260`), the halo *celebrates the fire-up*: while
+   the engine FSM reports `Cranking` a bright-cyan **starter comet** sweeps the halo
+   (300 ms per lap — the 600 ms crank gives two laps), and on the `Cranking→Running`
+   edge the whole halo flashes cyan and **crossfades into the armed teal** over 350 ms.
+   Deliberately a *base-layer* effect: low-battery and hazard still overwrite it,
+2. **DRS-open tell** (wave-3, vision decision 16): while board #1's arbitrated
+   `drsOpen` bit is set, the two *outermost* pixels of the rear brake bar glow steady
+   green (the TV-graphics DRS color — the only green in the palette). Drawn *before*
+   the brake layer, so a braking car still shows a full bright-red bar,
+3. brake bar (from the pre-filtered `braking` flag — hysteresis lives on board #1),
+4. turn indicators (steering-threshold latch with 40/20 hysteresis + self-cancel,
    blinking ~1.5 Hz),
-4. F1 **rain light** — flashes while ERS is *harvesting* (the real F1 2026-era cue;
+5. F1 **rain light** — flashes while ERS is *harvesting* (the real F1 2026-era cue;
    derived locally from `ersPercent` rising in ERS mode — the frame has no harvest flag),
-5. low-battery pulse (slow red triangle on the halo),
-6. **failsafe hazard: all-amber 2 Hz blink overriding everything** — for a frame-reported
-   failsafe *or* a `Lost` link; **`NeverConnected` instead shows a calm teal "waiting
-   breathe"** (a 2 s triangle on the halo) so power-on doesn't cry wolf — the three-state
-   `LinkStatus` is rendered three ways,
+6. low-battery pulse (slow red triangle on the halo),
+7. **failsafe hazard: all-amber 2 Hz blink overriding everything** — for a frame-reported
+   failsafe *or* a `Lost` link. **`NeverConnected` shows a calm teal "waiting breathe"**
+   (a 2 s triangle on the halo) so power-on doesn't cry wolf — but only inside a
+   **5 s grace window** measured from the first never-connected render: both boards
+   power from the same rail, so a healthy boot delivers a frame within a couple of
+   seconds, and once the window expires with *no frame ever received* the renderer
+   **escalates to the same amber hazard** — a never-plugged/broken harness must look
+   broken, not breathe calmly forever (**[C]** `neverConnectedGraceMs = 5000`,
+   `lib/lights/include/lights/LightRenderer.hpp`; escalation `LightRenderer.cpp`;
+   merged 2026-08-17 as the vision-audit low-finding-9 fix, pinned by
+   `test_never_connected_escalates_to_hazard_after_grace`),
 then a gamma lookup (perceptual brightness correction) and a brightness cap whose power
 budget is enforced in the config's `valid()` (~43% — keeps worst-case all-amber inside
 the UBEC's current headroom).
@@ -161,6 +193,16 @@ the UBEC's current headroom).
 > `VehicleState` fields — **no DRS or ERS-deploy light exists** (deploy is the synth's
 > whine; harvest is the light), and nothing audio-side is read. Post-cap-post-gamma the
 > dim layers render at 1–3/255 duty — daylight visibility is a bench question (**#55**).
+>
+> **Update 2026-08-17 [C]:** two of S4's findings describe the S4-era code only — the
+> wave-3 merge (`1c19260`) changed both. The never-connected breathe is now **bounded
+> by the 5 s grace window** and then escalates to hazard (the calm-not-hazard pin still
+> passes *inside* the window; `test_never_connected_escalates_to_hazard_after_grace`
+> pins the boundary). And a **DRS light now exists** — the steady-green tell on the
+> rear bar's edge pixels (`state.drsOpen`, the eighth `VehicleState` field the lights
+> read). The ignition halo animation (list item 1) is also wave-3. S4's write-up
+> remains correct as a dated record; its follow-on numbers (segment map, budget math)
+> still hold.
 
 > **[C] S5 added the wiring** (`05_soundlight_main_integration.md` §4.10): `loop()`
 > renders the lights at **~30 Hz** (33 ms tick, not the control loop's 50 Hz), passing
@@ -224,7 +266,7 @@ layers protecting the speaker alone: link staleness (monitor) → ignition Off o
 |---|---|
 | `esp32dev` | real firmware (waits for board #1's frames) |
 | `esp32dev_sim` | `-DW17_SIM_LINK2_FEEDER`: `SimLink2Feeder` scripts a 14 s drive — idle → revs/gears → ERS deploy → brake+harvest (rain light) → cornering (indicators) → **1 s dropout → local failsafe demo** → recovery. **[C]** `docs/SIMULATION.md` |
-| `native` | 40 unit tests, incl. a full frames→audio integration test |
+| `native` | the host unit-test suite (107 tests as of 2026-08-17; run `pio test -e native` for the live count), incl. a full frames→audio integration test |
 
 Its `docs/SIMULATION.md` also carries the board's bench checklist (I2S sanity on the
 pinned driver version, MAX98357A straps, WS2812 fixes, "does the synth actually read as
