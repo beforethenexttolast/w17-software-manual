@@ -103,7 +103,9 @@ These mirror the repos' own checklists — listed here so the manual tracks them
     lines read/write correctly, CRLF is tolerated, and the flood guard trips on an over-long line.
     D8 Phase 6/8. *The second half of this item ("confirm the console-free gift firmware still
     loads NVS-saved tuning") was ANSWERED NEGATIVELY by C10 (2026-07-05): the plain `esp32dev`
-    build has **no load path at all** — superseded by #49.*
+    build then had **no load path at all** — superseded by #49. **Re-superseded since:** the
+    load path was added; every build now loads the validated blob (see #49's ANSWERED note,
+    2026-08-17). The real-flash proof in (a)/(b) above remains the open bench item.*
 
 ## For the simulator first run (Wokwi platform facts, from SIMULATION.md's checklist)
 
@@ -211,6 +213,16 @@ These mirror the repos' own checklists — listed here so the manual tracks them
     values into the source-code defaults and rebuild plain; (b) deliver the `esp32dev_tuning`
     build (accepting an open UART0 console); (c) add a load-only NVS path to the plain build
     (a code change). Which is intended? (C10 §8; supersedes the load half of #34b.)
+    — **ANSWERED in source (verified 2026-08-17, wave-2 staleness pass): option (c) is what
+    the repo implements today.** The finding was true when written; the load path was added
+    later. The non-console branch of `setup()` now reads
+    `applySettings(settings::loadOrDefault(nvsStore).settings);`
+    (**[C]** `w17-control-fw/src/main.cpp:357`), and `w17-control-fw/CLAUDE.md`
+    ("Delivery vs tuning builds") records the invariant: loading validated NVS tuning
+    happens in **every** build, through the same length → CRC → version → `valid()` guard
+    chain, any failure ⇒ complete compiled defaults, never a partial mix. What only the
+    tuning build adds is *editing* (console) — not loading. Still open on the bench side:
+    the real-flash round-trip proof stays #34a's item.
 
 ## Documentation / build-config consistency — new, found by S1 (2026-07-05)
 
@@ -391,6 +403,12 @@ These mirror the repos' own checklists — listed here so the manual tracks them
     campaign batches **G5a** (W2 telemetry-out) and **G5b** (W3 head-tracking +
     noControlPath guards), deliberately last, gated on the chapter decision above. The
     validation status wording here is unchanged — still pending.*
+    — *Scope narrowed 2026-08-17 (wave-2): the "deliberately not written yet" clause is
+    now half-stale — chapter 15 teaches the **head-intent half** of the bridge story
+    (iPhone → UDP 5602 → the mapper's log-only pipeline, plus the guards). What remains
+    deferred is only the **GS-side** deep-dive: batches G5a/G5b (W2 telemetry-out and the
+    W3 log-only listener, line by line). Real-device validation is likewise still
+    pending; head-intent ingest itself was live-validated on the mapper side (ch15 §11).*
 
 ## Documentation consistency — new, found by G1 (2026-07-09)
 

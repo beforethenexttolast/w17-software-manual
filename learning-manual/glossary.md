@@ -710,11 +710,12 @@ firmware. (C10, 11)
 UART0. The whole module vanishes from the real firmware — the soundlight twin of
 W17_SIM_CRSF_FEEDER. (11, S5)
 
-**W17_TUNING_CONSOLE** — the build flag that compiles in the serial tuning console + NVS store
-(`esp32dev_tuning` env). The delivered gift firmware (plain `esp32dev`) is built *without* it —
-no console surface, **and (C10 correction) no settings code at all**: the NVS-saved tuning
-persists in flash but the plain build never reads it and runs compiled-in defaults (open
-question #49). (09b, C10)
+**W17_TUNING_CONSOLE** — the build flag that compiles in the serial tuning console
+(`esp32dev_tuning` env). The delivered gift firmware (plain `esp32dev`) is built *without*
+it — no console surface. *Loading* saved tuning is **not** gated by this flag anymore:
+since the post-C10 load-path fix, every build loads the validated NVS blob at boot
+(`settings::loadOrDefault`, `main.cpp:357`; #49 ANSWERED 2026-08-17) — the flag adds only
+the *editing* surface. (09b, C10, 11 §3)
 
 **WHEP** — HTTP handshake standard for *receiving* WebRTC streams; `renderer/whep.js`.
 See SDP offer/answer. (08, G3 §8)

@@ -114,9 +114,13 @@ except D8 "gated on parts") and `docs/bill_of_materials_v2.md` ("Nothing printed
 Gift deadline: **2026-07-21**.
 
 **Update 2026-07-05:** the control firmware's line-by-line explanation campaign is
-complete (C1–C10, `code_explained/control_fw/`) — verified against 147/147 native tests
-and all three firmware builds. One notable finding: the delivered gift build does **not**
-load NVS-saved tuning (open question #49). Hardware status unchanged.
+complete (C1–C10, `code_explained/control_fw/`) — verified against the native suite
+(147/147 at the time) and all three firmware builds. One notable finding *then*: the
+delivered gift build did **not** load NVS-saved tuning (open question #49).
+*(Resolved in source since: the delivery `esp32dev` build now loads the validated blob
+at boot via `settings::loadOrDefault` — `w17-control-fw/src/main.cpp:357`, and the
+repo's `CLAUDE.md` "Delivery vs tuning builds" pins it as a stable invariant. #49 is
+**ANSWERED** — see `open_questions.md`.)* Hardware status unchanged.
 
 **Update 2026-07-09:** the sound/light explanation campaign is complete (S1–S5,
 `code_explained/soundlight_fw/`, 2026-07-06; 40/40 native tests + both firmware builds

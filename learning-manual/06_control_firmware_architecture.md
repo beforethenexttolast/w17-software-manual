@@ -137,13 +137,18 @@ versioned, CRC-guarded blob for NVS flash; every load failure of any kind falls 
 compiled defaults (the "never-brick chain"). `Console` implements
 `get/set/save/load/reset/status/help` over dotted keys (`steer.trim`, `batt.ppt`,
 `gear.2.max`); `set` mutations are only allowed while DISARMED and re-run the module's
-`valid()` rules. `save` alone touches flash. The delivered gift firmware (`esp32dev`)
-contains none of this — the NVS-saved tuning persists *in flash*, **but (C10 correction,
-2026-07-05) the plain build has no load path: every settings include and call in `main.cpp`
-sits inside `#ifdef W17_TUNING_CONSOLE`, so the delivered firmware runs compiled-in defaults
-and never reads NVS.** The earlier "and still loads" claim here was wrong — an over-reading
-of D8's "the NVS-saved tuning persists". See `code_explained/control_fw/10_main_integration.md`
-§8 and open question #49. **[C]** ROADMAP B2.6.
+`valid()` rules. `save` alone touches flash. What the delivered gift firmware (`esp32dev`)
+contains has **changed twice**, so read the dates: this chapter first said it "still
+loads" saved tuning (wrong at the time — an over-reading of D8's "the NVS-saved tuning
+persists"); the C10 correction (2026-07-05) established the plain build then had **no
+load path at all**; and the source has since moved again — **today loading is in every
+build**: the non-console branch of `setup()` calls
+`settings::loadOrDefault(nvsStore)` (**[C]** `src/main.cpp:357`, verified 2026-08-17;
+`CLAUDE.md` "Delivery vs tuning builds" pins it as an invariant, same
+length → CRC → version → `valid()` guard chain, any failure ⇒ complete compiled
+defaults). Only *editing* (the console) stays tuning-build-only. See
+`code_explained/control_fw/10_main_integration.md` §8 (a C10-era snapshot on this
+point) and open question #49 (ANSWERED). **[C]** ROADMAP B2.6.
 
 ## 3. `src/main.cpp` — the conductor
 

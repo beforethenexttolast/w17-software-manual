@@ -58,10 +58,13 @@ Flashing notes for when hardware exists:
 - The DevKit V1 enters bootloader automatically via USB; if a board is stubborn, hold
   BOOT while the upload starts. **[A]** standard DevKit behavior — untested here.
 - Which build to flash when (**[C]** `docs/D8_BENCH_BRINGUP.md` preamble): bench =
-  `esp32dev_tuning`; the delivered gift = plain `esp32dev` (no console surface). *C10
-  caution: the NVS-saved tuning survives the reflash **in flash only** — the plain build
-  has **no load path**, so the delivered firmware runs compiled-in defaults (open
-  question #49; `code_explained/control_fw/10_main_integration.md` §8).*
+  `esp32dev_tuning`; the delivered gift = plain `esp32dev` (no console surface). *The
+  C10-era caution ("the plain build has no NVS load path, so the delivered firmware runs
+  compiled-in defaults") is **resolved in source**: every build now loads validated NVS
+  tuning at boot — the non-console branch calls `settings::loadOrDefault` (**[C]**
+  `w17-control-fw/src/main.cpp:357`; `CLAUDE.md` "Delivery vs tuning builds" invariant),
+  so bench tuning `save`d to flash does reach the delivered firmware. #49 ANSWERED
+  2026-08-17; the real-flash round-trip proof stays a bench item (#34a).*
 - **⚠️ Never flash `esp32dev_sim` or `esp32dev_tuning` as the gift.** `_sim` compiles in a fake
   CRSF feeder (the car would ignore the real radio); `_tuning` opens a UART0 console surface.
   The delivered car is always plain `esp32dev`; reflash it before delivery (D8 Phase 11).
@@ -210,9 +213,9 @@ has been flashed to real hardware yet in this project's history.
 3. You suspect the failsafe re-arm window is too short. Which of the four workflow
    stages (native test / Wokwi / tuning bench / car) lets you verify a change fastest,
    and what would you write?
-4. Why is the delivered gift firmware built *without* the tuning console — and what does
-   the C10 finding (open question #49) say about whether the tuned values actually
-   *reach* the delivered car?
+4. Why is the delivered gift firmware built *without* the tuning console — and by what
+   mechanism do bench-tuned values nevertheless *reach* the delivered car? (Open
+   question #49's history is instructive: for a while they didn't.)
 5. In the Wokwi demo, why does the ERS store only recharge while you click the Hall
    button? Which two modules' rules combine to cause that?
 6. `npm run demo` shows a working HUD with plausible speed. Name every real component
