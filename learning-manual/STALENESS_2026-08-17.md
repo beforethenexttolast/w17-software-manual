@@ -1,10 +1,12 @@
 # Manual Staleness Report — 2026-08-17
 
-**A repair list, not repairs.** This wave (docs/manual-wave1) deliberately changed no
-existing chapter beyond indexing its own new content; every finding below is *recorded
-for a later refresh pass*, per the 2026-08-16 vision audit (decision-17 row: "refresh
-vs current code"). Dated snapshot — reconcile against `../CURRENT_STATUS.md` before
-acting on it later.
+**A repair list — now with the repairs recorded.** Wave 1 (docs/manual-wave1) catalogued;
+**wave 2 (docs/manual-wave2, same day) repaired**: every HIGH and MEDIUM finding below is
+FIXED, LOW findings are fixed where their file was already open and explicitly deferred
+otherwise — the per-claim disposition table sits right below the headline counts, and
+each row names its commit. Findings text below the table is left as written (it is the
+evidence trail); trust the table for current status. Dated snapshot — reconcile against
+`../CURRENT_STATUS.md` before acting on it later.
 
 **Method.** Every pre-wave manual file was walked against the source repos at the
 mains current when the walk ran: `w17-control-fw` `94b3615`, `w17-soundlight-fw`
@@ -23,6 +25,11 @@ Control-fw and mapper mains are unchanged. Consequence: former watch items **W1 
 W2 are LIVE staleness now** — folded into chapters 07/08/11/glossary below as S37/S38
 and updated fix targets. Where a finding cites a soundlight/GS count, repair to the
 post-merge values (control 229 / soundlight 107 / GS 1257 / mapper 137).
+*(Superseded again by wave-2's own check: GS main had moved to `ca1cb86` — the
+video-profile wave — and **1324**; control-fw main to `9f00f2e` (docs-only, 229). The
+actual repairs used 229 / 107 / **1324** / 137. Two supersessions in one day is the
+count-chasing lesson in miniature — hence every repaired count is as-of-dated or
+replaced by "run the suite".)*
 
 **Severity scale.** **HIGH** = misleads action or contradicts a recorded owner
 decision / resolved defect. **MEDIUM** = concrete claim about current state that is
@@ -32,6 +39,68 @@ rather than a falsehood.
 **Headline counts: 21 files checked · 38 stale claims (6 HIGH / 19 MEDIUM / 13 LOW)
 · 3 files fully clean · 3 remaining watch items (2 landed mid-wave).** (The files this
 wave created — 14, 15, 16–22, this report — are excluded from their own audit.)
+
+## Wave-2 disposition (2026-08-17, branch docs/manual-wave2)
+
+**Outcome: 6/6 HIGH fixed · 19/19 MEDIUM fixed · LOW: 8 fixed, 4 deferred,
+1 no-action-needed.** Baseline moved again mid-wave-2 — repairs were made against
+**GS main `ca1cb86` (1324 tests — the video-profile wave merged after this report's
+1257 figure)** and **control-fw main `9f00f2e` (the MCU-line fix S28 asked of a
+control-fw session: done; docs-only, 229 unchanged)**; soundlight `1c19260` (107) and
+mapper `432a809` (137) as stated above. Wave-2 commits: `d7acaf4` (#49 family),
+`d383b91` (ch01), `866e773` (ch02), `c72245e` (ch07), `291c7e7` (ch08), `e50a697`
+(00_START), `d13f6c0` (ch05/06), `1962803` (ch11), `12d8a09` (ch13), `3117839`
+(glossary), `27fc16d` (campaign files).
+
+| id | Status | Note |
+|---|---|---|
+| S1 | **FIXED** `e50a697` | six-repo table |
+| S2 | **FIXED** `e50a697` | as-of counts + mapper step |
+| S3 | **FIXED** `e50a697` | snapshot → pointer + dated changelog frame |
+| S4 | **FIXED** `d7acaf4` | + the same claim repaired in ch06 §2.8, ch11 §3, glossary (report misses) |
+| S5 | **FIXED** `e50a697` | historical verification counts kept, tagged "at the time" (a batch verified against *then-current* suites — retro-editing them would falsify the record); current counts live in the new Update 2026-08-17 block |
+| S6 | **FIXED** `27fc16d` | paused-since line + ledger pointer |
+| S7 | **FIXED** `d383b91` | all 5 spots + §5 paragraph |
+| S8 | **FIXED** `d383b91` | iPhone row + mapper/5601/5602 arrows |
+| S9 | **FIXED** `866e773` | new §6 (both suggested options blended: mapped one level deep + re-scoped intro) |
+| S10 | **FIXED** `866e773` | 229 as-of |
+| S11 | **FIXED** `866e773` | tree re-drawn at `ca1cb86`; 1324/63 files |
+| S12 | **FIXED** `d13f6c0` | dated supersession note, Wokwi refs untouched |
+| S13 | **FIXED** `d13f6c0` | toured-at-2026-07-03 note (no new docs — re-verified) |
+| S14 | **FIXED** `d13f6c0` | 229 as-of |
+| S15 | **FIXED** `d13f6c0` | §2.9 added now (short), deep-dive map row |
+| S16 | **FIXED** `c72245e` | 107 as-of |
+| S17 | **REPORT ERROR** | ch07 has no ":32 review pass pending" line (grep 2026-08-17); the phrase lives in 00_START_HERE + README — both dated in wave 2 (`e50a697`, `27fc16d`). Nothing to fix in ch07. |
+| S18 | **FIXED** `291c7e7` | new §7 (setup flow) + §8 refresh (mDNS, banner, profiles); old §7 renumbered — no inbound refs existed |
+| S19 | **FIXED** `291c7e7` | suite-level as-of 1324; W2/W3 honesty intact |
+| S20 | **DEFERRED** | LOW in a file wave 2 didn't otherwise touch (ch09 verified current on its core claims); add the ch15 §4/§7 cross-ref on the next ch09 edit |
+| S21 | **DEFERRED** | by the report's own advice — wait for the owner's `feat/gimbal-decay-center` merge decision (watch W3) |
+| S22 | **FIXED** `1962803` | 229/107 as-of + trust-the-run note |
+| S23 | **FIXED** `1962803` | 1324; **report correction: the NSIS build is a *step* inside `package-smoke`, not a third job** — ci.yml still has two jobs; described accurately |
+| S24 | **FIXED** `1962803` | DevKit=[C] via ch13 evidence, MH-ET=[A] until first flash |
+| S25 | **FIXED (pointer)** `1962803` | one-liner + ch15 §3 ref; the full §ch11 workflow section waits for the campaign, per the report's own fix |
+| S26 | **DEFERRED** | LOW-only file (ch12) not otherwise edited in wave 2; date the sentence on next touch |
+| S27 | **DEFERRED** | same file/rule; the forward pointer to the 2026-08-16 audit is still worth adding on next touch |
+| S28 | **FIXED** `12d8a09` | note added; **the report's "citation still matches its source" aside went stale mid-wave-2** — control-fw `9f00f2e` moved the MCU line, so the [C] is re-anchored to the pre-`9f00f2e` revision |
+| S29 | **FIXED** `3117839` | 1324 + real job/step shape (same correction as S23) |
+| S30 | **FIXED** `3117839` | re-pointed at w17-mapper/ch15 |
+| S31 | **FIXED** `3117839` | all 8 entries added; branch-only work labeled in-flight |
+| S32 | **FIXED** `d7acaf4` | ANSWERED note with main.cpp:357 + CLAUDE.md invariant; #34b re-superseded note |
+| S33 | **FIXED** `d7acaf4` | #58 narrowed to the GS-side deep-dives |
+| S34 | **FIXED** `27fc16d` | paused-campaign entry; counts at *today's* mains (GS 1324, not the audited 1185/1257) |
+| S35 | **FIXED** `27fc16d` | scope note + Repo-4 axes recorded; full section on resume |
+| S36 | **VERIFIED-CURRENT** | re-checked 2026-08-17; accurate as-is, no action (as the report said) |
+| S37 | **FIXED** `c72245e` | grace-window semantics + monitor-vs-renderer note + dated S4-blockquote update |
+| S38 | **FIXED** `c72245e` | ignition halo, DRS tell (8th field), voice profiles; link2-v2 labeled in-flight |
+
+**Wave-2 catches beyond this report** (same class as the findings, found while
+repairing): the #49 stale claim also lived in **ch06 §2.8**, **ch11 §3 + question 4**,
+and the **glossary W17_TUNING_CONSOLE entry** (all `d7acaf4`); **ch01 :145 "187 unit
+tests"** (drift-1 instance, `d383b91`); ch02's module tables were missing
+**`lib/reset_diag`**, the **`console_hal_esp32`/`settings_hal_esp32` split**, and
+soundlight's **`audiodecision`/`audiostartup`**, and both `main.cpp` line counts had
+drifted (`866e773`); the glossary **Breathe** entry carried the S37 semantics
+(`3117839`).
 
 ## The four systematic drifts (each shows up in many chapters)
 
