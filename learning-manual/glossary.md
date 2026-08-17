@@ -6,6 +6,12 @@ Terms as used *in this project*. Each entry notes where the term matters most
 **A-arm** — the wishbone-shaped suspension link letting a front wheel move up/down;
 damped by the shock. Atlas MECH-03. (05)
 
+**ACTIVE_LOG_ONLY** — the terminal (and best-possible) state of the mapper's
+head-intent state machine, `= 8` at the end of the proto enum: packets are fresh,
+valid, enabled, centered — **and still produce no output**. The name *is* the safety
+property: ingest can be fully alive while remaining a dead end by construction.
+(15 §9–§10)
+
 **ADC (analog-to-digital converter)** — chip peripheral turning a pin voltage into a
 number. Reads the battery divider on GPIO34. (03, 06)
 
@@ -68,7 +74,10 @@ the ESC's own arming succeeds; anchored to first use after finding A5. (06, 10)
 
 **Breathe (waiting animation)** — the lights' `NeverConnected` rendering: a calm 2 s
 teal triangle pulse on the halo, everything else dark. Deliberately *not* the hazard —
-"board #1 hasn't spoken yet" is normal at power-on, not an emergency. (07, S4)
+"board #1 hasn't spoken yet" is normal at power-on, not an emergency. Since the wave-3
+merge (2026-08-17) the calm is **bounded**: a 5 s grace window from the first
+never-connected render, after which the renderer escalates to the amber hazard — a
+never-plugged harness must not breathe calmly forever. (07 §5, S4)
 
 **Brownout** — a supply-voltage dip that resets electronics; servo current spikes cause
 it; the 1000 µF rail capacitor prevents it. (03, 05)
@@ -88,9 +97,11 @@ restart-on-crash after 2 s, latch-guarded kill on quit). (08, G2)
 **CI (continuous integration) / job** — a cloud service (here **GitHub Actions**) that
 runs a defined pipeline of steps on every push. A *job* is one such pipeline on one
 *runner* (a fresh VM — `ubuntu-latest` or `windows-latest`). The ground station's
-`.github/workflows/ci.yml` has two: `test` (the 118 vitest tests on Linux) and
-`package-smoke` (an Electron build on Windows). "CI green" means the logic passed and the
-app packaged — **not** that video, serial, or a real device works. (11 §7, G4 §8)
+`.github/workflows/ci.yml` has two: `test` (the full vitest suite on Linux — 1324
+tests as of 2026-08-17) and `package-smoke` (Windows: the suite again, a real Electron
+boot smoke, an `--dir` packaging proof, and the unsigned NSIS giftee installer).
+"CI green" means the logic passed, the app booted headlessly, and it packaged —
+**not** that video, serial, or a real device works. (11 §7, G4 §8)
 
 **Code signing (CSC)** — attaching a cryptographic certificate to a Windows/macOS app so
 the OS trusts its origin and stops "unknown publisher" warnings. `electron-builder`
@@ -105,9 +116,10 @@ sharing problem. (08)
 (`sendCommandMirror`, ~20 Hz rate-limited): a read-only copy of the command values
 *as drawn on the HUD* (throttle/brake/steering/camera + whether video is playing),
 forwarded outward to the iPhone telemetry bridge — or dropped when the bridge is off.
-One-way by construction; it never feeds control (elrs-joystick-control drives the
-car), and nothing returns on the channel. A picture of the operator's inputs, not a
-control path — and not proof the bridge works end-to-end (#58). (08, G2 §2.8, G3 §7)
+One-way by construction; it never feeds control (the mapper — `w17-mapper`, ch15 —
+drives the car), and nothing returns on the channel. A picture of the operator's
+inputs, not a control path — and not proof the bridge works end-to-end (#58).
+(08, G2 §2.8, G3 §7)
 
 **Content-Security-Policy (CSP)** — a page-level allowlist (here a `<meta>` tag in
 `renderer/index.html`) declaring what a web page may load or connect to; the browser
@@ -251,6 +263,12 @@ dead-man. (10)
 firings/rev = "V10 flavor"; across 3,500–15,000 rpm that is ~292–1,250 Hz, chosen to sit
 in a small speaker's usable band. `EngineSynth`. (07, S3)
 
+**FIRST_ACTIVE** — the *future*, separately-reviewed safety milestone that would first
+allow head intent to influence any output (workspace boundary #1). Today it is
+**NO-GO**: gated on the R1–R16 review plus bench evidence, with no active code path on
+any merged branch. When the manual mentions FIRST_ACTIVE it is always naming the
+*gate*, never a feature that exists. (15 §10–§11)
+
 **First-decode seeding** — the ChannelDecoder sets initial switch levels from the first
 frame *without* emitting edges, so boot can't fire phantom gear shifts. (05, 06)
 
@@ -282,6 +300,11 @@ demo-run check. (08, G3 §1/§5.2)
 "all bright, no lows" to the eye). Applied after the brightness cap; crushes low inputs
 toward zero — why the dim layers render at 1–3/255 duty (open q #55). (07, S4)
 
+**GCS box** — the planned one-cable, 3D-printed "ground control station" enclosure
+from the gift kit (`../W17_PRODUCT_VISION.md`): the FT232 and ELRS TX module packaged
+so the giftee plugs in a single USB cable. Not built yet — a rebuild-track item
+(chapter 21). (00, 21)
+
 **GitHub Actions (CI)** — the hosted service running `.github/workflows/ci.yml` on every
 push/PR: native tests + the `esp32dev` and `esp32dev_sim` builds (`esp32dev_tuning` is not in
 CI). No hardware attached — proves logic + compilation only. (C10)
@@ -299,6 +322,13 @@ implementations separating logic from hardware. (02, 04)
 
 **Hall sensor (A3144)** — magnetic switch; an N35 neodymium magnet on the axle gives
 one pulse/revolution = wheel speed. (03)
+
+**Head intent** — the iPhone's head-tracking data understood as *intent, not command*:
+UDP 5602 JSON packets that terminate today in log/diagnostics state (the mapper's
+`pkg/headintent` pipeline is the production owner; the GS W3 listener is the same
+story on the viewer side) and may never reach CRSF, servos, or the gimbal until
+FIRST_ACTIVE. "Intent" is the load-bearing word — the ground records what the head
+*wants*, and nothing acts on it. (01 §3, 08 §8, 15 §9)
 
 **Headroom (audio)** — the gap between the loudest possible synth output and the int16
 clip rail. `EngineSynthConfig::valid()` proves the summed partial + noise + whine peak
@@ -409,6 +439,12 @@ link loss; latched as the RX failsafe flag. (06, 09)
 **Mermaid** — the text-to-diagram library the atlas (and this manual) use; the atlas
 loads it from a CDN, so first view needs internet. (05)
 
+**MH-ET Live D1-Mini (ESP32)** — the compact, USB-C, ESP32-WROOM-32-class dev board
+chosen by owner decision (2026-07-24) as the car's **two cassette controllers**. The
+larger micro-USB **DevKit V1 clones** on hand are **test/spare** bench boards — they
+are what chapter 13's smoke test exercised. Same chip class, same firmware envs;
+first MH-ET flash still pending (rebuild stub 20). (05 §3, 11 §3, 13 §2, 17)
+
 **Mix (transmitter)** — a radio's own channel-shaping math (offsets, scales, curves). A
 mix that never crosses −250 would make the ARM switch impossible to turn off — D8
 Phase 4 checks for exactly this. (05)
@@ -435,6 +471,11 @@ valid()**: a stored blob is applied only if all four pass, else the firmware kee
 compiled-in `kDefaults`. Means "a bad blob can never make the car run invalid settings"; does
 NOT mean the flash worked, the lifecycle is wired, or the firmware is un-brickable in general
 (those are C9b/C10/hardware). (09a)
+
+**Node graph (mapper)** — the mapper's configuration model: a JSON document describing
+a tree of typed nodes per CRSF channel (leaves name hardware — gamepad/axis/button/hat;
+inner nodes shape and combine — linear, logic, sequencers), evaluated bottom-up to one
+number per channel. Configuration-as-dataflow rather than key bindings. (15 §4)
 
 **npm / package.json** — Node's package manager and the manifest it reads. `package.json`
 declares the app's identity, its entry point (`main`: `main/main.js`), its **scripts**,
@@ -492,6 +533,15 @@ tooth size. Both must be 48-pitch or they won't mesh — "the one mesh-killer." 
 **PlatformIO** — the embedded build system both firmware repos use: `platformio.ini`
 declares *environments* (`esp32dev` / `esp32dev_sim` / `esp32dev_tuning` / `native`);
 `pio run` / `pio test` build and test them. (11, C10)
+
+**Plausibility band** — the firmware's rule that a raw CRSF channel value must sit
+inside **100–1900** (`kChannelRawPlausibleMin/Max`, `CrsfFrame.hpp`) to be believed;
+anything outside decodes as *control absent* (analog 0, switch OFF) rather than
+clamping — a value like 0 or 2047 means "not speaking the protocol", and normalizing
+garbage to full deflection would be the least safe reading. Famous consequence: the
+mapper's *upstream default* endpoints (0/1984) land outside the band, so a
+default-config car **can never arm** (audit defect 3) — the W17 profile's 172/1811
+endpoints are the fix (in-flight on the mapper's wave-1 branch). (15 §7, 09)
 
 **POM (acetal/Delrin)** — slippery, wear-resistant engineering plastic; the spur gear's
 material. (05)
@@ -699,6 +749,12 @@ synth), `Cranking → 70`, `Running → 90 + throttle·165/100` (90..255). Glue 
 at the composition layer, owned by neither EngineSim nor EngineSynth. Answered open q #43;
 interacts with the smoother's parking quirk (#53): full throttle renders ≈75 %, the crank
 whir ≈2.7 %. (07, S5)
+
+**w17-mapper** — the owned **GPL-3.0 fork** of `elrs-joystick-control` (upstream
+pinned; working branch `w17-headtrack`; public fork with FORK-NOTICE push rules): the
+production DualShock → node graph → CRSF → ELRS mapper on the PC, carrier of the W17
+failsafe fixes and the log-only head-intent pipeline. The fourth code repo and the
+only Go one — chapter 15 is its chapter. (00, 01, 15)
 
 **W17_SIM_CRSF_FEEDER** — the build flag (env `esp32dev_sim`) compiling in the scripted CRSF
 self-feeder + serial narration for Wokwi Stage 2; the whole module vanishes from the real
