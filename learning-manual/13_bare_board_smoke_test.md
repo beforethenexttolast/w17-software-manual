@@ -48,8 +48,16 @@ Nothing else. No multimeter needed (nothing is powered beyond USB), no soldering
 
 ## 2. Identify the board before plugging anything in
 
-The project is designed around the **ESP32-WROOM-32 DevKit V1**
-(**[C]** `w17-control-fw/CLAUDE.md` "MCU: ESP32-WROOM-32 DevKit V1"). Confirm each
+The boards this chapter tests are **ESP32-WROOM-32 DevKit V1** clones — at the time
+this chapter was written the repo brief named that board as the project MCU
+(**[C]** `w17-control-fw/CLAUDE.md`, pre-`9f00f2e` revision: "MCU: ESP32-WROOM-32
+DevKit V1"). *Dated note (2026-08-17): the workspace truth has since moved — per the
+2026-07-24 owner decision the car's cassette controllers are **MH-ET Live D1-Mini
+ESP32 (USB-C)** boards, and `CLAUDE.md` now says exactly that, with the DevKit V1
+clones recorded as **test/spare**. That does not touch this chapter's validity: the
+smoke test below was executed on the DevKit clones (the bench boards), and its
+evidence stands as written. A first-power-up of an MH-ET board will be a rebuild-track
+event (stub 20/22), not a rerun of this chapter.* Confirm each
 delivered board matches:
 
 - A rectangular **metal-canned module** occupying one end, silkscreened
