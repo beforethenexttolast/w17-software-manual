@@ -4,6 +4,17 @@ The campaign: explain **every line of every project-authored code file** in the 
 repos, in dependency order, saved into `learning-manual/code_explained/`. This plan is
 the inventory + order; `source_code_progress.md` tracks status per file.
 
+> **Scope note (2026-08-17):** "the three repos" is the plan's original 2026-07-03
+> scope. The workspace now has a **fourth code repo** — `w17-mapper` (Go, the owned
+> GPL fork; chapter 15 covers its architecture) — with **no batch plan yet**. When the
+> paused campaign resumes, a Repo-4 section belongs here; the natural batch axes are:
+> (a) `pkg/devices` + `pkg/config` node model, (b) the eval + send loops,
+> (c) `pkg/headintent` + the server stream, (d) `cmd/` + the webapp. Whether Repo 4
+> runs before or after G5a/G5b is an open sequencing decision (see
+> `source_code_progress.md`'s paused-campaign note). The G5a/G5b definitions below
+> remain valid as written. The GS re-inventory below is likewise **frozen at
+> 2026-07-09** — the setup-flow-era files (ch02 §4) are not yet inventoried here.
+
 Inventory verified against the actual trees on 2026-07-03 (`wc -l` on every file).
 Totals: **w17-control-fw ~6,790 lines** (incl. configs), **w17-soundlight-fw ~2,700**,
 **w17-ground-station ~1,770** → **≈11,300 lines** of project-authored material.

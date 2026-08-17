@@ -7,7 +7,9 @@ source-code explanation campaign (control firmware C1–C10 **complete + reviewe
 2026-07-05; soundlight S1–S5 **complete** 2026-07-06 — explanation phase done, review
 pass pending; ground station **re-inventoried + G1–G4 done** 2026-07-09 — the complete
 viewer-app story (shared core → main process → renderer → build/package/CI); next the
-iPhone-bridge batches G5a/G5b of G1–G5b). Chapter-quality audit of **this manual**:
+iPhone-bridge batches G5a/G5b of G1–G5b). **The campaign is paused — nothing has moved
+since 2026-07-09**; the source repos have kept moving, so older chapters carry dated
+notes and the repair ledger is [STALENESS_2026-08-17.md](STALENESS_2026-08-17.md). Chapter-quality audit of **this manual**:
 `manual_standardization_audit.md`. (Not to be confused with the project's own
 **skeptical code audit** — that story is chapter
 [12_the_skeptical_audit_and_f1_f4_fixes.md](12_the_skeptical_audit_and_f1_f4_fixes.md).)

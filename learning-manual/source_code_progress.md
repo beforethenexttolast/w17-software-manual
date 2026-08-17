@@ -4,6 +4,18 @@ Status values: `not started` → `explained` → `needs review` (you flagged que
 `reviewed` (you confirmed understanding). Priority = batch order from
 `source_code_explanation_plan.md`. Updated after every batch.
 
+> **Campaign paused (dated entry, 2026-08-17).** No batch has run since G4
+> (2026-07-09) — the "Last updated" block below is a **frozen frontier**, not the live
+> one. Since then the source repos moved substantially (suites at the current mains:
+> control **229**, soundlight **107**, GS **1324**, mapper **137** — vs the 147/40/118
+> the entries below record), the GS tree gained the whole setup-flow redesign (none of
+> those files are in this file's tables — see ch02 §4's inventory note 2), and a
+> **fourth code repo exists**: `w17-mapper` (Go), taught architecturally in chapter 15
+> but absent from this campaign entirely. Pending decision when the campaign resumes:
+> whether a Repo-4 (mapper) batch series runs before or after G5a/G5b (the 2026-08-16
+> vision audit's decision-17 row expects a "mapper track"). Per-claim staleness of the
+> teaching chapters: `STALENESS_2026-08-17.md`.
+
 > **Repo-drift note (2026-07-09).** The batch entries below are dated records — they
 > describe the repos as of each batch's session. Since S5 (2026-07-06) the source repos
 > received the **skeptical-audit fixes F1–F4** (2026-07-07/08) and iPhone-bridge work
