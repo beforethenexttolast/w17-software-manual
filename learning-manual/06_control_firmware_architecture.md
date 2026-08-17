@@ -56,7 +56,8 @@ twice (down to board #2, up to the HUD).**
 
 > **Deep-dive map** (`code_explained/control_fw/`): crsf → C3+C4 · channels/ArmGate → C5 ·
 > failsafe → C1 · gearbox+ers → C6 · outputs → C2 · telemetry → C7 · link2 → C8 ·
-> settings+console → C9a/C9b · `main.cpp` + sim + build configs → C10.
+> settings+console → C9a/C9b · `main.cpp` + sim + build configs → C10 ·
+> reset_diag → §2.9 below (post-campaign; no batch yet).
 
 ### 2.1 `lib/crsf` — the radio's language
 Three cooperating layers, deliberately separated:
@@ -150,13 +151,25 @@ defaults). Only *editing* (the console) stays tuning-build-only. See
 `code_explained/control_fw/10_main_integration.md` §8 (a C10-era snapshot on this
 point) and open question #49 (ANSWERED). **[C]** ROADMAP B2.6.
 
+### 2.9 `lib/reset_diag` — boot-reset forensics *(added post-C10; no deep dive yet)*
+A pure-logic module that answers, after a reboot: *why* did this boot happen? It
+classifies the chip's raw reset reason into a stable `ResetClass` (power-on, brownout,
+task-watchdog, panic… — TaskWdt and Panic deliberately distinct) and tracks a boot
+count across the RTC-retained power session; `main.cpp` prints the result as a one-line
+boot diagnostic through the UART0 banner path. **[C]**
+`lib/reset_diag/include/reset_diag/ResetDiagnostics.hpp` (R5-b). It postdates the
+C1–C10 campaign, so it has no `code_explained/` batch — the header is short and
+self-documenting; start there if you need it.
+
 ## 3. `src/main.cpp` — the conductor
 
-**[C]** (full walkthrough: `code_explained/control_fw/10_main_integration.md`):
-~403 lines that (a) define every config with `static_assert(valid())`, (b) construct all
+**[C]** (full walkthrough: `code_explained/control_fw/10_main_integration.md`; ~403
+lines at C10 time, ~630 today — the growth is the task-watchdog subscription, the boot
+diagnostic line, and the every-build NVS load, all post-C10): code that (a) defines
+every config with `static_assert(valid())`, (b) constructs all
 module/HAL objects as globals (static initialization, *before* `setup()`) and, in
-`setup()`, attach the PWM channels with safe initial positions, (c) in `loop()` run the
-cadences below, (d) under `#ifdef` add the Wokwi feeder or the console. *(C10 note: an
+`setup()`, attaches the PWM channels with safe initial positions, (c) in `loop()` runs
+the cadences below, (d) under `#ifdef` adds the Wokwi feeder or the console. *(C10 note: an
 earlier wording here said `setup()` "constructs" the HAL objects — construction actually
 happens in static init; `setup()` attaches hardware. See C10 §2–§3.)*
 
@@ -178,7 +191,7 @@ happens in static init; `setup()` attaches hardware. See C10 §2–§3.)*
 | `esp32dev` | — | The gift firmware. No console, no sim code. |
 | `esp32dev_sim` | `-DW17_SIM_CRSF_FEEDER` → `SimCrsfFeeder` | Wokwi demo: self-feeds scripted CRSF via a loopback wire |
 | `esp32dev_tuning` | `-DW17_TUNING_CONSOLE` → console + NVS | Bench tuning |
-| `native` | (host build) | The 147 unit tests |
+| `native` | (host build) | The unit-test suite (229 tests as of 2026-08-17; run `pio test -e native` for the live count) |
 
 ## Confirmed vs inferred
 

@@ -9,6 +9,14 @@ Conventions as always: **[C]** confirmed (cited), **[I]** inferred (evidence giv
 **[A]** assumption (verify). Cross-references point to other manual chapters so concepts
 are explained once and reused.
 
+> **Toured at revision:** this chapter walks `docs/` as it stood on **2026-07-03**.
+> No *new* documents have been added since (re-verified 2026-08-17 via git), but
+> several toured files were edited **in place** (link2 protocol re-syncs; the root
+> `CLAUDE.md` rewritten 2026-07-09 — see 00_START_HERE's citation caveat; the MCU
+> line updated 2026-08-17). Where an in-place edit changed a fact this manual
+> *teaches*, a dated note sits at that spot (e.g. the BOM board note in §3); the
+> tour's descriptions of each document's *purpose and structure* remain accurate.
+
 Reading order for this chapter: it mirrors the list below. Each section stands alone.
 
 | § | Document | One-line role |
@@ -365,6 +373,12 @@ printed yet*. All-in ≈ $500.
 - **Brains/audio/light:** 3× ESP32 DevKit V1 (**one spare** — cheap insurance),
   MAX98357A, 4 Ω 3 W speaker, **WS2812B 1 m / 30 LED / IP30** strip "driven by one
   ESP32 GPIO (no separate controller)".
+  *(Superseded 2026-07-24 by an owner decision recorded in `../CURRENT_STATUS.md` and
+  `../HARDWARE_INVENTORY.md` §4: the car's two cassette controllers are **MH-ET Live
+  D1-Mini ESP32** boards — same ESP32-WROOM-32 class, USB-C — and the DevKit V1 clones
+  this BOM line bought are **test/spare** boards. `w17-control-fw/CLAUDE.md` records
+  the same since `9f00f2e`. The BOM tour above stays as written — it describes the
+  document — but read "DevKit V1" as "the bench boards", not the car's.)*
 - **Power/telemetry:** 2× 5 A UBEC (the two rails); XT30 pairs (low-current taps) vs
   **XT60** (battery↔ESC main link) — with a checkout warning since one listing sells
   both; **BX100 voltage buzzer** as an *optional independent* low-voltage alarm —
