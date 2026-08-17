@@ -256,3 +256,17 @@ requirement, and "the box is unplugged" will be the most common failure a giftee
   guide once the giftee-PC end-to-end test exists.
 - `w17-pdb-build-and-connector-guide.md` — style/precedent for this doc class; its "reconcile
   against the source before building" rule applies here to every vendor figure `[bench-TBD]`.
+
+## Addendum 2026-08-17 — owner decisions on the open questions
+
+- **5.8 GHz hotspot adapter: APPROVED for the box BOM** (owner; replaces the "giftee-PC
+  requirement" alternative). Purchase spec: dual-band 802.11ac USB adapter whose
+  **Windows 10/11 driver supports HOSTING Mobile Hotspot on the 5 GHz band** (the Wi-Fi
+  Direct GO / SoftAP path — client-only 5 GHz adapters exist and do not qualify); USB-A;
+  external antenna preferred for AP duty; proven chipset families: RTL8812BU / RTL8812AU
+  class (examples, not endorsements: TP-Link Archer T3U Plus, ASUS USB-AC53 Nano).
+  Verify at purchase: explicit 5 GHz AP/hotspot support in the driver notes. Verify at
+  bench [bench-TBD]: Windows Mobile Hotspot pinned to 5 GHz; the camera's RTL8812EU joins
+  it; sustained-bitrate soak. The RT5370 demotes to spare / 2.4 GHz fallback.
+- **Backup handset class: gamepad-style ELRS** (LiteRadio-class; §3's requirements table
+  applies unchanged).

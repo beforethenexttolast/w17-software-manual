@@ -99,6 +99,23 @@ pushes additionally governed by `FORK-NOTICE.md`).
 17. **Volume setter: gift-time preset** (default 80, owner-retunable over USB); an in-drive
     setter is a post-v1.0 question.
 
+**Third live Q&A (2026-08-17, owner answers):**
+
+18. **AGENTS.md: fix + commit** — the 2026-08-11 port's ownership inversion corrected in
+    all four files (Codex = guest in Claude-owned repos). *Plus an ownership-expansion ask
+    from the owner: with Max x20, Claude should "take over those parts of the project and
+    orchestrate the implementation" — exact scope (iPhone_rc? print/mechanical? repo
+    location?) clarification pending.*
+19. **BT decisions: ALL settled.** Recommendations accepted with one owner simplification:
+    **BT mode is car-control only — the camera is OFF** ("a simple mode for quick showing
+    off"), which makes BT-9's fixed-center gimbal moot-by-off; BT-7 rides modeFlags bit1;
+    BT-8's 3.10.2 pin stands proven. The BT branch's design doc gets a camera-off
+    amendment when next touched; the branch now queues for delegated adversarial review +
+    merge under the expanded delegation (veto if unintended).
+20. **5.8 GHz adapter: BUY** — owner asked for a reminder + spec; spec lives in the GCS
+    guide's 2026-08-17 addendum; this is the top of the procurement list.
+21. **Handset: gamepad-style ELRS** (LiteRadio-class).
+
 ## 5. In flight + gated (updated 2026-08-17, post-reset)
 
 - Building now: the **showcase-mode design draft** (scratchpad, then owner read), the
