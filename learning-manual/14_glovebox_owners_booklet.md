@@ -30,15 +30,17 @@ name + preferred contact, to be filled in before print.
 Suggested format: A6 booklet, one numbered section per spread.
 ============================================================ -->
 
-# Your W17
+# Silberpfeil
 
-**A 1/10-scale Mercedes Formula 1 car. She's yours.**
+**A 1/10-scale Mercedes Formula 1 car.**
+
+*Every Silver Arrow needs a driver. This one is yours, Lola.*
 
 ---
 
 ## 1. Meet your car
 
-This is a Mercedes W17 Formula 1 car at one-tenth scale — 3D-printed, hand-built, and made for you.
+Her name is **Silberpfeil** — "Silver Arrow," the nickname the racing world gave the silver Mercedes cars long ago. This one is a Mercedes W17 Formula 1 car at one-tenth scale — 3D-printed, hand-built, and made for you.
 
 You don't drive her from the outside like a toy car. You drive her **from the inside**: a tiny camera sits in her cockpit, and its live view appears on your computer screen. Engine sound, working lights, a rear wing that really opens — the whole thing. She's a showpiece that happens to drive, not a racing toy. Treat her gently and she'll put on a show every time.
 
