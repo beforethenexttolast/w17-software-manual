@@ -109,17 +109,17 @@ The whole routine, in order. It takes about a minute once you've done it twice.
 1. **Plug the station box into your computer** with its one cable.
 2. **Turn on the controller.** [TBD-at-bench: controller connection — cable or wireless pairing, and to what]
 3. **Key into the car.** She wakes up: her tail light glows, and the ring above her cockpit — the halo — breathes softly for a few seconds while she gets herself sorted, then settles to a calm glow. [TBD-at-bench: final wake-up light show — she may get a proper ignition animation]
-4. **Open the app and press the one big start button.** [TBD-at-bench: final button name] The app checks everything for you — her camera, the controller, the radio — and brings her cockpit view up on your screen.
+4. **Open the app and press the one big RACE DAY button.** The app checks everything for you — her camera, the controller, the radio — and brings her cockpit view up on your screen.
 5. **The start-lights moment.** Five red lights come on across the screen... and go out. That's your cue. (It's a Formula 1 thing. It never gets old.)
 6. **Wake her engine — the deliberate two-step.** She will never start with the throttle pressed, so she can never leap away from you:
    - Let go of everything. Hands off the triggers.
-   - Then [TBD-at-bench: exact engine-start control on the controller — the two-step].
+   - Then press the **triangle** button — one clean, deliberate press. That's her engine switch, on and off.
    - You'll hear the starter whir, the engine fire up, and settle into an idle burble. The halo turns **teal** — her "engine running" color. She's ready.
 7. **Drive.** Squeeze gently — she comes set up gentle on purpose. That's her everyday trim, and it's exactly how she should meet you. Steering steers, the **right trigger** goes, the **left trigger** brakes. On a nice straight, hold the **square** button to open her rear wing for the full effect, and nudge the **right stick** to look around from the cockpit. And when the gentle setup starts to feel small, tell the pit crew: she has a **race trim** waiting — proper gear changes with a little blip between them, and a couple of other tricks she's been saving for you.
 
 **One honest quirk:** she doesn't reverse — just like the real thing. If she noses into a corner, walk over and give her a hand. She won't mind.
 
-**Parking her:** roll to a stop, switch the engine off [TBD-at-bench: engine-off control], key out. Done.
+**Parking her:** roll to a stop, press the triangle to switch the engine off, key out. Done.
 
 **Fancy the cockpit in your hand?** Her view can also appear on your phone — that's the next page.
 
@@ -166,7 +166,7 @@ She talks to you with her lights. Here's the dictionary.
 | **Red bar at the back, bright** | Braking. |
 | **Amber blinkers, left or right** | Turn signals. They follow your steering — even while she's parked. |
 | **Rapid white flashes at the back** | Her rain light, flashing while she recovers energy as she slows — exactly like the real cars do. A race-trim trick (section 3): if you're seeing it, you've graduated. |
-| **Slow red heartbeat on the halo** | Battery getting low. **Head home now, calmly.** She won't stop on her own — bringing her in is your job. The screen warns you too. [TBD-at-bench: final on-screen low-battery warning] |
+| **Slow red heartbeat on the halo** | Battery getting low. **Head home now, calmly.** She won't stop on her own — bringing her in is your job. The screen warns you too: first a calm low-battery note, then a serious one if you keep going. |
 | **The whole car blinking amber** | **She stopped herself on purpose.** Nothing is broken — see section 7 for the 30-second fix. |
 | **Rear wing tell** | [TBD-at-bench: final look of the wing-open light cue] |
 | **Charge light (flap area)** | [TBD-at-bench: charging / done / problem colors] |
@@ -205,7 +205,7 @@ Battery's getting low. She'll keep driving as long as you ask — she trusts you
 
 ### "The screen froze / the app is acting up"
 
-She has her own safety net that doesn't depend on the app: if she truly loses you, she parks herself (amber blink, as above). So don't panic — restart the app, press the start button again, and pick her back up with the two-step engine start.
+She has her own safety net that doesn't depend on the app: if she truly loses you, she parks herself (amber blink, as above). So don't panic — restart the app, press RACE DAY again, and pick her back up the same way as after any safe-stop: triangle off, then the two-step start.
 
 If she stops by herself often in the same spot, that's a clue worth sharing — ping Vitaliy.
 
