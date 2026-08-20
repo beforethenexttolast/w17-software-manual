@@ -52,7 +52,7 @@ You don't drive her from the outside like a toy car. You drive her **from the in
 - **The key.** A small plug with a loop — her ignition key. More on the key ritual in a moment.
 - **This booklet.** Lives wherever your glovebox is.
 
-**One note:** her companion app runs on your own computer. It was installed and set up when she was handed over, so it's ready to go. If you ever change computers, ping Vitaliy — it's a five-minute job.
+**One note:** her companion app runs on your own computer — and her helmet view runs on your phone (section 4). Both were installed and set up when she was handed over, so they're ready to go. If you ever change computers or phones, ping Vitaliy — it's a five-minute job.
 
 ---
 
@@ -110,9 +110,27 @@ The whole routine, in order. It takes about a minute once you've done it twice.
 
 **Parking her:** roll to a stop, switch the engine off [TBD-at-bench: engine-off control], key out. Done.
 
+**Fancy the cockpit in your hand?** Her view can also appear on your phone — that's the next page.
+
 ---
 
-## 4. Lights & sounds — what they mean
+## 4. The helmet view — her app on your phone
+
+The computer screen is mission control. Your phone is the fun part: open her app and you're looking out of her cockpit — her camera's live view with a slim dashboard laid over it, like wearing the driver's helmet.
+
+**To use it:**
+
+1. **Do the normal start routine** (section 3). The one big start button also switches on the phone link for you — no extra step.
+2. **Open her app on your phone and hold it sideways** — the view is widescreen, like a cockpit. The phone and the computer find each other over the Wi-Fi on their own; there is nothing to type. [TBD-at-bench: whether the picture appears by itself or needs one tap the first time, and which Wi-Fi the phone should be on — your home Wi-Fi, her own Wi-Fi, or either]
+3. **That's it.** Speed, battery, and any warnings ride along on the view, the same as on the computer screen.
+
+It's made for passengers, too: you drive from the computer while a friend holds the phone and rides in the cockpit.
+
+**The comforting part:** the phone is a window, never a steering wheel. It only ever *shows* things — it cannot steer her, rev her, or stop her, no matter what gets tapped. If the phone rings mid-drive or the app closes, nothing happens to her: you're driving with the controller, same as always.
+
+---
+
+## 5. Lights & sounds — what they mean
 
 She talks to you with her lights. Here's the dictionary.
 
@@ -120,13 +138,13 @@ She talks to you with her lights. Here's the dictionary.
 |---|---|
 | **Soft glow on the halo** (the ring above the cockpit) | Awake, engine off. All's well. |
 | **Teal halo** | Engine running. Ready to drive. |
-| **Gentle breathing glow, just after key-in** | Getting herself sorted. Give her a few seconds. (If it never stops — see section 7.) |
+| **Gentle breathing glow, just after key-in** | Getting herself sorted. Give her a few seconds. (If it never stops — see section 8.) |
 | **Red bar at the back, dim** | Her tail light. Always on when she's awake. |
 | **Red bar at the back, bright** | Braking. |
 | **Amber blinkers, left or right** | Turn signals. They follow your steering — even while she's parked. |
 | **Rapid white flashes at the back** | Her rain light. It flashes while she's recovering energy as she slows — exactly like the real cars do. Normal and rather lovely. |
 | **Slow red heartbeat on the halo** | Battery getting low. **Head home now, calmly.** She won't stop on her own — bringing her in is your job. The screen warns you too. [TBD-at-bench: final on-screen low-battery warning] |
-| **The whole car blinking amber** | **She stopped herself on purpose.** Nothing is broken — see section 5 for the 30-second fix. |
+| **The whole car blinking amber** | **She stopped herself on purpose.** Nothing is broken — see section 6 for the 30-second fix. |
 | **Rear wing tell** | [TBD-at-bench: final look of the wing-open light cue] |
 | **Charge light (flap area)** | [TBD-at-bench: charging / done / problem colors] |
 
@@ -139,11 +157,11 @@ And her sounds:
 | **Pops and crackles when you ease off** | On purpose. It's the good stuff. |
 | **A rising whine under the engine note** | Her electric boost system working. Also on purpose. |
 | **Little blip between gears** | Gear change. |
-| **Silence, but lights still on** | Engine off — either you parked her, or she stopped herself (section 5). |
+| **Silence, but lights still on** | Engine off — either you parked her, or she stopped herself (section 6). |
 
 ---
 
-## 5. When she stops by herself
+## 6. When she stops by herself
 
 First, the reassuring part: **she is careful by design.** If anything ever confuses her — the radio dips, the signal gets messy — she doesn't guess. She stops driving, straightens her wheels, closes her wing, quiets the engine, and blinks amber to tell you. **She'll park herself if she loses you.** That's her being a good car, not a broken one.
 
@@ -168,7 +186,7 @@ If she stops by herself often in the same spot, that's a clue worth sharing — 
 
 ---
 
-## 6. Care & don'ts
+## 7. Care & don'ts
 
 **Her battery** (it stays inside — you only ever see the charging flap):
 
@@ -187,7 +205,7 @@ If she stops by herself often in the same spot, that's a clue worth sharing — 
 
 ---
 
-## 7. If something's odd
+## 8. If something's odd
 
 | What's happening | Try this | Still odd? |
 |---|---|---|
@@ -195,7 +213,7 @@ If she stops by herself often in the same spot, that's a clue worth sharing — 
 | Plugged in, but no charge light | Is the key **out**? Key out is the charging rule. Try another USB-C charger and check the plug is fully seated. | Ping the pit crew |
 | The app can't find her / no picture | Check the station box cable is plugged into the computer. Close the app, open it, press start again. | Ping the pit crew |
 | Controller does nothing | Reconnect the controller [TBD-at-bench: reconnect steps], then do the two-step engine start again. | Ping the pit crew |
-| Whole car blinking amber, won't drive | That's her safe-stop — section 5. Get a little closer, wait for the picture, restart the engine. | Ping the pit crew |
+| Whole car blinking amber, won't drive | That's her safe-stop — section 6. Get a little closer, wait for the picture, restart the engine. | Ping the pit crew |
 | The gentle breathing glow never ends | Key out, count to ten, key in. | Ping the pit crew |
 | Engine won't start (the two-step doesn't take) | Let go of **everything** — the trigger must be fully at rest first. Count to three, try again. | Ping the pit crew |
 | Picture stutters or lags | You're probably near the edge of her comfort zone — fewer walls, less distance. | Ping the pit crew |
