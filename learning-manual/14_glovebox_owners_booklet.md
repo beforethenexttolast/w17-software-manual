@@ -179,6 +179,8 @@ And her sounds:
 | **Little blip between gears** | Gear change. |
 | **Silence, but lights still on** | Engine off — either you parked her, or she stopped herself (section 7). |
 
+**About the volume:** her engine sound comes set to a good level out of the box — if it's ever too loud or too quiet for the room, ping the pit crew.
+
 ---
 
 ## 7. When she stops by herself
