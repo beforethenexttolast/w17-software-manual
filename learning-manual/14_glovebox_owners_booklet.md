@@ -15,9 +15,14 @@
 > the teaching chapters document.
 >
 > Every **`[TBD-at-bench: …]`** marker below is a fact that only the physical bench can
-> confirm — none has been guessed. The draft's markers are intact, and the pages added
-> 2026-08-20 (helmet view, extra modes) add three of their own. The booklet prints only
-> after (1) the owner's editorial pass and (2) the bench proves the `[TBD-at-bench]`
+> confirm — none has been guessed, and none is resolvable from the repos today. Eight of
+> the draft's markers (the controller bindings, the RACE DAY button name, the engine
+> start/stop control, the on-screen battery warning) turned out to be already decided
+> and test-pinned in the repos; the adversarial review (2026-08-21) had them resolved to
+> plain printed facts. What remains marked — **21 markers** (the draft's 26, minus those
+> 8, plus 3 added by the 2026-08-20 pages) — is genuinely bench-only: feel, ranges,
+> charge times, Wi-Fi specifics, switch rituals, controller pairing. The booklet prints
+> only after (1) the owner's editorial pass and (2) the bench proves the remaining
 > facts.
 >
 > **Owner free-texts ALL answered 2026-08-20** (the four decisions queued in
@@ -273,4 +278,18 @@ Draft notes for the owner (not for print):
   both extra modes on one page (section 5), loudness
   set-and-forget (section 6). No booklet decision is open;
   the remaining gate is the bench pass over the TBD markers.
+- The section 7 radio-loss promise ("she won't move until you
+  restart her engine" — off first, then start) is backed by the
+  owner-ratified (2026-08-20) rearm-latch-after-failsafe
+  firmware change now being built; the mapper side already
+  agrees (CH5 TRIANGLE arm toggle resets to DISARMED on pad
+  dropout, reset_on_nan, w17-mapper/configs/w17-ds4.json).
+- Race-trim framing (owner 2026-08-20, the progression story):
+  TRAINING is her day-one truth; the gear blip, rain light,
+  and boost whine are told as unlockable race-trim tricks —
+  present tense covers only what TRAINING actually does.
+- HANDOVER CHECKLIST ITEM: switch on START LIGHTS in the
+  ground station's settings before the gift (startLightsEnabled
+  defaults to false in GS shared/settings.js) — the section 3
+  five-red-lights moment does not happen without it.
 ============================================================ -->
