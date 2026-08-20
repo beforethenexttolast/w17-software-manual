@@ -115,7 +115,7 @@ The whole routine, in order. It takes about a minute once you've done it twice.
    - Let go of everything. Hands off the triggers.
    - Then [TBD-at-bench: exact engine-start control on the controller — the two-step].
    - You'll hear the starter whir, the engine fire up, and settle into an idle burble. The halo turns **teal** — her "engine running" color. She's ready.
-7. **Drive.** Squeeze gently — she's set up gentle by default. Steering steers, [TBD-at-bench: throttle and brake trigger assignment]. She shifts gears with a proper little blip [TBD-at-bench: gear shift controls, and whether she shifts for herself by default]. On a nice straight, open her rear wing for the full effect [TBD-at-bench: rear wing (DRS) button]. You can also look around from the cockpit [TBD-at-bench: camera look-around control].
+7. **Drive.** Squeeze gently — she comes set up gentle on purpose. That's her everyday trim, and it's exactly how she should meet you. Steering steers, the **right trigger** goes, the **left trigger** brakes. On a nice straight, hold the **square** button to open her rear wing for the full effect, and nudge the **right stick** to look around from the cockpit. And when the gentle setup starts to feel small, tell the pit crew: she has a **race trim** waiting — proper gear changes with a little blip between them, and a couple of other tricks she's been saving for you.
 
 **One honest quirk:** she doesn't reverse — just like the real thing. If she noses into a corner, walk over and give her a hand. She won't mind.
 
@@ -165,7 +165,7 @@ She talks to you with her lights. Here's the dictionary.
 | **Red bar at the back, dim** | Her tail light. Always on when she's awake. |
 | **Red bar at the back, bright** | Braking. |
 | **Amber blinkers, left or right** | Turn signals. They follow your steering — even while she's parked. |
-| **Rapid white flashes at the back** | Her rain light. It flashes while she's recovering energy as she slows — exactly like the real cars do. Normal and rather lovely. |
+| **Rapid white flashes at the back** | Her rain light, flashing while she recovers energy as she slows — exactly like the real cars do. A race-trim trick (section 3): if you're seeing it, you've graduated. |
 | **Slow red heartbeat on the halo** | Battery getting low. **Head home now, calmly.** She won't stop on her own — bringing her in is your job. The screen warns you too. [TBD-at-bench: final on-screen low-battery warning] |
 | **The whole car blinking amber** | **She stopped herself on purpose.** Nothing is broken — see section 7 for the 30-second fix. |
 | **Rear wing tell** | [TBD-at-bench: final look of the wing-open light cue] |
@@ -178,8 +178,8 @@ And her sounds:
 | **Starter whir, then the engine catches** | Engine waking up. |
 | **Idle burble** | Ready and waiting. |
 | **Pops and crackles when you ease off** | On purpose. It's the good stuff. |
-| **A rising whine under the engine note** | Her electric boost system working. Also on purpose. |
-| **Little blip between gears** | Gear change. |
+| **A rising whine under the engine note** | Her electric boost system — a race-trim trick, and worth the wait. |
+| **Little blip between gears** | Gear change — race trim. In her everyday trim she keeps things simple. |
 | **Silence, but lights still on** | Engine off — either you parked her, or she stopped herself (section 7). |
 
 **About the volume:** her engine sound comes set to a good level out of the box — if it's ever too loud or too quiet for the room, ping the pit crew.
