@@ -22,7 +22,7 @@ Phase B stays BLOCKED.** Current truth lives in `CURRENT_STATUS.md`; the vision 
 | `w17-ground-station` | `feat/audit-wave2a-giftee` (`53471fd`) | low-battery HUD banner (warn 7.0 V amber / critical 6.6 V red-pulsing, ⚙-tunable, hysteresis, no new IPC); plain-language GRID hints; unsigned NSIS installer job in CI | 1185→1257 incl. review fixup `abaddbd`; proto:check OK; preload pinned at 24 keys | **MERGED + PUSHED 2026-08-17** (review: 3 minor — the critical→ok ratchet skip and the boolean→1 V banner-disarm fixed pre-merge in `abaddbd`; the third is a stale test count in an old commit message, recorded not rewritten). NSIS proof: CI triggered by the push, result pending |
 | `w17-mapper` | `w17-audit-wave1` (`c383972`, off `w17-headtrack`) | all 4 confirmed defects fixed: read-cycle load guard (crash → safe load error), subscriber-independent 25 ms eval heartbeat (dead pad neutralizes with zero gRPC subscribers), per-direction hat decode, FORK-NOTICE R1–R16; **`configs/w17-ds4.json`** W17 profile + plausibility lint | 137→175; race green; proto/headintent/hook byte-untouched | Profile: ch1 steer LX · ch3 throttle R2/L2 · ch5 arm TRIANGLE (liveness-gated `and(seq, probe)`) · ch6 DRS SQUARE · ch7/8 gears R1/L1 · ch9/10 pan/tilt right stick · ERS pinned off · mode pinned TRAINING; switch failsafes 172; SHARE/OPTIONS/D-pad test-pinned **unbound** (reserved for head-tracking Alt-C). **MERGED 2026-08-17** (`w17-headtrack` = `9cb501e`) after delegated review found 2 blockers — the HIDAPI/raw-HID button-layer mismatch (gear-down would have landed on reserved SHARE) and silent re-arm on pad reconnect — both fixed (buttons renumbered to driver truth; re-arm now requires a fresh deliberate press) and independently re-verified. The old hand-build-don't-commit profile stance is formally superseded. |
 
-| `w17-control-fw` | `proto/bt-showoff-flagged` (`138a674`, added 2026-08-17) | BT show-off prototype per the committed design (`docs/bt_showoff_design.md` lives ON the branch): pure-logic `lib/btpad` + Bluepad32 HAL, boot-only mode select, same failsafe/arm-gate code reused, TRAINING-capped envelope, settings blob v2 `btpad.*`, quarantined `esp32dev_btshowoff` env (Bluepad32 pinned **3.10.2** — the design's 3.10.3 has no published artifact) | 229→267; all 4 envs build; delivery/sim/tuning ELF: **0 BT symbols** | **Never merges before you read the design** — 11 `OWNER-PENDING(BT-n)` tags in-tree; settings-v2 reconciliation with the decay branch expected at merge |
+| `w17-control-fw` | `proto/bt-showoff-flagged` (`138a674`, added 2026-08-17) | BT show-off prototype per the committed design (`docs/bt_showoff_design.md` lives ON the branch): pure-logic `lib/btpad` + Bluepad32 HAL, boot-only mode select, same failsafe/arm-gate code reused, TRAINING-capped envelope, settings blob v2 `btpad.*`, quarantined `esp32dev_btshowoff` env (Bluepad32 pinned **3.10.2** — the design's 3.10.3 has no published artifact) | 229→267; all 4 envs build; delivery/sim/tuning ELF: **0 BT symbols** | **MERGED 2026-08-17** (`d33dfdc`) after: all 11 decisions owner-ratified (tags → OWNER-DECIDED), 2 review minors fixed (connect-baseline seed; the `esp32dev_simbt` scripted-session env), btpad folded as the sixth blob-v2 group, and the three-mode boot unification (DRIVE/SHOWCASE/BT_SOLO, one selector seam; 315/315) — each step independently verified. NEW owner decision: **D3-SHOW-SELECT** (SP3T strap proposal; showcase = bench-selectable until decided) |
 
 | `w17-ground-station` | `feat/video-profiles` | DRIVE/SHOWPIECE video profiles (DRIVE = today, proven at the seams) | 1324 | **MERGED 2026-08-17** after review (2 minor fixes pre-merge) |
 | `w17-ground-station` | `feat/race-day-orchestration` | one-press bring-up: hotspot → mapper (managed child, `W17_*` env scrubbed, argv whitelist) → phone link; preload pin 24→28 deliberate | 1435 (67 files) | **MERGED 2026-08-17** after review found **2 blockers** (spawn-failure wedge; env bypass of the whitelist) — fixed and independently re-verified |
@@ -116,17 +116,17 @@ pushes additionally governed by `FORK-NOTICE.md`).
     guide's 2026-08-17 addendum; this is the top of the procurement list.
 21. **Handset: gamepad-style ELRS** (LiteRadio-class).
 
-## 5. In flight + gated (updated 2026-08-17, post-reset)
+## 5. Pipeline state (FINAL, 2026-08-17 late)
 
-- Building now: the **showcase-mode design draft** (scratchpad, then owner read), the
-  **GCS-box + backup-handset docs** (workspace branch), and **manual wave 2** (the 38-claim
-  staleness repairs).
-- **U4 arbiter** — COMPLETE on `u4-arbiter` @ `93be341` (4 slices, +5375/−0; zero arbiter
-  object code in default builds, nm evidence committed; hook-unpushable by construction).
-  Never merges/pushes before R1–R16 + bench evidence; its review is the R-review.
-- **BT show-off prototype** — COMPLETE on `proto/bt-showoff-flagged` (267/267; all envs
-  build; delivery ELF BT-free); awaits the owner's design read (11 OWNER-PENDING tags).
-- The 2026-08-16 HOLD was lifted by the owner on 2026-08-17 ("Reset is here").
+- **ALL BUILD/REVIEW PIPELINES CLOSED.** Every wave launched in this orchestration pass is
+  merged to its trunk (§2 rows + CURRENT_STATUS newest entry). No agents in flight.
+- **U4 arbiter** — parked COMPLETE on `u4-arbiter` @ `93be341` (off the pre-merge mapper
+  base; trivial rebase at R-review time). Never merges/pushes before R1–R16 + bench
+  evidence — hook-enforced; its review is the R-review, not a merge review.
+- **codex-wip-vr-calibration** (iPhone_rc) — the inherited Codex WIP preserved verbatim as
+  two commits; owner reviews at leisure.
+- Backup refs `backup/bt-pre-rebase*-20260817` (control-fw) preserve the BT branch's
+  pre-rebase states as review evidence; prunable when the owner is done with them.
 
 ## 6. Next universe (updated 2026-08-17 — Phase-C plateau)
 

@@ -8,7 +8,27 @@ workspace-level source for all of those and for project execution status.
 Overwrite it in place when state changes; do not append history. Instruction files
 (`CLAUDE.md` / `AGENTS.md`) must not duplicate anything below.
 
-_Last updated: **2026-08-17 (iPhone day-one merges + showcase lands + BT endgame; rollover
+_Last updated: **2026-08-17 (BT merges — every pipeline closed)** — **BT show-off mode
+MERGED**: control-fw main = **`d33dfdc`** after the full gauntlet — 11 design decisions
+owner-ratified (OWNER-DECIDED tags), adversarial review (2 minors, 0 blockers, owner digest
+delivered) → fixes (connect-time baseline seed kills phantom-reconnect frames; the scripted
+`W17_SIM_PAD_FEEDER` + `esp32dev_simbt` env proves the BT head builds with ZERO BT-stack
+dependency) → the **three-mode boot unification** (one `lib/bootmode` seam: DRIVE
+constant-folds byte-identical to before, SHOWCASE survives verbatim incl. its D4 table,
+BT_SOLO never opens the CRSF UART and arms only by the pad ritual) → scoped verify green:
+**315/315 native**, six envs on clean rebuilds, ELF quarantine delivery=0/sim=0/tuning=0
+(incl. running a ROM-symbol false-positive to ground). One NEW owner decision recorded:
+**D3-SHOW-SELECT** — the decided GPIO27 two-position strap cannot express SHOW; proposed
+SP3T (center = LAPTOP, GPIO27 = SOLO, GPIO32 = SHOW, any ambiguous reading → Drive); until
+decided, showcase is bench-build-selectable only. Backup refs
+`backup/bt-pre-rebase*-20260817` kept as review evidence (prunable later). **With this
+merge, every build/review pipeline of the orchestration pass is CLOSED: all vision software
+sits on trunks.** Open branches are exactly `u4-arbiter` (R-review + bench gated; trivial
+rebase then) and `codex-wip-vr-calibration` (owner's leisure). The orchestrator idles
+pending owner input: the booklet free-texts, the shopping list (now incl. the D3 switch),
+trunk pushes (all owner-call), u4 at bench time. **No hardware; nothing flashed or powered;
+A2 stays NOT-EXECUTED, Phase B stays BLOCKED.**
+Prior pass, **2026-08-17 (iPhone day-one merges + showcase lands + BT endgame; rollover
 checkpoint)** — **iPhone_rc wave 1 MERGED** (main = `0ad0b25`): the docs branch (canonical
 mDNS **receiver acceptance policy** `9d0d8d7` — v required=1, role absent-or-hud,
 tport-mismatch declined, unknown feat tokens ignored, dev clamp 32 printable ASCII; stale
