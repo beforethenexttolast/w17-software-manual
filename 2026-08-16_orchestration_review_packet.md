@@ -144,15 +144,24 @@ remains, by gate:
   three asks in `_handoff/2026-08-17_iphone_side_sync.md`. *(Asks 1–2 discharged in-house
   2026-08-17 after the iPhone_rc transfer: acceptance policy canonical + mirrored 5/5;
   banner parity merged. Ask 3 = the booklet question, still the owner's.)*
-- **(e) Review-observation micro-backlog** (2026-08-17, non-blocking, persisted at the
-  rollover checkpoint): GS `shared/hudDiscovery.js` comment staleness (:94-95 + the header
-  rev cite — fold into the next GS wave); GS-vs-iPhone dead-stream banner-policy divergence
-  (laptop holds a dimmed banner, phone clears with placeholders — owner someday-call);
-  control-fw FSM single-CRC-frame ⇒ ~340 ms Active window (drive-mode hardening backlog);
-  GS race-day quit-policy unaware of a live managed mapper (honesty-prompt idea);
-  a low-battery replay sample so the banner is demoable without draining a pack;
-  the EngineSim limiter gate `95` literal duplicated in ShowScript's static_asserts
-  (drift-watch pair).
+- **(e) Review-observation micro-backlog — CLEARED 2026-08-20** (3 builders → adversarial
+  reviews → guarded ff merges; sl `a80adb0`, GS `945977e`, cf `cd9988b`): hudDiscovery
+  comments ✅; FSM single-frame ~340 ms Active window ✅ (link proof: ≥150 ms + ≥5 frame
+  ticks, gap >60 ms discards; **D4 amendment owner-ratified 2026-08-20** — everLinkedThisBoot
+  latches on the first PROVEN link); race-day quit honesty prompt ✅; low-battery replay
+  demo ✅ (`npm run demo:low-battery`); limiter `95` literal → `limiterThrottlePct` ✅.
+  Still open by design: GS-vs-iPhone dead-stream banner-policy divergence (laptop holds a
+  dimmed banner, phone clears with placeholders — owner someday-call).
+  **New drift-watch notes from this wave's reviews (all non-blocking):** sl
+  `test_enginesim/test_main.cpp:253-254` locally duplicate the defaults `blipMs=130` /
+  `overrunMs=900` (same drift pattern, different literals); sl negative-throttle safety
+  silently rides `uint16_t`→int promotion (widening `limiterThrottlePct` to `uint32_t`
+  would flip semantics for negative throttle); sl `EngineSimConfig` valid() new bounds not
+  negatively tested and no definition-site static_assert (enforcement lives in main.cpp:37,
+  pre-existing idiom); cf link-proof qualifying floor is a sustained ~16.7 Hz source (an
+  honest link; noise can't plausibly fake it); cf shared-FSM means a completed *pad* proof
+  in BT_SOLO also sets the everLinked latch (harmless — only showcase reads it, boot mode
+  fixed per boot); GS quit dialog defaults to QUIT AND STOP on Enter (house style, deliberate).
 
 ## 7½. Pre-reset owner answers (2026-08-16, recorded live)
 
@@ -168,6 +177,12 @@ remains, by gate:
    control-fw first (protocol owner), soundlight consumes; volume control is now a
    requirement (decisions queue items 2/3 are thereby answered). *(Implemented 2026-08-17
    as the link2-v2 branch pair — §2; awaiting owner review.)*
+5½. **D4 amendment ratified (owner, 2026-08-20, via in-session question):** the D4
+   showcase wire-failsafe term `everLinkedThisBoot` latches on the first PROVEN link
+   (the new 5-frame/150 ms proof), no longer on the first lone CRC-valid frame. Reviewer
+   ruling that prompted the ask: "faithful to D4's plain meaning, but meaning-adjacent —
+   ratify, don't merge silently." Ratified as built; merged in cf `cd9988b`.
+
 5. *(Orchestrator extension, flagged for owner ack.)* The split-by-risk rule was applied to
    branches created after these answers: GS/docs branches get adversarial review +
    orchestrator merge (video-profiles, race-day, manual wave, handoff snapshot — all merged

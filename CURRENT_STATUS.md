@@ -8,7 +8,36 @@ workspace-level source for all of those and for project execution status.
 Overwrite it in place when state changes; do not append history. Instruction files
 (`CLAUDE.md` / `AGENTS.md`) must not duplicate anything below.
 
-_Last updated: **2026-08-17 (BT merges — every pipeline closed)** — **BT show-off mode
+_Last updated: **2026-08-20 (micro-backlog wave — §6(e) cleared)** — the
+review-observation micro-backlog (packet §6(e)) — the last remaining owner-independent
+software — ran the standard pipeline (3 parallel builders → adversarial reviews → guarded
+ff merges). **soundlight main = `a80adb0`**: the limiter gate literal 95 became the named
+config field `limiterThrottlePct`, so ShowScript's compile-time limiter-unreachability
+proof now reads the gate directly (retune one, the other follows or refuses to compile);
+137/137, both envs clean-rebuilt by the reviewer. **GS main = `945977e`** (3 commits):
+hudDiscovery contract citations refreshed (quote verbatim-verified against canonical
+iPhone_rc `9d0d8d7`); an honest quit prompt when race day’s managed drive program is alive
+(main-process only, preload/IPC pin stays 28, stop authority stays with teardown, giftee
+wording — never "mapper"); and `npm run demo:low-battery` — a replay timeline pinned
+frame-by-frame against the real classifier so the LOW/CRITICAL banners are demoable
+without draining a pack; 67 files / 1447 tests. **control-fw main = `cd9988b`** — the FSM
+**link-proof hardening**: pre-fix, ONE lucky CRC-valid frame held Active for ~340 ms
+(tick-verified); leaving Safe now requires ≥150 ms since a frame-bearing proof anchor AND
+≥5 frame-bearing ticks since it, any intra-proof gap >60 ms discarding the proof.
+Healthy-link re-arm latency is unchanged to the tick and every Safe-entry path is
+byte-identical (reviewer mutation-verified: the 5 new tests fail on old logic, all old
+tests pass on it). **D4 AMENDED — owner-ratified 2026-08-20:** `everLinkedThisBoot` now
+latches on the first PROVEN link, not the first lone frame — a CRC-colliding noise frame
+can no longer hazard-blink a shelf demo forever, and the spurious first-connect hazard
+blip is gone; DRIVE/BT_SOLO never read the latch (test-pinned); 320/320 native, five
+buildable envs. The review’s one FIX_REQUIRED (instruction-file wording stricter than the
+code) was applied pre-merge as `cd9988b`. Reviewers’ non-blocking drift-watch notes are
+folded into packet §6(e). The remaining §6(e) item — GS-vs-iPhone dead-stream banner
+divergence — stays an owner someday-call by design. Open branches unchanged
+(`u4-arbiter`, `codex-wip-vr-calibration`); owner plate unchanged (booklet free-texts,
+shopping list incl. D3 switch, trunk pushes, bench). **No hardware; nothing flashed or
+powered; A2 stays NOT-EXECUTED, Phase B stays BLOCKED.**
+Prior pass, **2026-08-17 (BT merges — every pipeline closed)** — **BT show-off mode
 MERGED**: control-fw main = **`d33dfdc`** after the full gauntlet — 11 design decisions
 owner-ratified (OWNER-DECIDED tags), adversarial review (2 minors, 0 blockers, owner digest
 delivered) → fixes (connect-time baseline seed kills phantom-reconnect frames; the scripted
