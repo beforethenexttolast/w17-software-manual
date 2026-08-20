@@ -15,18 +15,21 @@
 > the teaching chapters document.
 >
 > Every **`[TBD-at-bench: …]`** marker below is a fact that only the physical bench can
-> confirm — none has been guessed. The draft's markers are intact, and the helmet-view
-> page (new 2026-08-20) adds one of its own. The booklet prints only after (1) the
-> owner's editorial pass and (2) the bench proves the `[TBD-at-bench]` facts.
+> confirm — none has been guessed. The draft's markers are intact, and the pages added
+> 2026-08-20 (helmet view, extra modes) add three of their own. The booklet prints only
+> after (1) the owner's editorial pass and (2) the bench proves the `[TBD-at-bench]`
+> facts.
 >
-> **Owner free-texts answered 2026-08-20** (three of the four decisions queued in
-> `../2026-08-16_orchestration_review_packet.md` §4 item 6): the car is named
-> **Silberpfeil** (cover + dedication line, exact wording still owner-vetoable); the
-> contact line is the pit-crew hotline with **no number or handle printed, by design**;
-> and the **iPhone helmet view is IN** (section 4 — full self-serve, no in-person
-> reveal). Still open from that item: the **sound-loudness stance** — it rides the
-> volume-mechanism decision (§4 items 2–3) and nothing in the booklet promises a
-> volume control yet.
+> **Owner free-texts ALL answered 2026-08-20** (the four decisions queued in
+> `../2026-08-16_orchestration_review_packet.md` §4 item 6, plus the extra-modes
+> follow-up): the car is named **Silberpfeil** (cover + dedication line — dedication
+> wording accepted by the owner as written); the contact line is the pit-crew hotline
+> with **no number or handle printed, by design**; the **iPhone helmet view is IN**
+> (section 4 — full self-serve, no in-person reveal); both **extra modes get one shared
+> giftee page** (section 5 — quick-show driving + the shelf show); and the **loudness
+> stance is set-and-forget** (section 6 — good level out of the box, no volume controls
+> taught, adjustment via the pit crew). No booklet decision remains open; what remains
+> is the bench.
 
 <!-- ============================================================
 DRAFT for owner review — not printed content above this line.
@@ -256,15 +259,18 @@ Draft notes for the owner (not for print):
 - Features that are decided-but-not-yet-built (one-press start,
   ignition light show, wing-open tell, charge-state light,
   on-screen low-battery warning, the phone helmet view's live
-  picture) are written as final-product truth per the vision,
-  with TBD markers on their specifics — the booklet prints only
-  after the bench proves them.
+  picture, the three-position mode selector's ritual) are
+  written as final-product truth per the vision, with TBD
+  markers on their specifics — the booklet prints only after
+  the bench proves them.
 - Deliberately omitted: head-tracked camera (gated milestone),
-  speed tuning (owner-side only), any battery/radio jargon.
-- Also still omitted at the giftee level (2026-08-20): the
-  close-range solo mode (gamepad only, no laptop) and the
-  showcase shelf mode. Both are final in the design trunks now,
-  but this draft is structured around the single laptop+
-  controller drive routine; giving them pages is a structure
-  decision for the owner's editorial pass, not a fill-in.
+  speed tuning (owner-side only), volume controls (owner
+  decision 2026-08-20: set at handover, pit crew adjusts),
+  any battery/radio jargon.
+- All 2026-08-20 owner answers are FINAL and in the text:
+  Silberpfeil + dedication (accepted as written), pit-crew
+  hotline (no channel printed), helmet view in (section 4),
+  both extra modes on one page (section 5), loudness
+  set-and-forget (section 6). No booklet decision is open;
+  the remaining gate is the bench pass over the TBD markers.
 ============================================================ -->
