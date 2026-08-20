@@ -222,7 +222,7 @@ If she stops by herself often in the same spot, that's a clue worth sharing — 
 
 **Keep her dry.** No rain, no puddles, no wet grass, no snow. If she gets dusty, a soft dry cloth or a soft brush is all she needs. Never water, never sprays.
 
-**Don't open her up.** Everything inside is sealed, arranged, and happy. Charging happens through the flap, the key lives outside, and there is nothing inside that needs you. Opening the shell risks the bodywork — and she's rather proud of her bodywork.
+**Don't open her up.** Everything inside is sealed, arranged, and happy. Charging happens through the flap, the key lives outside, and nothing inside needs you day-to-day. (One exception: her little mode selector lives under the engine cover — section 5 — and the pit crew will show you that one move.) Beyond that, opening the shell risks the bodywork — and she's rather proud of her bodywork.
 
 **Carrying her:** key out first, then lift her by [TBD-at-bench: safe lift points] — never by the wings, the halo, or the camera.
 
@@ -236,7 +236,7 @@ If she stops by herself often in the same spot, that's a clue worth sharing — 
 |---|---|---|
 | Key is in, but she won't wake up | Push the key fully home. If nothing, her battery is probably empty — key out, charge her. | Ping the pit crew |
 | Plugged in, but no charge light | Is the key **out**? Key out is the charging rule. Try another USB-C charger and check the plug is fully seated. | Ping the pit crew |
-| The app can't find her / no picture | Check the station box cable is plugged into the computer. Close the app, open it, press start again. | Ping the pit crew |
+| The app can't find her / no picture | Check the station box cable is plugged into the computer — that little box is her radio, and the picture rides on it. Close the app, open it, press RACE DAY again. | Ping the pit crew |
 | Controller does nothing | Reconnect the controller [TBD-at-bench: reconnect steps], then do the two-step engine start again. | Ping the pit crew |
 | Whole car blinking amber, won't drive | That's her safe-stop — section 7. Get a little closer, wait for the picture, restart the engine. | Ping the pit crew |
 | The gentle breathing glow never ends | Key out, count to ten, key in. | Ping the pit crew |
