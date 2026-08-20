@@ -15,18 +15,26 @@
 > the teaching chapters document.
 >
 > Every **`[TBD-at-bench: …]`** marker below is a fact that only the physical bench can
-> confirm — none has been guessed, and all are intact from the draft. The booklet prints
-> only after (1) the owner's editorial pass and (2) the bench proves the
-> `[TBD-at-bench]` facts. Open owner decisions about it (car name/dedication, the
-> "ping me" contact line, whether the iPhone helmet view appears, loudness stance) are
-> queued in `../2026-08-16_orchestration_review_packet.md` §4 item 6.
+> confirm — none has been guessed. The draft's markers are intact, and the helmet-view
+> page (new 2026-08-20) adds one of its own. The booklet prints only after (1) the
+> owner's editorial pass and (2) the bench proves the `[TBD-at-bench]` facts.
+>
+> **Owner free-texts answered 2026-08-20** (three of the four decisions queued in
+> `../2026-08-16_orchestration_review_packet.md` §4 item 6): the car is named
+> **Silberpfeil** (cover + dedication line, exact wording still owner-vetoable); the
+> contact line is the pit-crew hotline with **no number or handle printed, by design**;
+> and the **iPhone helmet view is IN** (section 4 — full self-serve, no in-person
+> reveal). Still open from that item: the **sound-loudness stance** — it rides the
+> volume-mechanism decision (§4 items 2–3) and nothing in the booklet promises a
+> volume control yet.
 
 <!-- ============================================================
 DRAFT for owner review — not printed content above this line.
 Every [TBD-at-bench: ...] marker is a fact that can only be
 confirmed once the car is built and on the bench; nothing has
-been invented in its place. Placeholder [Owner] = the giver's
-name + preferred contact, to be filled in before print.
+been invented in its place. Contact resolves to "Vitaliy" /
+"the pit crew" with no number or handle — the owner's explicit
+choice (2026-08-20), not an oversight.
 Suggested format: A6 booklet, one numbered section per spread.
 ============================================================ -->
 
@@ -227,17 +235,22 @@ And truly — ping the pit crew about anything. There is no silly question about
 
 <!-- ============================================================
 END OF BOOKLET CONTENT.
-Draft notes for [Owner] (not for print):
+Draft notes for the owner (not for print):
 - Everything above matches designed/verified behavior in the
   repos and the locked product vision; bench-dependent facts are
   marked [TBD-at-bench] rather than guessed.
 - Features that are decided-but-not-yet-built (one-press start,
   ignition light show, wing-open tell, charge-state light,
-  on-screen low-battery warning) are written as final-product
-  truth per the vision, with TBD markers on their specifics —
-  the booklet prints only after the bench proves them.
+  on-screen low-battery warning, the phone helmet view's live
+  picture) are written as final-product truth per the vision,
+  with TBD markers on their specifics — the booklet prints only
+  after the bench proves them.
 - Deliberately omitted: head-tracked camera (gated milestone),
-  iPhone helmet view (owner call, see open questions), showcase
-  mode (mechanism not designed), speed tuning (owner-side only),
-  any battery/radio jargon.
+  speed tuning (owner-side only), any battery/radio jargon.
+- Also still omitted at the giftee level (2026-08-20): the
+  close-range solo mode (gamepad only, no laptop) and the
+  showcase shelf mode. Both are final in the design trunks now,
+  but this draft is structured around the single laptop+
+  controller drive routine; giving them pages is a structure
+  decision for the owner's editorial pass, not a fill-in.
 ============================================================ -->
