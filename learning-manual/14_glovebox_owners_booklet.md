@@ -52,7 +52,7 @@ You don't drive her from the outside like a toy car. You drive her **from the in
 - **The key.** A small plug with a loop — her ignition key. More on the key ritual in a moment.
 - **This booklet.** Lives wherever your glovebox is.
 
-**One note:** her companion app runs on your own computer. It was installed and set up when she was handed over, so it's ready to go. If you ever change computers, ping [Owner] — it's a five-minute job.
+**One note:** her companion app runs on your own computer. It was installed and set up when she was handed over, so it's ready to go. If you ever change computers, ping Vitaliy — it's a five-minute job.
 
 ---
 
@@ -164,7 +164,7 @@ Battery's getting low. She'll keep driving as long as you ask — she trusts you
 
 She has her own safety net that doesn't depend on the app: if she truly loses you, she parks herself (amber blink, as above). So don't panic — restart the app, press the start button again, and pick her back up with the two-step engine start.
 
-If she stops by herself often in the same spot, that's a clue worth sharing — ping [Owner].
+If she stops by herself often in the same spot, that's a clue worth sharing — ping Vitaliy.
 
 ---
 
@@ -191,19 +191,21 @@ If she stops by herself often in the same spot, that's a clue worth sharing — 
 
 | What's happening | Try this | Still odd? |
 |---|---|---|
-| Key is in, but she won't wake up | Push the key fully home. If nothing, her battery is probably empty — key out, charge her. | Ping [Owner] |
-| Plugged in, but no charge light | Is the key **out**? Key out is the charging rule. Try another USB-C charger and check the plug is fully seated. | Ping [Owner] |
-| The app can't find her / no picture | Check the station box cable is plugged into the computer. Close the app, open it, press start again. | Ping [Owner] |
-| Controller does nothing | Reconnect the controller [TBD-at-bench: reconnect steps], then do the two-step engine start again. | Ping [Owner] |
-| Whole car blinking amber, won't drive | That's her safe-stop — section 5. Get a little closer, wait for the picture, restart the engine. | Ping [Owner] |
-| The gentle breathing glow never ends | Key out, count to ten, key in. | Ping [Owner] |
-| Engine won't start (the two-step doesn't take) | Let go of **everything** — the trigger must be fully at rest first. Count to three, try again. | Ping [Owner] |
-| Picture stutters or lags | You're probably near the edge of her comfort zone — fewer walls, less distance. | Ping [Owner] |
-| She pulls to one side / steering feels wrong | Park her, key out, count to ten, key in, try again on a smooth floor. | Ping [Owner] |
+| Key is in, but she won't wake up | Push the key fully home. If nothing, her battery is probably empty — key out, charge her. | Ping the pit crew |
+| Plugged in, but no charge light | Is the key **out**? Key out is the charging rule. Try another USB-C charger and check the plug is fully seated. | Ping the pit crew |
+| The app can't find her / no picture | Check the station box cable is plugged into the computer. Close the app, open it, press start again. | Ping the pit crew |
+| Controller does nothing | Reconnect the controller [TBD-at-bench: reconnect steps], then do the two-step engine start again. | Ping the pit crew |
+| Whole car blinking amber, won't drive | That's her safe-stop — section 5. Get a little closer, wait for the picture, restart the engine. | Ping the pit crew |
+| The gentle breathing glow never ends | Key out, count to ten, key in. | Ping the pit crew |
+| Engine won't start (the two-step doesn't take) | Let go of **everything** — the trigger must be fully at rest first. Count to three, try again. | Ping the pit crew |
+| Picture stutters or lags | You're probably near the edge of her comfort zone — fewer walls, less distance. | Ping the pit crew |
+| She pulls to one side / steering feels wrong | Park her, key out, count to ten, key in, try again on a smooth floor. | Ping the pit crew |
 
 **When in doubt: key out.** That's always safe, always right, and fixes more than you'd think.
 
-And truly — ping [Owner] about anything. There is no silly question about this car. She was built for you, and that includes the help line.
+And truly — ping the pit crew about anything. There is no silly question about this car. She was built for you, and that includes the help line.
+
+**Pit crew hotline:** Vitaliy — you know where to find me. Response time: better than Formula 1.
 
 <!-- ============================================================
 END OF BOOKLET CONTENT.
