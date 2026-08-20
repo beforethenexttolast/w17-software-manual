@@ -8,7 +8,35 @@ workspace-level source for all of those and for project execution status.
 Overwrite it in place when state changes; do not append history. Instruction files
 (`CLAUDE.md` / `AGENTS.md`) must not duplicate anything below.
 
-_Last updated: **2026-08-17 (delegated-review pipeline + the iPhone transfer executed)** —
+_Last updated: **2026-08-17 (iPhone day-one merges + showcase lands + BT endgame; rollover
+checkpoint)** — **iPhone_rc wave 1 MERGED** (main = `0ad0b25`): the docs branch (canonical
+mDNS **receiver acceptance policy** `9d0d8d7` — v required=1, role absent-or-hud,
+tport-mismatch declined, unknown feat tokens ignored, dev clamp 32 printable ASCII; stale
+AGENTS ownership fixed; the repo's first CLAUDE.md) and the **low-battery banner parity**
+(MERGE_CLEAN: exact port of the post-review GS classifier, verified to IEEE-754 boundary
+bits and byte-identical labels; suite 55→74 — the audit's "73" was the WIP tree). GS mirror
+re-synced (`2f2fc6b`; enforcement-vs-policy **5/5 MATCH** — handoff ask 1 discharged) +
+guardrail ownership fix (`a474de1`). **SHOWCASE MODE MERGED** in both repos (cf `b0bfd19`,
+sl `cedcb82` + module-map correction `9c96f2c`) after a MERGE_CLEAN review with
+sanitizer-instrumented probes: arming structurally impossible in showcase; the D4
+shelf-never-hazards / dead-table-radio-does rule verified against the real FSM incl. a
+10-minute CRC-garbage probe; ShowScript mute-not-desync proven to the tick; cf **275/275**,
+sl **137/137**. **BT endgame:** review returned 2 minors 0 blockers (owner digest
+delivered) → both fixed (`75122c6` connect-time baseline seed — a bare reconnect claim
+yields zero frames; `b293d72` scripted `W17_SIM_PAD_FEEDER` + `esp32dev_simbt` env proving
+the BT head builds with ZERO BT-stack dependency; 307/307, six envs) → **final step
+RUNNING at checkpoint time: the boot-mode unification** rebase onto `b0bfd19` (ONE
+resolver, three modes DRIVE/SHOWCASE/BT_SOLO; btpad joins the unified blob v2; worktree
+`wt-cf-bt` observed mid-work at `089fdf6`, backup branches retained) → scoped verify →
+merge. **Rollover checkpoint executed** per the operator's continuity template, adapted
+for this workspace as **`w17-context-rollover-prompt.md`** (new canonical reusable
+procedure at the root): resume brief refreshed, the review-observation micro-backlog
+persisted to the packet §6(e), compaction nucleus + successor bootstrap delivered
+in-session. Git sweep at checkpoint: all trunks clean; unpushed (owner-call): workspace
+ahead 38, control-fw 18, soundlight 15, GS 15, mapper 14, iPhone 4; design-system +
+3d-codex level. **No hardware; nothing flashed or powered; A2 stays NOT-EXECUTED, Phase B
+stays BLOCKED.**
+Prior pass, **2026-08-17 (delegated-review pipeline + the iPhone transfer executed)** —
 Three owner Q&As landed (packet §7½ items 14–21): firmware merge reviews DELEGATED
 (adversarial agent + orchestrator merge), link2-v2 gained the `modeFlags` byte (bit0
 showcase / bit1 awaitingController — the D2/BT-7 collision resolved in one unflashed bump),

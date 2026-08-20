@@ -141,7 +141,18 @@ remains, by gate:
 - **(c) Bench/hardware-gated:** the §7 ledger, unchanged — A2 → Phase B before anything
   powers on.
 - **(d) Codex-side:** DRS flap mechanics, GCS-box mechanics, shell/charge-flap work, and the
-  three asks in `_handoff/2026-08-17_iphone_side_sync.md`.
+  three asks in `_handoff/2026-08-17_iphone_side_sync.md`. *(Asks 1–2 discharged in-house
+  2026-08-17 after the iPhone_rc transfer: acceptance policy canonical + mirrored 5/5;
+  banner parity merged. Ask 3 = the booklet question, still the owner's.)*
+- **(e) Review-observation micro-backlog** (2026-08-17, non-blocking, persisted at the
+  rollover checkpoint): GS `shared/hudDiscovery.js` comment staleness (:94-95 + the header
+  rev cite — fold into the next GS wave); GS-vs-iPhone dead-stream banner-policy divergence
+  (laptop holds a dimmed banner, phone clears with placeholders — owner someday-call);
+  control-fw FSM single-CRC-frame ⇒ ~340 ms Active window (drive-mode hardening backlog);
+  GS race-day quit-policy unaware of a live managed mapper (honesty-prompt idea);
+  a low-battery replay sample so the banner is demoable without draining a pack;
+  the EngineSim limiter gate `95` literal duplicated in ShowScript's static_asserts
+  (drift-watch pair).
 
 ## 7½. Pre-reset owner answers (2026-08-16, recorded live)
 
