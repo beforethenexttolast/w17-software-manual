@@ -197,7 +197,7 @@ She lost her connection to you for a moment — it happens behind thick walls or
 1. Take your time. She's sitting safely and waiting.
 2. Walk toward her a little, or bring her side of the room closer to the computer.
 3. Watch the screen — when her camera picture is back and steady, she can hear you again.
-4. **She deliberately won't move until you restart her engine** — even after the connection returns. Do the two-step engine start again [TBD-at-bench: whether the engine control needs to be switched off and back on first], and drive her home.
+4. **She deliberately won't move until you restart her engine** — even after the connection returns. A stop like this always asks for a fresh start: press the triangle once to switch her engine properly off, then do the two-step start again — hands off everything, then triangle — and drive her home. [TBD-at-bench: the feel of the restart ritual after a safe-stop — confirm on the bench it reads exactly this simple]
 
 ### "The halo is pulsing red"
 
