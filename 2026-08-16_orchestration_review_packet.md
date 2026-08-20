@@ -177,6 +177,18 @@ remains, by gate:
    control-fw first (protocol owner), soundlight consumes; volume control is now a
    requirement (decisions queue items 2/3 are thereby answered). *(Implemented 2026-08-17
    as the link2-v2 branch pair — §2; awaiting owner review.)*
+5¾. **Owner decision day (2026-08-20, in-session):** D3-SHOW-SELECT ratified as the SP3T
+   proposal (firmware slice merged, cf `ce47b27`); **re-arm invariant ratified** (failsafe
+   episode ⇒ switch OFF→ON required; merged cf `25bf5eb`); loss-display divergence kept +
+   documented (iPhone `862aeb0` / GS mirror `3719592`); booklet free-texts all answered
+   (Lola / "Silberpfeil" / pit-crew line, no channels / helmet view in-booklet / one
+   extra-modes page / loudness preset — merged workspace `72c16fe`); ALL trunk pushes
+   executed (mapper via its FORK-NOTICE checks); backup refs pruned; codex-wip digest
+   delivered (keep-as-reference). New §6(e) drift-watch adds: decodeSwitch's
+   implausible-raw→OFF policy could in principle clear the toggle latch (pre-existing,
+   decode-hardening candidate); optional compile pin for the shipped sound tune
+   (idle 3500 / max 15000) — owner-call one-liner.
+
 5½. **D4 amendment ratified (owner, 2026-08-20, via in-session question):** the D4
    showcase wire-failsafe term `everLinkedThisBoot` latches on the first PROVEN link
    (the new 5-frame/150 ms proof), no longer on the first lone CRC-valid frame. Reviewer

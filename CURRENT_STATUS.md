@@ -8,7 +8,34 @@ workspace-level source for all of those and for project execution status.
 Overwrite it in place when state changes; do not append history. Instruction files
 (`CLAUDE.md` / `AGENTS.md`) must not duplicate anything below.
 
-_Last updated: **2026-08-20 (micro-backlog wave — §6(e) cleared)** — the
+_Last updated: **2026-08-20 (owner decision day — plate cleared, re-arm invariant, booklet final)** —
+the owner answered EVERY queued decision in one session and the unlocked work all ran the
+full pipeline. **Ratified:** D3-SHOW-SELECT SP3T (center LAPTOP / GPIO27 SOLO / GPIO32
+SHOW, ambiguous→Drive); the D4 latch amendment; **the re-arm invariant** (a failsafe
+episode latches disarm — re-arming requires the arm switch OFF→ON on a proven link, plus
+fresh neutral; boot-with-switch-ON also demands a toggle); loss-display divergence kept
+and documented as deliberate (canonical iPhone_rc `862aeb0`, GS mirror `3719592`);
+booklet: giftee is **Lola**, car is **"Silberpfeil"**, dedication accepted, pit-crew
+contact line (no channels printed), helmet view in-booklet, "Two more tricks" page,
+loudness = preset. **Merged (each built→adversarially reviewed→guarded ff):** control-fw
+main = **`25bf5eb`** (D3 strap slice `ce47b27` — delivery image proven
+instruction-identical, strap code bench-envs-only, 323 native; then the re-arm latch —
+mutation-verified, BT/showcase inert, delivery delta exactly 16 bytes in ArmGate, **330
+native**, five envs); soundlight main = **`63e8256`** (test-default-literal dedup,
+sabotage-matrix-verified, 137); workspace main = **`72c16fe`** (booklet FINAL: 9 sections,
+21 genuine bench-only markers, 8 markers resolved to repo-pinned facts, race-trim
+progression story, radio-loss promise now firmware-true; FIXES_VERIFIED). **Codex WIP
+digest delivered:** codex-wip-vr-calibration = VR optical-calibration shell + a 250 ms
+head-intent gate (R10 prerequisite), safety-clean, keep-as-reference — adapt later as its
+own task, do not merge as-is. **ALL TRUNKS PUSHED** (owner-authorized 2026-08-20; mapper
+passed its four FORK-NOTICE push-review checks first): workspace, cf, sl, GS `3719592`,
+iPhone `862aeb0`, mapper `w17-headtrack` `9cb501e`. Backup/bt-pre-rebase refs pruned.
+Owner plate now: SHOPPING ONLY (5.8 GHz AP-capable adapter, powered hub, SP3T switch,
+ELRS TX label, TX16S check) + optional shipped-tune compile pin (sl idle/max rpm,
+one-liner on request). New drift-watch notes in packet §6(e). Open branches:
+`u4-arbiter`, `codex-wip-vr-calibration` (both deliberate). **No hardware; nothing
+flashed or powered; A2 stays NOT-EXECUTED, Phase B stays BLOCKED.**
+Prior pass, **2026-08-20 (micro-backlog wave — §6(e) cleared)** — the
 review-observation micro-backlog (packet §6(e)) — the last remaining owner-independent
 software — ran the standard pipeline (3 parallel builders → adversarial reviews → guarded
 ff merges). **soundlight main = `a80adb0`**: the limiter gate literal 95 became the named
