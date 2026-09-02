@@ -36,6 +36,8 @@ pushes additionally governed by `FORK-NOTICE.md`).
 
 ## 3. Drafts awaiting your read (session scratchpad)
 
+> **Superseded 2026-09-02:** all three drafts landed — BT design merged (`docs/bt_showoff_design.md`, cf `d33dfdc`), U4 blueprint executed on `u4-arbiter` (§5), booklet FINAL on workspace main (`72c16fe`). Kept as history.
+
 - **BT show-off design** — `scratchpad/bt_showoff_design_draft.md`: boot-only mode select
   (recommended: labeled strap switch failing toward normal CRSF mode), same failsafe/arm-gate
   code reused, TRAINING-capped envelope, Bluepad32 pinned to the 3.10.x line (4.x needs a
@@ -127,6 +129,17 @@ pushes additionally governed by `FORK-NOTICE.md`).
   two commits; owner reviews at leisure.
 - Backup refs `backup/bt-pre-rebase*-20260817` (control-fw) preserve the BT branch's
   pre-rebase states as review evidence; prunable when the owner is done with them.
+- *Updated 2026-09-02 (rollover):* **codex-wip-vr-calibration digest DELIVERED 2026-08-21
+  (read-only review) — verdict KEEP-AND-ADAPT LATER, never merge as-is.** Contents:
+  `83b56f3` VR optical-calibration screen (display-only, synthetic grid, UserDefaults
+  profile) + `f0e2c82` 250 ms head-intent send gate (R10 prerequisite; strictly stricter).
+  Safety-clean. Adaptation cautions for whoever picks it up: (1) `f0e2c82` rewrites the
+  CANONICAL contract to claim the 250 ms gate is live — false on main; must land as its own
+  named contract step + GS mirror; (2) the optical profile PERSISTS to UserDefaults —
+  needs an owner ruling on whether "calibration stays session-only" applies; (3) textual
+  conflicts with main's banner commit in `FPVHUDView.swift`/`FPVHUDViewModel.swift` +
+  pbxproj; (4) its "73 tests" baseline is the WIP tree (main = 74 after banner parity).
+  **Backup refs pruned 2026-08-21** (owner nod); BT history is on main.
 
 ## 6. Next universe (updated 2026-08-17 — Phase-C plateau)
 
@@ -162,6 +175,13 @@ remains, by gate:
   honest link; noise can't plausibly fake it); cf shared-FSM means a completed *pad* proof
   in BT_SOLO also sets the everLinked latch (harmless — only showcase reads it, boot mode
   fixed per boot); GS quit dialog defaults to QUIT AND STOP on Enter (house style, deliberate).
+  *Added 2026-09-02 (rollover):* cf `docs/ROADMAP.md:301` still reads "OWNER-PENDING, D3"
+  inside a historical wave record (left as history by the D3 builder; annotate if it ever
+  misleads); cf re-arm corner — flipping the arm switch ON during ANY Safe window (incl.
+  the ~150 ms boot link-proof) latches and demands an off→on (documented in the ArmGate
+  header; fail-closed; the owner may notice it once at bench); cf `decodeSwitch`'s
+  implausible-raw→OFF policy is in principle an OFF observation that clears the toggle
+  latch (pre-existing; decode-hardening candidate, see §7½ item 7).
 
 ## 7½. Pre-reset owner answers (2026-08-16, recorded live)
 
@@ -177,7 +197,19 @@ remains, by gate:
    control-fw first (protocol owner), soundlight consumes; volume control is now a
    requirement (decisions queue items 2/3 are thereby answered). *(Implemented 2026-08-17
    as the link2-v2 branch pair — §2; awaiting owner review.)*
-5¾. **Owner decision day (2026-08-20, in-session):** D3-SHOW-SELECT ratified as the SP3T
+
+5. *(Orchestrator extension, flagged for owner ack.)* The split-by-risk rule was applied to
+   branches created after these answers: GS/docs branches get adversarial review +
+   orchestrator merge (video-profiles, race-day, manual wave, handoff snapshot — all merged
+   so); firmware/mapper branches join the owner queue (the link2-v2 pair). Say the word to
+   tighten or loosen either direction.
+6. **D4 amendment ratified (owner, 2026-08-20, via in-session question):** the D4
+   showcase wire-failsafe term `everLinkedThisBoot` latches on the first PROVEN link
+   (the new 5-frame/150 ms proof), no longer on the first lone CRC-valid frame. Reviewer
+   ruling that prompted the ask: "faithful to D4's plain meaning, but meaning-adjacent —
+   ratify, don't merge silently." Ratified as built; merged in cf `cd9988b`.
+
+7. **Owner decision day (2026-08-20, in-session):** D3-SHOW-SELECT ratified as the SP3T
    proposal (firmware slice merged, cf `ce47b27`); **re-arm invariant ratified** (failsafe
    episode ⇒ switch OFF→ON required; merged cf `25bf5eb`); loss-display divergence kept +
    documented (iPhone `862aeb0` / GS mirror `3719592`); booklet free-texts all answered
@@ -189,17 +221,17 @@ remains, by gate:
    decode-hardening candidate); optional compile pin for the shipped sound tune
    (idle 3500 / max 15000) — owner-call one-liner.
 
-5½. **D4 amendment ratified (owner, 2026-08-20, via in-session question):** the D4
-   showcase wire-failsafe term `everLinkedThisBoot` latches on the first PROVEN link
-   (the new 5-frame/150 ms proof), no longer on the first lone CRC-valid frame. Reviewer
-   ruling that prompted the ask: "faithful to D4's plain meaning, but meaning-adjacent —
-   ratify, don't merge silently." Ratified as built; merged in cf `cd9988b`.
-
-5. *(Orchestrator extension, flagged for owner ack.)* The split-by-risk rule was applied to
-   branches created after these answers: GS/docs branches get adversarial review +
-   orchestrator merge (video-profiles, race-day, manual wave, handoff snapshot — all merged
-   so); firmware/mapper branches join the owner queue (the link2-v2 pair). Say the word to
-   tighten or loosen either direction.
+8. **Rollover checkpoint (2026-09-02):** (a) **Push authority** — the owner's 2026-08-20
+   "push all trunks now" grant was applied to the whole decision-day wave, including its
+   follow-up merges and the consolidation commit (`99c9e35`); every trunk is at origin
+   parity as of this checkpoint. That grant is now EXECUTED/closed; push authority
+   reverts to owner-call by default, and the rollover-checkpoint commit itself is left
+   UNPUSHED. (b) No agents in flight; every builder/reviewer worktree removed and every
+   repo pruned (the stray harness worktree `.claude/worktrees/compassionate-rosalind-*`
+   removed — its only content was an untracked pre-fix `AGENTS.md`, copy kept in the
+   session scratchpad, not needed). (c) Date note: the item-7 merges are git-timestamped
+   2026-08-20 15:36 → 2026-08-21 02:20 local; the CURRENT_STATUS entry is labelled
+   2026-08-20 and stands as the decision-day record.
 
 ## 7. Standing hardware-gated ledger (unchanged)
 

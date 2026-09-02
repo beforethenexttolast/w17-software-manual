@@ -194,3 +194,7 @@ gates govern all hardware work.
 - Mechanism TBD when scheduled: the showcase-mode trigger (board-1 disarmed demo feed vs
   board-2 local trigger). Sound selection is decided (link2 v2, see backlog); the BT design
   is written and awaits owner review.
+- *Amended 2026-09-02 (rollover checkpoint, no new decision):* the showcase-mode trigger is
+  DECIDED — board-1 SP3T boot strap, **D3-SHOW-SELECT** (owner 2026-08-20; firmware on
+  control-fw main); the BT design was owner-ratified (11 decisions) and merged 2026-08-17.
+  The driver-figure and GCS power-budget points stand.
