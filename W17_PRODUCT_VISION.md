@@ -198,3 +198,24 @@ gates govern all hardware work.
   DECIDED — board-1 SP3T boot strap, **D3-SHOW-SELECT** (owner 2026-08-20; firmware on
   control-fw main); the BT design was owner-ratified (11 decisions) and merged 2026-08-17.
   The driver-figure and GCS power-budget points stand.
+
+## Amendments — 2026-09-02 readiness alignment (owner decisions A1–A7, recorded in `2026-09-02_readiness_program.md`)
+
+- **Ownership of mechanics (supersedes every "Codex territory" phrase above — decisions 13/14,
+  the gift-kit paragraph, and the backlog's GCS-box / charge-flap / DRS lines):** electronics
+  trays/cassette, the inner cage / second floor, DRS flap linkage, USB-C charge flap and the GCS
+  box are **Claude Code territory in `w17-3d-codex`** since 2026-09-02. Physical dimensions
+  come from owner measurements; parametric designs + fit-check prints precede production prints.
+- **iPhone HUD distribution (decision 6, operator model):** free-account Xcode sideload for now;
+  the app must be re-signed from the owner's Mac every 7 days — a **pit-crew** burden that the
+  booklet states honestly. The laptop HUD is the primary display; the phone HUD is an extra. A
+  paid developer account is out while the project is a single, unpublished gift.
+- **Manual (decisions 1 "D" / 17):** the stranger-rebuildable track is **post-gift**; the manual
+  stays truthful to current code, and a parallel low-priority workflow may write whatever is
+  writable without the bench.
+- **Real-Windows validation:** first on a Windows VM on the owner's Mac (VMware Fusion, USB
+  passthrough, designed so Claude can drive the checks autonomously); a real PC only at handover.
+- **Definition of "ready before assembly":** every deliverable that needs no hardware — code,
+  reviews, runbooks, install guides, handover checklist, mechanical designs pending measurement —
+  is complete and reviewed. The hardware phase (assembly, A2, Phase B, flashing, bench gates,
+  handover) is the only remaining work. The done-bar 1–8 is unchanged.

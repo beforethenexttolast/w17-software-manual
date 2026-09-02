@@ -21,16 +21,16 @@ pending validations live in `CURRENT_STATUS.md`.
 | `w17-design-system` | projects | Claude Code | Visual source of truth for the ground-station setup-flow redesign (Batches 2/3/6): `w17.css` tokens + `foundations/`/`components/` cards + 1280×800 screen mockups. Design reference only (no runtime code); the `w17-ground-station` renderer is the implementation. |
 | `w17-mapper` | projects | Claude Code | Owned fork of `elrs-joystick-control` (upstream `github.com/kaack/elrs-joystick-control`, pinned `2b8031a`; branch `w17-headtrack`; **GPL-3.0-or-later**). The production DualShock→CRSF→ELRS mapper and, per owner decision #1 (topology (a), 2026-07-15), the production owner of UDP 5602 head-intent ingest. Read-only reference copy stays at `_vendor/elrs-joystick-control` (never edited). **Public fork** (`github.com/beforethenexttolast/w17-mapper`, since 2026-07-25); every push is governed by the `FORK-NOTICE.md` push-review rule, with the tracked `.githooks/pre-push` guard as the accident backstop. |
 | `learning-manual` | projects | Claude Code | Beginner-friendly manual for the whole system. Persistent teaching output. |
-| `w17-3d-codex` | projects | Claude Code | 3D printing & fabrication: model inventory, materials, Bambu slicing specs, test prints, finishing/painting/decals, printed-part assembly. Raw STLs live untracked in its `unsorted_stl_raw/`. Consults the Codex `w17-rc-print-codex` reports read-only. |
+| `w17-3d-codex` | projects | Claude Code | 3D printing & fabrication: model inventory, materials, Bambu slicing specs, test prints, finishing/painting/decals, printed-part assembly. **Since 2026-09-02 also the mechanical-design home** (owner decision): electronics placement study, trays/cassette, inner cage / second floor, DRS flap linkage, charge flap, GCS box — parametric OpenSCAD sources + fit-check parts. Raw STLs live untracked in its `unsorted_stl_raw/`. Consults the Codex `w17-rc-print-codex` reports read-only. |
 | `iPhone_rc` | projects | Claude Code | Thin iPhone FPV HUD client. Receives telemetry (UDP 5601), sends head-tracking **intent** (UDP 5602). No control path. **Transferred from Codex ownership + relocated into this root 2026-08-17 (owner decision); the pre-transfer VR-calibration WIP is preserved verbatim on branch `codex-wip-vr-calibration`; its disposition lives in the review packet §5 / `CURRENT_STATUS.md`, never here.** |
-| `w17-rc-print-codex` | Codex | ChatGPT Codex | STL/SCAD print-decision project (3D-print filtering). Isolated from firmware/bridge/electronics. Do not touch unless explicitly asked. |
+| `w17-rc-print-codex` | Codex | ChatGPT Codex | STL/SCAD print-decision project (3D-print filtering). Isolated from firmware/bridge/electronics. Read-only reference since 2026-09-02 (mechanical design moved to Claude Code); do not edit. |
 
 ## Ownership split (quick reference)
 
 - **Claude Code:** control-fw, soundlight-fw, ground-station, design-system, learning-manual,
-  w17-3d-codex (3D printing/fabrication/finishing), **iPhone_rc (since 2026-08-17)**, and
-  hardware bring-up docs/checklists.
-- **ChatGPT Codex:** w17-rc-print-codex (printing/mechanical) only.
+  w17-3d-codex (3D printing/fabrication/finishing **+ mechanical design since 2026-09-02**),
+  **iPhone_rc (since 2026-08-17)**, and hardware bring-up docs/checklists.
+- **ChatGPT Codex:** w17-rc-print-codex (historical print-decision reports; read-only reference).
 
 ## Canonical-vs-copy registry
 

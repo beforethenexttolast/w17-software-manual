@@ -28,9 +28,13 @@ docs). See `WORKSPACE_MAP.md` for the full picture and canonical-vs-copy registr
 
 - **Claude Code owns/maintains:** `w17-control-fw`, `w17-ground-station`,
   `w17-soundlight-fw`, `learning-manual`, `iPhone_rc` (transferred from Codex 2026-08-17,
-  now in this workspace), and hardware bring-up docs/checklists.
-- **Printing/mechanical Codex repo:** `../Codex/w17-rc-print-codex` — Codex-owned; do not
-  touch unless explicitly asked.
+  now in this workspace), hardware bring-up docs/checklists, and — since 2026-09-02 (owner
+  decision) — **mechanical design** in `w17-3d-codex`: electronics trays/cassette, the inner
+  cage / "second floor", DRS flap linkage, USB-C charge flap, GCS box. Physical dimensions come
+  from owner measurements, never invented; designs ship as parametric OpenSCAD with fit-check
+  prints before production prints.
+- **Codex print repo:** `../Codex/w17-rc-print-codex` — Codex-owned, read-only reference (its
+  earlier STL/print reports may be consulted skeptically); do not edit.
 
 Do not edit Codex-owned repos from a Claude Code session.
 

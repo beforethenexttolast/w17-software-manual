@@ -8,7 +8,29 @@ workspace-level source for all of those and for project execution status.
 Overwrite it in place when state changes; do not append history. Instruction files
 (`CLAUDE.md` / `AGENTS.md`) must not duplicate anything below.
 
-_Last updated: **2026-09-02 (rollover checkpoint — continuity pass, no engineering)** — the
+_Last updated: **2026-09-02 (readiness program OPENED — vision aligned, six workstreams
+launched)** — the owner set the end goal "EVERYTHING IS READY, only assembly remains before
+gifting" and answered seven alignment questions (recorded as A1–A7 in
+**`2026-09-02_readiness_program.md`**, the packet for this pass): manual rebuild track
+post-gift (+ parallel low-priority workflow allowed); iPhone HUD = free-account sideload
+with a 7-day pit-crew re-sign; **mechanical design taken over by Claude Code**
+(`w17-3d-codex`; `CLAUDE.md` ownership split amended — invariant change, owner-authorized);
+real-Windows validation via a VMware Fusion VM designed for autonomous checks; program
+approved "all six"; OpenSCAD install approved (the `openscad` cask is disabled upstream
+since 2026-09-01; `openscad@snapshot` used instead); **PUSH GRANT OPEN for this program**
+(full authority; mapper via FORK-NOTICE checks; `u4-arbiter` never) — closes with the
+program. **Baseline reproduced before any change:** cf `25bf5eb` 330 + 5 envs, sl
+`63e8256` 137 + 2 envs, GS `3719592` 1447/67 + proto:check OK, iPhone `862aeb0` 74,
+mapper `9cb501e` 180 + `-race` clean. Probes found the runbook layer incomplete (no
+parts-to-gift master sequence, giftee-PC install guide, two-board flash procedure, Phase B
+standalone, BT1 checklist, iPhone distribution doc, handover checklist; A2 lacks GPIO27/32
+strap rows; D8 + handset guide teach the pre-re-arm-invariant rule) and head tracking
+code-complete but evidence-poor (R13/R14 desk-closable; `u4-arbiter` 14 commits behind).
+Workstreams 1–6 (code-review workflows per repo; runbooks; Windows VM path; head-tracking
+desk work; mechanical placement + OpenSCAD; manual truth pass) run in parallel under the
+standard pipeline; results land in this entry as they merge. **No hardware; nothing
+flashed or powered; A2 stays NOT-EXECUTED, Phase B stays BLOCKED.**
+Prior pass, **2026-09-02 (rollover checkpoint — continuity pass, no engineering)** — the
 boundary procedure (`w17-context-rollover-prompt.md`) ran against disk. **State verified
 from git, not from the conversation:** all eight repos clean and at origin parity —
 workspace `99c9e35` (+ this checkpoint commit, UNPUSHED, owner-call), control-fw
