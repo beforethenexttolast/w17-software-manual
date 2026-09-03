@@ -132,13 +132,24 @@ is hysteresis-filtered by the sender so board #2 can drive the brake light direc
 review catch removed an early-return that would have silenced it (ROADMAP D6).
 
 ### 2.8 `lib/settings` + `lib/console` — the bench tuning surface
-Present only in the `esp32dev_tuning` build. `Settings` aggregates the tunables
-(steering center/trim, battery calibration, gear feel table) and serializes them as a
-versioned, CRC-guarded blob for NVS flash; every load failure of any kind falls back to
-compiled defaults (the "never-brick chain"). `Console` implements
-`get/set/save/load/reset/status/help` over dotted keys (`steer.trim`, `batt.ppt`,
-`gear.2.max`); `set` mutations are only allowed while DISARMED and re-run the module's
-`valid()` rules. `save` alone touches flash. What the delivered gift firmware (`esp32dev`)
+Present only in the `esp32dev_tuning` build. `Settings` aggregates the tunables and
+serializes them as a versioned, CRC-guarded blob for NVS flash; every load failure of
+any kind falls back to compiled defaults (the "never-brick chain"). **Update
+2026-09-03 — this is the v2 blob, not v1:** `Settings` carries **six** sub-configs
+today, not three — `steering`, `gearbox`, `battery`, `gimbalDecay` (gimbal link-loss
+decay rate, vision decision 11), `sound` (engine voice profile + volume, vision
+decision 15), and `btpad` (BT show-off tunables, present unconditionally in the blob
+layout even though only consumed under `W17_BT_SHOWOFF`) — and `kBlobVersion = 2`
+(**[C]** `lib/settings/include/settings/Settings.hpp:21-66`; a stored v1 blob now
+fails the version check and falls back to complete compiled defaults). `Console`
+implements `get/set/save/load/reset/status/help` over dotted keys — `steer.trim`,
+`batt.ppt`, `gear.2.max`, plus the v2 additions `gimbal.decay`, `sound.profile`,
+`sound.volume`, and six `btpad.*` keys (**[C]** `lib/console/src/Console.cpp:207-339`);
+`set` mutations are only allowed while DISARMED and re-run the module's `valid()`
+rules. `save` alone touches flash. The batch deep-dive at
+`code_explained/control_fw/09a_settings_persistence.md` (and its 09a/09b siblings)
+still walks the v1 blob line-by-line as it read at the time — a dated staleness note
+now sits at the top of each pointing back here. What the delivered gift firmware (`esp32dev`)
 contains has **changed twice**, so read the dates: this chapter first said it "still
 loads" saved tuning (wrong at the time — an over-reading of D8's "the NVS-saved tuning
 persists"); the C10 correction (2026-07-05) established the plain build then had **no
