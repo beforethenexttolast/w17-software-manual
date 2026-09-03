@@ -248,3 +248,7 @@ For the manual waves proposed in `2026-08-16_orchestration_review_packet.md` §6
 - `w17-control-fw/lib/channels/` (`ChannelDecoder.hpp`, `ArmGate.hpp`) — decode + arm semantics.
 - `w17-gcs-box-guide.md` — the main-chain hardware this handset is the backup for.
 - `learning-manual/01_total_system_overview.md` §6 — the pre-vision "TX16S as backup" record.
+- `w17-parts-to-gift-master-sequence.md` — stage 12 places this document's §4 bind procedure in
+  the full parts-to-gift order.
+- `w17-handover-checklist.md` §8 — the handover-day live drill that re-proves this document's
+  §2.4 re-arm invariant on the finished car, with the handset as the transmitter.
