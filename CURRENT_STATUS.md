@@ -17,9 +17,11 @@ five per-repo Opus-synthesized reports are on disk** (program packet §5 has the
 gift-blocking items across the five repos, 5 blockers — race day never starts the radio link
 (GS+mapper), headless mapper panics on the double-wrapped profile, GS zombie after a cancelled quit,
 iPhone demo-seeded telemetry baseline). Recovery after a second stop: three Fable perspectives retained, the verdict re-run bounded; the
-cross-repo probe is complete. **First landing: iPhone_rc main = `61ad68f` (giftee install docs;
-built → reviewed → fixed → re-verified, 74/74) PUSHED.** Other trunks still at the 2026-09-02 baseline;
-builder branches in review/fix; the Fable verdict pending.
+cross-repo probe is complete. **Landed + PUSHED: iPhone_rc main = `61ad68f`** (giftee install docs, 74/74), **mapper `w17-headtrack` =
+`21834fe`** (W17 release job, 180), **control-fw main = `7c00668`** (unlock-plan refresh, docs only).
+Grand verdict: NOT READY for assembly-only; owner accepted OD-1…15 (packet A9; OD-3 overridden: phone
+video is a gift deliverable). Fix wave in flight; builder branches in review/fix; `u4-arbiter` @ `8007603`
+parked (desk R-review FIX_REQUIRED on a miscitation; FIRST_ACTIVE NO-GO unchanged).
 **No hardware; nothing flashed or powered; A2 stays NOT-EXECUTED, Phase B stays BLOCKED.**
 Prior pass, **2026-09-02 (readiness program OPENED — vision aligned, six workstreams
 launched)** — the owner set the end goal "EVERYTHING IS READY, only assembly remains before
