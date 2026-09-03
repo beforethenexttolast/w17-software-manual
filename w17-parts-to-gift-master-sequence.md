@@ -14,13 +14,16 @@ to "Lola turns the key," and which document is authoritative at each step?*
 
 ---
 
-## 0. Read this before the gate ladder — the sequence has two tracks, and one of them is broken today
+## 0. Read this before the gate ladder — the sequence runs in parallel tracks, and one is broken today
 
-The car-side hardware track (stages 1–9) and the ground-side software track (stages 10–13) can run
-**in parallel** — nothing in the ground-station / mapper software requires the car to exist, and
-nothing in the car's bring-up requires a working ground station (D8's Phase 10 is the only overlap,
-and it is explicitly late). They converge at **Handover** (stage 14), and Handover cannot close
-until both tracks are green.
+The car-side hardware track (stages 1–9, plus stage 12's ELRS backup bind, which runs **in
+parallel** with the bench sessions in stages 6–9 rather than gating them — see stage 12's own
+detail), the ground-side software track (stages 10, 11, 13), and the iPhone HUD track (stage 14,
+independent of both) can all run **in parallel** — nothing in the ground-station / mapper software
+requires the car to exist, and nothing in the car's bring-up requires a working ground station
+(D8's Phase 10 is the only overlap, and it is explicitly late). They converge at **Handover**
+(stage 16, which also requires stage 15's booklet markers resolved), and Handover cannot close
+until every stage above it is green.
 
 **The ground-side track is not green today.** The 2026-09-02 grand review (`review-seeds/
 w17-ground-station.v2report.json`, `review-seeds/w17-mapper.v2report.json`) found that the
@@ -36,17 +39,34 @@ Phase B:
 | `boundaries-1` | The CI-built NSIS installer never runs `fetch-mediamtx.js`, so the shipped `.exe` has no video relay | `w17-ground-station/.github/workflows/ci.yml:53` |
 | `correctness-2` | An unreadable `settings.json` resets to defaults and the next save overwrites the `.bak` nothing ever reads — the giftee's whole configuration can be silently destroyed | `w17-ground-station/main/settingsStore.js:61` |
 | `MAP-5` | An unfilled `REPLACE-WITH-DS4-ID` / `REPLACE-WITH-COM-PORT` placeholder passes every check silently — the car just never arms, with no explanation | `w17-mapper/pkg/config/lint.go:56` |
-| `MAP-8` | The mapper's gRPC service (with reflection enabled) and its web UI both bind every network interface, not just localhost, with no authentication — anything else on the giftee's hotspot/Wi-Fi can reach the same `StartLink`/`SetConfig`/`StopLink` controls this guide has the pit crew use from the browser; race day's argv whitelist cannot pass `-disable-web-ui` to narrow this | `w17-mapper/pkg/server/controller.go:81`, `w17-mapper/pkg/http/controller.go:102`, `w17-ground-station/main/raceDayOrchestrator.js:44` |
+| `MAP-8` | The mapper's gRPC service (with reflection enabled) and its web UI both bind every network interface, not just localhost, with no authentication — anything else on the giftee's hotspot/Wi-Fi can reach the same `StartLink`/`SetConfig`/`StopLink` controls this guide has the pit crew use from the browser; race day's argv whitelist cannot pass `-disable-web-ui` to narrow this. **`gift_blocking:false` in the mapper report — carried here by orchestrator escalation; its worst case is DISPUTED, not its exposure, which is CONFIRMED** (see `w17-giftee-pc-install-guide.md` §5.3 step 5 and §8 for the firewall-rule mitigation) | `w17-mapper/pkg/server/controller.go:81`, `w17-mapper/pkg/http/controller.go:102`, `w17-ground-station/main/raceDayOrchestrator.js:44` |
+| `MAP-3` | Once `MAP-2` is fixed and the link supervisor actually runs, a blocking send from the recv loop to a dead send loop wedges the supervisor permanently — no reconnect, and `StopLink` never returns | `w17-mapper/pkg/link/recv.go:110` |
+| `MAP-4` | `SetConfig`'s adoption signal is a droppable non-blocking send — a config apply can be silently ignored while the RPC still reports success | `w17-mapper/pkg/config/controller.go:220` |
+| `MAP-6` | The gamepad registry is enumerated once at boot — a pad switched on late, or one that drops and reconnects, never resolves again until the mapper restarts | `w17-mapper/pkg/devices/controller.go:43` |
+| `MAP-9` | The two placeholders are per-PC (and per-bus for the pad id), but the kit runs on the giftee's own PC and no handover step fills them there | `w17-mapper/configs/README.md:29` |
+| `correctness-4` | A present-but-unrunnable `mediamtx.exe` (Defender quarantine, wrong-arch binary) crashes the whole Electron main process instead of the documented soft-fail — unreachable only because `boundaries-1` means no binary ships at all today; the two land together | `w17-ground-station/main/mediamtx.js:52` |
+| `giftee-ux-5` | A mid-session drive-program death is invisible once the HUD gate is hidden — no banner, no radio line, and the booklet's own recovery cue never resolves | `w17-ground-station/renderer/setupFlow.js:240` |
+| `giftee-ux-2` | Race day halts at the first failing step, so a hotspot already on — including one the app itself left running from a prior session — can block the drive program the phone link is only "an extra" for. **Status: PLAUSIBLE, not yet CONFIRMED** | `w17-ground-station/main/raceDayOrchestrator.js:161` |
 | `giftee-ux-3` | The booklet (`learning-manual/14_glovebox_owners_booklet.md:117`) promises one press; the shipped flow is RACE DAY → STRAIGHT TO THE GRID → START (three presses), and race day's checks don't cover camera/controller/radio the booklet says it does | both repos, owner-gated |
 
 These are **code findings, not runbook findings** — a separate fix wave (readiness WS-1) owns
 them, not this document. But a parts-to-gift sequence that pretended RACE DAY already works would
-be dishonest, so: **stage 13 (Giftee-PC install + dry run) and stage 14 (Handover) MUST NOT be
-declared complete until `MAP-1`, `MAP-2`/`SYN-2`, `SYN-1`, `boundaries-1`, `correctness-2`,
-`MAP-5` and `MAP-8` are closed** (`giftee-ux-3` is owner-gated product wording, not a functional blocker, but
-the owner's pick must land before the booklet prints — see stage 12). Track their closure in
-`CURRENT_STATUS.md`; this file only names them so nobody plans a giftee-PC dry run against a build
-that cannot pass it.
+be dishonest, so: **stage 13 (Giftee-PC install + dry run) and stage 16 (Handover) MUST NOT be
+declared complete until every id below is closed.**
+
+**The derivation rule (stated once, applies to every id in this section and to the table above):
+every `gift_blocking:true` finding in the 2026-09-02 v2 review reports, plus `MAP-8` by
+orchestrator escalation** — `MAP-8` itself reads `gift_blocking:false` in the mapper report (its
+worst case is DISPUTED, not CONFIRMED), but the exposure it names is CONFIRMED and unresolved, so
+it is carried here pending the owner's ruling rather than dropped. That derivation yields **14
+ids**: `MAP-1`, `MAP-2`/`SYN-2` (merged — the mapper and GS reports describe the same "RACE DAY
+never starts the radio link" defect from two sides), `MAP-3`, `MAP-4`, `MAP-5`, `MAP-6`, `MAP-9`,
+`SYN-1`, `boundaries-1`, `correctness-2`, `correctness-4`, `giftee-ux-2` (status **PLAUSIBLE**, not
+yet CONFIRMED — carried anyway per the same-severity rule, not demoted on procedural grounds), and
+`giftee-ux-5`, plus `MAP-8` (`giftee-ux-3` is owner-gated product wording, not a functional
+blocker, but the owner's pick must land before the booklet prints — see stage 15). Track their
+closure in `CURRENT_STATUS.md`; this file only names them so nobody plans a giftee-PC dry run
+against a build that cannot pass it.
 
 ---
 
@@ -63,7 +83,7 @@ that cannot pass it.
 | 7 | Two-board coordinated flash | Hardware | COORD-FLASH | `w17-control-fw/docs/COORDINATED_FLASH.md` **(being written)** | Not started |
 | 8 | On the car + delivery hand-off | Hardware | D8-P11, D8-P11a, SHIP-IMAGE | D8 Phases 11 / 11a | Not started |
 | 9 | BT show-off bench gate (only if `SHIP-IMAGE` = `esp32dev_btshowoff`) | Hardware | BT1 | `w17-control-fw/docs/BT1_BENCH_GATE.md` **(being written)**; design doc [`bt_showoff_design.md`](w17-control-fw/docs/bt_showoff_design.md) §9 | Not started; conditional |
-| 10 | Code blockers closed | Ground/software | CODE-BLOCKERS-CLOSED | this file §0 + `CURRENT_STATUS.md` | **Open (6 items)** |
+| 10 | Code blockers closed | Ground/software | CODE-BLOCKERS-CLOSED | this file §0 + `CURRENT_STATUS.md` | **Open (14 items)** |
 | 11 | Ground side assembled + validated | Ground/software | GCS-GROUND, WINDOWS-VM | [`w17-gcs-box-guide.md`](w17-gcs-box-guide.md) §5, `w17-mapper/configs/README.md`, `w17-windows-vm-validation-runbook.md` **(being written)** | Partial (parts inventory only) |
 | 12 | ELRS backup handset bind | Hardware (parallel) | ELRS-BACKUP-BIND | [`w17-elrs-backup-handset.md`](w17-elrs-backup-handset.md) §4 | Not started |
 | 13 | Giftee-PC install + dry run | Ground/software | GIFTEE-PC-INSTALL | [`w17-giftee-pc-install-guide.md`](w17-giftee-pc-install-guide.md) (this program) | Not started; blocked on stage 10 |
@@ -128,7 +148,8 @@ conditions.**
 - **Who:** owner, hands-on.
 - **Gate:** SF opens here; every gate token in §5 of the build guide names its A2 gate.
 - **Canonical doc:** [`w17-pdb-build-and-connector-guide.md`](w17-pdb-build-and-connector-guide.md)
-  §5 — 8 numbered build steps, each naming the A2 gate it closes.
+  §5 — 8 numbered build steps; step 1 is pre-solder planning and measurement and names no gate,
+  steps 2–7 each name the A2 gate it closes, and step 8 is struck (see below).
 - **Evidence of done:** every step 1–7 (step 8, the IP2326 charger, is struck for A2 build week —
   owner decision F9a) executed with its named gate run and passed before the next step starts.
 - **Stop conditions:** any §13 hard stop in the A2 checklist (see stage 3).
@@ -250,8 +271,9 @@ conditions.**
 
 ### Stage 10 — Code blockers closed
 See §0 above. This stage has no bench component — it is the software fix wave (readiness WS-1)
-landing `MAP-1`, `MAP-2`/`SYN-2`, `SYN-1`, `boundaries-1`, `correctness-2`, `MAP-5`, `MAP-8`. **Gate token:
-CODE-BLOCKERS-CLOSED.** Evidence of done: `CURRENT_STATUS.md` records each id merged, with a
+landing all 14 ids in §0's table (`MAP-1`, `MAP-2`/`SYN-2`, `MAP-3`, `MAP-4`, `MAP-5`, `MAP-6`,
+`MAP-9`, `SYN-1`, `boundaries-1`, `correctness-2`, `correctness-4`, `giftee-ux-2`, `giftee-ux-5`,
+`MAP-8`). **Gate token: CODE-BLOCKERS-CLOSED.** Evidence of done: `CURRENT_STATUS.md` records each id merged, with a
 green CI run on the ground station (the NSIS installer boundaries-1 fix can only be verified by an
 actual CI artifact, per the v2 report's own gaps section — no local `electron-builder` run
 substitutes for it).
@@ -295,7 +317,9 @@ substitutes for it).
   Lola) would perform on a real Windows machine.
 - **Who:** owner (the physical PC), Claude Code (guide).
 - **Gate token:** GIFTEE-PC-INSTALL. **Hard-blocked on stage 10** (§0) — do not run this stage
-  against a build carrying `MAP-1`/`MAP-2`/`SYN-1`/`boundaries-1`/`correctness-2`/`MAP-8`.
+  against a build carrying any of §0's 14 ids: `MAP-1`/`MAP-2`/`SYN-2`/`MAP-3`/`MAP-4`/`MAP-5`/
+  `MAP-6`/`MAP-9`/`SYN-1`/`boundaries-1`/`correctness-2`/`correctness-4`/`giftee-ux-2`/
+  `giftee-ux-5`/`MAP-8`.
 - **Canonical doc:** [`w17-giftee-pc-install-guide.md`](w17-giftee-pc-install-guide.md) (this
   program).
 - **Evidence of done:** the guide's own checklist completed end to end on a real (or WS-3 VM)
