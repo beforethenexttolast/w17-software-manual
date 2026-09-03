@@ -191,7 +191,7 @@ happens in static init; `setup()` attaches hardware. See C10 §2–§3.)*
 | `esp32dev` | — | The gift firmware. No console, no sim code. |
 | `esp32dev_sim` | `-DW17_SIM_CRSF_FEEDER` → `SimCrsfFeeder` | Wokwi demo: self-feeds scripted CRSF via a loopback wire |
 | `esp32dev_tuning` | `-DW17_TUNING_CONSOLE` → console + NVS | Bench tuning |
-| `native` | (host build) | The unit-test suite (229 tests as of 2026-08-17; run `pio test -e native` for the live count) |
+| `native` | (host build) | The unit-test suite (330 tests as of 2026-09-03; run `pio test -e native` for the live count) |
 
 ## Confirmed vs inferred
 
