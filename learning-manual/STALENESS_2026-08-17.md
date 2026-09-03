@@ -1,4 +1,4 @@
-# Manual Staleness Report — 2026-08-17
+# Manual Staleness Report — 2026-08-17 (+ Wave-3, 2026-09-03)
 
 **A repair list — now with the repairs recorded.** Wave 1 (docs/manual-wave1) catalogued;
 **wave 2 (docs/manual-wave2, same day) repaired**: every HIGH and MEDIUM finding below is
@@ -7,6 +7,15 @@ otherwise — the per-claim disposition table sits right below the headline coun
 each row names its commit. Findings text below the table is left as written (it is the
 evidence trail); trust the table for current status. Dated snapshot — reconcile against
 `../CURRENT_STATUS.md` before acting on it later.
+
+**Wave 3 (docs/manual-truth-pass, 2026-09-03, builder B6) added at the bottom of this
+file**, after the watch-items table: all three wave-2 watch items (W3/W4/W5) landed,
+the manual's own test counts drifted a second time (330/137/1447), and a fresh sweep
+plus a coordinator cross-repo probe found 24 more claims to fix, incl. two
+safety-relevant gaps in chapter 10 (the FSM's 2026-08-20 link-proof hardening, and the
+gimbal's decay-to-center failsafe behavior — vision decision 11 — which had no section
+at all). See "Wave-3 disposition" for the table; the watch-items table above it now
+shows W3/W4/W5 struck through.
 
 **Method.** Every pre-wave manual file was walked against the source repos at the
 mains current when the walk ran: `w17-control-fw` `94b3615`, `w17-soundlight-fw`
@@ -241,11 +250,75 @@ Format: **id** · location · stale claim · severity · suggested fix.
 |---|---|---|---|
 | ~~W1~~ | ~~07~~ | **LANDED mid-wave** (`1c19260`, 2026-08-17) | folded into findings S16/S37/S38 above |
 | ~~W2~~ | ~~08, 11, glossary~~ | **LANDED mid-wave** (`abaddbd`, 2026-08-17; tests 1257, not the branch-time 1255) | folded into S18/S19/S23/S29 above |
-| W3 | 10 (S21), 06 | `w17-control-fw` `feat/gimbal-decay-center` merges (awaits the owner's personal diff review) | pan/tilt failsafe: hold-last → decay-to-center (2000 ms, NVS-tunable); 229 → 253; Settings blob v1→v2 |
-| W4 | 15 (already branch-aware by construction) | `w17-mapper` `w17-audit-wave1` merges (same personal-review gate) | ch15 §6/§11 "unmerged" wording flips; defects 2/4 rows close |
-| W5 | 09, 07 | control-fw lands the decided link2 **v2** field (sound profile + volume — packet §7½.4) | link2 tables gain a field; both repos' protocol copies re-sync |
+| ~~W3~~ | ~~10 (S21), 06~~ | **LANDED** (`w17-control-fw` main, 2026-08-17) | folded into S40/S41 (wave-3) above |
+| ~~W4~~ | ~~15~~ | **LANDED** — committed directly onto `w17-headtrack` by the owner (no merge commit; branch no longer exists) | folded into S51 (wave-3) above |
+| ~~W5~~ | ~~09, 07~~ | **LANDED** (2026-08-17) | folded into S43/S44 (wave-3, pre-resume) above |
 
 **Merge-order caveat, proven mid-wave:** per the owner's pre-reset answers (packet
 §7½.1), soundlight and GS merged first — W1/W2 flipped while this report was being
 written — and control-fw/mapper still await the owner's personal diff review. Re-check
 branch state before acting on any remaining watch item.
+
+## Wave-3 disposition (2026-09-03, branch `docs/manual-truth-pass`, builder B6)
+
+**All three remaining watch items from wave-2 have now LANDED**: **W3** (gimbal
+decay-to-center, vision decision 11) merged to `w17-control-fw` main 2026-08-17 and is
+live in `src/main.cpp`; **W4** (`w17-mapper`'s `w17-audit-wave1` branch) was committed
+directly onto `w17-headtrack` by the owner — the branch itself no longer exists; **W5**
+(link2 v2 field) shipped 2026-08-17. None of the three is a "becomes stale when X
+merges" watch item anymore — all three *were* stale and are now fixed below. Method:
+every chapter 01–15 + `code_explained/` file was checked against the three firmware
+repos + `w17-mapper` + `w17-ground-station` at HEAD (this session's own working
+checkouts, read-only), plus `pio test -e native` (control-fw, soundlight-fw),
+`npx vitest run` (ground-station), and `go test ./...`/`git log`/`git branch`
+(w17-mapper) run directly rather than trusted from prior reports. Two inputs also fed
+this wave: the adversarial v2 review seeds (`review-seeds/*.v2report.json`) for
+booklet-touching findings, and a coordinator cross-repo probe mid-session (settings
+blob v2, three more booklet lines). Booklet edits are summarized in their own
+per-commit messages (`e59f238`, `5ecc6db`) rather than duplicated into this table.
+
+**Headline: 24 claims checked and fixed, 0 deferred as false — every fix cites current
+code.** (Two watch-item resolutions, W3/W4/W5, are folded into S39/S48/S43 below rather
+than kept in the watch-item table, which is now empty of anything still pending.)
+
+| id | Chapter:line | Old claim | New / fix | Citation |
+|---|---|---|---|---|
+| S39 | ch10 :10–27 (failsafe FSM) | Safe→Active needs only "150 ms of continuously good link" | Also requires the 2026-08-20 link-proof: ≥5 frame-bearing ticks inside the window, no intra-proof gap >60 ms | `FailsafeStateMachine.hpp:9-59` |
+| S40 | ch10 :63 (new §1a) | *(section did not exist)* | Gimbal pan/tilt decay to center on failsafe (2000 ms default), not hold-last — vision decision 11, live since 2026-08-17 | `lib/failsafe/include/failsafe/GimbalDecay.hpp`; `src/main.cpp` panDecay/tiltDecay |
+| S41 | ch06 :79-90 (§2.2 ArmGate summary), :95-102 (§2.3 failsafe summary) | Single-latch ArmGate; FSM re-arm described as 150 ms only; no GimbalDecay mention | Both summaries updated to match S39/S40/S48 | same as S39/S40/S48 |
+| S42 | ch06 :143-160 (§2.8) | `Settings` = 3 sub-configs, implicitly v1 | 6 sub-configs (steering/gearbox/battery/gimbalDecay/sound/btpad), `kBlobVersion = 2` | `lib/settings/include/settings/Settings.hpp:21-66`; `lib/console/src/Console.cpp:207-339` |
+| S43 | ch09 §2 (already fixed pre-resume, `beee80b`) | link2 v1 (11-byte payload/14-byte frame) taught as current | v2 (14-byte payload/17-byte frame); real v2 golden frame | `Link2Frame.hpp:6-88` |
+| S44 | ch07 (already fixed pre-resume, `6706300`) | Voice selector "not merged"; bits 27-31 reserved; no showcase-halo layer; 107 tests | Voice selector shipped; bits 27-28 = voiceProfile; showcase teal breathe documented; 137 tests | `EngineSynth.cpp:64`; `LightRenderer.cpp` `showcaseBreathe()` |
+| S45 | ch05 :493-497 (already fixed pre-resume, `4e94663`) | Phase 5 bench note cites only A3 fresh-neutral | Forward-pointer to ch10 §2's full 2026-08-20 rule | `ArmGate.cpp:13-38` |
+| S46 | ch02 :98,105,133,189-190 | Test counts 229/107/1435; "11 suites"/"8 suites" | 330/137/1447; 13 suites/9 suites | `pio test -e native` x2, `npx vitest run` (all reproduced this session) |
+| S47 | ch06 :214, ch08 :270, ch11 :42-43, glossary :100 | Same stale counts (229/107/1435) repeated | 330/137/1447 | same as S46 |
+| S48 | ch10 §2 (already fixed pre-resume, `7b6056c`) | `ArmGate` single neutral-seen latch | Second latch `switchToggleRequired_`, set on any `forceDisarm && armSwitchOn` tick, cleared only by switch-OFF | `ArmGate.cpp:13-38`, `ArmGate.hpp` |
+| S49 | ch11 :16-33 | Env table: 3 of 5 control-fw board envs, soundlight collapsed to one row | All 5 cf board envs + native, all 3 soundlight envs listed | both `platformio.ini` files |
+| S50 | ch13 :140-146 | "Chapter 11 explains the three variants" (now inaccurate — ch11 has 5) | Reframed as "the three relevant to a bare-board smoke test"; MH-ET-vs-DevKit dated note (S28, pre-existing) re-verified current | `platformio.ini` |
+| S51 | ch15 :17-31 (branch-state warning), :211-236 (§6 profile+table), :350 (§7), :421 (§4 heartbeat), :451-455 (§10), :466-471 (§11 ledger) | `w17-audit-wave1` described as an unmerged branch awaiting owner review; DS4 button numbers SQUARE=0/R1=5/L1=4; FORK-NOTICE said "R1–R14" | Content is committed directly onto trunk `w17-headtrack` (branch no longer exists); corrected HIDAPI numbers SQUARE=2/R1=10/L1=9 (SHARE=4/OPTIONS=6 reserved); FORK-NOTICE already says R1–R16 everywhere at HEAD | `git log --oneline w17-headtrack`; `FORK-NOTICE.md` row `4e27b0e`; `configs/w17-ds4.json` |
+| S52 | ch15 §6 arm-toggle explanation | Reconnect "may be out of phase," one press *may* re-sync | `reset_on_nan: true` makes it deterministic: any dropout resets the toggle to DISARMED, reconnect always needs exactly one fresh press | `pkg/config/input_seq.go` (`ResetOnNaN` handling) |
+| S53 | stub21 :23-30 | NSIS installer artifact "still unconfirmed"; profile on unmerged wave-1 branch | Workflow step verified present and unchanged in shape; profile on trunk | `w17-ground-station/.github/workflows/ci.yml:67-79`; `configs/w17-ds4.json` |
+| S54 | stub18 :25 | `../Codex/w17-rc-print-codex` (relative path one level short from this file's own location) | Named plainly + corrected path | filesystem check: repo lives at `Documents/Codex/w17-rc-print-codex`, a sibling of `projects/` |
+| S55 | code_explained/control_fw 05,08,10; soundlight_fw 01 | Batch docs teach pre-2026-08-20/08-17 ArmGate/link2 as current, no forward pointer | Dated staleness notes added, each pointing to the current teaching chapter; index-level pointer added to `code_explained/README.md` | see S39/S43/S48 citations |
+| S56 | code_explained/control_fw 09a×2, 09b×2 | Batch docs teach `Settings` v1 (3 sub-configs, `kBlobVersion=1`) as current | Dated staleness notes added, pointing to ch06 §2.8 | see S42 citation |
+| S57 | booklet §4 | No honesty line about the phone app's maintenance/reliability posture | Added: phone is an extra, pit crew refreshes it ~weekly, computer screen always current | workspace memory ("free-account sideload re-signed weekly") |
+| S58 | booklet §6 (:169, new :176), §9 (:251) | Legend had no DRS-green row; "gentle breathing glow never ends" prescribed a key-cycle for a fault mode the firmware can no longer produce | Added DRS-green row; retargeted the never-ends row to showcase/shelf-show (a real, non-fault, still-breathing case); fixed the :169 forward-pointer | `LightRenderer.cpp:257-273` (`kDrsGreen`); `LightRenderer.hpp:73-79,114-116` |
+| S59 | booklet §8 :228 | "Ten minutes to cool before charging" printed as plain fact | Marked `[TBD-at-bench]` (no code/thermal backing exists); marker-count banner corrected 21→22 | none exists — that's the finding |
+| S60 | booklet §1 :125, §4 :140 | "She doesn't reverse" and phone pairing "nothing to type" read as plain facts | Editorial (non-print) notes added — `[owner-decision: reverse promise vs firmware]` and `[fix-wave: giftee-ux-4]` — printed text intentionally left unrewritten (owner/product-scope calls, not typos) | `Gearbox.hpp:61-64`; `iPhone_rc/.../SettingsPanelView.swift:17-20` |
+| S61 (OWNER-GATED, not fixed, per instruction) | booklet §4 :135 | "You're looking out of her cockpit — her camera's live view" | No change to printed text; editorial note + `[fix-wave: iPhone-video-path]` added — the app's video path is a stub today | `iPhone_rc/FPVHUDApp/Video/VideoSurface.swift` ("NO VIDEO" placeholder); `FutureRTPHEVCReceiver.swift` (TODO) |
+| S62 (OWNER-GATED, not fixed, per instruction) | booklet §3 :117 | "Press the one big RACE DAY button… brings her cockpit view up" (one-press, checks camera/controller/radio) | No change to printed text; editorial note + `[fix-wave: giftee-ux-3]` added — shipped flow is three presses, RACE DAY checks hotspot/mapper/bridge only | `w17-ground-station/main/raceDayOrchestrator.js:73` (`STEP_ORDER`) |
+| S63 (editorial only, no false printed claim) | booklet — no single line, cross-cutting | *(booklet makes no explicit "RACE DAY starts the radio" claim)* | Editorial note added: RACE DAY does not start the radio link today, relevant once S62 is resolved | `raceDayOrchestrator.js:44` (argv whitelist); `w17-mapper/pkg/client/grpc_client.go:35` (`StartLink` gate) |
+
+**Not fixed, flagged as an open question (see final report):** `w17-mapper`'s test
+count — this tracker and chapter 02/11 quote **137** (from `go test ./...` summary
+lines and the fact list this builder was handed) — but `go test ./... -v | grep -c
+'^--- PASS'` on this session's own read of `w17-headtrack` returns **133**, a
+different number by a measurement-method gap (top-level tests vs. sub-tests) this
+builder could not resolve with confidence in scope. Left unedited pending a
+`w17-mapper`-owning session's judgment call on which count the manual should quote.
+
+**Not touched, per explicit instruction:** no `[TBD-at-bench]` marker was resolved;
+`u4-arbiter`'s tip commit was deliberately left unpinned (it moved twice, by a
+concurrent builder, during this very session — see ch15 §11); the booklet's
+dedication/cover/contact line was not touched; no Codex-owned repo was edited (all
+citations into `w17-3d-codex`/`w17-rc-print-codex` were read-only lookups).
