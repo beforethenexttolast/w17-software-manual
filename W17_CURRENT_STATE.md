@@ -11,9 +11,9 @@ Scratchpad root (this session): `/private/tmp/claude-501/-Users-vitaliykhomenko-
 | repo | trunk | SHA | pushed | tests at trunk |
 |---|---|---|---|---|
 | workspace (this repo) | main | see `git log -1` (this commit) | pushed after each landing | link checks |
-| w17-control-fw | main | 9d3f635 | yes | 330 native, 5 envs (B1 runbooks 00c7612; OD-17/18 plan ratifications 9d3f635) |
-| w17-soundlight-fw | main | 8b259bf | yes | 137 native, 2 envs |
-| w17-ground-station | main | 35e5efc | yes | 1447 / 67 files |
+| w17-control-fw | main | 58581ff | yes | 330 native, 5 envs (B1 runbooks 00c7612; plan ratifications 9d3f635; OD-1 instruction files 58581ff) |
+| w17-soundlight-fw | main | bc09875 | yes | 137 native, 2 envs (docs 8b259bf; OD-1 instruction files bc09875) |
+| w17-ground-station | main | 9de86ae | yes | 1447 / 67 files (docs 35e5efc; OD-1 instruction files 9de86ae) |
 | w17-mapper | w17-headtrack (NOT main) | 21834fe | yes | 180 PASS lines (133 top-level) |
 | iPhone_rc | main | 61ad68f | yes | 74 (dev_check.sh) |
 | w17-3d-codex | main | 5dddedb | yes | render.sh --table (17 rendered, 0 failed) |
@@ -32,7 +32,8 @@ GS B3 docs refresh (35e5efc); soundlight docs/brief-catches-up (8b259bf); worksp
 | docs/manual-truth-pass (workspace, B6) | wt-manual | 73f9dca + uncommitted ch09 diagram edit | FIXER (Sonnet) CONTINUING from partial work (3 of 10 items committed) |
 | feat/windows-validation-scripts (GS, B4) | wt-gs-winval | 7cea58a (rebased onto 35e5efc) + uncommitted common.ps1 edit | FIXER (Opus) CONTINUING; new blocking bug found (Write-W17Result swallows the result line) |
 | docs/windows-vm-runbook (workspace, B4) | wt-ws-winval | 63492ec (rebased onto e404734) | same FIXER; rebase onto 0c40b6e+ at the end |
-| docs/instruction-file-invariants (cf/sl/GS/iPhone, OD-1 + OD-16) | wt-cf-instr 762f099 / wt-sl-instr 8eb3c98 / wt-gs-instr 9de86ae / wt-iphone-instr 5e19f94 | | all review findings fixed; iPhone carries OD-16 + the resolved-destination gate sentence (orchestrator-authored) → RE-VERIFY (Sonnet) in flight; merge cf/sl/GS after PASS, iPhone only after fix/telemetry-honesty-and-ci lands |
+| docs/instruction-file-invariants (cf/sl/GS, OD-1) | (worktrees removed) | cf 58581ff / sl bc09875 / GS 9de86ae | LANDED + pushed 2026-09-04 (re-verify PASS ×4) |
+| docs/instruction-file-invariants (iPhone, OD-16 + resolved-destination gate) | wt-iphone-instr | 5e19f94 | re-verify PASS; MERGE ONLY AFTER fix/telemetry-honesty-and-ci lands (gate sentence false on main until then) |
 | design/placement-and-cage (3d, B9) | (worktree removed) | 165827c | LANDED on 3d main 5dddedb (+ CLAUDE.md folder-map rows), pushed; owner residue = measurement session M-00… |
 | u4-arbiter (mapper) | wt-u4 | 4e445c9 | OD-17/18 ratification DONE (S22 gate.go, S23 README, S24 template, S25 FORK-NOTICE rows); parked until R-review + bench; NEVER push |
 | docs/r-review-ratifications (cf) | (worktree removed) | 9d3f635 | LANDED on cf main 9d3f635, pushed (cross-checked field-by-field against calib.go by a fresh context) |
