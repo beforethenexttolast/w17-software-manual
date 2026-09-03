@@ -19,6 +19,34 @@ gate; I solder and probe, you record. Nothing proceeds to the next gate until th
 flashed.** **Multimeter only** (continuity + resistance + diode mode). If any reading is suspicious →
 **stop, photograph, report** — never "try again with power."
 
+**Boot-mode selector note (SP3T, GPIO27/GPIO32) — check `OWNER-DECISION(SHIP-IMAGE)` first.** The
+car carries one SP3T slide switch, common to GND, with two strap throws: center = **LAPTOP/DRIVE**
+(both pins open on internal pull-ups), one throw = **GPIO27 (BT_SOLO)**, the other = **GPIO32
+(SHOWCASE)** (`w17-control-fw/lib/config/include/config/PinMap.hpp`) — this is only read by the
+`W17_BT_SHOWOFF` prototype build; delivery/tuning/sim builds never touch these two pins. **If this
+car ships plain `esp32dev` (the default), the switch and its two strap wires carry no firmware
+meaning at all and the SP3T rows below are not applicable** — note that explicitly rather than
+leaving them blank. If it ships `esp32dev_btshowoff`, wire and verify the switch during this same
+session (S4/S4b timing, alongside the other actuator/signal leads) — its own powered bench proof
+is a separate gate, **BT1** (`w17-control-fw/docs/bt_showoff_design.md` §9), not this session.
+
+## Boot-mode selector (SP3T) rows — only if this car's harness includes the switch
+
+Run these at **S4** (build the three switch legs alongside the other signal leads) and **S4b**
+(cross-signal isolation), the same two-pass discipline (continuity plug-seated, then isolation
+ESP32-unseated) as every other row in this table. These rows are **not yet in the canonical A2
+checklist** (`13_phase_a_a2_no_power_checklist.md`, tracked there as the open GPIO27/32 gap) —
+record them here until they land in that document.
+
+| # | Gate | Check | Expect |
+|---|---|---|---|
+| SW1 | S4 | SP3T common terminal → star GND | beep |
+| SW2 | S4 | GPIO27 wire → SP3T's BT_SOLO throw contact | beep |
+| SW3 | S4 | GPIO32 wire → SP3T's SHOWCASE throw contact | beep |
+| SW4 | S4b | GPIO27 ↔ GPIO32 | no beep (not bridged to each other) |
+| SW5 | S4b | GPIO27 / GPIO32 → each of 13/14/18/19/23/34/35/16/17/25/26 and → rail-A/rail-B wiring | no beep (same isolation-matrix scope as S1r/S2r/S5r — do not assume it's covered just because those rows exist) |
+| SW6 | S4b | Switch physically centered (LAPTOP/DRIVE): GPIO27 → GND, and GPIO32 → GND | **no beep on either** (center leaves both pins floating on their internal pull-ups, not grounded — a beep here means a throw contact is shorting through in the center position) |
+
 Read + follow: `w17-control-fw/project-review/13_phase_a_a2_no_power_checklist.md` (canonical),
 cross-referenced with `w17-pdb-build-and-connector-guide.md` and
 `w17-control-fw/lib/config/include/config/PinMap.hpp`. Read §3 (measurement conventions) once, aloud
@@ -31,8 +59,8 @@ to me, before I pick up a probe.
 | **S1** | Battery divider, **isolated** — before the UBECs exist on the batt+ node | `batt+ → GND ≈ 37 kΩ` is **only** valid here. After S6 it reads in parallel with two UBEC input stages. |
 | **S2** | Hall sensor, isolated | pull-up to **3V3**, not 5 V |
 | **S3** | link2 pair (board #1 ↔ board #2) | RX (GPIO26) = **verify no wire present** — the firmware hard-disables it (`Serial1.begin(..., rxPin=-1, txPin_)`) |
-| **S4** | CRSF pair and each 3-pin actuator lead, **individually** | |
-| **S4b** | Cross-signal isolation — all five actuator leads present, UBECs still off | |
+| **S4** | CRSF pair and each 3-pin actuator lead, **individually** | if this car's harness includes the SP3T boot-mode selector, wire its three legs here too — SW1–SW3 above |
+| **S4b** | Cross-signal isolation — all five actuator leads present, UBECs still off | if wiring the SP3T, run SW4–SW6 above in the same pass |
 | **S5** | WS2812 path (board #2) | supply = **option A, the 1N5819 diode** (on hand; no 74AHCT125 in inventory or BOM v2 — it stays the documented fallback, at a recorded ~10 mV nominal V<sub>IH</sub> margin) |
 | **S6** | Attach the UBECs | **after this point, S1's isolated values no longer apply** |
 | **S7** | Common ground, whole harness | true whole-harness gate |
@@ -71,3 +99,6 @@ safe.** Opening Phase B is my call, informed by A2, not a reviewer verdict.
 Paste the filled table back for review. Update `CURRENT_STATUS.md`. Show diffs before committing;
 branch off main. **Still NO POWER** — A2 is entirely a multimeter exercise; powering is Phase B, which
 comes only after A2 is filled, reviewed, and approved.
+
+See `w17-parts-to-gift-master-sequence.md` (stage 3–5) for how this session's output (A2-CLOSED)
+feeds into the Phase-B-open decision and the rest of the parts-to-gift order.
