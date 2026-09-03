@@ -163,11 +163,15 @@ unsupported length byte *the moment it arrives* — otherwise a corrupted length
 ```
 A5 0E 02 2A E7 4C 03 DC 05 DC 1E 3C 02 01 50 00 5A
 │  │  │  │  │  │  │  │───│ │───│ │  │  │  │  │  └ CRC8 = 0x5A
-│  │  │  │  │  │  │  rpm    batt │  │  │  │  └ modeFlags 0x00 (no showcase, no BT pairing)
-│  │  │  │  │  │  │  =0x05DC     │  │  │  └ volume 0x50 = 80
-│  │  │  │  │  │  │  =1500  =0x1EDC = 7900 mV  │  └ soundProfile 0x01 = V6 turbo-hybrid
-│  │  │  │  │  │  │  ← little-endian: DC 05 → 0x05DC!  └ driveMode 2 (ERS)
-│  │  │  │  │  │  │                        └ ersPercent 0x3C = 60
+│  │  │  │  │  │  │  │     │     │  │  │  │  └ modeFlags 0x00 (no showcase, no BT pairing)
+│  │  │  │  │  │  │  │     │     │  │  │  └ volume 0x50 = 80
+│  │  │  │  │  │  │  │     │     │  │  └ soundProfile 0x01 = V6 turbo-hybrid
+│  │  │  │  │  │  │  │     │     │  └ driveMode 2 (ERS)
+│  │  │  │  │  │  │  │     │     └ ersPercent 0x3C = 60
+│  │  │  │  │  │  │  rpm   batt
+│  │  │  │  │  │  │  =0x05DC
+│  │  │  │  │  │  │  =1500 =0x1EDC = 7900 mV
+│  │  │  │  │  │  │  ← little-endian: DC 05 → 0x05DC!
 │  │  │  │  │  │  └ gear 3
 │  │  │  │  │  └ flags 0x4C = 01001100 = drsOpen|armed|ersDeploying
 │  │  │  │  └ steering 0xE7 = −25  (int8: 0xE7 = 231 → 231−256 = −25)
