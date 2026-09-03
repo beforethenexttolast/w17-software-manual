@@ -121,14 +121,24 @@ gate, safety priority #2) and `ChannelDecoder.hpp`:
   the stick returns to neutral.
 - **Any** disarm (switch off, failsafe episode) clears the latch — neutral must be re-seen before
   power flows again. A link recovery mid-stick-input cannot snap the motor on.
+- **The re-arm invariant (OWNER-RATIFIED 2026-08-20) — corrected here, this doc previously
+  described the pre-2026-08-20 behavior.** A failsafe episode observed while the arm switch is ON
+  **latches a disarm that outlives the episode**: link recovery with the switch left ON can
+  **never** re-arm the car by itself. Re-arming after a failsafe episode additionally requires the
+  switch to be seen **OFF, then ON again**, on a proven link, on top of the ordinary fresh-
+  neutral-throttle condition above (`w17-control-fw/lib/channels/include/channels/ArmGate.hpp`,
+  the `switchToggleRequired_` latch, cleared only by observing the switch OFF). A boot with the
+  switch already ON is treated the same way — it demands one deliberate OFF→ON toggle before the
+  first arm.
 - Mapper-vs-handset difference worth knowing: the DS4 profile's ch5 is a **software toggle with a
-  liveness gate** (pad dropout → 172, re-press to re-sync); a handset ch5 is a **physical latch**.
-  If the switch is left ON through a link outage, the firmware may re-arm after recovery once
-  throttle-neutral is re-observed (`ArmGate.hpp`: switch-on + neutral arms on that tick; the
-  failsafe FSM must also have released — *"latch until link returns and a re-arm condition is
-  met"*, `w17-control-fw/CLAUDE.md`). **Operational rule for humans: arm switch OFF on any
-  failsafe event, ON again only when ready.** Exact recovery sequencing on the real link:
-  `[bench-TBD]`.
+  liveness gate** (pad dropout → 172, re-press to re-sync — the mapper's own `reset_on_nan`
+  already returns the toggle to DISARMED on a dropout, so it independently agrees with the
+  invariant above); a handset ch5 is a **physical latch**, so the toggle above is on the human,
+  not on software. Concretely: if the physical arm switch is left ON through a link outage,
+  recovery alone will **not** re-arm the car — cycle the switch OFF then ON, with the stick at
+  neutral, only after the link is confirmed back. **Operational rule for humans: arm switch OFF
+  on any failsafe event; cycle it OFF→ON again, stick neutral, only when ready to resume.** Exact
+  recovery timing on the real link: `[bench-TBD]`.
 - Handset-side guards that mirror the profile's boots-disarmed stance: enable the radio's
   **switch warning** (refuses to start with arm ON) and **throttle warning** — standard EdgeTX
   model settings on full radios; gamepad-class equivalents vary `[TBD-procure: check per candidate]`.
