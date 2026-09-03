@@ -160,6 +160,14 @@ Lola, done once here.
    channel sits at its disarmed default and the car simply never arms (`w17-mapper/configs/
    README.md`: "the profile is fail-safe until both are set"). That said, nothing today warns you
    if you forget one (`[fix-wave: MAP-5]`) — double-check both values yourself.
+5. **While the mapper is running for this step, its gRPC service and the web page you just opened
+   are reachable from every device on the same network, not just this PC** — both bind every
+   interface, not only `localhost`, and neither checks who is asking
+   (`w17-mapper/pkg/server/controller.go:81`, `w17-mapper/pkg/http/controller.go:102`;
+   `[fix-wave: MAP-8]`). On the giftee's home Wi-Fi or the car's own hotspot this means anything
+   else already on that network could, in principle, reach the same `StartLink`/`SetConfig`/
+   `StopLink` controls. Keep this step to a private/trusted network and close the mapper
+   afterward; do not leave it running unattended.
 
 ---
 
@@ -222,6 +230,7 @@ The phone HUD is a nice-to-have, never the primary display (the laptop screen is
 | Car never arms, no error shown | An unfilled `REPLACE-WITH-*` placeholder (§5.3 step 3/4) | Re-check both placeholders in `w17-ds4.json` |
 | Hotspot won't start | Windows Mobile Hotspot needs an active internet-connected profile first (`[win-TBD]`) | Connect to any network first, then retry |
 | Settings seem to have silently reset | `correctness-2` — an unreadable `settings.json` resets to defaults and can overwrite its own backup | Confirm `correctness-2` closed before this kit is considered final |
+| Someone else on the network could reach the mapper's controls while it's open | `MAP-8` — the mapper's gRPC/web ports bind every interface with no login (§5.3 step 5) | Only run §5.3 on a trusted network; confirm `MAP-8` closed before this kit is considered final |
 | Phone HUD stopped connecting | The 7-day sideload signature may have expired (§7) | Check the re-sign date before troubleshooting the network |
 
 ---
