@@ -16,8 +16,10 @@ retained results replayed from seed files. **159 review agents (127 Opus / 32 So
 five per-repo Opus-synthesized reports are on disk** (program packet §5 has the headline: 21
 gift-blocking items across the five repos, 5 blockers — race day never starts the radio link
 (GS+mapper), headless mapper panics on the double-wrapped profile, GS zombie after a cancelled quit,
-iPhone demo-seeded telemetry baseline). Grand review (Fable ×4) and the nine builders (Sonnet/Opus,
-durable briefs) are running; no merges or pushes yet; trunks unchanged from the 2026-09-02 baseline.
+iPhone demo-seeded telemetry baseline). Recovery after a second stop: three Fable perspectives retained, the verdict re-run bounded; the
+cross-repo probe is complete. **First landing: iPhone_rc main = `61ad68f` (giftee install docs;
+built → reviewed → fixed → re-verified, 74/74) PUSHED.** Other trunks still at the 2026-09-02 baseline;
+builder branches in review/fix; the Fable verdict pending.
 **No hardware; nothing flashed or powered; A2 stays NOT-EXECUTED, Phase B stays BLOCKED.**
 Prior pass, **2026-09-02 (readiness program OPENED — vision aligned, six workstreams
 launched)** — the owner set the end goal "EVERYTHING IS READY, only assembly remains before

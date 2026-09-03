@@ -87,5 +87,15 @@ double-wraps the profile so the headless mapper panics, race day never starts th
 (blocker: telemetry merge baseline seeded with demo values, so omitted fields render as live numbers
 incl. the battery that arms the low-battery banner). Grand review (3 Fable perspectives + 1 Fable
 verdict) launched over the compressed digest; builder sweep 2 relaunched on Sonnet/Opus with durable
-briefs (`scratchpad/briefs/`). Merges/pushes: none yet.
+briefs (`scratchpad/briefs/`). 
+**2026-09-03 — recovery + first landings.** Second usage-limit stop recovered from durable state
+(`2026-09-03_recovery_checkpoint.md`); grand review's three Fable perspectives retained, the verdict
+re-run as a bounded one-agent workflow. Cross-repo probe COMPLETE (10 checks; 8 with drift, none
+touching a safety boundary; report in the scratchpad `review-seeds/cross-repo-probe.md`).
+Landed: **iPhone_rc main = `61ad68f`** (B5 giftee install docs: `docs/GIFTEE_INSTALL.md` free-account
+sideload + provisioning; contract references repointed; head-tracking packet examples fixed;
+canonical contract's stale related-doc line removed → GS mirror re-sync in flight) — built Sonnet,
+adversarially reviewed Opus (FIX_REQUIRED ×3 blocking, all fixed), re-verified Sonnet PASS, 74/74,
+**pushed** under A7. In flight: B1/B2/B3/B7 branches in review/fix/verify; B8 desk R-review; B4/B6/B9
+builders; the Fable verdict.
 
