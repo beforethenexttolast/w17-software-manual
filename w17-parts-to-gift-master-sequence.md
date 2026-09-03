@@ -36,13 +36,14 @@ Phase B:
 | `boundaries-1` | The CI-built NSIS installer never runs `fetch-mediamtx.js`, so the shipped `.exe` has no video relay | `w17-ground-station/.github/workflows/ci.yml:53` |
 | `correctness-2` | An unreadable `settings.json` resets to defaults and the next save overwrites the `.bak` nothing ever reads — the giftee's whole configuration can be silently destroyed | `w17-ground-station/main/settingsStore.js:61` |
 | `MAP-5` | An unfilled `REPLACE-WITH-DS4-ID` / `REPLACE-WITH-COM-PORT` placeholder passes every check silently — the car just never arms, with no explanation | `w17-mapper/pkg/config/lint.go:56` |
+| `MAP-8` | The mapper's gRPC service (with reflection enabled) and its web UI both bind every network interface, not just localhost, with no authentication — anything else on the giftee's hotspot/Wi-Fi can reach the same `StartLink`/`SetConfig`/`StopLink` controls this guide has the pit crew use from the browser; race day's argv whitelist cannot pass `-disable-web-ui` to narrow this | `w17-mapper/pkg/server/controller.go:81`, `w17-mapper/pkg/http/controller.go:102`, `w17-ground-station/main/raceDayOrchestrator.js:44` |
 | `giftee-ux-3` | The booklet (`learning-manual/14_glovebox_owners_booklet.md:117`) promises one press; the shipped flow is RACE DAY → STRAIGHT TO THE GRID → START (three presses), and race day's checks don't cover camera/controller/radio the booklet says it does | both repos, owner-gated |
 
 These are **code findings, not runbook findings** — a separate fix wave (readiness WS-1) owns
 them, not this document. But a parts-to-gift sequence that pretended RACE DAY already works would
 be dishonest, so: **stage 13 (Giftee-PC install + dry run) and stage 14 (Handover) MUST NOT be
-declared complete until `MAP-1`, `MAP-2`/`SYN-2`, `SYN-1`, `boundaries-1`, `correctness-2` and
-`MAP-5` are closed** (`giftee-ux-3` is owner-gated product wording, not a functional blocker, but
+declared complete until `MAP-1`, `MAP-2`/`SYN-2`, `SYN-1`, `boundaries-1`, `correctness-2`,
+`MAP-5` and `MAP-8` are closed** (`giftee-ux-3` is owner-gated product wording, not a functional blocker, but
 the owner's pick must land before the booklet prints — see stage 12). Track their closure in
 `CURRENT_STATUS.md`; this file only names them so nobody plans a giftee-PC dry run against a build
 that cannot pass it.
@@ -249,7 +250,7 @@ conditions.**
 
 ### Stage 10 — Code blockers closed
 See §0 above. This stage has no bench component — it is the software fix wave (readiness WS-1)
-landing `MAP-1`, `MAP-2`/`SYN-2`, `SYN-1`, `boundaries-1`, `correctness-2`, `MAP-5`. **Gate token:
+landing `MAP-1`, `MAP-2`/`SYN-2`, `SYN-1`, `boundaries-1`, `correctness-2`, `MAP-5`, `MAP-8`. **Gate token:
 CODE-BLOCKERS-CLOSED.** Evidence of done: `CURRENT_STATUS.md` records each id merged, with a
 green CI run on the ground station (the NSIS installer boundaries-1 fix can only be verified by an
 actual CI artifact, per the v2 report's own gaps section — no local `electron-builder` run
@@ -294,7 +295,7 @@ substitutes for it).
   Lola) would perform on a real Windows machine.
 - **Who:** owner (the physical PC), Claude Code (guide).
 - **Gate token:** GIFTEE-PC-INSTALL. **Hard-blocked on stage 10** (§0) — do not run this stage
-  against a build carrying `MAP-1`/`MAP-2`/`SYN-1`/`boundaries-1`/`correctness-2`.
+  against a build carrying `MAP-1`/`MAP-2`/`SYN-1`/`boundaries-1`/`correctness-2`/`MAP-8`.
 - **Canonical doc:** [`w17-giftee-pc-install-guide.md`](w17-giftee-pc-install-guide.md) (this
   program).
 - **Evidence of done:** the guide's own checklist completed end to end on a real (or WS-3 VM)
