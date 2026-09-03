@@ -267,7 +267,8 @@ confirms by hand, never an auto-connection.
 
 Two honesty gates apply until further notice (**[C]** `open_questions.md` #58,
 `../CURRENT_STATUS.md`): the bridge is **implemented + unit-tested** (within the full
-suite — 1435 vitest tests as of 2026-08-17), **NOT real-device validated** — no
+suite — 1447 vitest tests as of 2026-09-03, `npx vitest run`), **NOT real-device
+validated** — no
 end-to-end run against a real iPhone has happened; and the manual's GS-side bridge
 deep-dive is deliberately deferred (the *head-intent* half of the bridge story is now
 taught in **chapter 15** §9–§10, mapper side). Line-by-line coverage is planned as
