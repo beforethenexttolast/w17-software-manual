@@ -452,7 +452,7 @@ weakest to strongest:
    "R1–R14" in two places against an actual R1–R16 checklist — confirmed audit low
    finding 12. Fixed, now on trunk: `git grep 'R1–R16' FORK-NOTICE.md` at current
    `w17-headtrack` HEAD returns three hits, zero "R1–R14" remain.)* **[C]**
-   FORK-NOTICE.md:68,73,125; audit §3.
+   FORK-NOTICE.md:69,74,126; audit §3.
 3. **The actual gate** — the FIRST_ACTIVE review itself (R1–R16 + bench evidence +
    owner approval), which is a process, not a grep. The hook and the notice exist so
    that *accidents* cannot outrun the process.
