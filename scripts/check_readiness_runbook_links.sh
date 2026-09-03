@@ -80,6 +80,11 @@ if [ "${#FILES[@]}" -eq 0 ]; then
     "$ROOT/w17-gcs-box-guide.md"
     "$ROOT/w17-a2-execution-session-prompt.md"
     "$ROOT/w17-electrical-inputs-for-codex.md"
+    # NOTE: this one cites w17-ground-station/scripts/windows-validation/README.md,
+    # which only exists once the GS branch feat/windows-validation-scripts is
+    # merged. Until then this file reports exactly one MISSING and the run
+    # exits 1 — that is a merge-ORDER artifact, not a broken link.
+    "$ROOT/w17-windows-vm-validation-runbook.md"
   )
 fi
 
