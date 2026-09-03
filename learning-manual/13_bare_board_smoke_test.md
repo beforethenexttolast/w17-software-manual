@@ -136,13 +136,18 @@ pio run -e esp32dev_tuning
 What this builds: the **bench/tuning** variant — the normal firmware **plus** the
 UART0 serial console and settings-mutation commands, enabled by the
 `-DW17_TUNING_CONSOLE` build flag (**[C]** `platformio.ini` `[env:esp32dev_tuning]`).
-Chapter 11 §3–4 explains the three variants; the one-line refresher:
+Chapter 11 §1 catalogs all five control-fw board envs (plus `native`); the three
+relevant to a bare-board smoke test are:
 
 | env | what | when |
 |---|---|---|
 | `esp32dev` | delivery build — console-free, silent | the gift car |
 | `esp32dev_tuning` | + serial console, settings set/save | **the bench — today** |
 | `esp32dev_sim` | + fake scripted CRSF feeder | Wokwi simulator only — never a real car |
+
+(The other two — `esp32dev_btshowoff` / `esp32dev_simbt` — are a quarantined BT
+show-off prototype, never a delivery target and not part of this smoke test; ch11 §1
+covers them.)
 
 First build on this machine downloads the ESP32 toolchain (a few minutes, one time).
 Expected ending:
