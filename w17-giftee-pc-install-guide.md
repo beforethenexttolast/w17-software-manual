@@ -30,7 +30,8 @@ first launch, pairing the controller) is safe to do any time; treat §6–§7 as
 | **A USB flash drive or download link** with the ground-station installer and the mapper folder | Software | See §2–§3 |
 | Optional: a 12 V adapter for the station box | Only needed if the box's own USB power budget comes up short on the bench (`w17-gcs-box-guide.md` §4) | `[bench-TBD]` whether this ships at all |
 
-**One thing NOT in the box:** the box's ELRS radio module has **no PC driver of its own** — Windows
+**One thing NOT in the box:** the box's radio module — branded **ELRS** (ExpressLRS, the same
+2.4 GHz radio system the car's onboard receiver uses) — has **no PC driver of its own**; Windows
 only ever sees the serial adapter inside the box (an "FTDI" chip, which shows up as a numbered
 **COM port**, e.g. `COM5`). If Windows ever asks you to find a driver for "the ELRS module," you
 are looking at the wrong device — the serial adapter is the one that needs recognizing
