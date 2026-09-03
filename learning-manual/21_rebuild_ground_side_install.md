@@ -21,13 +21,23 @@ dry-run before a car exists (the GS demo mode needs no car).
 ## Existing sources to build from (cite, don't copy)
 
 - **[C]** GS packaging: `w17-ground-station/electron-builder.yml` (NSIS target) plus,
-  since the 2026-08-17 merge of the giftee wave (`abaddbd`), an **unsigned NSIS CI
-  job on main** — GS was pushed the same day under the GS-only push exception
-  precisely to produce the first installer artifact (audit low finding 10; workspace
-  `0542e29`). At this stub's writing that first artifact was **still unconfirmed**;
-  verify it exists and installs before writing this chapter.
-- **[C]** Mapper profile: `configs/w17-ds4.json` on the unmerged `w17-audit-wave1`
-  branch, with two Windows-bench placeholders (pad id, COM port) — chapter 15 §6.
+  since the 2026-08-17 merge of the giftee wave (`abaddbd`), an **unsigned NSIS build
+  step inside the `package-smoke` job** (not a separate job) on main — GS was pushed
+  the same day under the GS-only push exception precisely to produce the first
+  installer artifact (audit low finding 10; workspace `0542e29`). **Update
+  2026-09-03: the step is live and unchanged in shape** — `.github/workflows/ci.yml`
+  lines 67–79 run `electron-builder --win nsis --publish never` and
+  `actions/upload-artifact` the resulting `.exe`/`.blockmap` with
+  `if-no-files-found: error` (so a silent target regression fails the job). That
+  confirms the *workflow step* exists and runs on every green `package-smoke`; it
+  does not by itself confirm someone has installed and run the produced `.exe` on a
+  real Windows machine — that end-to-end install proof is still this stub's own gate
+  (see "Written when" below).
+- **[C]** Mapper profile: `configs/w17-ds4.json` — **update 2026-09-03: this now lives
+  directly on trunk `w17-headtrack`**, not a separate unmerged branch (the owner
+  committed the W17-profile wave-1 work straight onto trunk; ch15's branch-state
+  note has the full history). Two Windows-bench placeholders remain (pad id, COM
+  port) — chapter 15 §6.
 - **[C]** GCS box: contents/wiring/BOM are Claude-side, box print is Codex-side; the
   open power question (bus-powered vs 12 V hub) is a recorded bench measurement
   (`../W17_PRODUCT_VISION.md` backlog + open points).
