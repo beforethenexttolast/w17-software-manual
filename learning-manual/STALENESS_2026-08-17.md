@@ -1,4 +1,4 @@
-# Manual Staleness Report — 2026-08-17 (+ Wave-3, 2026-09-03)
+# Manual Staleness Report — 2026-08-17 (+ Wave-3, 2026-09-03; second truth-pass session same day)
 
 **A repair list — now with the repairs recorded.** Wave 1 (docs/manual-wave1) catalogued;
 **wave 2 (docs/manual-wave2, same day) repaired**: every HIGH and MEDIUM finding below is
@@ -11,11 +11,15 @@ evidence trail); trust the table for current status. Dated snapshot — reconcil
 **Wave 3 (docs/manual-truth-pass, 2026-09-03, builder B6) added at the bottom of this
 file**, after the watch-items table: all three wave-2 watch items (W3/W4/W5) landed,
 the manual's own test counts drifted a second time (330/137/1447), and a fresh sweep
-plus a coordinator cross-repo probe found 24 more claims to fix, incl. two
-safety-relevant gaps in chapter 10 (the FSM's 2026-08-20 link-proof hardening, and the
-gimbal's decay-to-center failsafe behavior — vision decision 11 — which had no section
-at all). See "Wave-3 disposition" for the table; the watch-items table above it now
-shows W3/W4/W5 struck through.
+plus a coordinator cross-repo probe found 25 more claims to fix (S39-S63; the "24"
+originally quoted here was itself a miscount — see S73), incl. two safety-relevant gaps
+in chapter 10 (the FSM's 2026-08-20 link-proof hardening, and the gimbal's
+decay-to-center failsafe behavior — vision decision 11 — which had no section at all).
+**A second truth-pass session, same day**, then worked through adversarial review
+`ab6cd6ea80920f100`'s ten blocking findings plus `FIX-B6.md`'s extra items, adding S64-
+S73 and a Status column across the whole table. See "Wave-3 disposition" and "Second
+truth-pass session" for the tables; the watch-items table above it now shows W3/W4/W5
+struck through.
 
 **Method.** Every pre-wave manual file was walked against the source repos at the
 mains current when the walk ran: `w17-control-fw` `94b3615`, `w17-soundlight-fw`
@@ -277,48 +281,97 @@ booklet-touching findings, and a coordinator cross-repo probe mid-session (setti
 blob v2, three more booklet lines). Booklet edits are summarized in their own
 per-commit messages (`e59f238`, `5ecc6db`) rather than duplicated into this table.
 
-**Headline: 24 claims checked and fixed, 0 deferred as false — every fix cites current
-code.** (Two watch-item resolutions, W3/W4/W5, are folded into S39/S48/S43 below rather
-than kept in the watch-item table, which is now empty of anything still pending.)
+**Headline (revised by the second truth-pass session, below): 35 claims tracked
+(S39–S73) across the two truth-pass sessions. 27 fixed outright (printed content
+corrected, or genuinely new documentation added, each citing current code); 4 addressed
+by an editorial note only, with no print change, because none was warranted (S60, S63,
+S71, S72 — product-scope calls, a non-claim, and two in-flight-branch cross-repo notes);
+4 reclassified this pass from OWNER-GATED to DECIDED/IN-FLIGHT once the owner actually
+ruled on them (S61→S68, S62→S69) — the underlying features remain unbuilt, so "fixed"
+here means the tracker's own classification catches up to the ruling, not that the
+feature landed. 0 claims in this table are currently false as printed.** (Two
+watch-item resolutions, W3/W4/W5, are folded into S39/S48/S43 below rather than kept in
+the watch-item table, which is now empty of anything still pending.)
 
-| id | Chapter:line | Old claim | New / fix | Citation |
-|---|---|---|---|---|
-| S39 | ch10 :10–27 (failsafe FSM) | Safe→Active needs only "150 ms of continuously good link" | Also requires the 2026-08-20 link-proof: ≥5 frame-bearing ticks inside the window, no intra-proof gap >60 ms | `FailsafeStateMachine.hpp:9-59` |
-| S40 | ch10 :63 (new §1a) | *(section did not exist)* | Gimbal pan/tilt decay to center on failsafe (2000 ms default), not hold-last — vision decision 11, live since 2026-08-17 | `lib/failsafe/include/failsafe/GimbalDecay.hpp`; `src/main.cpp` panDecay/tiltDecay |
-| S41 | ch06 :79-90 (§2.2 ArmGate summary), :95-102 (§2.3 failsafe summary) | Single-latch ArmGate; FSM re-arm described as 150 ms only; no GimbalDecay mention | Both summaries updated to match S39/S40/S48 | same as S39/S40/S48 |
-| S42 | ch06 :143-160 (§2.8) | `Settings` = 3 sub-configs, implicitly v1 | 6 sub-configs (steering/gearbox/battery/gimbalDecay/sound/btpad), `kBlobVersion = 2` | `lib/settings/include/settings/Settings.hpp:21-66`; `lib/console/src/Console.cpp:207-339` |
-| S43 | ch09 §2 (already fixed pre-resume, `beee80b`) | link2 v1 (11-byte payload/14-byte frame) taught as current | v2 (14-byte payload/17-byte frame); real v2 golden frame | `Link2Frame.hpp:6-88` |
-| S44 | ch07 (already fixed pre-resume, `6706300`) | Voice selector "not merged"; bits 27-31 reserved; no showcase-halo layer; 107 tests | Voice selector shipped; bits 27-28 = voiceProfile; showcase teal breathe documented; 137 tests | `EngineSynth.cpp:64`; `LightRenderer.cpp` `showcaseBreathe()` |
-| S45 | ch05 :493-497 (already fixed pre-resume, `4e94663`) | Phase 5 bench note cites only A3 fresh-neutral | Forward-pointer to ch10 §2's full 2026-08-20 rule | `ArmGate.cpp:13-38` |
-| S46 | ch02 :98,105,133,189-190 | Test counts 229/107/1435; "11 suites"/"8 suites" | 330/137/1447; 13 suites/9 suites | `pio test -e native` x2, `npx vitest run` (all reproduced this session) |
-| S47 | ch06 :214, ch08 :270, ch11 :42-43, glossary :100 | Same stale counts (229/107/1435) repeated | 330/137/1447 | same as S46 |
-| S48 | ch10 §2 (already fixed pre-resume, `7b6056c`) | `ArmGate` single neutral-seen latch | Second latch `switchToggleRequired_`, set on any `forceDisarm && armSwitchOn` tick, cleared only by switch-OFF | `ArmGate.cpp:13-38`, `ArmGate.hpp` |
-| S49 | ch11 :16-33 | Env table: 3 of 5 control-fw board envs, soundlight collapsed to one row | All 5 cf board envs + native, all 3 soundlight envs listed | both `platformio.ini` files |
-| S50 | ch13 :140-146 | "Chapter 11 explains the three variants" (now inaccurate — ch11 has 5) | Reframed as "the three relevant to a bare-board smoke test"; MH-ET-vs-DevKit dated note (S28, pre-existing) re-verified current | `platformio.ini` |
-| S51 | ch15 :17-31 (branch-state warning), :211-236 (§6 profile+table), :350 (§7), :421 (§4 heartbeat), :451-455 (§10), :466-471 (§11 ledger) | `w17-audit-wave1` described as an unmerged branch awaiting owner review; DS4 button numbers SQUARE=0/R1=5/L1=4; FORK-NOTICE said "R1–R14" | Content is committed directly onto trunk `w17-headtrack` (branch no longer exists); corrected HIDAPI numbers SQUARE=2/R1=10/L1=9 (SHARE=4/OPTIONS=6 reserved); FORK-NOTICE already says R1–R16 everywhere at HEAD | `git log --oneline w17-headtrack`; `FORK-NOTICE.md` row `4e27b0e`; `configs/w17-ds4.json` |
-| S52 | ch15 §6 arm-toggle explanation | Reconnect "may be out of phase," one press *may* re-sync | `reset_on_nan: true` makes it deterministic: any dropout resets the toggle to DISARMED, reconnect always needs exactly one fresh press | `pkg/config/input_seq.go` (`ResetOnNaN` handling) |
-| S53 | stub21 :23-30 | NSIS installer artifact "still unconfirmed"; profile on unmerged wave-1 branch | Workflow step verified present and unchanged in shape; profile on trunk | `w17-ground-station/.github/workflows/ci.yml:67-79`; `configs/w17-ds4.json` |
-| S54 | stub18 :25 | `../Codex/w17-rc-print-codex` (relative path one level short from this file's own location) | Named plainly + corrected path | filesystem check: repo lives at `Documents/Codex/w17-rc-print-codex`, a sibling of `projects/` |
-| S55 | code_explained/control_fw 05,08,10; soundlight_fw 01 | Batch docs teach pre-2026-08-20/08-17 ArmGate/link2 as current, no forward pointer | Dated staleness notes added, each pointing to the current teaching chapter; index-level pointer added to `code_explained/README.md` | see S39/S43/S48 citations |
-| S56 | code_explained/control_fw 09a×2, 09b×2 | Batch docs teach `Settings` v1 (3 sub-configs, `kBlobVersion=1`) as current | Dated staleness notes added, pointing to ch06 §2.8 | see S42 citation |
-| S57 | booklet §4 | No honesty line about the phone app's maintenance/reliability posture | Added: phone is an extra, pit crew refreshes it ~weekly, computer screen always current | workspace memory ("free-account sideload re-signed weekly") |
-| S58 | booklet §6 (:169, new :176), §9 (:251) | Legend had no DRS-green row; "gentle breathing glow never ends" prescribed a key-cycle for a fault mode the firmware can no longer produce | Added DRS-green row; retargeted the never-ends row to showcase/shelf-show (a real, non-fault, still-breathing case); fixed the :169 forward-pointer | `LightRenderer.cpp:257-273` (`kDrsGreen`); `LightRenderer.hpp:73-79,114-116` |
-| S59 | booklet §8 :228 | "Ten minutes to cool before charging" printed as plain fact | Marked `[TBD-at-bench]` (no code/thermal backing exists); marker-count banner corrected 21→22 | none exists — that's the finding |
-| S60 | booklet §1 :125, §4 :140 | "She doesn't reverse" and phone pairing "nothing to type" read as plain facts | Editorial (non-print) notes added — `[owner-decision: reverse promise vs firmware]` and `[fix-wave: giftee-ux-4]` — printed text intentionally left unrewritten (owner/product-scope calls, not typos) | `Gearbox.hpp:61-64`; `iPhone_rc/.../SettingsPanelView.swift:17-20` |
-| S61 (OWNER-GATED, not fixed, per instruction) | booklet §4 :135 | "You're looking out of her cockpit — her camera's live view" | No change to printed text; editorial note + `[fix-wave: iPhone-video-path]` added — the app's video path is a stub today | `iPhone_rc/FPVHUDApp/Video/VideoSurface.swift` ("NO VIDEO" placeholder); `FutureRTPHEVCReceiver.swift` (TODO) |
-| S62 (OWNER-GATED, not fixed, per instruction) | booklet §3 :117 | "Press the one big RACE DAY button… brings her cockpit view up" (one-press, checks camera/controller/radio) | No change to printed text; editorial note + `[fix-wave: giftee-ux-3]` added — shipped flow is three presses, RACE DAY checks hotspot/mapper/bridge only | `w17-ground-station/main/raceDayOrchestrator.js:73` (`STEP_ORDER`) |
-| S63 (editorial only, no false printed claim) | booklet — no single line, cross-cutting | *(booklet makes no explicit "RACE DAY starts the radio" claim)* | Editorial note added: RACE DAY does not start the radio link today, relevant once S62 is resolved | `raceDayOrchestrator.js:44` (argv whitelist); `w17-mapper/pkg/client/grpc_client.go:35` (`StartLink` gate) |
+*(The first truth-pass session's own headline — "24 claims checked and fixed, 0
+deferred as false" — was itself a tracker defect, caught by review `ab6cd6ea` finding
+10: the table it described had 25 rows, not 24, and by the reviewer's own recount at
+most 22 were actually fixed (S61/S62 were explicitly not fixed, S60 was partial, S63
+was editorial-only). This line replaces that headline and adds the Status column the
+review asked for, rather than compounding the original miscount.)*
 
-**Not fixed, flagged as an open question (see final report):** `w17-mapper`'s test
-count — this tracker and chapter 02/11 quote **137** (from `go test ./...` summary
-lines and the fact list this builder was handed) — but `go test ./... -v | grep -c
-'^--- PASS'` on this session's own read of `w17-headtrack` returns **133**, a
-different number by a measurement-method gap (top-level tests vs. sub-tests) this
-builder could not resolve with confidence in scope. Left unedited pending a
-`w17-mapper`-owning session's judgment call on which count the manual should quote.
+| id | Status | Chapter:line | Old claim | New / fix | Citation |
+|---|---|---|---|---|---|
+| S39 | FIXED | ch10 :10–27 (failsafe FSM) | Safe→Active needs only "150 ms of continuously good link" | Also requires the 2026-08-20 link-proof: ≥5 frame-bearing ticks inside the window, no intra-proof gap >60 ms | `FailsafeStateMachine.hpp:9-59` |
+| S40 | FIXED | ch10 :63 (new §1a) | *(section did not exist)* | Gimbal pan/tilt decay to center on failsafe (2000 ms default), not hold-last — vision decision 11, live since 2026-08-17 | `lib/failsafe/include/failsafe/GimbalDecay.hpp`; `src/main.cpp` panDecay/tiltDecay |
+| S41 | FIXED | ch06 :79-90 (§2.2 ArmGate summary), :95-102 (§2.3 failsafe summary) | Single-latch ArmGate; FSM re-arm described as 150 ms only; no GimbalDecay mention | Both summaries updated to match S39/S40/S48 | same as S39/S40/S48 |
+| S42 | FIXED | ch06 :143-160 (§2.8) | `Settings` = 3 sub-configs, implicitly v1 | 6 sub-configs (steering/gearbox/battery/gimbalDecay/sound/btpad), `kBlobVersion = 2` | `lib/settings/include/settings/Settings.hpp:21-66`; `lib/console/src/Console.cpp:207-339` |
+| S43 | FIXED | ch09 §2 (already fixed pre-resume, `beee80b`) | link2 v1 (11-byte payload/14-byte frame) taught as current | v2 (14-byte payload/17-byte frame); real v2 golden frame | `Link2Frame.hpp:6-88` |
+| S44 | FIXED | ch07 (already fixed pre-resume, `6706300`) | Voice selector "not merged"; bits 27-31 reserved; no showcase-halo layer; 107 tests | Voice selector shipped; bits 27-28 = voiceProfile; showcase teal breathe documented; 137 tests | `EngineSynth.cpp:64`; `LightRenderer.cpp` `showcaseBreathe()` |
+| S45 | FIXED | ch05 :493-497 (already fixed pre-resume, `4e94663`) | Phase 5 bench note cites only A3 fresh-neutral | Forward-pointer to ch10 §2's full 2026-08-20 rule | `ArmGate.cpp:13-38` |
+| S46 | FIXED | ch02 :98,105,133,189-190 | Test counts 229/107/1435; "11 suites"/"8 suites" | 330/137/1447; 13 suites/9 suites | `pio test -e native` x2, `npx vitest run` (all reproduced this session) |
+| S47 | FIXED | ch06 :214, ch08 :270, ch11 :42-43, glossary :100 | Same stale counts (229/107/1435) repeated | 330/137/1447 | same as S46 — **confirmed by the second truth-pass session**: review `ab6cd6ea` finding 3 found ch11:42-43 still unfixed at this row's original commit; commit `73f9dca` (between the two truth-pass sessions) actually landed the ch11 fix this row had prematurely claimed, so the row is accurate as of now |
+| S48 | FIXED | ch10 §2 (already fixed pre-resume, `7b6056c`) | `ArmGate` single neutral-seen latch | Second latch `switchToggleRequired_`, set on any `forceDisarm && armSwitchOn` tick, cleared only by switch-OFF | `ArmGate.cpp:13-38`, `ArmGate.hpp` |
+| S49 | FIXED | ch11 :16-33 | Env table: 3 of 5 control-fw board envs, soundlight collapsed to one row | All 5 cf board envs + native, all 3 soundlight envs listed | both `platformio.ini` files |
+| S50 | FIXED | ch13 :140-146 | "Chapter 11 explains the three variants" (now inaccurate — ch11 has 5) | Reframed as "the three relevant to a bare-board smoke test"; MH-ET-vs-DevKit dated note (S28, pre-existing) re-verified current | `platformio.ini` |
+| S51 | FIXED | ch15 :17-31 (branch-state warning), :211-236 (§6 profile+table), :350 (§7), :421 (§4 heartbeat), :451-455 (§10), :466-471 (§11 ledger) | `w17-audit-wave1` described as an unmerged branch awaiting owner review; DS4 button numbers SQUARE=0/R1=5/L1=4; FORK-NOTICE said "R1–R14" | Content is committed directly onto trunk `w17-headtrack` (branch no longer exists); corrected HIDAPI numbers SQUARE=2/R1=10/L1=9 (SHARE=4/OPTIONS=6 reserved); FORK-NOTICE already says R1–R16 everywhere at HEAD | `git log --oneline w17-headtrack`; `FORK-NOTICE.md` row `4e27b0e`; `configs/w17-ds4.json` |
+| S52 | FIXED | ch15 §6 arm-toggle explanation | Reconnect "may be out of phase," one press *may* re-sync | `reset_on_nan: true` makes it deterministic: any dropout resets the toggle to DISARMED, reconnect always needs exactly one fresh press | `pkg/config/input_seq.go` (`ResetOnNaN` handling) |
+| S53 | FIXED | stub21 :23-30 | NSIS installer artifact "still unconfirmed"; profile on unmerged wave-1 branch | Workflow step verified present and unchanged in shape; profile on trunk | `w17-ground-station/.github/workflows/ci.yml:67-79`; `configs/w17-ds4.json` |
+| S54 | FIXED | stub18 :25 | `../Codex/w17-rc-print-codex` (relative path one level short from this file's own location) | Named plainly + corrected path | filesystem check: repo lives at `Documents/Codex/w17-rc-print-codex`, a sibling of `projects/` |
+| S55 | FIXED | code_explained/control_fw 05,08,10; soundlight_fw 01 | Batch docs teach pre-2026-08-20/08-17 ArmGate/link2 as current, no forward pointer | Dated staleness notes added, each pointing to the current teaching chapter; index-level pointer added to `code_explained/README.md` | see S39/S43/S48 citations |
+| S56 | FIXED | code_explained/control_fw 09a×2, 09b×2 | Batch docs teach `Settings` v1 (3 sub-configs, `kBlobVersion=1`) as current | Dated staleness notes added, pointing to ch06 §2.8 | see S42 citation |
+| S57 | FIXED | booklet §4 | No honesty line about the phone app's maintenance/reliability posture | Added: phone is an extra, pit crew refreshes it ~weekly, computer screen always current | workspace memory ("free-account sideload re-signed weekly") |
+| S58 | FIXED | booklet §6 (:169, new :176), §9 (:251) | Legend had no DRS-green row; "gentle breathing glow never ends" prescribed a key-cycle for a fault mode the firmware can no longer produce | Added DRS-green row; retargeted the never-ends row to showcase/shelf-show (a real, non-fault, still-breathing case); fixed the :169 forward-pointer | `LightRenderer.cpp:257-273` (`kDrsGreen`); `LightRenderer.hpp:73-79,114-116` — **caught downstream:** the same edit's :172 "just after key-in" row kept a wrong-cause parenthetical (review `ab6cd6ea` finding 6); see S65 |
+| S59 | FIXED | booklet §8 :228 | "Ten minutes to cool before charging" printed as plain fact | Marked `[TBD-at-bench]` (no code/thermal backing exists); marker-count banner corrected 21→22 | none exists — that's the finding |
+| S60 | NOTED (no print change warranted) | booklet §1 :125, §4 :140 | "She doesn't reverse" and phone pairing "nothing to type" read as plain facts | Editorial (non-print) notes added — `[owner-decision: reverse promise vs firmware]` and (retagged by S70) `[fix-wave: phone-pairing-hostip]` — printed text intentionally left unrewritten (owner/product-scope calls, not typos) | `Gearbox.hpp:61-64`; `iPhone_rc/.../SettingsPanelView.swift:17-20` |
+| S61 | RULED 2026-09-03 (OD-3) — superseded by S68 | booklet §4 :135 | "You're looking out of her cockpit — her camera's live view" | The owner's second-round ruling (OD-3, override) decided live phone video **is** a gift deliverable — no longer an open owner call, so this row's "OWNER-GATED, not fixed, per instruction" status from the first truth-pass session is stale. No change to printed text (the promise stands, per the vision); reclassified as `[fix-wave: phone-video]`, in-flight, not owner-gated. See S68 for the reclassification detail and the drafted interim placeholder line. | `iPhone_rc/FPVHUDApp/Video/VideoSurface.swift` ("NO VIDEO" placeholder, still true at HEAD); `FutureRTPHEVCReceiver.swift` (TODO) |
+| S62 | RULED 2026-09-03 (OD-6) — superseded by S69 | booklet §3 :117 | "Press the one big RACE DAY button… brings her cockpit view up" (one-press, checks camera/controller/radio) | The owner's second-round ruling (OD-6) picked the code route: auto-advance to GRID + auto-START when required checks are green. No longer an open owner call. No change to printed text; reclassified as `[fix-wave: GS giftee-ux-3]`, in-flight, not owner-gated. See S69. | `w17-ground-station/main/raceDayOrchestrator.js:73` (`STEP_ORDER`) |
+| S63 | NOTED (no print change warranted; still genuinely open) | booklet — no single line, cross-cutting | *(booklet makes no explicit "RACE DAY starts the radio" claim)* | Editorial note added: RACE DAY does not start the radio link today, relevant once S62/S69 resolves. Unlike S61/S62, no owner ruling closes SYN-2/MAP-2 yet — this one is still genuinely owner-gated. | `raceDayOrchestrator.js:44` (argv whitelist); `w17-mapper/pkg/client/grpc_client.go:35` (`StartLink` gate) |
 
-**Not touched, per explicit instruction:** no `[TBD-at-bench]` marker was resolved;
-`u4-arbiter`'s tip commit was deliberately left unpinned (it moved twice, by a
-concurrent builder, during this very session — see ch15 §11); the booklet's
-dedication/cover/contact line was not touched; no Codex-owned repo was edited (all
-citations into `w17-3d-codex`/`w17-rc-print-codex` were read-only lookups).
+## Second truth-pass session (2026-09-03, same branch, fixer continuation) — S64–S73
+
+Continues directly from the table above; findings from review `ab6cd6ea80920f100`
+(items 3–4, 6–10 and the non-blocking list) plus the extra items in `FIX-B6.md`. Item 1
+(ch10 ~350 ms Active claim), item 2 (four remaining 14-byte link2 claims), items 3–4
+(ch11/ch02/ch00 counts, mapper 137→180/133) and item 5 (ch09 golden-frame diagram) were
+already fixed by three commits between the two sessions (`dfd5da9`, `529759c`,
+`73f9dca`, plus this session's own `26426ac` for item 5's uncommitted half) — see S47's
+updated note above for item 3/4's confirmation. Rows below cover items 6–10 and the
+`FIX-B6.md` extras.
+
+| id | Status | Chapter:line | Old claim | New / fix | Citation |
+|---|---|---|---|---|---|
+| S64 | FIXED | ch09 :163-193 (golden-frame diagram) | v2-rewrite pointers drifted off their byte columns: `soundProfile`/`driveMode`/`ersPercent` sat at cols 50/55/43 (driveMode past the end of the 50-char frame line) | Split the merged rpm/batt annotation onto its own lines; every remaining pointer realigned to its byte's actual column (soundProfile col39, driveMode col36, ersPercent col33; rpm/batt brackets cols 21-25/27-31) | verified byte-by-byte against the frame line `A5 0E 02 2A E7 4C 03 DC 05 DC 1E 3C 02 01 50 00 5A`; commit `26426ac` |
+| S65 | FIXED | booklet §6 :172 | "Getting herself sorted… or (if she can't find the station box) she'll tell you plainly by blinking amber" — misattributes the amber-escalation cause | `NeverConnected` is board #2 never receiving a link2 frame from board #1 (an internal harness fault, not the external station box); with the station box actually off, board #1 still boots and sends `failsafe=true`, so the amber blink is immediate with no breathe phase at all either way. Dropped the specific (wrong) attribution; kept the true behavioral fact (never breathes forever) | review `ab6cd6ea` finding 6; `LightRenderer.hpp:71-79`; `LightRenderer.cpp:181` (`localFailsafe`) |
+| S66 | FIXED | booklet §5 (:152-160), §8 (:234), §9 (:251) | Section 5 taught the giftee to operate "her little three-way selector" for quick-show driving / the shelf show; §9's troubleshooting row told her to "flip her little selector back" | OD-2: ship image is `esp32dev`, under which the selector is never read (`main.cpp` pins `kBootStrapReading` straight to `Drive`; live only under `W17_BT_SHOWOFF`). Rewrote §5 as "two tricks the pit crew can unlock," dropped both switch-ritual TBD markers (giftee never touches it), reworded §8's aside, and rewrote §9's row to describe what to do *if the pit crew has* turned the mode on, not an in-reach giftee switch | review `ab6cd6ea` finding 7; readiness program A9 row / RULINGS OD-2 |
+| S67 | FIXED | booklet §9 :249 | "Controller does nothing → Reconnect the controller [TBD-at-bench], then do the two-step engine start again" — false under every reading of the code | OD-9 + `w17-mapper.v2report.json` id `MAP-6` (CONFIRMED high): the gamepad registry is enumerated once at boot (`controller.go:43`), so a dropped pad is never seen again until the mapper restarts; only restarting the whole drive program currently restores control. Rewrote the row to say so; retired the bench-only marker (this was always a code fact) | review `ab6cd6ea` finding 8 (OD-9); `w17-mapper/pkg/devices/controller.go:43`; `w17-mapper.v2report.json` id `MAP-6` |
+| S68 | RULED 2026-09-03 (OD-3) | booklet trailer note (was under "OWNER-GATED") | `[fix-wave: iPhone-video-path]` filed under "OWNER-GATED... left for the owner's call" | Moved out of the owner-gated list into "DECIDED, IN-FLIGHT FIX-WAVE"; retagged `[fix-wave: phone-video]`; §4's promise confirmed to stay as printed (OD-3 makes video a gift deliverable); drafted an interim placeholder line, in the booklet's voice, for the video surface until the real picture ships (for whoever picks up the phone-video branch; owner edits the wording) | review `ab6cd6ea` finding 8 (OD-3); readiness program OD-3/OD-16 |
+| S69 | RULED 2026-09-03 (OD-6) | booklet trailer note (was under "OWNER-GATED") | `[fix-wave: giftee-ux-3]` filed under "OWNER-GATED... left for the owner's call" | Moved out of the owner-gated list into "DECIDED, IN-FLIGHT FIX-WAVE"; retagged `[fix-wave: GS giftee-ux-3]`; noted the auto-advance/auto-START code route is decided (START ANYWAY stays) and §3 step 4's one-press framing becomes true once it lands — the separate "checks camera/controller/radio" overstatement is NOT covered by this ruling and stays flagged | review `ab6cd6ea` finding 8 (OD-6); `w17-ground-station.v2report.json` id `giftee-ux-3` |
+| S70 | FIXED | booklet trailer note :392 (pre-edit numbering) | `[fix-wave: giftee-ux-4]` used for the phone/computer "nothing to type" pairing item — collides with the real, unrelated `iPhone_rc.v2report.json` id `giftee-ux-4` ("No VoiceOver semantics… on the drive HUD") | Retagged to `[fix-wave: phone-pairing-hostip]` with a note explaining it's a coordinator mid-session-probe finding, not a repo review id, so the old tag would have routed it to the wrong fix | review `ab6cd6ea` finding 9 |
+| S71 | NOTED (no print change needed) | booklet trailer (new note, `[fix-wave: iPhone telemetry-honesty]`) | *(booklet never claims to show RSSI/SNR or raw contract-state text, so nothing printed was false)* | Recorded three `iPhone_rc` trunk-vs-branch facts for the next session: demo telemetry defaults ON and persists today (branch `fix/telemetry-honesty-and-ci` makes it session-only + off at cold start); RSSI/SNR/LQ are on the live drive strip today (branch moves them to Debug-only); the stale/lost banner shows raw contract strings today (branch rewrites to plain language) | `FIX-B6.md` cross-repo truths; `iPhone_rc` `AppSettings.swift:13`, `FPVHUDView.swift:648-650`, `TelemetryState.swift:137,163`; branch commits `e34a315`/`5f1d563`/`f92c4fd` |
+| S72 | NOTED (in-flight branch, no manual falsehood) | code_explained/soundlight_fw/04_lights_and_light_hal.md :18-24, :424-431 | Both spans accurately describe today's TRUNK code (no minimum-on; low-battery layer order inverted vs. the header; cap applied before gamma) with no forward pointer to the fix in flight | Added dated in-flight notes at both spans naming `fix/lights-truth-wdt-and-clamp` and tagging `[fix-wave: sl:correctness-1]` (minimum-on), `[fix-wave: sl:correctness-4]` (layer order), `[fix-wave: sl:safety-1]` (cap/gamma header fix + brightness floor raise) — the underlying descriptions of today's code are untouched, since they were already correct | `FIX-B6.md` soundlight item; `w17-soundlight-fw.v2report.json` ids `safety-1`/`correctness-1`/`correctness-4`; branch commits `bb19ed7`/`8d87727`/`0a87980`/`84be70a` |
+| S73 | FIXED | this file (headline + table + open-question paragraph) | Headline miscounted the table (24 vs. 25 rows) and overstated the fix rate; no Status column existed (status was smuggled into the id cell for S61-S63); the mapper-count "open question" paragraph was stale once `73f9dca` (between the two sessions) resolved it in ch11/ch00 | Added the Status column across all of S39-S72; rewrote the headline with an honest 27/4/4 breakdown; rewrote the open-question paragraph below as RESOLVED | review `ab6cd6ea` finding 10 |
+
+**RESOLVED (was: "not fixed, flagged as an open question"):** `w17-mapper`'s test count.
+The first truth-pass session flagged a mismatch — this tracker and chapters 02/11 were
+read as quoting **137** for the mapper, while `go test ./... -v | grep -c '^--- PASS'`
+returns **133** top-level `Test*` functions (180 total `--- PASS` lines including
+subtests) — and could not resolve it in scope. Between the two sessions, commit
+`73f9dca` resolved the actual defect: ch02's **137** was never the mapper's count at all
+— it's soundlight-fw's own count (verified: `02_repository_map.md:134`, "9 suites
+(**137 tests as of 2026-09-03**)" describes soundlight, not the mapper) — and ch11/ch00
+now state the mapper's count explicitly as **180 `--- PASS` lines (133 top-level `Test*`
+functions + 47 `t.Run` subtests)**, spelling out the counting-method ambiguity instead
+of picking one number, so it cannot recur. No further edit needed this session; verified
+current at `11_build_flash_debug_workflow.md:47-50` and `00_START_HERE.md:170`.
+
+**Not touched, per explicit instruction:** `u4-arbiter`'s tip commit was deliberately
+left unpinned (it moved twice, by a concurrent builder, during the first truth-pass
+session — see ch15 §11); the booklet's dedication/cover/contact line was not touched; no
+Codex-owned repo was edited (all citations into `w17-3d-codex`/`w17-rc-print-codex` were
+read-only lookups). **Refined this session:** the first truth-pass session's claim that
+"no `[TBD-at-bench]` marker was resolved" no longer holds without qualification — S66
+and S67 above removed three markers, but none was resolved *by bench proof*; all three
+turned out to have never been bench facts at all (two became a pit-crew-only procedure
+outside the giftee's bench entirely, one turned out to be a code fact provable from the
+repo). The banner's marker count (booklet :17-27) was updated 22→19 accordingly.
