@@ -138,11 +138,10 @@ Board #2 still never *chooses* — it only decodes what board #1 already decided
 preserving the no-control-authority rule. **[C]**
 `lib/audiodecision/include/audiodecision/AudioDecision.hpp:40-42`,
 `lib/soundsynth/src/EngineSynth.cpp:64,69`. *(The repo's own `CLAUDE.md`/`AGENTS.md`
-still call this "an open owner decision — do not add one unilaterally"; that is stale
-instruction-file text, not a manual claim — flagged for the orchestrator, not fixed
-here (soundlight `docs-truth-1`), and due to be corrected by the pending OD-1
-instruction-file batch — once that lands this parenthetical itself becomes stale and
-can be dropped `[fix-wave: OD-1]`.)*
+once called this "an open owner decision"; the OD-1 instruction-file batch corrected
+that on 2026-09-03 (soundlight main `779ddde`/`747acb1`, now describing the
+wire-selected voice and operator volume), so the instruction files and this chapter
+agree.)*
 
 > **[C] S3 verified this section in code**
 > (`soundlight_fw/03_sound_synthesis.md`, 9/9 tests pass + a harness compiled against the

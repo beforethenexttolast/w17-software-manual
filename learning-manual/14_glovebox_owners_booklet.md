@@ -321,10 +321,10 @@ Draft notes for the owner (not for print):
     override) — **[fix-wave: soundlight docs-truth-7]**, verified
     at `w17-soundlight-fw/lib/lights/src/LightRenderer.cpp:257-273`
     (`kDrsGreen{0,255,0}`). The pre-existing "Rear wing tell"
-    TBD-at-bench row was left untouched (not resolved) — it can
-    reasonably still mean "how bright/visible does this actually
-    read on the finished car," which is a real bench-only
-    question the mechanism fact above doesn't answer.
+    TBD-at-bench row was later folded into this row (commit
+    cc52174): the mechanism is settled, and only "how bright/visible
+    does this actually read on the finished car" stays a bench
+    question, carried inside the merged row.
   - Section 6's "just after key-in" row and section 9's "gentle
     breathing glow never ends" row were rewritten — **[fix-wave:
     soundlight docs-truth-7]**. The old pair described a fault

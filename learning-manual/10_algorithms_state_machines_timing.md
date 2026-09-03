@@ -134,7 +134,7 @@ Consequences of the base rule, both still true and both still deliberate:
   tick, for as long as the episode lasts. So the instant the link recovers, the latch
   is already false — the base rule's "throttle back to neutral" requirement applies
   before the motor can respond at all, regardless of what the stick is doing at that
-  moment. **[C]** `ArmGate.cpp:22-25` (`if (forceDisarm || switchToggleRequired_) {
+  moment. **[C]** `ArmGate.cpp:25-28` (`if (forceDisarm || switchToggleRequired_) {
   seenNeutralSinceEnable_ = false; return false; }`).
 
 Note the layering: the failsafe FSM decides *link* health; the ArmGate decides *driver
