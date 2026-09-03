@@ -113,14 +113,24 @@ One-way UART, ESP32 #1 GPIO25 → ESP32 #2 GPIO16, **115200 8N1**, nominal **20 
 Spec: `w17-control-fw/docs/link2_protocol.md` (owner); constants:
 `lib/link2/Link2Frame.hpp`.
 
-### 2.1 Frame layout (14 bytes total)
+### 2.1 Frame layout (17 bytes total — v2, current since 2026-08-17)
 
 ```
-offset 0   : start byte 0xA5
-offset 1   : length = payload byte count (11 in v1)
-offset 2-12: payload (below)
-offset 13  : crc8 (poly 0xD5) over bytes [1..12] — length + payload, start excluded
+offset 0    : start byte 0xA5
+offset 1    : length = payload byte count (14 in v2)
+offset 2-15: payload (below)
+offset 16   : crc8 (poly 0xD5) over bytes [1..15] — length + payload, start excluded
 ```
+
+**[C] version note:** v1 (payload 11 bytes, frame 14 bytes, version byte =1) was the
+protocol through 2026-08-16. v2 (2026-08-17, vision decision 15 + the owner's same-day
+showcase/BT-showoff decision) appended `soundProfile`, `volume`, and `modeFlags` — same
+framing/CRC rules, length byte 11→14, version byte 1→2. Because a receiver hard-rejects
+any length byte it doesn't recognize (§2.4 below), a version-mismatched pair of boards is
+*safe but non-functional* (permanent staleness failsafe) rather than silently
+misinterpreting bytes — there is no mixed-version interop, so both boards are always
+flashed together. **[C]** `lib/link2/include/link2/Link2Frame.hpp:6-49` (both repos,
+identical — the drift-guard CI job enforces this).
 
 Validation order is normative: **start → length → CRC → version**. Because CRC is
 checked *before* version, a `BadVersion` result proves the frame was well-formed — i.e.
@@ -128,11 +138,11 @@ it came from a newer sender, not from corruption. And a receiver must reject an
 unsupported length byte *the moment it arrives* — otherwise a corrupted length (say
 0xFF) would make it buffer 255 garbage bytes, swallowing ~1 s of good frames.
 
-### 2.2 Payload v1 (little-endian)
+### 2.2 Payload v2 (little-endian)
 
 | off | field | type/range | semantics worth remembering |
 |---|---|---|---|
-| 0 | version | =1 | reject others |
+| 0 | version | =2 | reject others |
 | 1 | throttlePercent | int8 −100…100 | **what the ESC is actually commanded** — 0 in disarm/failsafe; negative = braking, never reverse |
 | 2 | steeringPercent | int8 −100…100 | for indicators; live even disarmed |
 | 3 | flags | bitfield | bit0 braking (pre-filtered), bit1 reverse (reserved 0), bit2 drsOpen, bit3 armed, bit4 failsafe, bit5 lowBattery, bit6 ersDeploying, bit7 reserved (mask, don't reject) |
@@ -141,6 +151,9 @@ unsupported length byte *the moment it arrives* — otherwise a corrupted length
 | 7–8 | batteryMv | uint16 LE | display garnish; the lowBattery *flag* is the authoritative judgment |
 | 9 | ersPercent | 0…100 | frozen (not zeroed) outside ERS mode |
 | 10 | driveMode | 0/1/2 | TRAINING / RACE (gearbox) / ERS (gearbox+ERS); unknown → treat as 1 |
+| 11 | soundProfile | 0/1, ≥`kSoundProfileCount`→0 | **v2.** Engine voice: 0 = V10 (default), 1 = V6 turbo-hybrid; any reserved value falls back to V10 on the *receiver*, never a frame rejection (chapter 07 §4) |
+| 12 | volume | 0…100, receiver clamps >100 | **v2.** Operator engine-sound level, 0 = true silence; composed with the engine-state volume on board #2's control core, applied at the synth's final gain stage (chapter 07 §6) |
+| 13 | modeFlags | bitfield | **v2.** bit0 showcase — LIVE: board #1 booted into the stationary-demo state (set every frame of such a boot, never in a drive boot); receivers key ignition/presentation on it and must not let a *stale* showcase bit outlive the link (§2.4). bit1 awaitingController — reserved for BT show-off pairing, always 0 today. bits 2–7 spare (sender writes 0, receivers mask/ignore, never reject) |
 
 ### 2.3 The golden frame, decoded by hand
 
@@ -148,22 +161,25 @@ unsupported length byte *the moment it arrives* — otherwise a corrupted length
 (`w17-control-fw/test/test_link2/test_main.cpp`) and the spec's worked example:
 
 ```
-A5 0B 01 2A E7 4C 03 DC 05 DC 1E 3C 02 CE
-│  │  │  │  │  │  │  │───│ │───│ │  │  └ CRC8 = 0xCE
-│  │  │  │  │  │  │  rpm    batt │  └ driveMode 2 (ERS)
-│  │  │  │  │  │  │  =0x05DC     └ ersPercent 0x3C = 60
-│  │  │  │  │  │  │  =1500  =0x1EDC = 7900 mV     ← little-endian: DC 05 → 0x05DC!
+A5 0E 02 2A E7 4C 03 DC 05 DC 1E 3C 02 01 50 00 5A
+│  │  │  │  │  │  │  │───│ │───│ │  │  │  │  │  └ CRC8 = 0x5A
+│  │  │  │  │  │  │  rpm    batt │  │  │  │  └ modeFlags 0x00 (no showcase, no BT pairing)
+│  │  │  │  │  │  │  =0x05DC     │  │  │  └ volume 0x50 = 80
+│  │  │  │  │  │  │  =1500  =0x1EDC = 7900 mV  │  └ soundProfile 0x01 = V6 turbo-hybrid
+│  │  │  │  │  │  │  ← little-endian: DC 05 → 0x05DC!  └ driveMode 2 (ERS)
+│  │  │  │  │  │  │                        └ ersPercent 0x3C = 60
 │  │  │  │  │  │  └ gear 3
 │  │  │  │  │  └ flags 0x4C = 01001100 = drsOpen|armed|ersDeploying
 │  │  │  │  └ steering 0xE7 = −25  (int8: 0xE7 = 231 → 231−256 = −25)
 │  │  │  └ throttle 0x2A = +42
-│  │  └ version 1
-│  └ length 0x0B = 11
+│  │  └ version 2
+│  └ length 0x0E = 14
 └ start
 ```
 
 Work through this once yourself — it exercises every §0 concept (framing, endianness,
-two's-complement signed bytes, bitfields, CRC coverage).
+two's-complement signed bytes, bitfields, CRC coverage). Notice bytes 7–8 (`DC 05`, the
+rpm field) land at the *same* frame offset as in v1 — only the tail grew.
 
 ### 2.4 Liveness: the mandatory 500 ms rule
 
@@ -174,7 +190,10 @@ receiver *obligation* because on a one-way link, a cut wire is indistinguishable
 in S1). **[C]** S1 verified this in code: the boundary is `elapsed >= 500 ms` (inclusive),
 only CRC-valid frames refresh the timer (a corrupt-only stream still goes stale), and on
 loss the monitor applies a *per-field projection* — commands zeroed + failsafe forced true,
-rpm zeroed, but battery/gear/ERS/mode held last-known. **[C]** S5 verified the obligation's
+rpm zeroed, but battery/gear/ERS/mode/soundProfile/volume held last-known, and (v2) the
+**modeFlags bits are cleared** — the spec's own words for §2.2's showcase bit: "a stale
+showcase indication must not outlive the link" (**[C]**
+`lib/link2monitor/include/link2monitor/Link2Monitor.hpp`). **[C]** S5 verified the obligation's
 *wiring* (`soundlight_fw/05_soundlight_main_integration.md` §4.10): board #2's `loop()`
 drains the UART into the monitor on **every pass** and calls `poll(millis())` at 50 Hz, so
 a silent wire is declared Lost within ~20 ms of the 500 ms boundary; the composed
