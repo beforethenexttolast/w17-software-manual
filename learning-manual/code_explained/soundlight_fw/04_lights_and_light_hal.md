@@ -23,6 +23,16 @@ default non-overlapping segments); and the repo's CLAUDE.md/README/library.json 
 HAL sits "behind `ILedStrip`" — **no such interface exists anywhere in the repo** (the
 pure renderer's `Rgb[30]` output array *is* the seam, so none is needed).
 
+> **In-flight fix note (2026-09-03) — `fix/lights-truth-wdt-and-clamp`:** two of the
+> three findings above are being closed in code, not left as permanent drift. The
+> indicator minimum-on promise gets implemented (`indicatorStartMs_` stamped on the
+> off→on edge, held through a full period — commit `0a87980`) — **[fix-wave:
+> sl:correctness-1]**. The low-battery layer moves to composite in the header's declared
+> order (commit `84be70a`) — **[fix-wave: sl:correctness-4]**. Both are still accurately
+> described above as **today's TRUNK behavior**; re-check after the branch merges. The
+> third claim — no `ILedStrip` interface exists — is not part of this branch and stays
+> accurate either way.
+
 **And one measured bench flag (#55):** after the 43 % brightness cap *and* gamma 2.2,
 the dim layers render astonishingly low — the disarmed halo and the idle tail light come
 out at **1/255 PWM duty**, the NeverConnected breathe peaks at **{1,3,3}** — possibly
@@ -432,6 +442,16 @@ Rgb applyBrightnessAndGamma(Rgb c, uint8_t maxBrightness) {
 - This function runs **once per pixel per frame, at the very end** of `render` — every
   layer composes in design-space colors, and the cap+gamma transform is applied
   uniformly on the way out (you'll see the loop at each of the three exits, §3.4–3.9).
+
+> **In-flight fix note (2026-09-03) — `fix/lights-truth-wdt-and-clamp`, `[fix-wave:
+> sl:safety-1]`:** the cap-then-gamma order and worked example above are correct and
+> unaffected by this branch — what changes is the *floor*, not the order. Today, the
+> dim layers this doc's own bench flag (#55, below) worries about really do render at
+> 1/255 PWM duty; the branch raises every designed-visible state to a named minimum
+> duty (`kMinVisibleDuty`) so those states can no longer render invisible, and corrects
+> the HAL header's own citation (`LightRenderer.hpp:35-37`), which currently claims the
+> cap applies *after* gamma — the opposite of the code both here and in the worked
+> example above.
 
 ### 3.4 Lines 40–54 + 56–81: constructor, `fill`, `blinkOn`, and the NeverConnected breathe
 
