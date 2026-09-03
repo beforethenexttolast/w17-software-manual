@@ -85,15 +85,24 @@ Three cooperating layers, deliberately separated:
   above +250, OFF below −250, so a jittery mid-value can't chatter. Switch edges
   (gearUp pressed *this frame*) are detected here, seeded on first decode so boot can't
   produce phantom shifts.
-- **`ArmGate`**: chapter 10 §2. Armed ⇔ arm switch ON **and** throttle observed inside
-  the ±60 neutral window since the last disarm. Any failsafe episode or switch-off
-  disarms and demands fresh neutral.
+- **`ArmGate`**: chapter 10 §2 (full treatment, incl. the 2026-08-20 second latch).
+  Armed ⇔ arm switch ON **and** throttle observed inside the ±60 neutral window since
+  the last disarm, **and** (since 2026-08-20) no failsafe-caught-switch-on episode is
+  still latched — that second condition additionally demands the switch be seen OFF
+  then ON again before re-arming. Any failsafe episode or switch-off disarms and
+  demands fresh neutral either way.
 
 ### 2.3 `lib/failsafe` — the safety authority
 `FailsafeStateMachine::update(nowMs, frameArrivedThisTick, rxFailsafeFlag) → Safe/Active`.
-Full treatment in chapter 10 §1. Key behaviors: born Safe; can never leave Safe until a
-real frame has arrived (the A1 latch); drops to Safe instantly on timeout (500 ms) or RX
-flag; returns to Active only after 150 ms of *continuously* good link.
+Full treatment in chapter 10 §1 (incl. the 2026-08-20 link-proof hardening). Key
+behaviors: born Safe; can never leave Safe until a real frame has arrived (the A1
+latch); drops to Safe instantly on timeout (500 ms) or RX flag; returns to Active only
+after 150 ms of continuously good link **and** a proof of ≥5 frame-bearing ticks with
+no intra-proof gap over 60 ms — a single lucky CRC-valid frame can no longer buy 150 ms
+of Active on its own. Also home of `GimbalDecay` (chapter 10 §1a; vision decision 11):
+during failsafe the two gimbal axes decay to center (default 2000 ms, NVS-tunable as
+`gimbal.decay`) instead of holding their last look direction — live on `main` since
+2026-08-17, not a pending branch.
 
 ### 2.4 `lib/gearbox` + `lib/ers` — the feel layer
 Chapter 10 §3–4 covers the math. Architecturally: both are pure, both consume the
