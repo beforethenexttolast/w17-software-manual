@@ -10,9 +10,9 @@ against, and none has been retroactively rewritten to match later changes (that 
 falsify what was actually checked at the time). Four real drifts are big enough to flag
 here rather than trust every reader to notice the per-file dated notes:
 - **link2 is v2, not v1** (14-byte payload / 17-byte frame, since 2026-08-17) —
-  `control_fw/08_link2_outbound_protocol.md` and `soundlight_fw/01_link2_receiver_and_
-  protocol_compatibility.md` both teach v1. Current protocol: `../09_communication_
-  protocols.md`.
+  `control_fw/08_link2_outbound_protocol.md` and
+  `soundlight_fw/01_link2_receiver_and_protocol_compatibility.md` both teach v1.
+  Current protocol: `../09_communication_protocols.md`.
 - **`ArmGate` gained a second latch 2026-08-20** (the re-arm invariant) —
   `control_fw/05_channels_mapping_and_arm_gate.md` teaches the single-latch original.
   Current behavior: `../10_algorithms_state_machines_timing.md` §2.
