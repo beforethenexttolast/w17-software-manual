@@ -77,8 +77,8 @@ the box here.
   §5.3 `setMapperPath` / `setProfilePath`) — re-verify after any late reinstall, since a path
   typo here fails silently as `not-configured` on the race-day card, not as an install error.
 - [ ] **Code blockers closed** — do not check off this whole section until
-  `w17-parts-to-gift-master-sequence.md` §0's six ids (`MAP-1`, `MAP-2`/`SYN-2`, `SYN-1`,
-  `boundaries-1`, `correctness-2`, `MAP-5`) show closed in `CURRENT_STATUS.md`.
+  `w17-parts-to-gift-master-sequence.md` §0's seven ids (`MAP-1`, `MAP-2`/`SYN-2`, `SYN-1`,
+  `boundaries-1`, `correctness-2`, `MAP-5`, `MAP-8`) show closed in `CURRENT_STATUS.md`.
 
 ## 4. Mapper profile
 
