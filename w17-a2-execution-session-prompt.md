@@ -73,7 +73,7 @@ to me, before I pick up a probe.
 | **S2** | Hall sensor, isolated | pull-up to **3V3**, not 5 V |
 | **S3** | link2 pair (board #1 ↔ board #2) | RX (GPIO26) = **verify no wire present** — the firmware hard-disables it (`Serial1.begin(..., rxPin=-1, txPin_)`) |
 | **S4** | CRSF pair and each 3-pin actuator lead, **individually** | if this car's harness includes the SP3T boot-mode selector, wire its three legs here too — SW1–SW3 above |
-| **S4b** | Cross-signal isolation — all five actuator leads present, UBECs still off | if wiring the SP3T, run SW4–SW6 above in the same pass |
+| **S4b** | Cross-signal isolation — all five actuator leads present, UBECs still off | if wiring the SP3T, run SW4–SW8 above in the same pass |
 | **S5** | WS2812 path (board #2) | supply = **option A, the 1N5819 diode** (on hand; no 74AHCT125 in inventory or BOM v2 — it stays the documented fallback, at a recorded ~10 mV nominal V<sub>IH</sub> margin) |
 | **S6** | Attach the UBECs | **after this point, S1's isolated values no longer apply** |
 | **S7** | Common ground, whole harness | true whole-harness gate |
