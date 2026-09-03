@@ -19,12 +19,16 @@
 > the draft's markers (the controller bindings, the RACE DAY button name, the engine
 > start/stop control, the on-screen battery warning) turned out to be already decided
 > and test-pinned in the repos; the adversarial review (2026-08-21) had them resolved to
-> plain printed facts. What remains marked — **22 markers** (the draft's 26, minus those
-> 8, plus 3 added by the 2026-08-20 pages, plus 1 added by the 2026-09-03 truth pass —
-> the battery cool-down time had no code/thermal backing and was printed as a plain
-> fact by mistake) — is genuinely bench-only: feel, ranges, charge times, Wi-Fi
-> specifics, switch rituals, controller pairing. The booklet prints only after (1) the
-> owner's editorial pass and (2) the bench proves the remaining facts.
+> plain printed facts. What remains marked — **19 markers** (the draft's 26, minus those
+> 8, plus 3 added by the 2026-08-20 pages, plus 1 added by the first 2026-09-03 truth
+> pass — the battery cool-down time had no code/thermal backing and was printed as a
+> plain fact by mistake — minus 3 removed by the second 2026-09-03 truth pass: the two
+> switch-ritual markers in section 5 turned out to be a pit-crew job, not a giftee
+> bench-fact gap at all (OD-2), and the controller-reconnect marker in section 9 turned
+> out to be a code fact, not a bench one — MAP-6) — is genuinely bench-only: feel,
+> ranges, charge times, Wi-Fi specifics, switch rituals, controller pairing. The booklet
+> prints only after (1) the owner's editorial pass and (2) the bench proves the
+> remaining facts.
 >
 > **Owner free-texts ALL answered 2026-08-20** (the four decisions queued in
 > `../2026-08-16_orchestration_review_packet.md` §4 item 6, plus the extra-modes
@@ -149,15 +153,15 @@ It's made for passengers, too: you drive from the computer while a friend holds 
 
 ---
 
-## 5. Two more tricks she knows
+## 5. Two more tricks the pit crew can unlock later
 
-The full setup from section 3 is her main event — but she has two party pieces that need less.
+She's built with two extra party pieces beyond her everyday self — but they don't come switched on out of the box, and switching one on isn't a giftee job. If you ever want one for a visit, just ask the pit crew.
 
-**Quick-show driving.** Just her and the controller — no computer, no screens. It's for the moment someone says "does it really drive?": a short spin around the room, close by, steering by eye like a classic toy car. The cockpit view stays home in this mode, so keep her where you can see her. [TBD-at-bench: the exact switch ritual for quick-show driving — which position of her little three-way selector, and how she shows she's in it]
+**Quick-show driving.** Just her and the controller — no computer, no screens. For the moment someone says "does it really drive?": a short spin around the room, close by, steering by eye like a classic toy car. The cockpit view stays home in this mode, so keep her where you can see her.
 
-**The shelf show.** Park her somewhere she looks good and let her perform: lights, blinkers, and the full engine soundtrack, like a car warming up in the paddock. She sits perfectly still the whole time — in this mode she *cannot* drive, full stop — so it's the one mode that's happy to run while people lean in close. [TBD-at-bench: the exact switch ritual for the shelf show — which position of the selector, and how she shows she's in it]
+**The shelf show.** Park her somewhere she looks good and let her perform: lights, blinkers, and the full engine soundtrack, like a car warming up in the paddock. She sits perfectly still the whole time — in this mode she *cannot* drive, full stop — so it's the one mode that's happy to run while people lean in close.
 
-Everything else you know still holds in both: key in to wake her, key out when you're done.
+Everything else you know still holds when either is switched on: key in to wake her, key out when you're done.
 
 ---
 
@@ -169,7 +173,7 @@ She talks to you with her lights. Here's the dictionary.
 |---|---|
 | **Soft glow on the halo** (the ring above the cockpit) | Awake, engine off. All's well. |
 | **Teal halo** | Engine running. Ready to drive. |
-| **Gentle breathing glow, just after key-in** | Getting herself sorted. Give her a few seconds — either it settles to a soft glow, or (if she can't find the station box) she'll tell you plainly by blinking amber within a few seconds, never by breathing forever. |
+| **Gentle breathing glow, just after key-in** | Getting herself sorted. Give her a few seconds — either it settles to a soft glow, or, if something's not right inside, she'll tell you plainly by blinking amber within a few seconds. Either way, she never just breathes forever. |
 | **Red bar at the back, dim** | Her tail light. Always on when she's awake. |
 | **Red bar at the back, bright** | Braking. |
 | **Amber blinkers, left or right** | Turn signals. They follow your steering — even while she's parked. |
@@ -231,7 +235,7 @@ If she stops by herself often in the same spot, that's a clue worth sharing — 
 
 **Keep her dry.** No rain, no puddles, no wet grass, no snow. If she gets dusty, a soft dry cloth or a soft brush is all she needs. Never water, never sprays.
 
-**Don't open her up.** Everything inside is sealed, arranged, and happy. Charging happens through the flap, the key lives outside, and nothing inside needs you day-to-day. (One exception: her little mode selector lives under the engine cover — section 5 — and the pit crew will show you that one move.) Beyond that, opening the shell risks the bodywork — and she's rather proud of her bodywork.
+**Don't open her up.** Everything inside is sealed, arranged, and happy. Charging happens through the flap, the key lives outside, and nothing inside needs you day-to-day. (One exception: her little mode selector lives under the engine cover — that's what the pit crew reaches for if they ever unlock one of section 5's extra tricks for you, never something you need to touch yourself.) Beyond that, opening the shell risks the bodywork — and she's rather proud of her bodywork.
 
 **Carrying her:** key out first, then lift her by [TBD-at-bench: safe lift points] — never by the wings, the halo, or the camera.
 
@@ -246,9 +250,9 @@ If she stops by herself often in the same spot, that's a clue worth sharing — 
 | Key is in, but she won't wake up | Push the key fully home. If nothing, her battery is probably empty — key out, charge her. | Ping the pit crew |
 | Plugged in, but no charge light | Is the key **out**? Key out is the charging rule. Try another USB-C charger and check the plug is fully seated. | Ping the pit crew |
 | The app can't find her / no picture | Check the station box cable is plugged into the computer — that little box is her radio, and the picture rides on it. Close the app, open it, press RACE DAY again. | Ping the pit crew |
-| Controller does nothing | Reconnect the controller [TBD-at-bench: reconnect steps], then do the two-step engine start again. | Ping the pit crew |
+| Controller does nothing | Today, simply reconnecting it isn't enough to bring her back — close the app and start the whole routine again from section 3. (The team is working on a fix that won't need the restart.) | Ping the pit crew |
 | Whole car blinking amber, won't drive | That's her safe-stop — section 7. Get a little closer, wait for the picture, restart the engine. | Ping the pit crew |
-| The halo breathes gently and never settles, and she's just sitting there | That's the shelf-show mode from section 5 doing exactly what it's built to do — not a fault. If you didn't mean to be in it, key out, flip her little selector back, key in. | Ping the pit crew |
+| The halo breathes gently and never settles, and she's just sitting there | If the pit crew has ever turned on the shelf-show trick from section 5, that's it working exactly as built — not a fault. Ping the pit crew to switch her back to her everyday self. | Ping the pit crew |
 | Engine won't start (the two-step doesn't take) | Let go of **everything** — the trigger must be fully at rest first. Count to three, try again. | Ping the pit crew |
 | Picture stutters or lags | You're probably near the edge of her comfort zone — fewer walls, less distance. | Ping the pit crew |
 | She pulls to one side / steering feels wrong | Park her, key out, count to ten, key in, try again on a smooth floor. | Ping the pit crew |
@@ -268,10 +272,12 @@ Draft notes for the owner (not for print):
 - Features that are decided-but-not-yet-built (one-press start,
   ignition light show, wing-open tell, charge-state light,
   on-screen low-battery warning, the phone helmet view's live
-  picture, the three-position mode selector's ritual) are
-  written as final-product truth per the vision, with TBD
-  markers on their specifics — the booklet prints only after
-  the bench proves them.
+  picture) are written as final-product truth per the vision,
+  with TBD markers on their specifics — the booklet prints only
+  after the bench proves them. (The three-position mode selector
+  is no longer in this bucket as of the second 2026-09-03 pass —
+  OD-2 makes it a pit-crew-only unlock, never a giftee ritual, so
+  it carries no TBD marker at all; see section 5.)
 - Deliberately omitted: head-tracked camera (gated milestone),
   speed tuning (owner-side only), volume controls (owner
   decision 2026-08-20: set at handover, pit crew adjusts),
@@ -332,32 +338,105 @@ Draft notes for the owner (not for print):
     (`LightRenderer.hpp:114-116`, "the D6 teal breathe") — by
     design, not a fault — so section 9's row now points there
     instead of prescribing a key-cycle non-fix.
-- **OWNER-GATED, NOT fixed here (product decisions, not typos)
-  — flagged per the 2026-09-02 readiness review, left for the
-  owner's call:**
-  - **[fix-wave: iPhone-video-path]** Section 4 still promises
-    "you're looking out of her cockpit — her camera's live view."
-    Verified at HEAD: the iPhone app's video path is a stub —
+- **DECIDED, IN-FLIGHT FIX-WAVE (owner adjudications, 2026-09-03
+  second round — no longer open owner calls; code not yet
+  landed, so the printed text below is tomorrow's truth today,
+  same pattern as the other decided-but-not-yet-built features
+  above):**
+  - **[fix-wave: phone-video]** Section 4 promises "you're
+    looking out of her cockpit — her camera's live view." OD-3
+    (override) settled this 2026-09-03: live phone video **is** a
+    gift deliverable — H.264 720p60 pulled via WHEP/WebRTC from
+    the laptop's mediamtx into the phone app (OD-16 transport
+    ruling), a ranked branch with a design-first step. The §4
+    promise stays exactly as printed. Verified at HEAD the video
+    path is still a stub today —
     `iPhone_rc/FPVHUDApp/Video/VideoSurface.swift` literally
     renders "NO VIDEO / APFPV RTP / H.265 PIPELINE STUBBED", and
-    `FutureRTPHEVCReceiver.swift` is a TODO placeholder. The app
-    today is telemetry + a HUD overlay, no picture. This section
-    already teaches the *comforting* boundary correctly (the
-    phone can't steer); it does not yet teach this one. Left
-    unrewritten per instruction — an editorial flag, not a patch,
-    since fixing it is a product-scope choice (build the video
-    path, or change what the booklet promises) above a docs pass.
-  - **[fix-wave: giftee-ux-3]** Section 3 step 4 ("press the one
-    big RACE DAY button… brings her cockpit view up") describes a
-    one-press flow; the shipped ground station is a three-press
-    flow (RACE DAY, then STRAIGHT TO THE GRID, then START), and
-    RACE DAY itself checks hotspot/mapper/bridge readiness, not
-    camera/controller/radio as written. Confirmed:
+    `FutureRTPHEVCReceiver.swift` is a TODO placeholder — so if
+    the phone ever ships before this branch lands, it should not
+    show that raw debug string to Lola. Suggested placeholder
+    line, in the booklet's own voice, for the video surface until
+    the real picture arrives (the owner edits the wording; this
+    is a starting draft, not print copy): *"Getting her camera
+    eyes ready — drive from the computer screen for now."*
+  - **[fix-wave: GS giftee-ux-3]** Section 3 step 4 ("press the
+    one big RACE DAY button… brings her cockpit view up")
+    describes a one-press flow; the shipped ground station is a
+    three-press flow (RACE DAY, then STRAIGHT TO THE GRID, then
+    START), and RACE DAY itself checks hotspot/mapper/bridge
+    readiness, not camera/controller/radio as written. Confirmed:
     `w17-ground-station/main/raceDayOrchestrator.js:73`
     (`STEP_ORDER`), `renderer/setupFlow.js` (the GRID/START
-    handlers). Two real fixes exist (auto-chain the three presses
-    in code, or reprint the step naming the buttons verbatim) —
-    both are product/second-repo decisions, so left unrewritten.
+    handlers). OD-6 decided the code route: on race-day success
+    the app auto-navigates to GRID and, once every required check
+    is green, auto-STARTs (START ANYWAY stays as the manual
+    override) — this is now a plain in-flight fix, not an open
+    product call. Step 4's "brings her cockpit view up" becomes
+    literally true once that lands; its "checks her camera, the
+    controller, the radio" clause still overstates what RACE DAY
+    itself checks (hotspot/mapper/bridge) and is not covered by
+    this ruling — left as printed pending a further owner/doc
+    pass on that specific clause.
+  - **[fix-wave: MAP-6]** Section 9's "Controller does nothing"
+    row now reads "today, simply reconnecting it isn't enough…
+    close the app and start the whole routine again." This
+    replaces the old (false) "reconnect the controller… then do
+    the two-step engine start again" line. OD-9 confirmed the
+    gap and ruled it fixed in code and in the booklet: the
+    mapper's gamepad registry is enumerated once at boot
+    (`w17-mapper/pkg/devices/controller.go:43`), so a pad that
+    drops and returns is never seen again until the mapper
+    restarts — restarting the whole drive program is the only
+    thing that currently restores control, exactly as the fix
+    text says (`w17-mapper.v2report.json` id `MAP-6`, CONFIRMED
+    high). The bench-only marker that used to sit on this row
+    ("reconnect steps") is retired — this was always a code fact,
+    not a bench one — and the marker-count banner above was
+    corrected.
+  - **[owner-ruling: OD-2]** Section 5 and the "don't open her
+    up" aside (section 8) are rewritten: OD-2 sets the ship image
+    to `esp32dev`, under which the SP3T selector is never read
+    (`main.cpp` pins `kBootStrapReading` straight to `Drive`; the
+    selector is only live under `W17_BT_SHOWOFF`) — so quick-show
+    driving and the shelf show are "two later tricks the pit crew
+    can unlock," never a giftee-operated switch. Section 9's
+    shelf-show troubleshooting row is rewritten the same way: it
+    now describes what to do *if the pit crew has ever turned the
+    mode on*, not an instruction for Lola to find and flip a
+    selector the delivered car doesn't let her reach. This closes
+    review finding 7 (the previous wording described "an
+    impossible mode with an inert remedy" on the `esp32dev` ship
+    image).
+  - **[fix-wave: iPhone telemetry-honesty]** Three more phone-app
+    facts worth recording here even though none contradicts the
+    printed booklet text (section 4 only ever promises "speed,
+    battery, and any warnings," nothing more specific): today, at
+    `iPhone_rc` trunk, **demo telemetry defaults ON and persists**
+    across launches (`AppSettings.swift:13`,
+    `demoModeEnabled: Bool = true`, loaded from saved settings) —
+    the branch `fix/telemetry-honesty-and-ci` (commit `e34a315`)
+    makes it session-only and off on every cold start, matching
+    the owner's second-round ruling; **RSSI/SNR/LQ are visible on
+    the live drive strip today** (`FPVHUDApp/UI/HUD/FPVHUDView.swift:648-650`),
+    which is exactly the radio-jargon-on-the-drive-screen the
+    booklet's "speed, battery, warnings" promise never claims to
+    show — the same branch (commit `5f1d563`) moves them to a
+    Debug-only panel; and **the stale/lost telemetry banner shows
+    raw contract strings today** ("TELEMETRY STALE >1S",
+    "TELEMETRY DATA LOST >3S" — `TelemetryState.swift:137,163`),
+    which the same branch (commit `f92c4fd`) rewrites to plain
+    language ("signal is a moment behind" / "signal lost — the
+    car is stopping itself"), keeping the contract names
+    Debug-only. No printed booklet text needed changing for any
+    of the three; recorded here so the next session doesn't have
+    to re-derive trunk-vs-branch state from scratch.
+- **OWNER-GATED, NOT fixed here (product decisions, not typos)
+  — flagged per the 2026-09-02 readiness review, left for the
+  owner's call. (Two items formerly in this list — the iPhone
+  video path and the GS one-press flow — moved to the
+  DECIDED/IN-FLIGHT section above once the owner's 2026-09-03
+  second round ruled on them; these three have no ruling yet.)**
   - **[fix-wave: SYN-2 / MAP-2]** Neither section 3 nor section 7
     says so, but today RACE DAY does not start the radio link —
     `main/raceDayOrchestrator.js:44`'s mapper argv whitelist
@@ -366,8 +445,8 @@ Draft notes for the owner (not for print):
     (`w17-mapper/pkg/client/grpc_client.go:35`). The booklet
     never explicitly claims "RACE DAY starts the radio," so this
     is not a false printed statement today — but it is the reason
-    behind whatever remains unreconciled once giftee-ux-3 above
-    is resolved, so both should land together. Editorial note
+    behind whatever remains unreconciled once the GS giftee-ux-3
+    fix above lands, so both should land together. Editorial note
     only, no printed change.
   - **[owner-decision: reverse promise vs firmware]** Section 1's
     "One honest quirk: she doesn't reverse — just like the real
@@ -385,10 +464,16 @@ Draft notes for the owner (not for print):
     dependency as-is, since it's a real Formula-1-car property
     anyway) or a firmware-scope one (clamp reverse in software too),
     not a docs typo.
-  - **[fix-wave: giftee-ux-4]** Section 4 step 2 says "there is
-    nothing to type" for the phone/computer pairing. Verified:
-    the iPhone app's own Settings screen has a manual "Host IP"
-    text field (`windowsHost`,
+  - **[fix-wave: phone-pairing-hostip]** (Retagged 2026-09-03 —
+    this is a coordinator mid-session probe finding, not a repo
+    review id; it previously borrowed `giftee-ux-4`, which
+    actually names an unrelated, real `iPhone_rc.v2report.json`
+    finding — "No VoiceOver semantics or Dynamic Type support on
+    the drive HUD," CONFIRMED medium — so the old tag would have
+    routed this item to the wrong fix.) Section 4 step 2 says
+    "there is nothing to type" for the phone/computer pairing.
+    Verified: the iPhone app's own Settings screen has a manual
+    "Host IP" text field (`windowsHost`,
     `iPhone_rc/FPVHUDApp/UI/Screens/SettingsPanelView.swift:17-20`)
     with its own validation messages — so at least a first-time
     setup requires typing the Windows PC's IP by hand today, unless
