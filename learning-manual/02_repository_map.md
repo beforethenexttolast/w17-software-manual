@@ -100,10 +100,11 @@ w17-control-fw/
 
 ### Tests
 
-`test/test_<module>/test_main.cpp` per module (11 suites), `test/mocks/` shared fakes.
+`test/test_<module>/test_main.cpp` per module (13 suites), `test/mocks/` shared fakes.
 Run `pio test -e native` for the live count — the suite has grown steadily with the
-repo (**229 tests as of 2026-08-17**; the "147" quoted in older docs/chapters is the
-2026-07-03-era size). Notable: `test_link2` contains `test_golden_frame_bytes` pinning
+repo (**330 tests as of 2026-09-03**, reproduced via `pio test -e native`; the "147"/
+"229" quoted in older docs/chapters are the 2026-07-03- and 2026-08-17-era sizes).
+Notable: `test_link2` contains `test_golden_frame_bytes` pinning
 the exact wire bytes of the link2 protocol, and `test_crsf` pins each outgoing
 telemetry frame — the ground station asserts the *same bytes* in its own tests.
 
@@ -130,9 +131,9 @@ Same pattern, smaller:
 `src/main.cpp` (~220 lines) is special: it splits work across the ESP32's **two CPU
 cores** — control logic on core 1, audio rendering on core 0 — sharing exactly one
 atomic 32-bit word + a heartbeat (chapter 07). `src/SimLink2Feeder.{hpp,cpp}` scripts a
-fake board-#1 for the standalone bench demo. Tests: 8 suites (**107 tests as of
-2026-08-17**; run `pio test -e native` for the live count), including a pure
-end-to-end `test_integration` (frames in → audio out).
+fake board-#1 for the standalone bench demo. Tests: 9 suites (**137 tests as of
+2026-09-03**, reproduced via `pio test -e native`; run it yourself for the live
+count), including a pure end-to-end `test_integration` (frames in → audio out).
 
 ## 4. `w17-ground-station` — the laptop app
 
@@ -186,7 +187,7 @@ w17-ground-station/
 ├── mediamtx/mediamtx.yml pinned server config (camera RTSP URL goes here)
 ├── scripts/              run/setup helpers (Electron repair, mediamtx download,
 │                         the Electron boot-smoke harness, proto/feel sync checks)
-├── test/                 67 vitest files, 1435 tests as of 2026-08-17 (incl. the
+├── test/                 67 vitest files, 1447 tests as of 2026-09-03 (incl. the
 │                         shared CRSF golden fixture, audit F3, and the
 │                         no-control-path guards); run `npm test` for the live count
 ├── .github/workflows/ci.yml   `test` job (Ubuntu fast gate) + `package-smoke` job
