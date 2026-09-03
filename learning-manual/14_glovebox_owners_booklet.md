@@ -177,11 +177,10 @@ She talks to you with her lights. Here's the dictionary.
 | **Red bar at the back, dim** | Her tail light. Always on when she's awake. |
 | **Red bar at the back, bright** | Braking. |
 | **Amber blinkers, left or right** | Turn signals. They follow your steering — even while she's parked. |
-| **Green, right at the outer edges of the tail light** | Her rear wing is open. If she's braking or has stopped herself at the same moment, that always shows first. |
+| **Green, right at the outer edges of the tail light** | Her rear wing is open. If she's braking or has stopped herself at the same moment, that always shows first. [TBD-at-bench: how bright and visible this actually reads on the finished car] |
 | **Rapid white flashes at the back** | Her rain light, flashing while she recovers energy as she slows — exactly like the real cars do. A race-trim trick (section 3): if you're seeing it, you've graduated. |
 | **Slow red heartbeat on the halo** | Battery getting low. **Head home now, calmly.** She won't stop on her own — bringing her in is your job. The screen warns you too: first a calm low-battery note, then a serious one if you keep going. |
 | **The whole car blinking amber** | **She stopped herself on purpose.** Nothing is broken — see section 7 for the 30-second fix. |
-| **Rear wing tell** | [TBD-at-bench: final look of the wing-open light cue] |
 | **Charge light (flap area)** | [TBD-at-bench: charging / done / problem colors] |
 
 And her sounds:
@@ -301,10 +300,10 @@ Draft notes for the owner (not for print):
 - HANDOVER CHECKLIST relocated (2026-09-03): the standing
   START LIGHTS item that used to live only in this note now
   lives in the workspace-root handover checklist,
-  `../w17-handover-checklist.md` (currently on the
-  docs/readiness-runbooks branch, not yet merged to main —
-  check it exists at that path before relying on it). That
-  checklist owns START LIGHTS going forward (startLightsEnabled
+  `../w17-handover-checklist.md` — confirmed merged to workspace
+  main (`docs/readiness-runbooks`, second truth-pass session) and
+  present at that path as of this branch's own rebase onto main.
+  That checklist owns START LIGHTS going forward (startLightsEnabled
   defaults to false in GS shared/settings.js; section 3's
   five-red-lights moment does not happen without it) plus every
   other pre-gift switch-flip; this booklet file no longer
@@ -440,13 +439,17 @@ Draft notes for the owner (not for print):
   - **[fix-wave: SYN-2 / MAP-2]** Neither section 3 nor section 7
     says so, but today RACE DAY does not start the radio link —
     `main/raceDayOrchestrator.js:44`'s mapper argv whitelist
-    cannot carry the TX serial port, and nothing else calls the
-    mapper's `StartLink` except its own web UI
-    (`w17-mapper/pkg/client/grpc_client.go:35`). The booklet
-    never explicitly claims "RACE DAY starts the radio," so this
-    is not a false printed statement today — but it is the reason
-    behind whatever remains unreconciled once the GS giftee-ux-3
-    fix above lands, so both should land together. Editorial note
+    cannot carry the TX serial port. What *does* call the
+    mapper's `StartLink` today is its own CLI launch flag
+    (`client.Init` in `w17-mapper/pkg/client/grpc_client.go:35-36`,
+    triggered by `-tx-serial-port-name` at process start) and its
+    own web UI (the gRPC server handler at
+    `w17-mapper/pkg/server/server_grpc.go:162`, invoked from the
+    browser) — RACE DAY calls neither. The booklet never
+    explicitly claims "RACE DAY starts the radio," so this is not
+    a false printed statement today — but it is the reason behind
+    whatever remains unreconciled once the GS giftee-ux-3 fix
+    above lands, so both should land together. Editorial note
     only, no printed change.
   - **[owner-decision: reverse promise vs firmware]** Section 1's
     "One honest quirk: she doesn't reverse — just like the real
