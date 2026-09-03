@@ -11,15 +11,26 @@ embedded": `platformio.ini` declares *environments* (toolchain + board + flags),
 `pio run -e <env>` builds one. It downloads compilers/frameworks automatically on first
 use. Install: VS Code extension, or `pipx install platformio` for the CLI.
 
-The environments (**[C]** both `platformio.ini` files):
+The environments (**[C]** both `platformio.ini` files; control-fw carries five board
+envs + `native`, soundlight carries two board envs + `native` — six and three
+total, respectively; refreshed 2026-09-03, was missing the two BT show-off rows):
 
 | Repo | Env | What it is |
 |---|---|---|
 | control | `esp32dev` | the real/gift firmware (default) |
 | control | `esp32dev_sim` | + `-DW17_SIM_CRSF_FEEDER` (Wokwi scripted demo) |
 | control | `esp32dev_tuning` | + `-DW17_TUNING_CONSOLE` (bench console + NVS) |
+| control | `esp32dev_btshowoff` | BT show-off **prototype** (owner-ratified 2026-08-17, never a delivery target) — real Bluepad32/BTstack custom core |
+| control | `esp32dev_simbt` | same BT show-off wiring, scripted pad feeder, on the **stock** pinned core — proves the BT-head logic itself has no Bluepad32/BTstack dependency |
 | control | `native` | host build for unit tests (HAL libs excluded via `lib_ignore`) |
-| soundlight | `esp32dev` / `esp32dev_sim` / `native` | same pattern (`-DW17_SIM_LINK2_FEEDER` for the bench demo) |
+| soundlight | `esp32dev` | the real/gift firmware (default) |
+| soundlight | `esp32dev_sim` | + `-DW17_SIM_LINK2_FEEDER` (bench demo) |
+| soundlight | `native` | host build for unit tests |
+
+Every delivery-lineage control env (`esp32dev` / `_tuning` / `_sim`) links zero
+BT/Bluepad32 code — the two `*bt*` envs are quarantined prototypes, not a step toward
+shipping Bluetooth control (**[C]** `platformio.ini` `[env:esp32dev_btshowoff]` comment
+block).
 
 A subtlety documented in the control `platformio.ini` itself: a child env's
 `build_flags` **replaces** the parent's, so the sim/tuning envs re-interpolate
