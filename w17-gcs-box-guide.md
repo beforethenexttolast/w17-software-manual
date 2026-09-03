@@ -167,6 +167,14 @@ preference above is **about the 900 mA power budget, not data**.
 
 ## 5. Driver story on the giftee PC
 
+> **The step-by-step procedure built from this section lives in
+> [`w17-giftee-pc-install-guide.md`](w17-giftee-pc-install-guide.md)** (readiness program,
+> 2026-09-03) — kit contents, the unsigned-installer/SmartScreen flow, first-launch firewall
+> prompts, one-time hotspot + RACE DAY field setup, and an "if this happens" troubleshooting
+> table, including the current 2026-09-02 grand-review findings that keep RACE DAY from working
+> end to end yet. This section stays the driver-story *reference*; that guide is the thing to
+> actually hand a pit-crew session.
+
 What actually has to install on a stranger's Windows machine, per device class — the gift-kit
 "needs a real installer … and driver notes for the GCS-box adapters" backlog line
 (`W17_PRODUCT_VISION.md`, one-action race-day startup item):
@@ -252,6 +260,10 @@ requirement, and "the box is unplugged" will be the most common failure a giftee
 - `configs/w17-ds4.json` (mapper `w17-audit-wave1` branch) — the saved profile whose COM-port
   placeholder this box's FTDI fills.
 - `w17-elrs-backup-handset.md` — the no-laptop backup TX that bypasses this box entirely.
+- `w17-giftee-pc-install-guide.md` — the step-by-step pit-crew procedure built from this
+  section's §5 (readiness program, 2026-09-03).
+- `w17-parts-to-gift-master-sequence.md` — stage 11 (ground side) places this guide in the
+  full parts-to-gift order.
 - `learning-manual/21_rebuild_ground_side_install.md` — the manual chapter that will consume this
   guide once the giftee-PC end-to-end test exists.
 - `w17-pdb-build-and-connector-guide.md` — style/precedent for this doc class; its "reconcile
