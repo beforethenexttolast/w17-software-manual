@@ -41,13 +41,14 @@ Design decisions worth absorbing:
    misconfigured to keep sending hold-position frames during signal loss (finding A8).
 4. **The link-proof requirement, added 2026-08-20 — the timestamp alone used to be
    enough.** Before this hardening, one CRC-valid frame timestamped the link "fresh"
-   for the *entire* 150 ms confirm window, so a single garbage frame that happened to
-   pass CRC8 (1-in-256 odds per candidate byte), followed by total silence, could still
-   produce ~150 ms of `Active` with no real link behind it. Leaving `Safe` now
-   additionally requires a **proof built from actual arrivals**, gated only on the
-   *entry* to `Active` (every path *into* `Safe` — timeout, RX flag, the
-   never-received latch — is untouched, so loss detection is exactly as fast as
-   before): **≥5 update() ticks that each saw a valid frame**
+   for the *entire* 150 ms confirm window, and the FSM would then sit `Active` on that
+   stale timestamp until `linkTimeoutMs` (500 ms) finally elapsed — so a single garbage
+   frame that happened to pass CRC8 (1-in-256 odds per candidate frame), followed by
+   total silence, could still produce **~350 ms** (500 − 150) of `Active` with no real
+   link behind it. Leaving `Safe` now additionally requires a **proof built from actual
+   arrivals**, gated only on the *entry* to `Active` (every path *into* `Safe` —
+   timeout, RX flag, the never-received latch — is untouched, so loss detection is
+   exactly as fast as before): **≥5 update() ticks that each saw a valid frame**
    (`rearmMinFrameTicks`), inside the same confirm window, **with no gap between
    consecutive valid frames wider than 60 ms** (`rearmMaxFrameGapMs`) — a wider gap
    discards the count and the proof restarts from the next real frame. At the 50 Hz
@@ -55,10 +56,12 @@ Design decisions worth absorbing:
    makes essentially every tick a frame tick, so 150 ms offers 8–9 chances and 5
    leaves margin for jitter while one lone frame (count 1) can never satisfy it; 60 ms
    is 3 tick periods (a healthy link's observed gaps run 20–40 ms) and, by
-   construction (`Config::valid()`), always strictly tighter than both the confirm
-   window and the loss timeout. **[C]** `FailsafeStateMachine.hpp:9-59` (the header's
-   own comment block explains the reasoning nearly verbatim); verified live in
-   `src/main.cpp` and `CLAUDE.md`'s "Leaving Safe requires a LINK PROOF" line.
+   construction (`Config::valid()`), always no greater than the confirm window and
+   strictly less than the loss timeout (`rearmMaxFrameGapMs <= rearmConfirmMs` and
+   `< linkTimeoutMs` — the strict bound is only against the timeout). **[C]**
+   `FailsafeStateMachine.hpp:9-63` (the header's own comment block explains the
+   reasoning nearly verbatim, including the ~350 ms figure at line 24); verified live
+   in `src/main.cpp` and `CLAUDE.md`'s "Leaving Safe requires a LINK PROOF" line.
 
 ### 1a. The gimbal's own failsafe behavior — decay-to-center, not hold-last
 

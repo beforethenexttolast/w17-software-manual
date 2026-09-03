@@ -99,7 +99,8 @@ You push the DualShock's throttle. What happens, in order:
    converts it to a pulse width in microseconds, and `Esp32LedcPwm` emits a 50 Hz PWM
    signal on GPIO14 to the **ESC** (electronic speed controller), which drives the motor.
 6. Twenty times a second, ESP32 #1 packs its whole state (commanded throttle, steering,
-   gear, flags, rpm, battery…) into a 14-byte **link2** frame and sends it to ESP32 #2,
+   gear, flags, rpm, battery…) into a 17-byte **link2** frame (14-byte payload + framing/
+   CRC) and sends it to ESP32 #2,
    which adjusts the engine sound pitch and the LEDs (brake bar, indicators…).
 7. About five times a second, ESP32 #1 also sends standard CRSF **telemetry** frames
    (battery, speed, gear/mode/ERS) back through the RP1 → over the ELRS downlink → to
