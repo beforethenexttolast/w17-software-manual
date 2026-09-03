@@ -22,6 +22,7 @@ none touches safety boundaries 1–7 or the hardware gates.
 | A5 | Program approval | **Go, all six workstreams.** |
 | A6 | OpenSCAD on this Mac | **Approved** (`brew install --cask openscad`); see §4 for the install outcome. |
 | A7 | Push authority | **Full grant for this program** (owner: "I grant you full possible authority"): every reviewed, merged trunk may be pushed; mapper only after its FORK-NOTICE push-review checks; `u4-arbiter` never (hook + rule). The grant closes when the program closes (recorded then in `CURRENT_STATUS.md`). |
+| A8 | **Model allocation policy (owner, 2026-09-03)** | Fable 5.1 = scarce supervisory intelligence only (top-level strategy, architecture/root-cause meta-review, adversarial challenge of the aggregate, adjudication of disputed findings, final synthesis). Opus 5 = senior engineering (hard module reviews, boundaries, state/lifecycle/concurrency, subtle correctness, high-severity findings, difficult implementations, independent verification, adversarial review). Sonnet 5 = default workforce (reconnaissance, ordinary review, docs, most implementation + verification, test execution). Haiku 4.5 optional for mechanical low-risk work only. **No workflow or subagent may inherit the session model silently — every agent call carries an explicit model.** Reviewer, implementer and verifier contexts stay independent; no implementer self-certifies; deterministic tools beat opinions; findings persist in durable files; worker output is compressed before expensive synthesis. |
 
 Unchanged by this pass: the done-bar 1–8, decisions 1–18, safety boundaries 1–7, A2 NOT-EXECUTED
 ⇒ Phase B BLOCKED, nothing flashed or powered, FIRST_ACTIVE NO-GO, BT1 bench gate.
@@ -73,5 +74,18 @@ Close-out: full baseline re-run; a dated vision-alignment audit workflow (succes
 
 ## 5. Pipeline record
 
-Filled as waves land (branch, builder verdict, reviewer verdict, merge hash, push). Until then
-`CURRENT_STATUS.md` carries the live state.
+**2026-09-03 — WS-1 review sweep COMPLETE (v2 topology).** The first attempt (2026-09-02) let every
+workflow worker inherit Fable and died on the usage limit; the scripts were rewritten with explicit
+routing (A8) and re-run with the retained Fable-era results replayed from seed files (9 reviewers,
+12 verdicts kept; nothing re-derived). v2 run: **159 agents (127 Opus, 32 Sonnet), 0 failures.**
+Per-repo synthesized reports (durable, session scratchpad `review-seeds/<repo>.v2report.json`):
+control-fw 16 ranked (2 gift-blocking: Hall ISR rate unbounded, battery-sense implausibility floor
+missing), soundlight 19 (2 gift-blocking: brightness cap before gamma renders quiet states at PWM 1,
+sim feeder), ground-station 18 (8 gift-blocking; blockers: race day never starts the radio link,
+zombie process after a cancelled quit), mapper 16 (7 gift-blocking; blockers: `-config-file-path`
+double-wraps the profile so the headless mapper panics, race day never starts the link), iPhone 14
+(blocker: telemetry merge baseline seeded with demo values, so omitted fields render as live numbers
+incl. the battery that arms the low-battery banner). Grand review (3 Fable perspectives + 1 Fable
+verdict) launched over the compressed digest; builder sweep 2 relaunched on Sonnet/Opus with durable
+briefs (`scratchpad/briefs/`). Merges/pushes: none yet.
+

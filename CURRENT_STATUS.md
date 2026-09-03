@@ -8,7 +8,18 @@ workspace-level source for all of those and for project execution status.
 Overwrite it in place when state changes; do not append history. Instruction files
 (`CLAUDE.md` / `AGENTS.md`) must not duplicate anything below.
 
-_Last updated: **2026-09-02 (readiness program OPENED — vision aligned, six workstreams
+_Last updated: **2026-09-03 (readiness program — WS-1 grand review sweep complete; builders in
+flight)** — the 2026-09-02 review launch let every workflow worker inherit Fable and hit the usage
+limit twice; on the owner's instruction the workflow scripts were rewritten with an explicit model
+policy (packet A8: Fable supervisory only, Opus hard lenses, Sonnet workforce) and re-run with the
+retained results replayed from seed files. **159 review agents (127 Opus / 32 Sonnet), 0 failures;
+five per-repo Opus-synthesized reports are on disk** (program packet §5 has the headline: 21
+gift-blocking items across the five repos, 5 blockers — race day never starts the radio link
+(GS+mapper), headless mapper panics on the double-wrapped profile, GS zombie after a cancelled quit,
+iPhone demo-seeded telemetry baseline). Grand review (Fable ×4) and the nine builders (Sonnet/Opus,
+durable briefs) are running; no merges or pushes yet; trunks unchanged from the 2026-09-02 baseline.
+**No hardware; nothing flashed or powered; A2 stays NOT-EXECUTED, Phase B stays BLOCKED.**
+Prior pass, **2026-09-02 (readiness program OPENED — vision aligned, six workstreams
 launched)** — the owner set the end goal "EVERYTHING IS READY, only assembly remains before
 gifting" and answered seven alignment questions (recorded as A1–A7 in
 **`2026-09-02_readiness_program.md`**, the packet for this pass): manual rebuild track
