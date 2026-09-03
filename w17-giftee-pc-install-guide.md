@@ -105,7 +105,7 @@ a `[fix-wave: boundaries-1]` item — track it, don't work around it.
    **Choose "Allow access" / check "Private networks."** The exact number and wording of these
    prompts is `[win-TBD]` — the review's structural read is "several," not a confirmed count.
 3. The app opens to a screen called **GARAGE** — this is always the first screen on a fresh
-   install or a relaunch (`w17-ground-station/README.md:76`; this specific fact is current, but
+   install or a relaunch (`w17-ground-station/README.md:89`; this specific fact is current, but
    the 2026-09-02 review found other parts of that same README stale on the setup flow's step
    count and the start-lights default — a GS docs branch is fixing it, so treat any *other* README
    claim this guide doesn't independently cite with the same caution).
@@ -152,7 +152,7 @@ a `[fix-wave: boundaries-1]` item — track it, don't work around it.
 1. Plug the DualShock controller in via USB (or pair it, once the pairing method is bench-
    confirmed — see the kit-contents note in §1).
 2. From GARAGE, continue to **SEAT FIT** — the app detects the pad automatically and shows a
-   live button-mapping preview (`w17-ground-station/README.md:107`; current as far as this
+   live button-mapping preview (`w17-ground-station/README.md:127-129`; current as far as this
    specific claim goes, same README-staleness caveat as §4 step 3 above).
 
 ### 5.3 The drive program and its saved profile (RACE DAY setup — a pit-crew step)
@@ -178,10 +178,10 @@ Lola, done once here.
    A relative path in either field is refused outright — RACE DAY only accepts an absolute path in
    either Windows (`C:\...`) or POSIX form (`w17-ground-station/main/raceDayOrchestrator.js:60-69`)
    — so always paste the full path, never a shortcut-relative one. The two fields are **not**
-   all-or-nothing: each is validated and repaired to empty **independently** (a bad drive-program
-   path does not blank out a good profile path, or vice versa —
-   `w17-ground-station/shared/racePrep.mjs:35-44`), so check both after saving rather than assuming
-   one bad value wiped the pair.
+   all-or-nothing: each is checked **independently** — a wrong-typed saved value is reset to empty
+   on load, while a well-formed but wrong path is left exactly as typed and only fails at race-day
+   start with a plain message (`w17-ground-station/shared/racePrep.mjs:35-44`) — so a bad value in
+   one field never wipes the other; check both after saving.
 3. **Before that profile will do anything, two placeholders inside it must be filled with values
    from THIS PC** (`w17-mapper/configs/README.md`): `REPLACE-WITH-DS4-ID` (a fingerprint of the
    controller, different on this PC than on the owner's bench, and different again if the pad is
