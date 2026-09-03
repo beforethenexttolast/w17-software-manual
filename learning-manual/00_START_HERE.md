@@ -104,15 +104,15 @@ Support files, used from any chapter:
 A key property of this project: almost everything runs on your computer.
 
 ```bash
-# Firmware unit tests (as of 2026-08-17: 229 and 107 passing — the suites grow, so
+# Firmware unit tests (as of 2026-09-03: 330 and 137 passing — the suites grow, so
 # trust the run, not any number quoted in a chapter)
 cd w17-control-fw   && pio test -e native
 cd w17-soundlight-fw && pio test -e native
 
-# Ground station tests + a live-looking demo (no car, no camera; 1435 tests as of 2026-08-17)
+# Ground station tests + a live-looking demo (no car, no camera; 1447 tests as of 2026-09-03)
 cd w17-ground-station && npm install && npm test && npm run demo
 
-# The mapper (Go toolchain; 137 tests as of 2026-08-17)
+# The mapper (Go toolchain; 180 `--- PASS` lines / 133 top-level tests as of 2026-09-03)
 cd w17-mapper && go build ./... && go test ./...
 ```
 
@@ -165,7 +165,10 @@ nothing has been proven on powered hardware.
 were repaired against the repos as of this date — control-fw `9f00f2e`, soundlight
 `1c19260`, ground station `2c56898`, mapper `432a809` (native/vitest suites
 229 / 107 / 1435 / 137; every count in the manual is now either as-of-dated or
-replaced by "run the suite"). The changes the repairs teach: the workspace is
+replaced by "run the suite" — **not quite true**: the 2026-09-03 wave-3 truth pass
+(`STALENESS_2026-08-17.md`) still found un-dated/stale counts surviving in this file
+and chapters 02/11; current counts are 330 / 137 / 1447 / 180 `--- PASS` lines (133
+top-level) as of 2026-09-03). The changes the repairs teach: the workspace is
 **six Claude-side repos** (see the table above), the ground station boots into the
 **GARAGE → GRID setup flow** (chapter 08 §7), the car's cassette controllers are
 **MH-ET Live D1-Mini (USB-C)** boards per the 2026-07-24 owner decision — the DevKit

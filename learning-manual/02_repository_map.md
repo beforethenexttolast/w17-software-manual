@@ -219,7 +219,9 @@ w17-ground-station/
 > (`source_code_explanation_plan.md` still maps the G0-era tree) — the campaign has
 > been paused since 2026-07-09. (Main moved twice more *during* this repair pass —
 > `ca1cb86` video profiles, then `2c56898` race day; treat any count here as its
-> dated snapshot and trust `npm test`.)
+> dated snapshot and trust `npm test`. **2026-09-03 update:** the 1435/67 figure above
+> is itself now dated — `npm test` at `35e5efc` reports **1447 tests across 67 files**;
+> see chapter 02 §4's opening count for the live-as-of-2026-09-03 figure.)
 
 > Deep dive: `shared/`'s pure core (CRSF decode, telemetry model, link state, golden
 > fixture) is explained line-by-line in

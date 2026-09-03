@@ -39,13 +39,15 @@ A subtlety documented in the control `platformio.ini` itself: a child env's
 ## 2. Run the unit tests (no hardware — do this first)
 
 ```bash
-cd w17-control-fw    && pio test -e native     # 229 tests as of 2026-08-17, all pass
-cd w17-soundlight-fw && pio test -e native     # 107 tests as of 2026-08-17, all pass
+cd w17-control-fw    && pio test -e native     # 330 tests as of 2026-09-03, all pass
+cd w17-soundlight-fw && pio test -e native     # 137 tests as of 2026-09-03, all pass
 ```
 
 (The suites grow with the repos — treat the run as the truth, not a quoted number.
-The fourth code repo has its own one-liner: `cd w17-mapper && go test ./...` — 137
-tests as of 2026-08-17; its build/run workflow is chapter 15 §3.)
+The fourth code repo has its own one-liner: `cd w17-mapper && go test ./...` — 180
+`--- PASS` lines as of 2026-09-03 (133 top-level `Test*` functions + 47 `t.Run`
+subtests; `go test ./... -v | grep -c '^--- PASS'` counts both, so quote the top-level
+figure if you're counting test *functions*); its build/run workflow is chapter 15 §3.)
 
 Useful variations:
 
@@ -143,7 +145,7 @@ sound/light demo — but it needs a real board + speaker/LEDs to be interesting
 cd w17-ground-station
 npm install
 npm run setup        # repairs Electron if postinstall was blocked; fetches mediamtx v1.9.3
-npm test             # vitest suites — 1435 tests as of 2026-08-17 (the suite grows
+npm test             # vitest suites — 1447 tests as of 2026-09-03 (the suite grows
                      #   with every wave; run it for the live count)
 npm run demo         # the app with replay telemetry — no car, no camera
 npm start            # the real thing (needs the camera pipeline configured)
@@ -194,7 +196,7 @@ tests" (README). Its own `.github/workflows/ci.yml` (the G4-era two-job skeleton
 explained line-by-line in `code_explained/ground_station/04_scripts_packaging_and_ci.md`
 §8) still has **two jobs**, but the Windows one has grown far past its F2 origins
 (re-read 2026-08-17 at `2c56898`): `test` on Ubuntu (the fast gate — the full vitest
-suite, 1435 tests as of 2026-08-17), and `package-smoke` on windows-latest, which now
+suite, 1447 tests as of 2026-09-03), and `package-smoke` on windows-latest, which now
 runs the suite again on the deployment target, then `npm run smoke:electron` (a **real
 Electron boot** of the app under a scrubbed, Wi-Fi-simulated environment, passing only
 on a structured readiness handshake), then the F2-era `electron-builder --dir`
