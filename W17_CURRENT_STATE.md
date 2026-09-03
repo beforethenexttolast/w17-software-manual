@@ -41,7 +41,7 @@ GS B3 docs refresh (35e5efc); soundlight docs/brief-catches-up (8b259bf); worksp
 | feat/phone-live-video (iPhone) | wt-iphone-video | c112622 (slice 1) + uncommitted slice-2 files | IMPLEMENTER (Opus) CONTINUING slices 2–3; rebase onto the fix branch's new tip at the end |
 | design/phone-live-video (iPhone) | wt-iphone-video-design | 50f25da | design doc; consumed by the implementer |
 | fix/sensor-honesty-and-ci (cf) | wt-cf-fix | d8c5f7c | built (351 tests, 5 envs) → REVIEW (Opus) relaunched (first run died at 429) |
-| fix/lights-truth-wdt-and-clamp (sl) | wt-sl-fix | 1824228 | built (149 tests) → REVIEW (Opus) relaunched |
+| fix/lights-truth-wdt-and-clamp (sl) | wt-sl-fix | 1824228 + fixes appending | review FIX_REQUIRED (2 blocking comment-text overstatements + 4 hardening items; reports/a03bd4a230e739f8c.md) → FIXER (Sonnet) in flight; correctness-1's trimmed-stick half deferred as a bench item |
 | fix/gs-packaging-and-resilience (GS A) | wt-gs-fixA | 1f2598d + fixes appending | review FIX_REQUIRED (1 blocking docs-truth + 6 minor; reports/adffe40ca3aaab56c.md) → FIXER (Sonnet) in flight, append-only; at merge the orchestrator refreshes CLAUDE.md/AGENTS.md's noControlPath.test.js:116-151 citation (branch shifts it to :124-168) |
 | fix/gs-race-day-truth-and-lifecycle (GS B) | wt-gs-fixB | 1f2598d + uncommitted mapperRunner.js edit | IMPLEMENTER (Opus) CONTINUING |
 | fix/headless-bringup-and-link (mapper A) | wt-mapper-fixA | b071a30 + fixes appending | review FIX_REQUIRED (B1 tx.port caveat, B2 per-caller adoption barrier, B3 test-claim precision, N1–N10; reports/a408caa6b748806f1.md) → FIXER (Opus) in flight; N11 vet chan + CORS residue routed to mapper B (FW-mapperB.md) |
