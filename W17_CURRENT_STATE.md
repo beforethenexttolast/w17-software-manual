@@ -15,7 +15,7 @@ Scratchpad root (this session): `/private/tmp/claude-501/-Users-vitaliykhomenko-
 | w17-soundlight-fw | main | bc09875 | yes | 137 native, 2 envs (docs 8b259bf; OD-1 instruction files bc09875) |
 | w17-ground-station | main | 9de86ae | yes | 1447 / 67 files (docs 35e5efc; OD-1 instruction files 9de86ae) |
 | w17-mapper | w17-headtrack (NOT main) | 21834fe | yes | 180 PASS lines (133 top-level) |
-| iPhone_rc | main | 85ce486 | yes | 84 (dev_check.sh; resolved simulator destination) — fix/telemetry-honesty-and-ci 1a1ea61 + OD-16 instruction amendment landed 2026-09-04; CI run on 85ce486 to be observed |
+| iPhone_rc | main | 85ce486 | yes | 84 (dev_check.sh; resolved simulator destination) — fix/telemetry-honesty-and-ci 1a1ea61 + OD-16 instruction amendment landed 2026-09-04; **CI GREEN** (iOS Validation run 33808159886, Build And Test: success — first green on this repo; OD-14 met for iPhone) |
 | w17-3d-codex | main | 5dddedb | yes | render.sh --table (17 rendered, 0 failed) |
 | u4-arbiter (mapper) | parked branch | 4e445c9 (S22–S25: OD-17/18 ratified; backup ref backup/u4-arbiter-pre-rebase-20260902 = 93be341) | NEVER | gated + default modes green, inert-build 0/46 symbols, hook exits 1 |
 
@@ -29,7 +29,7 @@ GS B3 docs refresh (35e5efc); soundlight docs/brief-catches-up (8b259bf); worksp
 | docs/brief-catches-up (sl) | wt-sl-docs | 8b259bf | LANDED on sl main 8b259bf, pushed (2026-09-03) |
 | docs/readiness-runbooks (workspace, B2) | wt-ws-runbooks | e404734 | LANDED on workspace main e404734, pushed (re-verify PASS + 2 orchestrator citation fixes) |
 | docs/readiness-runbooks (cf, B1) | (worktree removed) | 00c7612 | LANDED on cf main 00c7612, pushed (re-verify PASS + one hash-citation fix) |
-| docs/manual-truth-pass (workspace, B6) | wt-manual | 73f9dca + uncommitted ch09 diagram edit | FIXER (Sonnet) CONTINUING from partial work (3 of 10 items committed) |
+| docs/manual-truth-pass (workspace, B6) | wt-manual | 53845ee (rebased onto b1218f6) | fixed (all 10 blocking + non-blocking + extras; reports/ab9f68155d3ad8329.md) → RE-VERIFY (Sonnet) in flight → ff merge → push |
 | feat/windows-validation-scripts (GS, B4) | wt-gs-winval | 7cea58a (rebased onto 35e5efc) + uncommitted common.ps1 edit | FIXER (Opus) CONTINUING; new blocking bug found (Write-W17Result swallows the result line) |
 | docs/windows-vm-runbook (workspace, B4) | wt-ws-winval | 63492ec (rebased onto e404734) | same FIXER; rebase onto 0c40b6e+ at the end |
 | docs/instruction-file-invariants (cf/sl/GS, OD-1) | (worktrees removed) | cf 58581ff / sl bc09875 / GS 9de86ae | LANDED + pushed 2026-09-04 (re-verify PASS ×4) |
@@ -61,7 +61,7 @@ Tier A from the verdict, all in flight: MAP-1/MAP-2/SYN-2 (mapper A built), tele
 2. cf: fix/sensor-honesty-and-ci (review → fix incl. rebase + owed B4.3/B4.4 rows + D8 save sentence → verify → merge) → instr branch → push; trigger nothing on hardware.
 3. GS: A (review → fix → verify → merge) → B (built on A; review → fix → verify → merge) → instr branch (GS-1 wording) → B4 scripts (fixer → verify → merge) → contract re-mirror after iPhone lands → push; first windows-latest run → record windows_amd64 digest → `--require-pin`.
 4. mapper: A (review → fix → verify → guarded merge onto w17-headtrack → push after FORK-NOTICE checks) → dispatch the release workflow once → mapper B (Opus, incl. the `make(chan os.Signal)` vet fix) → review → merge → push. u4-arbiter never.
-5. iPhone: DONE for the fix branch + instr (85ce486); observe the CI run on 85ce486 (OD-14); feat/phone-live-video (rebase onto main → review → fix → verify → merge → push).
+5. iPhone: DONE for the fix branch + instr (85ce486, CI green); feat/phone-live-video (rebase onto main → review → fix → verify → merge → push → observe CI).
 6. workspace: B6 manual (fixer → verify → merge) → B4 runbook (fixer → verify → merge) → CURRENT_STATUS + this file after each wave → push.
 7. 3d-codex: DONE for this program (B9 landed 5dddedb); measurement session M-00… is owner residue; production prints wait on fit-check coupons.
 8. Close-out: full baseline re-run on every trunk; CI green everywhere (OD-14); dated vision-alignment audit; memory + CURRENT_STATUS; close the push grant.
