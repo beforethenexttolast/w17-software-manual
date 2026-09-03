@@ -12,8 +12,8 @@ Scratchpad root (this session): `/private/tmp/claude-501/-Users-vitaliykhomenko-
 |---|---|---|---|---|
 | workspace (this repo) | main | see `git log -1` (this commit) | pushed after each landing | link checks |
 | w17-control-fw | main | 58581ff | yes | 330 native, 5 envs (B1 runbooks 00c7612; plan ratifications 9d3f635; OD-1 instruction files 58581ff) |
-| w17-soundlight-fw | main | bc09875 | yes | 137 native, 2 envs (docs 8b259bf; OD-1 instruction files bc09875) |
-| w17-ground-station | main | 9de86ae | yes | 1447 / 67 files (docs 35e5efc; OD-1 instruction files 9de86ae) |
+| w17-soundlight-fw | main | 1ad8ea5 | yes | 150 native, 2 envs (docs 8b259bf; instruction files bc09875; fix/lights-truth-wdt-and-clamp 1ad8ea5 — CI run to observe; link2 re-copy from cf owed when cf lands) |
+| w17-ground-station | main | 22ce2e5 | yes | 1523 / 72 files (docs 35e5efc; instruction files 9de86ae; GS A packaging+resilience 22ce2e5 incl. README hedge + noControlPath citation :124-169 — first windows-latest run to observe → record windows_amd64 digest → --require-pin) |
 | w17-mapper | w17-headtrack (NOT main) | 21834fe | yes | 180 PASS lines (133 top-level) |
 | iPhone_rc | main | 85ce486 | yes | 84 (dev_check.sh; resolved simulator destination) — fix/telemetry-honesty-and-ci 1a1ea61 + OD-16 instruction amendment landed 2026-09-04; **CI GREEN** (iOS Validation run 33808159886, Build And Test: success — first green on this repo; OD-14 met for iPhone) |
 | w17-3d-codex | main | 5dddedb | yes | render.sh --table (17 rendered, 0 failed) |
@@ -41,8 +41,8 @@ GS B3 docs refresh (35e5efc); soundlight docs/brief-catches-up (8b259bf); worksp
 | feat/phone-live-video (iPhone) | wt-iphone-video | c112622 (slice 1) + uncommitted slice-2 files | IMPLEMENTER (Opus) CONTINUING slices 2–3; rebase onto the fix branch's new tip at the end |
 | design/phone-live-video (iPhone) | wt-iphone-video-design | 50f25da | design doc; consumed by the implementer |
 | fix/sensor-honesty-and-ci (cf) | wt-cf-fix | d8c5f7c + fixes appending, then rebase onto 58581ff | review FIX_REQUIRED (2 blocking: 256-byte TX-ring comment false, delivery_shape_check control accepts a dead nm; sequencing: link2 copy must re-sync in soundlight in the same wave; N4–N11; reports/a361bcda5ac83bee2.md) → FIXER (Opus) in flight, also lands the owed B4.3/B4.4 + D8 save sentence |
-| fix/lights-truth-wdt-and-clamp (sl) | wt-sl-fix | 08481f5 (4 appended; 150 tests) | fixed (reports/a9c2b57518719af0c.md; trimmed-stick half recorded as a bench item in SIMULATION.md) → RE-VERIFY (Sonnet) in flight → rebase onto bc09875 → ff merge → link2 re-copy from cf in the same wave → push → observe CI |
-| fix/gs-packaging-and-resilience (GS A) | wt-gs-fixA | 2106f7c (5 appended; 1523 tests) | fixed (reports/a40b7ff78665b564b.md) → RE-VERIFY (Sonnet) in flight → rebase onto 9de86ae → ff merge + orchestrator refresh of the CLAUDE.md/AGENTS.md noControlPath citation → push → first windows-latest run → record windows_amd64 digest → --require-pin |
+| fix/lights-truth-wdt-and-clamp (sl) | (worktree removed) | 1ad8ea5 | LANDED on sl main (re-verify PASS, reports/ac7625a48e9ad971b.md), pushed |
+| fix/gs-packaging-and-resilience (GS A) | wt-gs-fixA (kept until GS B rebases) | 22ce2e5 | LANDED on GS main (re-verify PASS, reports/ac3b799d08de39530.md), pushed 2026-09-04 |
 | fix/gs-race-day-truth-and-lifecycle (GS B) | wt-gs-fixB | 1f2598d + uncommitted mapperRunner.js edit | IMPLEMENTER (Opus) CONTINUING |
 | fix/headless-bringup-and-link (mapper A) | wt-mapper-fixA | b071a30 + fixes appending | review FIX_REQUIRED (B1 tx.port caveat, B2 per-caller adoption barrier, B3 test-claim precision, N1–N10; reports/a408caa6b748806f1.md) → FIXER (Opus) in flight; N11 vet chan + CORS residue routed to mapper B (FW-mapperB.md) |
 | fix/gamepad-hotplug-and-lint-teeth (mapper B) | — | — | NOT STARTED; depends on mapper A merged |
@@ -57,9 +57,9 @@ A1–A9 (OD-1…OD-15) and A10 (OD-16 phone video (a) WHEP-in-WKWebView + rule a
 Tier A from the verdict, all in flight: MAP-1/MAP-2/SYN-2 (mapper A built), telemetry source + demo seed (GS B / iPhone fix), NSIS without mediamtx (GS A built), SYN-1 zombie + hotspot wedge (GS B), red CI on three trunks (OD-14: cf/sl/GS/iPhone/mapper branches each add CI teeth; mapper release job must be dispatched once after mapper A lands). Windows behaviour is unproven until the WS3 VM session (owner installs VMware Fusion + Windows 11 ARM; pwsh 7 required on the guest). Hardware gates unchanged: A2 NOT-EXECUTED ⇒ Phase B BLOCKED; BT1; FIRST_ACTIVE NO-GO; nothing flashed/powered.
 
 ## 7. Exact next dependency graph
-1. sl: fix/lights (review → fix → verify → merge) → docs/instruction-file-invariants (after instr fixer) → re-sync link2 owned copy from cf via `tools/link2_copy_check.sh` after cf fix lands → push; CI green check.
+1. sl: DONE except the link2 owned-copy re-sync from cf (same wave as the cf landing; verify with `tools/link2_copy_check.sh --strict --sibling`) → push; CI green check.
 2. cf: fix/sensor-honesty-and-ci (review → fix incl. rebase + owed B4.3/B4.4 rows + D8 save sentence → verify → merge) → instr branch → push; trigger nothing on hardware.
-3. GS: A (review → fix → verify → merge) → B (built on A; review → fix → verify → merge) → instr branch (GS-1 wording) → B4 scripts (fixer → verify → merge) → contract re-mirror after iPhone lands → push; first windows-latest run → record windows_amd64 digest → `--require-pin`.
+3. GS: A DONE (22ce2e5) → B (rebase onto main; review → fix → verify → merge) → instr branch (GS-1 wording) → B4 scripts (fixer → verify → merge) → contract re-mirror after iPhone lands → push; first windows-latest run → record windows_amd64 digest → `--require-pin`.
 4. mapper: A (review → fix → verify → guarded merge onto w17-headtrack → push after FORK-NOTICE checks) → dispatch the release workflow once → mapper B (Opus, incl. the `make(chan os.Signal)` vet fix) → review → merge → push. u4-arbiter never.
 5. iPhone: DONE for the fix branch + instr (85ce486, CI green); feat/phone-live-video (rebase onto main → review → fix → verify → merge → push → observe CI).
 6. workspace: B6 manual (fixer → verify → merge) → B4 runbook (fixer → verify → merge) → CURRENT_STATUS + this file after each wave → push.
