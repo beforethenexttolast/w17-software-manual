@@ -42,22 +42,45 @@ Design decisions worth absorbing:
 
 ## 2. The ArmGate (`lib/channels/ArmGate`)
 
-Rule (**[C]** `ArmGate.hpp`, implementing `CLAUDE.md` §6.2): **armed ⇔ arm switch ON ∧
-throttle observed inside ±60 (of ±1000) since the gate last disarmed.** Update order
+Base rule (**[C]** `ArmGate.hpp`, implementing `CLAUDE.md` §6.2): **armed ⇔ arm switch ON
+∧ throttle observed inside ±60 (of ±1000) since the gate last disarmed.** Update order
 each tick: (1) switch off or `forceDisarm` (= failsafe Safe) ⇒ clear the neutral-seen
 latch, disarmed; (2) else latch neutral if |throttle| ≤ 60; (3) armed = latch.
 
-Consequences, both deliberate:
+**The 2026-08-20 re-arm invariant — a second, stronger latch on top of the base rule.**
+The base rule alone still had a gap the owner closed the same day: after a failsafe
+episode ends, "throttle back to neutral" was the *only* thing standing between a
+still-taped-on arm switch and a live motor. `ArmGate` now carries a second latch,
+`switchToggleRequired_`, set on *any* tick where `forceDisarm && armSwitchOn` (a
+failsafe episode caught the switch on), and cleared **only** by observing the switch go
+OFF. While the latch holds, the gate stays disarmed regardless of throttle — so:
+
+- Recovery + neutral stick + switch-still-on **never** re-arms. The driver must be seen
+  flipping the switch OFF (clearing the latch) and back ON (plus fresh neutral, the base
+  rule) — one deliberate two-step ritual, not a passive "wait for the stick to settle."
+- The latch is **level-driven**, so an OFF→ON toggle completed entirely *during* the
+  outage doesn't count: the ON tick is still `forceDisarm` (still Safe) and re-latches
+  itself. The arming edge must land on a tick the FSM already reports proven-Safe — the
+  fail-closed direction, always.
+- Booting with the switch already ON is treated exactly like a caught episode (the FSM
+  boots `Safe`, so the very first decoded switch-on tick sets the latch): first arm after
+  power-up always demands one deliberate OFF→ON toggle. Booting with the switch OFF (the
+  normal case) never sets the latch, so the very first arm is unchanged.
+
+Consequences of the base rule, both still true and both still deliberate:
 
 - Flipping arm ON with the stick held high does nothing until the stick centers once
   ("no arm-into-full-throttle").
-- After *any* failsafe episode, re-arming requires fresh neutral — so a link recovery
-  mid-panic-grip cannot snap the motor to the stick's current position (closes
-  finding A3).
+- Even *without* a failsafe episode, any disarm (switch off) clears the neutral-seen
+  latch — so a link recovery mid-panic-grip cannot snap the motor to the stick's current
+  position (closes finding A3).
 
 Note the layering: the failsafe FSM decides *link* health; the ArmGate decides *driver
-intent*; `EscOutput`'s 2 s boot hold satisfies the *ESC's* own arming; and board #2 has
-its own staleness failsafe. Four gates, each guarding a different failure class.
+intent* (now via two latches, not one); `EscOutput`'s 2 s boot hold satisfies the *ESC's*
+own arming; and board #2 has its own staleness failsafe. Four gates, each guarding a
+different failure class. **[C]** `lib/channels/src/ArmGate.cpp:13-38`,
+`lib/channels/include/channels/ArmGate.hpp` (header contract, quoted above nearly
+verbatim — it is unusually explicit about its own edge cases).
 
 ## 3. The virtual gearbox (`lib/gearbox`)
 
