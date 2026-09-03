@@ -97,8 +97,8 @@ restart-on-crash after 2 s, latch-guarded kill on quit). (08, G2)
 **CI (continuous integration) / job** — a cloud service (here **GitHub Actions**) that
 runs a defined pipeline of steps on every push. A *job* is one such pipeline on one
 *runner* (a fresh VM — `ubuntu-latest` or `windows-latest`). The ground station's
-`.github/workflows/ci.yml` has two: `test` (the full vitest suite on Linux — 1435
-tests as of 2026-08-17) and `package-smoke` (Windows: the suite again, a real Electron
+`.github/workflows/ci.yml` has two: `test` (the full vitest suite on Linux — 1447
+tests as of 2026-09-03) and `package-smoke` (Windows: the suite again, a real Electron
 boot smoke, an `--dir` packaging proof, and the unsigned NSIS giftee installer).
 "CI green" means the logic passed, the app booted headlessly, and it packaged —
 **not** that video, serial, or a real device works. (11 §7, G4 §8)
