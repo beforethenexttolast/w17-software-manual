@@ -51,7 +51,7 @@ from the USB-C receptacle, the pack's XT60 + JST-XH balance lead, and the **char
 | Rail A bus | PDB → clean loads | 5 V, GND | XT30 (or keyed 2-pin) per branch |
 | Rail B bus | PDB → servo loads | 5 V, GND | XT30 |
 | CRSF | RP1 ↔ ESP32 #1 | RP1_TX→GPIO16, GPIO17→RP1_RX, 5 V, GND | JST-XH 4-pin |
-| link2 | ESP32 #1 → #2 | GPIO25→GPIO16(#2), (opt) GPIO26←GPIO17(#2), GND | JST-XH 3-pin |
+| link2 | ESP32 #1 → #2 | GPIO25→GPIO16(#2), GND — **no RX conductor** (**corrected 2026-09-03:** this row previously read "(opt) GPIO26←GPIO17(#2)" as if the reverse/ack conductor were optionally buildable; it is **STRUCK** by the closed 2026-08-04 owner decision C4 — link2 is one-way by design, and firmware opens the UART with `rxPin=-1` (`w17-control-fw/lib/link2_hal_esp32/src/Esp32Link2Uart.cpp:10`). GPIO26 stays unwired; a wire there is A2 hard stop 9 (`w17-control-fw/project-review/13_phase_a_a2_no_power_checklist.md:661`). See also `w17-pdb-build-and-connector-guide.md:78`, which already treats this as closed.) | JST-XH 3-pin (RX position left empty) |
 | Steering servo | ESP32 #1 GPIO13 | sig, +5 V(B), GND | 3-pin servo (JR) |
 | ESC signal | ESP32 #1 GPIO14 → ESC | sig, GND only (**ESC BEC +5 V isolated**) | 3-pin servo, +5 V pin removed |
 | DRS servo | ESP32 #1 GPIO18 | sig, +5 V(B), GND | 3-pin servo |
