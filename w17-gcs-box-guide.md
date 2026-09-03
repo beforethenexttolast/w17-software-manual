@@ -182,7 +182,7 @@ What actually has to install on a stranger's Windows machine, per device class �
 | Device | Windows behavior | Action needed on the giftee PC |
 |---|---|---|
 | FT232RL | FTDI VCP driver ships via **Windows Update** on Win 10/11 as a rule; device appears as a numbered **COM port**. The fork README's FT_Prog reprogramming (§3) is **already done at build time** — never on the giftee PC. | Usually none `[I — class behavior; verify on the real machine, bench-TBD]`. The one-action orchestration must **discover/pin the COM port** — the saved-profile placeholder from packet §4 item 7. |
-| RT5370 | In-box/Windows-Update Ralink/MediaTek driver expected on Win 10/11 `[I]`. The load-bearing question is **AP capability**, not the driver install: the GS hosts the hotspot itself, *"Mobile Hotspot backend preferred; legacy `hostednetwork` fallback targets the RT5370, needs elevation"* (`CURRENT_STATUS.md`, pending-validations, in-app setup flow). | The §D verification: **AP-mode support on Win 10/11** `[bench-TBD]`. If the legacy fallback path is the one that works, the install guide inherits an elevation prompt to explain in giftee language. |
+| RT5370 | In-box/Windows-Update Ralink/MediaTek driver expected on Win 10/11 `[I]`. The load-bearing question is **AP capability**, not the driver install: the GS hosts the hotspot itself, *"Mobile Hotspot backend preferred; legacy `hostednetwork` fallback targets the RT5370, needs elevation"* (`CURRENT_STATUS.md`, pending-validations, in-app setup flow). **Corrected 2026-09-03: this row predates the Addendum below — the RT5370 is now the spare/2.4 GHz fallback adapter, not the primary hotspot host; the primary is the dual-band adapter approved in the Addendum.** | The §D verification: **AP-mode support on Win 10/11** `[bench-TBD]`. If the legacy fallback path is the one that works, the install guide inherits an elevation prompt to explain in giftee language. |
 | ES24TX module | **No PC driver at all** — the PC sees only the FTDI serial port; the module hangs off it. (Its own USB connector is ELRS-flash-only, §3.) | None. |
 | USB hub | Generic class driver. | None. |
 | Ground station | Not a driver, but the same install story: **unsigned NSIS installer** built in CI since the 2026-08-17 GS merge (`learning-manual/21_rebuild_ground_side_install.md` sources; first artifact still unconfirmed at that stub's writing). | Run the installer; expect the SmartScreen-style unsigned-app friction — chapter 21's problem to document. |
@@ -190,14 +190,23 @@ What actually has to install on a stranger's Windows machine, per device class �
 
 **PC prerequisites the box does NOT cover** — for the install guide's checklist:
 
-- **A 5 GHz-capable internal Wi-Fi adapter.** The video path is the camera's own 5.8 GHz AP
+> **Correction (2026-09-03, readiness runbook pass) — the bullet below described the topology as
+> it stood BEFORE the 2026-08-17 addendum and now contradicts it; the addendum is the ruling.**
+> Kept here, struck, for history. **Current topology:** the box's own dual-band adapter **hosts**
+> the 5 GHz Mobile Hotspot; the car's camera radio (RTL8812EU) **joins that hotspot as a client**
+> to send video back — the PC does not join the camera's AP directly, and the giftee PC's own
+> built-in Wi-Fi adapter plays no role in the video path at all. The RT5370 demotes to spare / a
+> 2.4 GHz fallback, not the primary hotspot host (Addendum 2026-08-17 below). See
+> `w17-giftee-pc-install-guide.md` §5.1 step 3 for the pit-crew-facing version of this.
+
+- ~~**A 5 GHz-capable internal Wi-Fi adapter.** The video path is the camera's own 5.8 GHz AP
   (BL-M8812EU2, car side — §1 here; BOM §1) which the PC joins while the RT5370 hosts the 2.4 GHz
   hotspot for the iPhone `[I — derived: the recorded design gives the PC both roles at once
   (`learning-manual/01…` §4 step 8 video-to-laptop + the GS-hosted hotspot above), and one adapter
   cannot be a 5.8 GHz station and the hotspot host simultaneously — this is precisely why the box
   carries a dedicated hotspot adapter]`. A giftee PC without 5 GHz Wi-Fi cannot show video —
   surface this as an owner decision: accept it as a stated PC requirement, or grow the box by a
-  5.8 GHz-capable adapter `[TBD-owner-confirm]`.
+  5.8 GHz-capable adapter `[TBD-owner-confirm]`.~~
 - **One free USB 3.x port** (§4 criterion 1).
 - Windows 10/11 — everything above is unvalidated on real hardware today: *"Windows specifics …
   are unit-tested against canned output on macOS only — recorded validation debt"*
