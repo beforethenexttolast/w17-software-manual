@@ -109,4 +109,9 @@ Opus desk R-review MERGE_CLEAN). `u4-arbiter` @ `8007603` stays parked, never me
 intact; its desk R-review returned FIX_REQUIRED on one miscitation (dtClampMs cites D10 wrongly) plus
 an R12 scope gap and the R15 transport question (owner items). B1/B2/B3 branches in fix; B4/B6/B9
 complete awaiting review. Fix wave launched per the verdict's branch list.
+**Also landed + PUSHED: ground-station main = `35e5efc`** (B3: Sonnet build → Opus review FIX_REQUIRED ×2 blocking
+→ Sonnet fix → Sonnet re-verify (one banner sentence corrected, body byte-identical to canonical `61ad68f`)).
+Fix wave in flight: mapper A (Opus), GS A (Opus), cf sensor-honesty-and-ci (Opus), sl lights (Opus), sl docs (Sonnet),
+iPhone telemetry-honesty-and-ci (Opus), OD-3 phone-video DESIGN (Opus), OD-1 instruction-file batch (Sonnet);
+u4-arbiter fixer (Opus) on the desk-review items; reviews of B4/B6/B9 (Opus); B1/B2 fixers (Sonnet).
 

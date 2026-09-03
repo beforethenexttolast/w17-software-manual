@@ -18,7 +18,8 @@ gift-blocking items across the five repos, 5 blockers — race day never starts 
 (GS+mapper), headless mapper panics on the double-wrapped profile, GS zombie after a cancelled quit,
 iPhone demo-seeded telemetry baseline). Recovery after a second stop: three Fable perspectives retained, the verdict re-run bounded; the
 cross-repo probe is complete. **Landed + PUSHED: iPhone_rc main = `61ad68f`** (giftee install docs, 74/74), **mapper `w17-headtrack` =
-`21834fe`** (W17 release job, 180), **control-fw main = `7c00668`** (unlock-plan refresh, docs only).
+`21834fe`** (W17 release job, 180), **control-fw main = `7c00668`** (unlock-plan refresh, docs only), **ground-station main = `35e5efc`** (B3 docs refresh:
+README truth pass, SETUP/bench checklist, GIFTEE_FIRST_LAUNCH.md, contract mirror re-synced to iPhone `61ad68f`; 1447/67).
 Grand verdict: NOT READY for assembly-only; owner accepted OD-1…15 (packet A9; OD-3 overridden: phone
 video is a gift deliverable). Fix wave in flight; builder branches in review/fix; `u4-arbiter` @ `8007603`
 parked (desk R-review FIX_REQUIRED on a miscitation; FIRST_ACTIVE NO-GO unchanged).
