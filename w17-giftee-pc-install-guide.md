@@ -5,19 +5,26 @@ handover — the owner, standing in as "pit crew." **Not for Lola** — her copy
 is the printed booklet (`learning-manual/14_glovebox_owners_booklet.md`); this guide is the
 one-time technical setup behind that booklet's one-cable, one-button promise.
 
-**Status: every step below that touches a real Windows machine is `[win-TBD]`** — none of this
-has been run on Windows yet (the workspace has no Windows box and no VM as of this writing; see
-`w17-parts-to-gift-master-sequence.md` stage 11, `WINDOWS-VM` gate). This guide is written from
-the source code and the GCS box guide, not from an observed install. Where the code is explicit
-about a behavior (a file path, a flag, a dialog string it prints), that part is cited, not
-guessed; where Windows itself decides the behavior (driver install, SmartScreen wording, firewall
-prompt count), it is marked `[win-TBD]`.
+**Status: nothing in this guide has been run on a real Windows machine** (the workspace has no
+Windows box and no VM as of this writing; see `w17-parts-to-gift-master-sequence.md` stage 11,
+`WINDOWS-VM` gate) — that is true of every step below, whether or not the step carries an inline
+tag. This guide is written from the source code and the GCS box guide, not from an observed
+install. Where the code is explicit about a behavior (a file path, a flag, a dialog string it
+prints), that part is cited as fact, not guessed — but "cited from code" is not "observed on
+Windows," so treat it as equally unverified until stage 11's VM pass or stage 13's real dry run.
+The inline **`[win-TBD]`** marker is narrower than "touches Windows": it flags the specific places
+where **Windows itself, not this guide's cited code, decides the outcome** — driver naming,
+SmartScreen wording, firewall prompt count, and the like — so a step describing a well-documented
+Windows UI flow (SmartScreen's "More info" button, a controller showing up in Device Manager)
+without an inline tag is not thereby confirmed; it is simply not an open question about *this
+app's* behavior.
 
-**Do not run this guide's final stages (§6–§7) yet.** Six 2026-09-02 grand-review findings mean
-the RACE DAY button does not work end to end today for reasons that have nothing to do with
-hardware readiness — see the callout in §6. Everything up through §5 (unpacking, installing,
-first launch, pairing the controller) is safe to do any time; treat §6–§7 as blocked until
-`CURRENT_STATUS.md` records those findings closed.
+**Do not run this guide's final stages (§6–§7) yet.** Fourteen 2026-09-02 grand-review findings
+(the full, authoritative list is `w17-parts-to-gift-master-sequence.md` §0) mean the RACE DAY
+button does not work end to end today for reasons that have nothing to do with hardware readiness
+— see the callout in §6. Everything up through §5 (unpacking, installing, first launch, pairing
+the controller) is safe to do any time; treat §6–§7 as blocked until `CURRENT_STATUS.md` records
+those findings closed.
 
 ---
 
@@ -44,8 +51,12 @@ are looking at the wrong device — the serial adapter is the one that needs rec
 1. Plug the station box's single USB cable into a **blue (USB 3.x) port** on the PC, not a black
    USB 2.0 port. The box's own power budget is thin on paper (`w17-gcs-box-guide.md` §4: roughly
    775–810 mA worst-case against a 900 mA USB 3.x port's budget, versus only 500 mA on USB 2.0) —
-   a USB 2.0 port may brown out the radio module under load. `[bench-TBD]` confirms the real
-   number; until then, always prefer USB 3.x.
+   a USB 2.0 port may brown out the radio module under load. **That 775–810 mA figure was computed
+   with the RT5370 as the hotspot's ≤160 mA contributor** (`w17-gcs-box-guide.md` §4); the
+   2026-08-17 addendum demotes the RT5370 to spare/2.4 GHz fallback and adds a dual-band adapter as
+   the primary hotspot host instead, whose own draw is not yet folded into this total — so treat
+   775–810 mA as **pre-addendum** and `[bench-TBD]` regardless. Until a real number exists, always
+   prefer USB 3.x.
 2. Windows should recognize two devices inside the box on its own: the serial adapter (shows up
    as a COM port) and the Wi-Fi adapter that will host the phone's hotspot. **If this happens
    instead — Windows asks to search online for a driver or shows a yellow warning icon in Device
@@ -60,11 +71,13 @@ are looking at the wrong device — the serial adapter is the one that needs rec
 
 ## 3. Install the ground station
 
-The ground station ships as an **unsigned installer** (`.exe`, built by
-`w17-ground-station/.github/workflows/ci.yml`, `electron-builder --win nsis`). "Unsigned" means it
-has no Microsoft-recognized publisher certificate — expected for a one-off gift build, not a sign
-of a corrupted file, but Windows will warn about it. This is standard Windows behavior for any
-unsigned installer, not something specific to this app.
+The ground station ships as an **unsigned installer** (`.exe`, built automatically by **CI** — the
+project's automated build pipeline that runs on every code change,
+`w17-ground-station/.github/workflows/ci.yml` — using **`electron-builder --win nsis`**, the tool
+that packages the app into a standard Windows installer). "Unsigned" means it has no
+Microsoft-recognized publisher certificate — expected for a one-off gift build, not a sign of a
+corrupted file, but Windows will warn about it. This is standard Windows behavior for any unsigned
+installer, not something specific to this app.
 
 1. Run the installer. Windows SmartScreen will most likely show a blue screen: **"Windows
    protected your PC" / "Microsoft Defender SmartScreen prevented an unrecognized app from
@@ -92,7 +105,10 @@ a `[fix-wave: boundaries-1]` item — track it, don't work around it.
    **Choose "Allow access" / check "Private networks."** The exact number and wording of these
    prompts is `[win-TBD]` — the review's structural read is "several," not a confirmed count.
 3. The app opens to a screen called **GARAGE** — this is always the first screen on a fresh
-   install or a relaunch (`w17-ground-station/README.md`).
+   install or a relaunch (`w17-ground-station/README.md:76`; this specific fact is current, but
+   the 2026-09-02 review found other parts of that same README stale on the setup flow's step
+   count and the start-lights default — a GS docs branch is fixing it, so treat any *other* README
+   claim this guide doesn't independently cite with the same caution).
 4. **If this happens instead — the window never appears, or the app seems to hang:** check Task
    Manager for a process still running with no window (a known defect, `SYN-1` /
    `correctness-1`/`lifecycle-concurrency-1` in the 2026-09-02 review — cancelling an earlier
@@ -114,10 +130,18 @@ a `[fix-wave: boundaries-1]` item — track it, don't work around it.
    here if you want something else, then write down whatever you actually set.
 3. The app tries Windows's modern **Mobile Hotspot** feature first, falling back to the older
    `netsh wlan hostednetwork` method if that's unavailable (`w17-ground-station/main/hotspot.js`
-   header comment) — the fallback sometimes needs you to approve an administrator prompt. **Pin
-   the hotspot to the 5 GHz band if your adapter (and the box's 5.8 GHz-capable adapter) supports
-   it** (`w17-gcs-box-guide.md` addendum, 2026-08-17) — this keeps the hotspot's radio out of the
-   way of the car's own 5.8 GHz camera link, which the PC also has to join at the same time.
+   header comment — the file has no adapter- or band-selection logic of its own; this step is
+   entirely Windows's own settings, not something the app configures for you). **Pin the hotspot
+   to the 5 GHz band, hosted from the station box's own dual-band adapter** — not the PC's
+   built-in Wi-Fi (`w17-gcs-box-guide.md` Addendum 2026-08-17, owner decision): the box carries a
+   dual-band adapter whose driver can **host** a 5 GHz Mobile Hotspot, and the car's camera radio
+   (an RTL8812EU) **joins that hotspot as a client** to send its video back — one network serving
+   both the phone bridge and the camera feed. The older RT5370 dongle is now spare / a 2.4 GHz
+   fallback only, not the primary hotspot host. **If this happens instead — Windows's Mobile
+   Hotspot settings don't offer a way to pick which adapter hosts it, or only show one band:**
+   this is a real open question, not yet observed on real hardware (`[win-TBD]`) — if Windows
+   insists on using the PC's built-in Wi-Fi instead of the box's adapter, or won't offer 5 GHz,
+   stop and report rather than guessing at Windows's per-adapter hotspot UI.
 4. **If this happens instead — the hotspot won't start, or Windows says no network profile
    exists to tether from:** this is a documented Windows quirk with the modern Mobile Hotspot API
    (it wants an active internet-connected profile to tether from) — connect the PC to any Wi-Fi
@@ -128,7 +152,8 @@ a `[fix-wave: boundaries-1]` item — track it, don't work around it.
 1. Plug the DualShock controller in via USB (or pair it, once the pairing method is bench-
    confirmed — see the kit-contents note in §1).
 2. From GARAGE, continue to **SEAT FIT** — the app detects the pad automatically and shows a
-   live button-mapping preview (`w17-ground-station/README.md`).
+   live button-mapping preview (`w17-ground-station/README.md:107`; current as far as this
+   specific claim goes, same README-staleness caveat as §4 step 3 above).
 
 ### 5.3 The drive program and its saved profile (RACE DAY setup — a pit-crew step)
 
@@ -136,16 +161,27 @@ This is the step that makes the single **RACE DAY** button do its job — normal
 Lola, done once here.
 
 1. Copy the mapper program (`elrs-joystick-control.exe`) and its `configs\w17-ds4.json` profile
-   onto the PC — a folder under the ground station's own install directory is a reasonable choice
-   if you have no other preference; there is no required location, only two settings fields that
-   must point at wherever you put them (next step).
+   onto the PC — **`%LOCALAPPDATA%\W17\mapper\`** is the recommended location, not a folder under
+   the ground station's own install directory. Reason: the ground station ships as a default
+   one-click NSIS installer (no `oneClick`/`perMachine` override in
+   `w17-ground-station/electron-builder.yml`), and that installer type removes the entire previous
+   install directory (`RMDir /r $INSTDIR`) before laying down an update — §8 of this guide already
+   has you reinstall when the kit build changes, and a mapper/profile folder living inside that
+   directory would be silently deleted along with it. `%LOCALAPPDATA%\W17\mapper\` survives a
+   reinstall because it's outside `$INSTDIR` entirely. There is no other required location — only
+   the two settings fields below must point at wherever you actually put the files.
 2. Open the ⚙ settings panel in the ground station and find the **RACE DAY** section. Fill in:
-   - **drive program** — the full path to `elrs-joystick-control.exe`
+   - **drive program** — the full, **absolute** path to `elrs-joystick-control.exe`
      (`w17-ground-station/renderer/index.html` field id `setMapperPath`)
-   - **saved profile** — the full path to `w17-ds4.json`
+   - **saved profile** — the full, **absolute** path to `w17-ds4.json`
      (field id `setProfilePath`)
-   Both are saved together as one settings block; a garbage value in either repairs to empty, not
-   a partial mix (`w17-ground-station/shared/racePrep.mjs`).
+   A relative path in either field is refused outright — RACE DAY only accepts an absolute path in
+   either Windows (`C:\...`) or POSIX form (`w17-ground-station/main/raceDayOrchestrator.js:60-69`)
+   — so always paste the full path, never a shortcut-relative one. The two fields are **not**
+   all-or-nothing: each is validated and repaired to empty **independently** (a bad drive-program
+   path does not blank out a good profile path, or vice versa —
+   `w17-ground-station/shared/racePrep.mjs:35-44`), so check both after saving rather than assuming
+   one bad value wiped the pair.
 3. **Before that profile will do anything, two placeholders inside it must be filled with values
    from THIS PC** (`w17-mapper/configs/README.md`): `REPLACE-WITH-DS4-ID` (a fingerprint of the
    controller, different on this PC than on the owner's bench, and different again if the pad is
@@ -157,9 +193,10 @@ Lola, done once here.
    `[fix-wave: MAP-9]`.) Edit both placeholders in `w17-ds4.json` with a plain text editor, save,
    and leave the mapper closed afterward.
 4. **Until both placeholders are filled, the profile fails safe, not silently dangerous** — every
-   channel sits at its disarmed default and the car simply never arms (`w17-mapper/configs/
-   README.md`: "the profile is fail-safe until both are set"). That said, nothing today warns you
-   if you forget one (`[fix-wave: MAP-5]`) — double-check both values yourself.
+   channel sits at its disarmed default and the car simply never arms
+   (`w17-mapper/configs/README.md`: "the profile is fail-safe until both are set"). That said,
+   nothing today warns you if you forget one (`[fix-wave: MAP-5]`) — double-check both values
+   yourself.
 5. **While the mapper is running for this step, both the web page you just opened and its
    underlying control channel are reachable from every device on the same network, not just
    this PC** — neither is limited to this machine, and neither checks who is asking
@@ -168,6 +205,23 @@ Lola, done once here.
    else already on that network could, in principle, start or stop the radio link the same way
    this guide has the pit crew do from the browser. Keep this step to a private/trusted network
    and close the mapper afterward; do not leave it running unattended.
+6. **Add a Windows Firewall rule that keeps the mapper's controls reachable only from this PC,
+   not the network.** This closes off the same exposure permanently, not just while you remember
+   to keep step 5 on a trusted network — do this once, during this setup, before the kit is
+   considered final:
+   - Open **Windows Defender Firewall with Advanced Security** (search for it from the Start
+     menu) → **Inbound Rules** → **New Rule…**
+   - Rule type: **Custom**. Program: browse to `elrs-joystick-control.exe` (wherever you put it
+     in step 1). Protocol: **TCP**, Local ports: **3000, 10000** (the mapper's web page and its
+     control channel). Scope: leave remote addresses as **Any**. Action: **Block the connection**.
+     Apply to whichever network profile the hotspot uses (Private is the common case).
+   - This blocks connections arriving over the network to those two ports, but does **not** block
+     the ground station or your own browser talking to the mapper on **this same PC**
+     (`localhost`/`127.0.0.1` traffic never leaves the machine, so it isn't affected by this rule)
+     — RACE DAY and the step-3 web-page check above keep working exactly as before.
+   - `[win-TBD]` — this rule is not yet bench-verified on a real Windows box; confirm both halves
+     after setting it up: the mapper's own web page still opens from this PC, and (if you have a
+     second device on the same network to test with) it no longer opens from that second device.
 
 ---
 
@@ -196,7 +250,8 @@ Once those land, the expected sequence is:
    as it completes (`w17-ground-station/main/raceDayOrchestrator.js` `STEP_ORDER`).
 3. If any step fails, the ones already up **stay up** — nothing is wound back — and the failed
    step shows a plain-language reason (the same module's header comment). Pressing RACE DAY again
-   is always safe; it re-runs idempotently rather than starting a second copy of anything.
+   is always safe; it re-runs **idempotently** — pressing it five times in a row lands in the same
+   state as pressing it once, never five copies of anything running on top of each other.
 
 ---
 
@@ -230,7 +285,7 @@ The phone HUD is a nice-to-have, never the primary display (the laptop screen is
 | Car never arms, no error shown | An unfilled `REPLACE-WITH-*` placeholder (§5.3 step 3/4) | Re-check both placeholders in `w17-ds4.json` |
 | Hotspot won't start | Windows Mobile Hotspot needs an active internet-connected profile first (`[win-TBD]`) | Connect to any network first, then retry |
 | Settings seem to have silently reset | `correctness-2` — an unreadable `settings.json` resets to defaults and can overwrite its own backup | Confirm `correctness-2` closed before this kit is considered final |
-| Someone else on the network could reach the mapper's controls while it's open | `MAP-8` — the mapper's network ports aren't limited to this PC and have no login (§5.3 step 5) | Only run §5.3 on a trusted network; confirm `MAP-8` closed before this kit is considered final |
+| Someone else on the network could reach the mapper's controls while it's open | `MAP-8` — the mapper's network ports aren't limited to this PC and have no login (§5.3 step 5) | Only run §5.3 on a trusted network, then add the firewall rule in §5.3 step 6; confirm `MAP-8` closed before this kit is considered final |
 | Phone HUD stopped connecting | The 7-day sideload signature may have expired (§7) | Check the re-sign date before troubleshooting the network |
 
 ---
