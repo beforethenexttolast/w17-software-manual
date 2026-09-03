@@ -35,8 +35,13 @@ the box here.
   this specific car shipped with. Copy them into `CURRENT_STATUS.md`, not just this checklist.
 - [ ] **Safe-state checks re-confirmed on the delivery firmware** (D8 Phase 11a step 9): TX-off
   boot sits in failsafe; arm gate holds neutral until arm-ON + fresh neutral; mid-run TX-off →
-  failsafe; recovery needs a fresh neutral. These are the same Phase 5 checks, re-run because
-  tuning calibration must not have changed safety behavior.
+  failsafe; **after a failsafe episode, the car stays disarmed even with the arm switch left ON —
+  re-arm requires the switch observed OFF then ON again on a proven link, plus a fresh neutral
+  throttle reading** (the invariant, not D8's own step-9 wording, which predates it:
+  `w17-control-fw/lib/channels/src/ArmGate.cpp:13-28`,
+  `w17-control-fw/lib/channels/include/channels/ArmGate.hpp:48-59`, OWNER-RATIFIED 2026-08-20 —
+  see §8 below, which drills this exact behavior on the finished car). These are the same Phase 5
+  checks, re-run because tuning calibration must not have changed safety behavior.
 - [ ] **SP3T boot-mode selector physically in DRIVE (center position)** before the car leaves the
   bench — regardless of which image shipped. Center = LAPTOP/Drive on both pins' internal
   pull-ups (`w17-control-fw/lib/config/include/config/PinMap.hpp`); any ambiguous reading also
@@ -53,12 +58,14 @@ the box here.
   knob the booklet mentions (`2026-09-02_readiness_program.md` §3 workstream 6, "optional
   shipped-tune compile pin (sl idle/max rpm)").
 - [ ] **Gimbal decay tunable confirmed** (`gimbal.decay`, default 2000 ms full-deflection-to-
-  center, `w17-control-fw/CLAUDE.md` "failsafe" module note) — matches the on-car feel from D8
-  Phase 7b; re-check after any late re-tune.
-- [ ] **Drive-mode / gear-table tune matches the booklet's race-trim story** (booklet §3 step 7,
-  §6): TRAINING is day-one truth, the gear blip / rain light / boost whine are framed as
-  unlockable "race trim" — confirm the shipped default drive mode is TRAINING (D8 Phase 4, drive-
-  mode 3-pos detent 0), not RACE or ERS.
+  center — `w17-control-fw/lib/failsafe/include/failsafe/GimbalDecay.hpp:23`, not CLAUDE.md) —
+  matches the on-car feel from D8 Phase 7b; re-check after any late re-tune.
+- [ ] **Drive-mode switch physically in TRAINING (detent 0)** before handover — matches the
+  booklet's race-trim story (booklet §3 step 7, §6): TRAINING is day-one truth, the gear blip /
+  rain light / boost whine are framed as unlockable "race trim." Drive mode is a **live 3-position
+  switch on channel 13** (D8 Phase 4), not a firmware-shipped default — verify the physical
+  position by eye, the same way §1 verifies the SP3T selector. The three positions are **TRAINING
+  / GEARBOX / ERS** (`w17-control-fw/docs/D8_BENCH_BRINGUP.md:72`) — there is no "RACE" mode.
 
 ## 3. Ground station settings
 
@@ -74,11 +81,19 @@ the box here.
   final artifact replaces the booklet's `[TBD-at-bench]` Wi-Fi markers) — the values you set in
   `w17-giftee-pc-install-guide.md` §5.1, not re-typed from memory.
 - [ ] **RACE DAY fields point at the real, final install paths** (`w17-giftee-pc-install-guide.md`
-  §5.3 `setMapperPath` / `setProfilePath`) — re-verify after any late reinstall, since a path
-  typo here fails silently as `not-configured` on the race-day card, not as an install error.
-- [ ] **Code blockers closed** — do not check off this whole section until
-  `w17-parts-to-gift-master-sequence.md` §0's seven ids (`MAP-1`, `MAP-2`/`SYN-2`, `SYN-1`,
-  `boundaries-1`, `correctness-2`, `MAP-5`, `MAP-8`) show closed in `CURRENT_STATUS.md`.
+  §5.3 `setMapperPath` / `setProfilePath`) — re-verify after any late reinstall. Two distinct
+  failures show on the race-day card, neither silent: an **unset** path reads "its location is not
+  set — set it once in ⚙ (RACE DAY)" (`not-configured`,
+  `w17-ground-station/main/raceDayOrchestrator.js:247`); a **typo'd or relative** path reads "the
+  saved controller setup location looks wrong — fix it in ⚙ (RACE DAY)" (`bad-profile-path`,
+  same file:60-69) — both are plain-language reasons rendered by
+  `w17-ground-station/shared/raceDayView.mjs:66-68`, not a blank or generic failure.
+- [ ] **Code blockers closed** — do not check off this whole section until every id in
+  `w17-parts-to-gift-master-sequence.md` §0's table shows closed in `CURRENT_STATUS.md`. The
+  derivation rule: **every `gift_blocking:true` finding in the 2026-09-02 v2 review reports, plus
+  `MAP-8` by orchestrator escalation pending the owner's ruling on its disputed worst case** — 14
+  ids total (`MAP-1`, `MAP-2`/`SYN-2`, `MAP-3`, `MAP-4`, `MAP-5`, `MAP-6`, `MAP-9`, `SYN-1`,
+  `boundaries-1`, `correctness-2`, `correctness-4`, `giftee-ux-2`, `giftee-ux-5`, `MAP-8`).
 
 ## 4. Mapper profile
 
@@ -87,9 +102,15 @@ the box here.
   the deployed `w17-ds4.json` — not copied from the owner's bench profile.
 - [ ] **Lint clean on the deployed copy.** The committed repo copy is test-pinned
   (`w17-mapper/pkg/config/w17_profile_test.go`), but the deployed, hand-edited copy on the
-  giftee's PC escapes that pin (`w17-mapper/configs/README.md` note on MAP-9/MAP-12) — open the
-  mapper's web UI once more after editing and confirm the `(config-lint)` log line shows zero
-  findings before closing the box.
+  giftee's PC escapes that pin — it is per-PC and per-bus (`MAP-9`) and its shape isn't asserted
+  by anything but the test file (`MAP-12`; `w17-mapper/configs/README.md` itself carries neither
+  id — those are review-tracked, not doc-cited). `(config-lint)` is a **line the mapper writes to
+  its own log**, not something the web UI displays (`w17-mapper/configs/README.md:20-21`) — after
+  editing, run the mapper from a terminal once more and read its console output for that line.
+  **Zero findings there is weak evidence, not proof:** the lint checks endpoint bands and switch
+  failsafe rails, but today it checks neither an unfilled `REPLACE-WITH-*` placeholder (`MAP-5`)
+  nor the arm-chain shape that actually prevents a silent re-arm (`MAP-12`) — a clean log does not
+  mean the deployed profile is correct, only that it passed what the linter currently looks for.
 - [ ] **Reserved inputs still unbound.** Confirm SHARE/OPTIONS/D-pad-DOWN carry no binding on the
   deployed copy (`w17-mapper/configs/README.md` "Reserved inputs — do not bind") — these are held
   for the gated head-tracking milestone, not available for accidental reuse.
