@@ -408,28 +408,31 @@ Draft notes for the owner (not for print):
     impossible mode with an inert remedy" on the `esp32dev` ship
     image).
   - **[fix-wave: iPhone telemetry-honesty]** Three more phone-app
-    facts worth recording here even though none contradicts the
-    printed booklet text (section 4 only ever promises "speed,
-    battery, and any warnings," nothing more specific): today, at
-    `iPhone_rc` trunk, **demo telemetry defaults ON and persists**
-    across launches (`AppSettings.swift:13`,
-    `demoModeEnabled: Bool = true`, loaded from saved settings) —
-    the branch `fix/telemetry-honesty-and-ci` (commit `e34a315`)
-    makes it session-only and off on every cold start, matching
-    the owner's second-round ruling; **RSSI/SNR/LQ are visible on
-    the live drive strip today** (`FPVHUDApp/UI/HUD/FPVHUDView.swift:648-650`),
-    which is exactly the radio-jargon-on-the-drive-screen the
-    booklet's "speed, battery, warnings" promise never claims to
-    show — the same branch (commit `5f1d563`) moves them to a
-    Debug-only panel; and **the stale/lost telemetry banner shows
-    raw contract strings today** ("TELEMETRY STALE >1S",
-    "TELEMETRY DATA LOST >3S" — `TelemetryState.swift:137,163`),
-    which the same branch (commit `f92c4fd`) rewrites to plain
-    language ("signal is a moment behind" / "signal lost — the
-    car is stopping itself"), keeping the contract names
-    Debug-only. No printed booklet text needed changing for any
-    of the three; recorded here so the next session doesn't have
-    to re-derive trunk-vs-branch state from scratch.
+    facts worth recording here even though none ever contradicted
+    the printed booklet text (section 4 only ever promises
+    "speed, battery, and any warnings," nothing more specific).
+    Checked twice, because the branch landed on `iPhone_rc` main
+    (`85ce486`) **while this very session was running** — the
+    first check below is what was true when this note was
+    drafted; the second is what's true now, confirmed by
+    re-reading trunk a second time before this booklet commit:
+    demo telemetry used to default ON and persist across launches
+    (`AppSettings.swift`, `demoModeEnabled: Bool = true`) — **now
+    landed**: `demoModeEnabled: Bool = false`, matching the
+    owner's second-round ruling (session-only, off at cold start).
+    RSSI/SNR/LQ used to sit on the live drive strip
+    (`FPVHUDApp/UI/HUD/FPVHUDView.swift`) — **now landed**: both
+    are `DebugRow` entries, Debug-only. The stale/lost telemetry
+    banner used to show raw contract strings ("TELEMETRY STALE
+    >1S", "TELEMETRY DATA LOST >3S") — **now landed**:
+    `TelemetryState.swift`'s `plainLanguageWarning(for:)` rewrites
+    them to "SIGNAL IS A MOMENT BEHIND" / "SIGNAL LOST — THE CAR
+    IS STOPPING ITSELF" for display, keeping the contract names
+    Debug-only (`staleDataWarningCodes`). No printed booklet text
+    needed changing for any of the three, before or after the
+    merge; recorded here as a small case study in why "in-flight"
+    notes in a shared workspace need a re-check timestamp, not
+    just a branch name.
 - **OWNER-GATED, NOT fixed here (product decisions, not typos)
   — flagged per the 2026-09-02 readiness review, left for the
   owner's call. (Two items formerly in this list — the iPhone
