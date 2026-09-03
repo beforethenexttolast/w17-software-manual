@@ -35,8 +35,12 @@ is a separate gate, **BT1** (`w17-control-fw/docs/bt_showoff_design.md` §9), no
 Run these at **S4** (build the three switch legs alongside the other signal leads) and **S4b**
 (cross-signal isolation), the same two-pass discipline (continuity plug-seated, then isolation
 ESP32-unseated) as every other row in this table. These rows are **not yet in the canonical A2
-checklist** (`13_phase_a_a2_no_power_checklist.md`, tracked there as the open GPIO27/32 gap) —
-record them here until they land in that document.
+checklist** (`13_phase_a_a2_no_power_checklist.md` has no GPIO27/32 mention at all — its own open
+items are F12, the MH-ET adjacency placeholder, and F20, the GPIO34↔35 isolation-matrix gap; the
+SP3T gap is instead recorded at `2026-09-02_readiness_program.md:38-39` and in the
+`PinMap.hpp`/`BootMode.hpp` headers cited above). A control-fw builder is adding these as rows S4c
+in the canonical checklist now — record them here in the meantime, and drop this local copy once
+they land there.
 
 | # | Gate | Check | Expect |
 |---|---|---|---|
@@ -44,8 +48,17 @@ record them here until they land in that document.
 | SW2 | S4 | GPIO27 wire → SP3T's BT_SOLO throw contact | beep |
 | SW3 | S4 | GPIO32 wire → SP3T's SHOWCASE throw contact | beep |
 | SW4 | S4b | GPIO27 ↔ GPIO32 | no beep (not bridged to each other) |
-| SW5 | S4b | GPIO27 / GPIO32 → each of 13/14/18/19/23/34/35/16/17/25/26 and → rail-A/rail-B wiring | no beep (same isolation-matrix scope as S1r/S2r/S5r — do not assume it's covered just because those rows exist) |
-| SW6 | S4b | Switch physically centered (LAPTOP/DRIVE): GPIO27 → GND, and GPIO32 → GND | **no beep on either** (center leaves both pins floating on their internal pull-ups, not grounded — a beep here means a throw contact is shorting through in the center position) |
+| SW5 | S4b | GPIO27 / GPIO32 → each of 13/14/18/19/23/34/35/16/17/25 and → rail-A/rail-B wiring | no beep (same isolation-matrix scope as S1r/S2r/S5r — do not assume it's covered just because those rows exist). **GPIO26 is deliberately absent from this list:** S3 already requires no wire be present there at all (link2 RX, closed decision C4 — `Serial1.begin(..., rxPin=-1, ...)`), so there is no conductor at that end for a continuity check to run against. |
+| SW6 | S4b | Switch physically centered (LAPTOP/DRIVE): GPIO27 → GND, and GPIO32 → GND | **no beep on either.** This is a property of the switch part itself, not of the ESP32: the center throw is mechanically open on both contacts, so nothing connects them to the common/GND pole regardless of what's on the other end of the wire. (This check runs with the ESP32 unseated per the two-pass discipline above — the "internal pull-ups" that later make an unconnected pin read HIGH only exist once the chip is seated, powered, and configured at boot; they play no part in why this beeper check reads clean.) A beep here means a throw contact is shorting through in the center position. |
+| SW7 | S4b | Switch thrown to **BT_SOLO**: GPIO27 → GND, and GPIO32 → GND | GPIO27 **beeps**, GPIO32 does **not** — proves this throw grounds only its own pin |
+| SW8 | S4b | Switch thrown to **SHOWCASE**: GPIO32 → GND, and GPIO27 → GND | GPIO32 **beeps**, GPIO27 does **not** — proves this throw grounds only its own pin |
+
+SW7/SW8 exist because `BootMode.hpp:120-124`'s classification logic *assumes* both-pins-grounded
+is "electrically impossible from the part" and never defends against it in firmware (a corrupted
+read still resolves to Drive, but a genuinely both-grounded harness fault would not be a corrupted
+read — it would be the actual electrical state). SW1–SW3 only prove the wires reach the right
+contacts; SW7/SW8 are what actually proves each throw of the physical part grounds exactly one pin
+at a time, the assumption the firmware's fail-toward-drive logic is built on.
 
 Read + follow: `w17-control-fw/project-review/13_phase_a_a2_no_power_checklist.md` (canonical),
 cross-referenced with `w17-pdb-build-and-connector-guide.md` and
