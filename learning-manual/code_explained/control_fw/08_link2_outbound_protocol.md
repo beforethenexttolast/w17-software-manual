@@ -1,5 +1,13 @@
 # C8 — link2: The Outbound Protocol
 
+> **Dated staleness note (2026-09-03):** this batch documents link2 **v1** as it read
+> on 2026-07-03 — 11-byte payload, 14-byte frame, `version = 1`. The protocol shipped
+> **v2** on 2026-08-17: **14-byte payload, 17-byte frame** (soundProfile, volume, and
+> modeFlags appended — **[C]** `lib/link2/include/link2/Link2Frame.hpp:6-88`). The
+> encode/decode/CRC *mechanism* and the golden-frame test technique this batch teaches
+> are unchanged; only the byte counts and the field table are stale. Current protocol
+> + a real v2 golden frame: chapter 09 §2.
+
 **Batch C8 of the source-code campaign** (see `../../source_code_explanation_plan.md`).
 This is the car's *other* radio-free wire: a **one-way UART from ESP32 #1 (control) to
 ESP32 #2 (sound/light)** carrying the whole vehicle state 20 times a second. C8 is the

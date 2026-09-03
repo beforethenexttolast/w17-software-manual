@@ -1,5 +1,15 @@
 # S1 — link2 Receiver Side + Cross-Repo Protocol Compatibility
 
+> **Dated staleness note (2026-09-03):** this batch (2026-07-05) documents link2
+> **v1** — 11-byte payload, 14-byte frame, the golden frame
+> `A5 0B 01 2A E7 4C 03 DC 05 DC 1E 3C 02 CE`. The protocol shipped **v2** on
+> 2026-08-17: **14-byte payload, 17-byte frame** (**[C]**
+> `lib/link2/include/link2/Link2Frame.hpp:6-88`, both repos — still a verbatim
+> byte-identical copy, that part of this batch's finding still holds). Also: the
+> soundlight test suite was 40 tests at this batch's writing; it is **137** as of
+> 2026-09-03 (`pio test -e native`, 9 suites). The diff-verification *technique*
+> this batch teaches is unaffected. Current protocol: chapter 09 §2.
+
 **Batch S1 of the source-code campaign** (see `../../source_code_explanation_plan.md`) —
 the **first soundlight batch**, and the receiving end of the wire that batch C8 finished
 sending on. Board #2 (`w17-soundlight-fw`) consumes the one-way 14-byte link2 stream from

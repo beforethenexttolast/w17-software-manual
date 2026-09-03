@@ -1,5 +1,21 @@
 # C10 — The conductor: `main.cpp` + sim feeder + build configs
 
+> **Dated staleness note (2026-09-03):** C10 was written 2026-07-05 and wires together
+> several modules that have since changed shape; the *wiring/scheduling* lessons below
+> are still sound, but these specific numbers/behaviors are not:
+> - **link2 frame size** — this batch's "16-byte buffer for the 14-byte frame" is v1;
+>   the wire protocol is v2 now (**14-byte payload, 17-byte frame**,
+>   `lib/link2/include/link2/Link2Frame.hpp:6-88`). Current: chapter 09 §2.
+> - **`ArmGate`** — this batch composes the single-latch gate C5 described; `ArmGate`
+>   gained a second latch 2026-08-20 (the re-arm invariant,
+>   `lib/channels/src/ArmGate.cpp:13-38`). Current: chapter 10 §2 (the teaching
+>   chapter, not this batch).
+> - **"147 tests"** — 330 as of 2026-09-03 (`pio test -e native`, 13 suites).
+> - **NVS load path** — this batch is where "the plain build has no load path" was
+>   first established (open question #49's origin); that was fixed in source and the
+>   ANSWERED history is now in chapter 06 §2.8 and `open_questions.md` #49. Read this
+>   batch's own NVS-load claims as the *problem statement*, not current behavior.
+
 **Batch C10 of the source-code campaign** — the final control-firmware batch. Everything from
 C1–C9 was a *module*: pure logic behind a seam, proven by native tests. C10 is the file that
 **composes them into the actual running ESP32 program**: `src/main.cpp` constructs every object,

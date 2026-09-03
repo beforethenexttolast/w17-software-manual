@@ -1,5 +1,16 @@
 # C5 — Channels: Mapping + Arm Gate
 
+> **Dated staleness note (2026-09-03) — safety-relevant, read before citing §4:** this
+> batch documents `ArmGate` as a **single-latch** gate (13-line `update()`,
+> `seenNeutralSinceEnable_` alone doubles as the armed flag). The owner hardened it
+> 2026-08-20 with a **second latch**, `switchToggleRequired_`: a failsafe episode
+> caught with the switch on now latches a disarm that survives fresh neutral alone —
+> re-arming additionally requires the switch observed OFF, then ON again
+> (**[C]** `lib/channels/src/ArmGate.cpp:13-38`, `lib/channels/include/channels/
+> ArmGate.hpp`). The "seven behaviours" enumerated in §4 below describe the
+> pre-2026-08-20 gate correctly for *that* revision; they are incomplete for today's.
+> Current behavior, in full: chapter 10 §2.
+
 **Batch C5 of the source-code campaign** (see `../../source_code_explanation_plan.md`).
 C4 gave us *raw* 16 CRSF channels (172…1811 each). C5 turns them into **named, normalized
 controls** (`ChannelDecoder`) and implements the **arm-switch safety gate** (`ArmGate`) —
