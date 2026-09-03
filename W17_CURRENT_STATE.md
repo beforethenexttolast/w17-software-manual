@@ -11,13 +11,13 @@ Scratchpad root (this session): `/private/tmp/claude-501/-Users-vitaliykhomenko-
 | repo | trunk | SHA | pushed | tests at trunk |
 |---|---|---|---|---|
 | workspace (this repo) | main | see `git log -1` (this commit) | pushed after each landing | link checks |
-| w17-control-fw | main | 00c7612 | yes | 330 native, 5 envs (B1 runbooks landed 2026-09-03) |
+| w17-control-fw | main | 9d3f635 | yes | 330 native, 5 envs (B1 runbooks 00c7612; OD-17/18 plan ratifications 9d3f635) |
 | w17-soundlight-fw | main | 8b259bf | yes | 137 native, 2 envs |
 | w17-ground-station | main | 35e5efc | yes | 1447 / 67 files |
 | w17-mapper | w17-headtrack (NOT main) | 21834fe | yes | 180 PASS lines (133 top-level) |
 | iPhone_rc | main | 61ad68f | yes | 74 (dev_check.sh) |
 | w17-3d-codex | main | 5dddedb | yes | render.sh --table (17 rendered, 0 failed) |
-| u4-arbiter (mapper) | parked branch | e4f6ae8 (backup ref backup/u4-arbiter-pre-rebase-20260902 = 93be341) | NEVER | gated + default modes green |
+| u4-arbiter (mapper) | parked branch | 4e445c9 (S22–S25: OD-17/18 ratified; backup ref backup/u4-arbiter-pre-rebase-20260902 = 93be341) | NEVER | gated + default modes green, inert-build 0/46 symbols, hook exits 1 |
 
 ## 2. Landed in the program (all reviewed → fixed → re-verified → guarded ff merge → pushed)
 iPhone B5 giftee install docs (61ad68f); mapper B7 release job (21834fe); control-fw B8 plan refresh (7c00668) + B1 readiness runbooks (00c7612);
@@ -34,8 +34,8 @@ GS B3 docs refresh (35e5efc); soundlight docs/brief-catches-up (8b259bf); worksp
 | docs/windows-vm-runbook (workspace, B4) | wt-ws-winval | 63492ec (rebased onto e404734) | same FIXER; rebase onto 0c40b6e+ at the end |
 | docs/instruction-file-invariants (cf/sl/GS/iPhone, OD-1 + OD-16) | wt-cf-instr 762f099 / wt-sl-instr 8eb3c98 / wt-gs-instr 9de86ae / wt-iphone-instr 5e19f94 | | all review findings fixed; iPhone carries OD-16 + the resolved-destination gate sentence (orchestrator-authored) → RE-VERIFY (Sonnet) in flight; merge cf/sl/GS after PASS, iPhone only after fix/telemetry-honesty-and-ci lands |
 | design/placement-and-cage (3d, B9) | (worktree removed) | 165827c | LANDED on 3d main 5dddedb (+ CLAUDE.md folder-map rows), pushed; owner residue = measurement session M-00… |
-| u4-arbiter (mapper) | wt-u4 | 82d8938 + uncommitted README edit | S22 dtClampMs ratified committed; ratification agent (Sonnet) CONTINUING (README, template, FORK-NOTICE rows, both-mode tests); NEVER push |
-| docs/r-review-ratifications (cf) | wt-cf-plan | c24fa7c (base 7c00668) | DONE by the interrupted agent (link fix + OD-17/18 section); being cross-checked by the continuing ratification agent → verify → rebase onto 00c7612 → merge |
+| u4-arbiter (mapper) | wt-u4 | 4e445c9 | OD-17/18 ratification DONE (S22 gate.go, S23 README, S24 template, S25 FORK-NOTICE rows); parked until R-review + bench; NEVER push |
+| docs/r-review-ratifications (cf) | (worktree removed) | 9d3f635 | LANDED on cf main 9d3f635, pushed (cross-checked field-by-field against calib.go by a fresh context) |
 | fix/telemetry-honesty-and-ci (iPhone) | wt-iphone-fix | 2ce12ee | review FIX_REQUIRED (2 blocking = rulings, 6 minor; report briefs/reports/a376b7a66fb2ee24b.md) → FIXER (Sonnet) in flight (append-only) |
 | feat/phone-live-video (iPhone) | wt-iphone-video | c112622 (slice 1) + uncommitted slice-2 files | IMPLEMENTER (Opus) CONTINUING slices 2–3; rebase onto the fix branch's new tip at the end |
 | design/phone-live-video (iPhone) | wt-iphone-video-design | 50f25da | design doc; consumed by the implementer |
@@ -57,7 +57,7 @@ Tier A from the verdict, all in flight: MAP-1/MAP-2/SYN-2 (mapper A built), tele
 
 ## 7. Exact next dependency graph
 1. sl: fix/lights (review → fix → verify → merge) → docs/instruction-file-invariants (after instr fixer) → re-sync link2 owned copy from cf via `tools/link2_copy_check.sh` after cf fix lands → push; CI green check.
-2. cf: fix/sensor-honesty-and-ci (review → fix incl. rebase + owed B4.3/B4.4 rows + D8 save sentence → verify → merge) → docs/r-review-ratifications (verify → merge) → instr branch → push; trigger nothing on hardware.
+2. cf: fix/sensor-honesty-and-ci (review → fix incl. rebase + owed B4.3/B4.4 rows + D8 save sentence → verify → merge) → instr branch → push; trigger nothing on hardware.
 3. GS: A (review → fix → verify → merge) → B (built on A; review → fix → verify → merge) → instr branch (GS-1 wording) → B4 scripts (fixer → verify → merge) → contract re-mirror after iPhone lands → push; first windows-latest run → record windows_amd64 digest → `--require-pin`.
 4. mapper: A (review → fix → verify → guarded merge onto w17-headtrack → push after FORK-NOTICE checks) → dispatch the release workflow once → mapper B (Opus, incl. the `make(chan os.Signal)` vet fix) → review → merge → push. u4-arbiter never.
 5. iPhone: fix branch (review → fix → verify → merge) → instr amendment (merge) → feat/phone-live-video (review → fix → verify → merge; latency evidence) → push; CI run observed.
