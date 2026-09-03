@@ -19,11 +19,12 @@
 > the draft's markers (the controller bindings, the RACE DAY button name, the engine
 > start/stop control, the on-screen battery warning) turned out to be already decided
 > and test-pinned in the repos; the adversarial review (2026-08-21) had them resolved to
-> plain printed facts. What remains marked — **21 markers** (the draft's 26, minus those
-> 8, plus 3 added by the 2026-08-20 pages) — is genuinely bench-only: feel, ranges,
-> charge times, Wi-Fi specifics, switch rituals, controller pairing. The booklet prints
-> only after (1) the owner's editorial pass and (2) the bench proves the remaining
-> facts.
+> plain printed facts. What remains marked — **22 markers** (the draft's 26, minus those
+> 8, plus 3 added by the 2026-08-20 pages, plus 1 added by the 2026-09-03 truth pass —
+> the battery cool-down time had no code/thermal backing and was printed as a plain
+> fact by mistake) — is genuinely bench-only: feel, ranges, charge times, Wi-Fi
+> specifics, switch rituals, controller pairing. The booklet prints only after (1) the
+> owner's editorial pass and (2) the bench proves the remaining facts.
 >
 > **Owner free-texts ALL answered 2026-08-20** (the four decisions queued in
 > `../2026-08-16_orchestration_review_packet.md` §4 item 6, plus the extra-modes
@@ -224,7 +225,7 @@ If she stops by herself often in the same spot, that's a clue worth sharing — 
 **Her battery** (it stays inside — you only ever see the charging flap):
 
 - Charge while you're around, never overnight.
-- After a long drive, give her ten minutes to cool before charging.
+- After a long drive, give her ten minutes to cool before charging. [TBD-at-bench: the actual recommended cool-down time — ten minutes is a placeholder pattern, not yet measured]
 - Going away for a month or more? Don't store her freshly full or empty — a part charge is kindest. [TBD-at-bench: how to part-charge — whether the charger gets a storage setting]
 - Don't leave her in a hot car or baking in a sunny window. Batteries hate heat.
 
@@ -368,4 +369,33 @@ Draft notes for the owner (not for print):
     behind whatever remains unreconciled once giftee-ux-3 above
     is resolved, so both should land together. Editorial note
     only, no printed change.
+  - **[owner-decision: reverse promise vs firmware]** Section 1's
+    "One honest quirk: she doesn't reverse — just like the real
+    thing" is NOT a software-enforced guarantee. Verified:
+    `Gearbox.hpp`'s own comment says brake/reverse throttle
+    "passes through unshaped," and explicitly notes that in the
+    ESC's forward/reverse-with-brake mode "reverse would be
+    ungoverned by the gearbox" — the no-reverse behavior depends
+    entirely on the ESC being bench-configured to forward/brake
+    mode (`docs/ROADMAP.md` D8 bench checklist), not on any
+    firmware check (`lib/gearbox/include/gearbox/Gearbox.hpp:61-64`).
+    If the ESC is ever reconfigured or replaced, this printed
+    promise could go false without a single line of code changing.
+    Left unrewritten — this is either an owner call (accept the
+    dependency as-is, since it's a real Formula-1-car property
+    anyway) or a firmware-scope one (clamp reverse in software too),
+    not a docs typo.
+  - **[fix-wave: giftee-ux-4]** Section 4 step 2 says "there is
+    nothing to type" for the phone/computer pairing. Verified:
+    the iPhone app's own Settings screen has a manual "Host IP"
+    text field (`windowsHost`,
+    `iPhone_rc/FPVHUDApp/UI/Screens/SettingsPanelView.swift:17-20`)
+    with its own validation messages — so at least a first-time
+    setup requires typing the Windows PC's IP by hand today, unless
+    that field is pre-filled and never needs revisiting for this
+    specific phone (plausible for a gift that's already paired
+    once, but not verified either way). Left unrewritten — whether
+    "nothing to type" survives depends on whether the initial
+    handover pairing is a one-time setup step outside the booklet's
+    scope, which is a product-scope call, not a doc fix.
 ============================================================ -->
