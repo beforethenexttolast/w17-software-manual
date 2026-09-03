@@ -12,8 +12,8 @@ Scratchpad root (this session): `/private/tmp/claude-501/-Users-vitaliykhomenko-
 |---|---|---|---|---|
 | workspace (this repo) | main | see `git log -1` (this commit) | pushed after each landing | link checks |
 | w17-control-fw | main | 58581ff | yes | 330 native, 5 envs (B1 runbooks 00c7612; plan ratifications 9d3f635; OD-1 instruction files 58581ff) |
-| w17-soundlight-fw | main | 1ad8ea5 | yes | 150 native, 2 envs (docs 8b259bf; instruction files bc09875; fix/lights-truth-wdt-and-clamp 1ad8ea5 — CI run to observe; link2 re-copy from cf owed when cf lands) |
-| w17-ground-station | main | 22ce2e5 | yes | 1523 / 72 files (docs 35e5efc; instruction files 9de86ae; GS A packaging+resilience 22ce2e5 incl. README hedge + noControlPath citation :124-169 — first windows-latest run to observe → record windows_amd64 digest → --require-pin) |
+| w17-soundlight-fw | main | 1ad8ea5 | yes | 150 native, 2 envs (docs 8b259bf; instruction files bc09875; fix/lights-truth-wdt-and-clamp 1ad8ea5 — **CI GREEN** run 33809791015 (build-and-test + link2-drift); link2 re-copy from cf owed when cf lands) |
+| w17-ground-station | main | 22ce2e5 | yes | 1523 / 72 files (docs 35e5efc; instruction files 9de86ae; GS A packaging+resilience 22ce2e5 incl. README hedge + noControlPath citation :124-169 — CI run 33809716479: test + contract-mirror GREEN, **package-smoke (windows-latest) RED** at test/contractMirrorDrift.test.js:31 (SHA mismatch on Windows only = CRLF checkout) → orchestrator hotfix fix/gs-mirror-crlf (normalize CRLF before hashing) → re-run → then record windows_amd64 digest → --require-pin) |
 | w17-mapper | w17-headtrack (NOT main) | 21834fe | yes | 180 PASS lines (133 top-level) |
 | iPhone_rc | main | 85ce486 | yes | 84 (dev_check.sh; resolved simulator destination) — fix/telemetry-honesty-and-ci 1a1ea61 + OD-16 instruction amendment landed 2026-09-04; **CI GREEN** (iOS Validation run 33808159886, Build And Test: success — first green on this repo; OD-14 met for iPhone) |
 | w17-3d-codex | main | 5dddedb | yes | render.sh --table (17 rendered, 0 failed) |
@@ -38,13 +38,13 @@ GS B3 docs refresh (35e5efc); soundlight docs/brief-catches-up (8b259bf); worksp
 | u4-arbiter (mapper) | wt-u4 | 4e445c9 | OD-17/18 ratification DONE (S22 gate.go, S23 README, S24 template, S25 FORK-NOTICE rows); parked until R-review + bench; NEVER push |
 | docs/r-review-ratifications (cf) | (worktree removed) | 9d3f635 | LANDED on cf main 9d3f635, pushed (cross-checked field-by-field against calib.go by a fresh context) |
 | fix/telemetry-honesty-and-ci (iPhone) | wt-iphone-fix (kept until phone-video rebases) | 1a1ea61 | LANDED on iPhone main (re-verify PASS, reports/a78e86ed65eebb2c6.md), pushed; GS contract re-mirror owed (canonical sentence 3e78118) after GS A/B land |
-| feat/phone-live-video (iPhone) | wt-iphone-video | c112622 (slice 1) + uncommitted slice-2 files | IMPLEMENTER (Opus) CONTINUING slices 2–3; rebase onto the fix branch's new tip at the end |
+| feat/phone-live-video (iPhone) | wt-iphone-video | 46fc2ff (on main 85ce486; 146 tests; latency 98–136 ms simulator [bench-TBD]) | slices 1–3 built (reports/a55f6d417f7d89750.md) → ADVERSARIAL REVIEW (Opus, REV-phone-video.md) in flight → fix → verify → merge → push; slice 4 (booklet + GS mirror) and slice 5 (bench) outside the branch |
 | design/phone-live-video (iPhone) | wt-iphone-video-design | 50f25da | design doc; consumed by the implementer |
 | fix/sensor-honesty-and-ci (cf) | wt-cf-fix | d8c5f7c + fixes appending, then rebase onto 58581ff | review FIX_REQUIRED (2 blocking: 256-byte TX-ring comment false, delivery_shape_check control accepts a dead nm; sequencing: link2 copy must re-sync in soundlight in the same wave; N4–N11; reports/a361bcda5ac83bee2.md) → FIXER (Opus) in flight, also lands the owed B4.3/B4.4 + D8 save sentence |
 | fix/lights-truth-wdt-and-clamp (sl) | (worktree removed) | 1ad8ea5 | LANDED on sl main (re-verify PASS, reports/ac7625a48e9ad971b.md), pushed |
 | fix/gs-packaging-and-resilience (GS A) | wt-gs-fixA (kept until GS B rebases) | 22ce2e5 | LANDED on GS main (re-verify PASS, reports/ac3b799d08de39530.md), pushed 2026-09-04 |
 | fix/gs-race-day-truth-and-lifecycle (GS B) | wt-gs-fixB | 1f2598d + uncommitted mapperRunner.js edit | IMPLEMENTER (Opus) CONTINUING |
-| fix/headless-bringup-and-link (mapper A) | wt-mapper-fixA | b071a30 + fixes appending | review FIX_REQUIRED (B1 tx.port caveat, B2 per-caller adoption barrier, B3 test-claim precision, N1–N10; reports/a408caa6b748806f1.md) → FIXER (Opus) in flight; N11 vet chan + CORS residue routed to mapper B (FW-mapperB.md) |
+| fix/headless-bringup-and-link (mapper A) | wt-mapper-fixA | 6e99d51 (10 appended; 240 tests, -race clean) | fixed (reports/a6c5d7c5ef209a5bb.md) → RE-VERIFY (Sonnet) in flight → guarded ff onto w17-headtrack (hook greps) → push → dispatch the release workflow once → mapper B (FW-mapperB.md, Opus) |
 | fix/gamepad-hotplug-and-lint-teeth (mapper B) | — | — | NOT STARTED; depends on mapper A merged |
 
 ## 4. Failed / review-required
