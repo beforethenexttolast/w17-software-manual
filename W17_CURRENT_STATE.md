@@ -37,7 +37,7 @@ GS B3 docs refresh (35e5efc); soundlight docs/brief-catches-up (8b259bf); worksp
 | design/placement-and-cage (3d, B9) | (worktree removed) | 165827c | LANDED on 3d main 5dddedb (+ CLAUDE.md folder-map rows), pushed; owner residue = measurement session M-00… |
 | u4-arbiter (mapper) | wt-u4 | 4e445c9 | OD-17/18 ratification DONE (S22 gate.go, S23 README, S24 template, S25 FORK-NOTICE rows); parked until R-review + bench; NEVER push |
 | docs/r-review-ratifications (cf) | (worktree removed) | 9d3f635 | LANDED on cf main 9d3f635, pushed (cross-checked field-by-field against calib.go by a fresh context) |
-| fix/telemetry-honesty-and-ci (iPhone) | wt-iphone-fix | 2ce12ee | review FIX_REQUIRED (2 blocking = rulings, 6 minor; report briefs/reports/a376b7a66fb2ee24b.md) → FIXER (Sonnet) in flight (append-only) |
+| fix/telemetry-honesty-and-ci (iPhone) | wt-iphone-fix | 1a1ea61 | fixed (8 appended commits, 84 tests green; reports/a9917b89ac94fae38.md) → RE-VERIFY (Sonnet) in flight → ff merge onto 61ad68f → then iPhone instr branch (5e19f94) rebased + merged → push → observe CI |
 | feat/phone-live-video (iPhone) | wt-iphone-video | c112622 (slice 1) + uncommitted slice-2 files | IMPLEMENTER (Opus) CONTINUING slices 2–3; rebase onto the fix branch's new tip at the end |
 | design/phone-live-video (iPhone) | wt-iphone-video-design | 50f25da | design doc; consumed by the implementer |
 | fix/sensor-honesty-and-ci (cf) | wt-cf-fix | d8c5f7c | built (351 tests, 5 envs) → REVIEW (Opus) relaunched (first run died at 429) |
