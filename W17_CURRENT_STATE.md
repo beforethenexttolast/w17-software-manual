@@ -16,7 +16,7 @@ Scratchpad root (this session): `/private/tmp/claude-501/-Users-vitaliykhomenko-
 | w17-ground-station | main | 35e5efc | yes | 1447 / 67 files |
 | w17-mapper | w17-headtrack (NOT main) | 21834fe | yes | 180 PASS lines (133 top-level) |
 | iPhone_rc | main | 61ad68f | yes | 74 (dev_check.sh) |
-| w17-3d-codex | main | 0386b2f | yes | render.sh --table |
+| w17-3d-codex | main | 5dddedb | yes | render.sh --table (17 rendered, 0 failed) |
 | u4-arbiter (mapper) | parked branch | e4f6ae8 (backup ref backup/u4-arbiter-pre-rebase-20260902 = 93be341) | NEVER | gated + default modes green |
 
 ## 2. Landed in the program (all reviewed → fixed → re-verified → guarded ff merge → pushed)
@@ -33,7 +33,7 @@ GS B3 docs refresh (35e5efc); soundlight docs/brief-catches-up (8b259bf); worksp
 | feat/windows-validation-scripts (GS, B4) | wt-gs-winval | 68593f7 | review FIX_REQUIRED (B1–B5, N1–N15) → FIXER (Opus) in flight |
 | docs/windows-vm-runbook (workspace, B4) | wt-ws-winval | ee521f2 | review FIX_REQUIRED (W1–W2) → same FIXER |
 | docs/instruction-file-invariants (cf/sl/GS, OD-1) | wt-cf-instr 597e5d6 / wt-sl-instr 0e7292d / wt-gs-instr efc3949 | | review: cf FIX ×1, sl CLEAN(nits), GS FIX ×2 → FIXER (Sonnet) in flight, + iPhone amendment (OD-16) on new wt-iphone-instr |
-| design/placement-and-cage (3d, B9) | wt-3d | 165827c | fixed per review → RE-VERIFY (Sonnet) in flight; then orchestrator adds `11_cad/` to 3d CLAUDE.md folder map at merge |
+| design/placement-and-cage (3d, B9) | wt-3d | 165827c | LANDED on 3d main 5dddedb (+ CLAUDE.md folder-map rows), pushed; owner residue = measurement session M-00… |
 | u4-arbiter (mapper) | wt-u4 | e4f6ae8 | desk items fixed; OD-17/18 ratification edits (Sonnet) in flight; NEVER push |
 | docs/r-review-ratifications (cf) | wt-cf-plan (new) | — | plan edits for OD-17/18 + link fix :1265 (Sonnet) in flight |
 | fix/telemetry-honesty-and-ci (iPhone) | wt-iphone-fix | 2ce12ee | built (84 tests) → REVIEW (Opus) in flight |
@@ -62,7 +62,7 @@ Tier A from the verdict, all in flight: MAP-1/MAP-2/SYN-2 (mapper A built), tele
 4. mapper: A (review → fix → verify → guarded merge onto w17-headtrack → push after FORK-NOTICE checks) → dispatch the release workflow once → mapper B (Opus, incl. the `make(chan os.Signal)` vet fix) → review → merge → push. u4-arbiter never.
 5. iPhone: fix branch (review → fix → verify → merge) → instr amendment (merge) → feat/phone-live-video (review → fix → verify → merge; latency evidence) → push; CI run observed.
 6. workspace: B6 manual (fixer → verify → merge) → B4 runbook (fixer → verify → merge) → CURRENT_STATUS + this file after each wave → push.
-7. 3d-codex: B9 (verify → merge + CLAUDE.md `11_cad/` line → push); measurement session M-00… is owner residue.
+7. 3d-codex: DONE for this program (B9 landed 5dddedb); measurement session M-00… is owner residue; production prints wait on fit-check coupons.
 8. Close-out: full baseline re-run on every trunk; CI green everywhere (OD-14); dated vision-alignment audit; memory + CURRENT_STATUS; close the push grant.
 
 ## 8. Model-routing policy (A8)
