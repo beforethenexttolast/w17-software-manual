@@ -1,6 +1,6 @@
 # 07 — Sound + Light Firmware Architecture (`w17-soundlight-fw`)
 
-Board #2 turns board #1's 14-byte status frames into a living V10 soundtrack and F1
+Board #2 turns board #1's 17-byte status frames into a living V10 soundtrack and F1
 light show — and protects itself when those frames stop coming. It commands nothing;
 it can only *perform*.
 
@@ -123,11 +123,24 @@ named voices in `lib/soundsynth/include/soundsynth/SynthProfiles.hpp` — **`v10
 (the shipped default; a `static_assert` pins it byte-identical to the historical
 `EngineSynthConfig{}`, so nothing audible changed) and **`v6TurboHybrid()`** (the
 2014+-power-unit flavor: 3 firings per revolution instead of 5, its own partial
-stack). There is **deliberately no runtime selector yet** — board #2 has no control
-authority and must not choose its own voice; the selection mechanism is decided to be a
-**link2 v2 field** (sound profile + volume) that board #1 will own, which exists today
-only as clearly-labeled in-flight work (branches `feat/link2-v2-voice-volume` in
-control-fw and `feat/link2-v2-consume` here — not merged, not taught as current).
+stack).
+
+**Update 2026-09-03 [C] — the selector shipped.** The line above ("deliberately no
+runtime selector yet") described the state as of wave-3's landing; the selection
+mechanism is now live end to end, board #1 still owning the choice exactly as
+planned: link2 v2 payload byte 11 (`soundProfile`, chapter 09 §2.2) carries the
+operator's pick, board #2's control core normalizes it
+(`audiodecision::normalizeSoundProfile` — any value `>= kSoundProfileCount` falls back
+to V10, never a frame rejection) and packs the normalized 2-bit result into the
+cross-core synth-param word (§6 below), and the audio task calls
+`EngineSynth::setVoiceProfile()` to switch `config_` between `v10()`/`v6TurboHybrid()`.
+Board #2 still never *chooses* — it only decodes what board #1 already decided,
+preserving the no-control-authority rule. **[C]**
+`lib/audiodecision/include/audiodecision/AudioDecision.hpp:40-42`,
+`lib/soundsynth/src/EngineSynth.cpp:64,69`. *(The repo's own `CLAUDE.md`/`AGENTS.md`
+still call this "an open owner decision — do not add one unilaterally"; that is stale
+instruction-file text, not a manual claim — flagged for the orchestrator, not fixed
+here.)*
 
 > **[C] S3 verified this section in code**
 > (`soundlight_fw/03_sound_synthesis.md`, 9/9 tests pass + a harness compiled against the
@@ -150,7 +163,10 @@ A layered compositor: (effective state, LinkStatus, nowMs) → 30 RGB values —
 stateful only for indicator hysteresis and harvest edge detection, **[C]** soundlight
 `CLAUDE.md` + `README.md` + (S4) the source:
 
-1. base: halo (teal armed / dim white disarmed) + always-on dim red tail — and, since
+1. base: halo (teal armed / dim white disarmed / **showcase: a slow 3 s teal breathe**,
+   floor 40% of full scale — owner decision D6, `LightRenderer.cpp` `showcaseBreathe()`;
+   armed outranks it on purpose, though a truthful board #1 never sends armed+showcase
+   together) + always-on dim red tail — and, since
    the wave-3 merge (2026-08-17, `1c19260`), the halo *celebrates the fire-up*: while
    the engine FSM reports `Cranking` a bright-cyan **starter comet** sweeps the halo
    (300 ms per lap — the 600 ms crank gives two laps), and on the `Cranking→Running`
@@ -225,7 +241,10 @@ The entire shared surface between the cores (the "cross-core rule," **[C]** soun
   answered, `EngineSynth.hpp:12–27`): **bits 0–15 = engineRpm**, **bits 16–23 = volume**,
   **bit 24 = ersWhine**, **bit 25 = limiterActive**, **bit 26 = overrunActive**, bits 27–31
   reserved. (Note: the second field is **volume**, not throttle as an earlier draft of this
-  section said — see #52.);
+  section said — see #52.) **Update 2026-09-03 [C]:** two of those "reserved" bits are no
+  longer spare — **bits 27–28 now carry the 2-bit `voiceProfile`**
+  (`EngineSynth.cpp:64`, `(p >> 27) & 0x3u`), the normalized soundProfile from §4 above;
+  bits 29–31 stay reserved;
 - one heartbeat atomic (separate from the param word — the dead-man's "refreshed recently"
   signal, not squeezed into the reserved bits).
 
@@ -254,7 +273,20 @@ layers protecting the speaker alone: link staleness (monitor) → ignition Off o
 > `throttlePercent` never cross the cores raw — `volumeFor()` folds them into the volume
 > byte: **Off → 0** (this is how link-loss/disarm silence actually reaches the synth,
 > since rpm 0 alone does not silence it), **Cranking → 70**, **Running → 90 +
-> throttle·165/100**. The audio task: pinned core 0, priority 5, 4096-byte stack,
+> throttle·165/100** (now named `audiodecision::synthVolumeFor`, unchanged arithmetic).
+>
+> **Update 2026-09-03 [C]:** that state-derived byte is no longer the final word — before
+> packing, `main.cpp` composes it with the link2 v2 **operator volume** (payload byte 12,
+> 0–100, chapter 09 §2.2) via `audiodecision::applyOperatorVolume(stateVolume, op)` =
+> `stateVolume * op / 100`, a linear composition chosen so 0 is bit-exact silence and 100
+> is bit-transparent (identical to pre-v2 behavior). The synth's own final gain stage is
+> unchanged: `sample = sample * vol / 255`. Net effect: the pit-lane volume knob (§4)
+> scales the *result* of the ignition-state logic, never bypasses it — failsafe/staleness
+> still wins because a silenced `stateVolume` of 0 makes the product 0 regardless of the
+> operator setting. **[C]**
+> `lib/audiodecision/include/audiodecision/AudioDecision.hpp:44-75`.
+>
+> The audio task: pinned core 0, priority 5, 4096-byte stack,
 > self-paced by the blocking `i2s.write` into a ~70 ms DMA ring; `loop()` runs on core 1
 > per the framework (`CONFIG_ARDUINO_RUNNING_CORE=1`). **Honest scope:** `main.cpp` has
 > no native test, so the dead-man branch has *never executed anywhere* — a priority
@@ -266,7 +298,7 @@ layers protecting the speaker alone: link staleness (monitor) → ignition Off o
 |---|---|
 | `esp32dev` | real firmware (waits for board #1's frames) |
 | `esp32dev_sim` | `-DW17_SIM_LINK2_FEEDER`: `SimLink2Feeder` scripts a 14 s drive — idle → revs/gears → ERS deploy → brake+harvest (rain light) → cornering (indicators) → **1 s dropout → local failsafe demo** → recovery. **[C]** `docs/SIMULATION.md` |
-| `native` | the host unit-test suite (107 tests as of 2026-08-17; run `pio test -e native` for the live count), incl. a full frames→audio integration test |
+| `native` | the host unit-test suite (137 tests as of 2026-09-03; run `pio test -e native` for the live count), incl. a full frames→audio integration test |
 
 Its `docs/SIMULATION.md` also carries the board's bench checklist (I2S sanity on the
 pinned driver version, MAX98357A straps, WS2812 fixes, "does the synth actually read as
