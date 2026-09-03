@@ -144,6 +144,8 @@ It's made for passengers, too: you drive from the computer while a friend holds 
 
 **The comforting part:** the phone is a window, never a steering wheel. It only ever *shows* things — it cannot steer her, rev her, or stop her, no matter what gets tapped. If the phone rings mid-drive or the app closes, nothing happens to her: you're driving with the controller, same as always.
 
+**One honest thing about the phone app:** think of it as a fun extra, not the main event. The computer screen is always there and always current — the pit crew keeps the phone app itself fresh behind the scenes (a little chore, done about once a week), so if it ever looks out of date or won't open, that's a known quirk of a phone app made just for her, not something you did. Drive from the computer screen in the meantime and ping the pit crew.
+
 ---
 
 ## 5. Two more tricks she knows
@@ -166,10 +168,11 @@ She talks to you with her lights. Here's the dictionary.
 |---|---|
 | **Soft glow on the halo** (the ring above the cockpit) | Awake, engine off. All's well. |
 | **Teal halo** | Engine running. Ready to drive. |
-| **Gentle breathing glow, just after key-in** | Getting herself sorted. Give her a few seconds. (If it never stops — see section 9.) |
+| **Gentle breathing glow, just after key-in** | Getting herself sorted. Give her a few seconds — either it settles to a soft glow, or (if she can't find the station box) she'll tell you plainly by blinking amber within a few seconds, never by breathing forever. |
 | **Red bar at the back, dim** | Her tail light. Always on when she's awake. |
 | **Red bar at the back, bright** | Braking. |
 | **Amber blinkers, left or right** | Turn signals. They follow your steering — even while she's parked. |
+| **Green, right at the outer edges of the tail light** | Her rear wing is open. If she's braking or has stopped herself at the same moment, that always shows first. |
 | **Rapid white flashes at the back** | Her rain light, flashing while she recovers energy as she slows — exactly like the real cars do. A race-trim trick (section 3): if you're seeing it, you've graduated. |
 | **Slow red heartbeat on the halo** | Battery getting low. **Head home now, calmly.** She won't stop on her own — bringing her in is your job. The screen warns you too: first a calm low-battery note, then a serious one if you keep going. |
 | **The whole car blinking amber** | **She stopped herself on purpose.** Nothing is broken — see section 7 for the 30-second fix. |
@@ -244,7 +247,7 @@ If she stops by herself often in the same spot, that's a clue worth sharing — 
 | The app can't find her / no picture | Check the station box cable is plugged into the computer — that little box is her radio, and the picture rides on it. Close the app, open it, press RACE DAY again. | Ping the pit crew |
 | Controller does nothing | Reconnect the controller [TBD-at-bench: reconnect steps], then do the two-step engine start again. | Ping the pit crew |
 | Whole car blinking amber, won't drive | That's her safe-stop — section 7. Get a little closer, wait for the picture, restart the engine. | Ping the pit crew |
-| The gentle breathing glow never ends | Key out, count to ten, key in. | Ping the pit crew |
+| The halo breathes gently and never settles, and she's just sitting there | That's the shelf-show mode from section 5 doing exactly what it's built to do — not a fault. If you didn't mean to be in it, key out, flip her little selector back, key in. | Ping the pit crew |
 | Engine won't start (the two-step doesn't take) | Let go of **everything** — the trigger must be fully at rest first. Count to three, try again. | Ping the pit crew |
 | Picture stutters or lags | You're probably near the edge of her comfort zone — fewer walls, less distance. | Ping the pit crew |
 | She pulls to one side / steering feels wrong | Park her, key out, count to ten, key in, try again on a smooth floor. | Ping the pit crew |
@@ -288,8 +291,81 @@ Draft notes for the owner (not for print):
   TRAINING is her day-one truth; the gear blip, rain light,
   and boost whine are told as unlockable race-trim tricks —
   present tense covers only what TRAINING actually does.
-- HANDOVER CHECKLIST ITEM: switch on START LIGHTS in the
-  ground station's settings before the gift (startLightsEnabled
-  defaults to false in GS shared/settings.js) — the section 3
-  five-red-lights moment does not happen without it.
+- HANDOVER CHECKLIST relocated (2026-09-03): the standing
+  START LIGHTS item that used to live only in this note now
+  lives in the workspace-root handover checklist,
+  `../w17-handover-checklist.md` (currently on the
+  docs/readiness-runbooks branch, not yet merged to main —
+  check it exists at that path before relying on it). That
+  checklist owns START LIGHTS going forward (startLightsEnabled
+  defaults to false in GS shared/settings.js; section 3's
+  five-red-lights moment does not happen without it) plus every
+  other pre-gift switch-flip; this booklet file no longer
+  duplicates the item.
+- 2026-09-03 truth-pass edits (surgical, booklet still FINAL —
+  the printed promises below are untouched except as noted):
+  - Section 4 gained one new honest paragraph ("One honest
+    thing about the phone app") stating the phone is an extra
+    the pit crew refreshes about weekly and the laptop screen
+    is always there. Verified against the actual delivery
+    mechanism: `../CURRENT_STATUS.md` / workspace memory
+    ("the phone app = free-account sideload re-signed weekly").
+  - Section 6's legend gained a row for the DRS-open green tell
+    (steady green on the outermost rear-bar pixels, brake/hazard
+    override) — **[fix-wave: soundlight docs-truth-7]**, verified
+    at `w17-soundlight-fw/lib/lights/src/LightRenderer.cpp:257-273`
+    (`kDrsGreen{0,255,0}`). The pre-existing "Rear wing tell"
+    TBD-at-bench row was left untouched (not resolved) — it can
+    reasonably still mean "how bright/visible does this actually
+    read on the finished car," which is a real bench-only
+    question the mechanism fact above doesn't answer.
+  - Section 6's "just after key-in" row and section 9's "gentle
+    breathing glow never ends" row were rewritten — **[fix-wave:
+    soundlight docs-truth-7]**. The old pair described a fault
+    mode (an unending boot breathe, fixed by a key cycle) that
+    the current firmware cannot produce: `neverConnectedGraceMs`
+    is bounded at 5000 ms and always escalates to the amber
+    hazard blink (`LightRenderer.hpp:73-79`), which section 7
+    already covers correctly. The only genuinely unending breathe
+    left is showcase/shelf-show mode's base-layer teal breathe
+    (`LightRenderer.hpp:114-116`, "the D6 teal breathe") — by
+    design, not a fault — so section 9's row now points there
+    instead of prescribing a key-cycle non-fix.
+- **OWNER-GATED, NOT fixed here (product decisions, not typos)
+  — flagged per the 2026-09-02 readiness review, left for the
+  owner's call:**
+  - **[fix-wave: iPhone-video-path]** Section 4 still promises
+    "you're looking out of her cockpit — her camera's live view."
+    Verified at HEAD: the iPhone app's video path is a stub —
+    `iPhone_rc/FPVHUDApp/Video/VideoSurface.swift` literally
+    renders "NO VIDEO / APFPV RTP / H.265 PIPELINE STUBBED", and
+    `FutureRTPHEVCReceiver.swift` is a TODO placeholder. The app
+    today is telemetry + a HUD overlay, no picture. This section
+    already teaches the *comforting* boundary correctly (the
+    phone can't steer); it does not yet teach this one. Left
+    unrewritten per instruction — an editorial flag, not a patch,
+    since fixing it is a product-scope choice (build the video
+    path, or change what the booklet promises) above a docs pass.
+  - **[fix-wave: giftee-ux-3]** Section 3 step 4 ("press the one
+    big RACE DAY button… brings her cockpit view up") describes a
+    one-press flow; the shipped ground station is a three-press
+    flow (RACE DAY, then STRAIGHT TO THE GRID, then START), and
+    RACE DAY itself checks hotspot/mapper/bridge readiness, not
+    camera/controller/radio as written. Confirmed:
+    `w17-ground-station/main/raceDayOrchestrator.js:73`
+    (`STEP_ORDER`), `renderer/setupFlow.js` (the GRID/START
+    handlers). Two real fixes exist (auto-chain the three presses
+    in code, or reprint the step naming the buttons verbatim) —
+    both are product/second-repo decisions, so left unrewritten.
+  - **[fix-wave: SYN-2 / MAP-2]** Neither section 3 nor section 7
+    says so, but today RACE DAY does not start the radio link —
+    `main/raceDayOrchestrator.js:44`'s mapper argv whitelist
+    cannot carry the TX serial port, and nothing else calls the
+    mapper's `StartLink` except its own web UI
+    (`w17-mapper/pkg/client/grpc_client.go:35`). The booklet
+    never explicitly claims "RACE DAY starts the radio," so this
+    is not a false printed statement today — but it is the reason
+    behind whatever remains unreconciled once giftee-ux-3 above
+    is resolved, so both should land together. Editorial note
+    only, no printed change.
 ============================================================ -->
