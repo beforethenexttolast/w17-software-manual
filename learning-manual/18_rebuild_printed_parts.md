@@ -22,7 +22,8 @@ printer; the profiles chapter will state the printer assumptions honestly.
   inventory (`01_inventory`), ready-to-slice sets, Bambu print profiles, test-print
   results, printed-parts log, finishing notes, assembly notes. This is the primary
   source; the rebuild chapter narrates it for a stranger.
-- **[C]** `../Codex/w17-rc-print-codex` — ChatGPT Codex's print-decision project.
+- **[C]** `w17-rc-print-codex` (sibling `Codex/` folder, outside this workspace —
+  `../../Codex/w17-rc-print-codex` from this file) — ChatGPT Codex's print-decision project.
   **Codex territory: consult read-only, never edit** (`../CLAUDE.md` ownership split).
 - **[C]** Fit authority examples the chapter must respect rather than restate:
   steering-servo side-mount fit study, `servosaverv7` front-pivot finding (Codex fit
