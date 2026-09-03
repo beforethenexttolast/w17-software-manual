@@ -493,7 +493,11 @@ regardless of stick (ArmGate); arm ON with throttle high ⇒ still neutral until
 neutral (A2/§6.2); TX off mid-drive ⇒ steering centers, throttle neutral, DRS closed
 (FSM timeout); recovery ⇒ blocked until the stick centers (A3 fresh-neutral); and the
 hold-position case if reproducible (LQ=0 while frames flow ⇒ still drops — A8/D4
-latch). **[C]**
+latch). **[C]** *(Note 2026-09-03: A3's "stick centers" was the whole story when this
+phase was written; the owner hardened it 2026-08-20 — after a failsafe episode caught
+with the switch on, fresh neutral is no longer sufficient, the switch must also be seen
+OFF then ON again. A bench script written against this paragraph alone would under-test
+the current gate — see chapter 10 §2 for the full rule before running Phase 5.)*
 
 **Phase 6 — steering servo.** **Center the servo in firmware BEFORE attaching the
 linkage** (atlas MECH-02 note): a servo linked while off-center makes "straight ahead"
