@@ -8,21 +8,35 @@ workspace-level source for all of those and for project execution status.
 Overwrite it in place when state changes; do not append history. Instruction files
 (`CLAUDE.md` / `AGENTS.md`) must not duplicate anything below.
 
-_Last updated: **2026-09-03 (readiness program — WS-1 grand review sweep complete; builders in
-flight)** — the 2026-09-02 review launch let every workflow worker inherit Fable and hit the usage
-limit twice; on the owner's instruction the workflow scripts were rewritten with an explicit model
-policy (packet A8: Fable supervisory only, Opus hard lenses, Sonnet workforce) and re-run with the
-retained results replayed from seed files. **159 review agents (127 Opus / 32 Sonnet), 0 failures;
-five per-repo Opus-synthesized reports are on disk** (program packet §5 has the headline: 21
-gift-blocking items across the five repos, 5 blockers — race day never starts the radio link
-(GS+mapper), headless mapper panics on the double-wrapped profile, GS zombie after a cancelled quit,
-iPhone demo-seeded telemetry baseline). Recovery after a second stop: three Fable perspectives retained, the verdict re-run bounded; the
-cross-repo probe is complete. **Landed + PUSHED: iPhone_rc main = `61ad68f`** (giftee install docs, 74/74), **mapper `w17-headtrack` =
-`21834fe`** (W17 release job, 180), **control-fw main = `7c00668`** (unlock-plan refresh, docs only), **ground-station main = `35e5efc`** (B3 docs refresh:
-README truth pass, SETUP/bench checklist, GIFTEE_FIRST_LAUNCH.md, contract mirror re-synced to iPhone `61ad68f`; 1447/67).
-Grand verdict: NOT READY for assembly-only; owner accepted OD-1…15 (packet A9; OD-3 overridden: phone
-video is a gift deliverable). Fix wave in flight; builder branches in review/fix; `u4-arbiter` @ `8007603`
-parked (desk R-review FIX_REQUIRED on a miscitation; FIRST_ACTIVE NO-GO unchanged).
+_Last updated: **2026-09-04 (readiness program — fix wave landing; four trunks green)** — the
+compact, compaction-proof program state now lives in **`W17_CURRENT_STATE.md`** (trunk SHAs, branch
+ledger, owner decisions A1–A11 incl. OD-16…OD-19, dependency graph, model policy); read it first.
+Since the 2026-09-03 entry: two more usage-limit stops (both recovered from worktree state — partial
+work continued, nothing duplicated). **Landed + PUSHED, each reviewed → fixed → independently
+re-verified → guarded ff:** control-fw main `39a4f3c` (B1 runbooks, OD-17/18 plan ratifications,
+OD-1 instruction files, sensor-honesty + CI teeth: battery implausible band with a symmetric dwell,
+Hall rate guard with a compile-time 20× margin, delivery-shape ELF check, test-registration check;
+360 native, 5 envs, **CI green**); soundlight main `7220c08` (docs, instruction files, lights truth +
+loop WDT + throttle clamp, link2 owned copy re-synced; 150 native, **CI green**); ground-station
+main `439f09f` (instruction files, packaging + resilience, **root cause of the missing video relay:
+a `build` field in package.json made electron-builder ignore electron-builder.yml** — removed,
+pinned by a test; windows_amd64 mediamtx digest recorded + `--require-pin`; three Windows-CI
+hotfixes; B4 validation-script suite; 1525/72, **first-ever green windows-latest run** with the
+relay asserted inside the package and the NSIS installer uploaded); iPhone_rc main `85ce486`
+(telemetry honesty: no demo seed, provenance per field, plain-language stale/lost banners, resolved
+simulator destination; OD-16 instruction amendment; 84 tests, **CI green** — first green on that
+repo); mapper `w17-headtrack` `6e99d51` (branch A: MAP-1 unwrap, MAP-2 self-start from the profile,
+placeholder refusal, MAP-3/4/8/10/11, per-caller adoption barrier; 240 tests, `-race` clean; pushed
+through the pre-push hook); 3d-codex main `5dddedb` (placement study, parametric OpenSCAD, fit-check
+coupons, measurement-session prompt); workspace: readiness runbooks, manual truth pass, Windows-VM
+runbook. **In flight:** GS branch B (race-day truth + lifecycle; review done, fixer applying the
+credential-safe single write per OD-19), mapper branch B (hot-plug, lint teeth, hook assertion,
+CORS), phone live video (OD-16: WHEP/WebRTC in a bundled web view; safety core verified at socket
+level; fixer applying doc/gate items). Then: GS contract re-mirror, mapper release dispatch (its
+first CI run), close-out audit. `u4-arbiter` @ `4e445c9` parked, ratified, never pushed; FIRST_ACTIVE
+NO-GO unchanged. Owner residue unchanged: shopping list (incl. the 5 GHz AP adapter that gates the
+hotspot validation scripts), measurement session M-00…, VMware Fusion + Windows 11 ARM install,
+booklet editorial pass.
 **No hardware; nothing flashed or powered; A2 stays NOT-EXECUTED, Phase B stays BLOCKED.**
 Prior pass, **2026-09-02 (readiness program OPENED — vision aligned, six workstreams
 launched)** — the owner set the end goal "EVERYTHING IS READY, only assembly remains before
