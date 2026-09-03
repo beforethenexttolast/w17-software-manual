@@ -124,9 +124,18 @@ Consequences of the base rule, both still true and both still deliberate:
 
 - Flipping arm ON with the stick held high does nothing until the stick centers once
   ("no arm-into-full-throttle").
-- Even *without* a failsafe episode, any disarm (switch off) clears the neutral-seen
-  latch — so a link recovery mid-panic-grip cannot snap the motor to the stick's current
-  position (closes finding A3).
+- Switch-off always clears the neutral-seen latch too, independent of the failsafe
+  state — an ordinary disarm always demands a fresh neutral before re-arming, same as
+  the two-latch case above.
+- **Finding A3** (a link recovery mid-panic-grip must not snap the motor to whatever
+  position the stick is frozen at) is closed by the *other* branch of `update()`:
+  `forceDisarm` (true for every tick of a failsafe episode, including one triggered by
+  a link drop while the stick sits pinned) clears the latch continuously, tick after
+  tick, for as long as the episode lasts. So the instant the link recovers, the latch
+  is already false — the base rule's "throttle back to neutral" requirement applies
+  before the motor can respond at all, regardless of what the stick is doing at that
+  moment. **[C]** `ArmGate.cpp:22-25` (`if (forceDisarm || switchToggleRequired_) {
+  seenNeutralSinceEnable_ = false; return false; }`).
 
 Note the layering: the failsafe FSM decides *link* health; the ArmGate decides *driver
 intent* (now via two latches, not one); `EscOutput`'s 2 s boot hold satisfies the *ESC's*
