@@ -1,5 +1,10 @@
 # C9b — Concept Teaching Notes
 
+> **Dated staleness note (2026-09-03):** same caveat as
+> `09b_console_tuning_and_settings_store.md` — the console key list here predates
+> the v2 blob's `gimbal.decay` / `sound.profile` / `sound.volume` / `btpad.*` keys
+> (`lib/console/src/Console.cpp:207-339`). The concepts taught are unaffected.
+
 A standalone study companion to `09b_console_tuning_and_settings_store.md`. It teaches, from
 absolute beginner level, the concepts C9b introduced. It uses **only** the already-read C9b source
 (`Console.{hpp,cpp}`, `ConsoleRunner.{hpp,cpp}`, `Esp32NvsStore.{hpp,cpp}`,

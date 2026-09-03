@@ -1,5 +1,15 @@
 # C9a — Settings: Persistence (the "never-brick" format)
 
+> **Dated staleness note (2026-09-03):** this batch walks the blob format as it read
+> when C9a was written — **`Settings` with three sub-configs and `kBlobVersion = 1`**.
+> The struct/version work described below is accurate line-by-line for *that*
+> revision, but the source has since moved to **v2**: `Settings` now carries **six**
+> sub-configs (steering, gearbox, battery, `gimbalDecay`, `sound`, `btpad`) and
+> `kBlobVersion = 2` (**[C]** `lib/settings/include/settings/Settings.hpp:21-66`).
+> The persistence *mechanism* this batch teaches (length → CRC → version → `valid()`
+> guard chain, the never-brick fallback) is unchanged in v2 — only the field list and
+> the version number moved. Current shape: chapter 06 §2.8.
+
 **Batch C9a of the source-code campaign** (the first half of the approved C9 split; see
 `../../source_code_explanation_plan.md` and the split note in `../../source_code_progress.md`).
 This part covers the **persistence *format*** — the `Settings` struct that bundles the

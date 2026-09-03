@@ -1,5 +1,14 @@
 # C9b — Console + Tuning HAL + Settings-Store Integration
 
+> **Dated staleness note (2026-09-03):** this batch's console key list reflects the
+> v1 `Settings` it read at the time (`steer.*`, `batt.*`, `gear.N.*` only). The
+> console has since grown v2 keys: `gimbal.decay`, `sound.profile`, `sound.volume`,
+> and six `btpad.*` keys (**[C]** `lib/console/src/Console.cpp:207-339`), matching
+> the v2 blob (`kBlobVersion = 2`, six sub-configs —
+> `lib/settings/include/settings/Settings.hpp:21-66`). The console *mechanism*
+> taught here (dotted-key parsing, DISARMED-only mutation, `valid()` re-check) is
+> unchanged. Current key list: chapter 06 §2.8.
+
 **Batch C9b of the source-code campaign** (the second half of the approved C9 split; C9a is
 `09a_settings_persistence.md`, and the beginner concept notes are `09a_concept_teaching_notes.md`).
 C9a gave us the persistence **format** (the `Settings` struct, `serialize`/`deserialize`, the

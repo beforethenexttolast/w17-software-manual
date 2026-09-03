@@ -1,5 +1,11 @@
 # C9a — Concept Teaching Notes
 
+> **Dated staleness note (2026-09-03):** same caveat as `09a_settings_persistence.md`
+> — this reads against the v1 `Settings` (three sub-configs, `kBlobVersion = 1`); the
+> source is v2 now (six sub-configs, `kBlobVersion = 2`,
+> `lib/settings/include/settings/Settings.hpp:21-66`). The concepts taught here
+> (structs-as-versioned-blobs, guarded deserialization) are unaffected.
+
 A standalone study companion to `09a_settings_persistence.md`. It teaches, from absolute
 beginner level, every concept C9a introduced. It uses **only** the already-read C9a source
 (`lib/settings/Settings.hpp`, `lib/settings/src/Settings.cpp`,
