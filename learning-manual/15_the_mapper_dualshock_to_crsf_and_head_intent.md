@@ -14,15 +14,21 @@ channel decode), chapter 09 (CRSF byte format). Chapter 08 helps for the ground-
 end. New here: a first look at **Go** — the mapper is the workspace's only Go program,
 and Go concepts are explained as they appear, same as C++ was in chapter 04.
 
-**Branch-state warning (2026-08-17), read before citing this chapter:** the mapper's
-current line is branch `w17-headtrack` at `432a809` — that is what "the mapper" means
-below unless a section says otherwise. Two other branches exist and are **not merged**:
-`w17-audit-wave1` (`c383972` — the W17 profile `configs/w17-ds4.json` plus four defect
-fixes, awaiting the owner's personal diff review) and `u4-arbiter` (`93be341` — gated
-head-tracking arbitration work that **never merges before the R1–R16 safety review
-passes**; see §9). Sections that teach wave-1 material say so explicitly. **[C]**
-`git branch` in `w17-mapper`; `../2026-08-16_orchestration_review_packet.md` §2, §5,
-§7½.
+**Branch-state warning (updated 2026-09-03), read before citing this chapter:** the
+mapper's current line is branch `w17-headtrack`, now well past the 2026-08-17
+`432a809` snapshot — that is what "the mapper" means below unless a section says
+otherwise. **Update:** what this chapter called `w17-audit-wave1` (the W17 profile
+`configs/w17-ds4.json`, the four confirmed-audit-defect fixes, and the R1–R16 wording
+correction) is **no longer a separate unmerged branch** — the owner committed it
+directly onto `w17-headtrack` (`c383972` and later commits, author
+`beforethenexttolast`; no `w17-audit-wave1` ref remains). It is trunk fact now, not a
+pending review. One other branch still exists and is genuinely **not merged**:
+`u4-arbiter` (gated head-tracking arbitration work that **never merges before the
+R1–R16 safety review passes**; see §9) — that gate is unchanged. Sections below that
+still say "unmerged wave-1" are dated and superseded by this note; §6/§9/§11 have been
+corrected. **[C]** `git branch`/`git log --oneline w17-headtrack` in `w17-mapper`;
+`../2026-08-16_orchestration_review_packet.md` §2, §5, §7½ (superseded on the
+wave-1 point by this update).
 
 ---
 
@@ -169,10 +175,13 @@ An **evaluation loop** re-evaluates the whole graph on a ~25 ms tick
 packs the 16 evaluated channel values into CRSF `RC_CHANNELS_PACKED` frames —
 `crossfire.PackChannels` (`pkg/crossfire/util.go:119`) is the exact mirror of the
 firmware's `decodeRcChannels` from chapter 09 — and writes them to the TX module's
-serial port. *(Caveat for current `w17-headtrack`: the 25 ms tickers live inside
-streaming gRPC handlers, so with zero subscribers the eval loop can stop ticking —
-confirmed audit defect, fixed by a subscriber-independent heartbeat on the unmerged
-wave-1 branch. **[C]** `../2026-08-16_vision_audit_report.md` §3 defect 2.)*
+serial port. *(History: the 25 ms tickers used to live inside streaming gRPC handlers,
+so with zero subscribers the eval loop could stop ticking — confirmed audit defect 2.
+**Fixed, now on trunk**: `pkg/config/eval.go` runs a subscriber-independent heartbeat
+ticker (`evalHeartbeatInterval`) that re-evaluates every synthetic per-port
+transmitter regardless of subscriber count — the fix landed on `w17-headtrack` itself,
+not a separate branch. **[C]** `pkg/config/eval.go:118-153`;
+`../2026-08-16_vision_audit_report.md` §3 defect 2.)*
 
 ## 5. Failsafe values and `nan` — the W17 fork's main safety work
 
@@ -210,30 +219,38 @@ depth, and neither layer trusts the other.
 
 ## 6. The W17 profile — `configs/w17-ds4.json`
 
-**Lives on the unmerged `w17-audit-wave1` branch** (read it with
-`git show w17-audit-wave1:configs/w17-ds4.json`); it becomes "the shipped profile" only
-after the owner's diff review. Two placeholders must be filled at the Windows bench:
-the DS4's device id and the ELRS TX COM port (`REPLACE-WITH-DS4-ID`,
-`REPLACE-WITH-COM-PORT`). **[C]** that file; packet §4 item 7.
+**Lives on trunk `w17-headtrack`** (`configs/w17-ds4.json`) — no longer a separate
+branch awaiting review (see the branch-state warning above); the owner committed it
+directly. Two placeholders still must be filled at the Windows bench: the DS4's
+device id and the ELRS TX COM port (`REPLACE-WITH-DS4-ID`, `REPLACE-WITH-COM-PORT`).
+**[C]** that file; packet §4 item 7.
 
-| CRSF ch | Control | DS4 input (SDL id) | Graph shape | `failsafe` |
+Button numbering note (2026-09-03 correction): the profile's original commit mixed
+SDL HIDAPI axis numbering with raw-HID button numbering — "a pairing no Windows
+driver produces" (`FORK-NOTICE.md` row `4e27b0e`, review blocker F1). The numbers
+below are the corrected HIDAPI GameController order, test-pinned for the bound set
+`{2,3,9,10}`:
+
+| CRSF ch | Control | DS4 input (SDL HIDAPI id) | Graph shape | `failsafe` |
 |---|---|---|---|---|
 | 1 | steering | left stick X (axis 0, deadzone 2000) | `axis` | 992 (center) |
 | 3 | throttle | R2 fwd / L2 brake (axes 5, 4) | each `linear`-rescaled 0…32767, then `subtract` | 992 (neutral) |
 | 5 | **arm** | TRIANGLE (button 3) | `and(seq toggle, liveness probe)` — see below | **172 (OFF)** |
-| 6 | DRS | SQUARE (button 0), hold | `button` | **172 (OFF)** |
-| 7 | gear up | R1 (button 5), momentary | `button` (firmware edge-detects, ch06) | **172 (OFF)** |
-| 8 | gear down | L1 (button 4), momentary | `button` | **172 (OFF)** |
+| 6 | DRS | SQUARE (button 2), hold | `button` | **172 (OFF)** |
+| 7 | gear up | R1 (button 10), momentary | `button` (firmware edge-detects, ch06) | **172 (OFF)** |
+| 8 | gear down | L1 (button 9), momentary | `button` | **172 (OFF)** |
 | 9 | gimbal pan | right stick X (axis 2) | `axis` — stick-driven only, **not** head tracking | 992 |
 | 10 | gimbal tilt | right stick Y (axis 3) | `axis` — same | 992 |
 | 11 | ERS boost | — pinned OFF | `number` rail −32768 | **172** |
 | 12 | ERS overtake | — pinned OFF | `number` rail −32768 | **172** |
 | 13 | drive mode | — pinned LOW = TRAINING | `number` rail −32768 | **172** |
 
-SHARE, OPTIONS and the D-pad are **deliberately unbound** — reserved as future
-head-tracking affordances ("Alternative C"), and the profile's own `tx` label says so.
-Every channel carries `crsf_min: 172, crsf_max: 1811` — that is §7's story. **[C]** all
-rows from the JSON itself.
+SHARE (button 4), OPTIONS (button 6), and the D-pad are **deliberately unbound** —
+reserved as future head-tracking affordances ("Alternative C"), and the profile's own
+`tx` label says so; a mapper test asserts no button node may reference either
+(`pkg/config/w17_profile_test.go`). Every channel carries `crsf_min: 172, crsf_max:
+1811` — that is §7's story. **[C]** all rows from the JSON itself;
+`configs/README.md`.
 
 **The arm channel is the profile's one clever graph, and it exists because of a trap.**
 A `seq` node is a *stateful toggle*: TRIANGLE press+release (50–1000 ms) advances it
@@ -248,12 +265,24 @@ over left-stick-X that outputs constant 1 while the pad resolves and `nan` once 
 detaches. The `and`'s right-operand loop skips nan operands, *but if all of them are
 nan the whole `and` returns nan* (`pkg/config/input_and.go:58-81`). One probe, so "one
 nan" = "all nan" = channel unresolved = failsafe 172 = the firmware's `decodeSwitch`
-reads OFF = **disarm**. After a dropout you press TRIANGLE once to re-sync the toggle
-(it may be out of phase with reality) — the channel label documents this. **[C]** both
-files. *(Why not probe with the TRIANGLE button itself? A button also reads as valid 0
-when idle — the probe must be a node that is truthy while alive and `nan` when dead,
-which the constant-output `linear` over an axis is.)* **[I]** design reading of the
-same two files.
+reads OFF = **disarm**.
+
+**2026-09-03 update — a second layer on top of the probe:** the `seq` node itself now
+sets `reset_on_nan: true` (`FORK-NOTICE.md` row `4e27b0e`, "arm toggle resets on
+dropout"). Without it, the AND-probe defense above stops the *channel* from
+transmitting armed, but the `seq`'s own internal toggle state is untouched by a
+dropout — so if the pad reconnected mid-phase, the toggle could still be internally
+"on" and the channel would go straight back to armed the instant the liveness probe
+resolved again, with no fresh press. `reset_on_nan` closes that: any tick where every
+condition is `nan` also resets the toggle's stored value to `0` (DISARMED), so a
+reconnect always starts from disarmed and **always** needs one deliberate fresh
+TRIANGLE press — not "may be out of phase," but guaranteed. **[C]**
+`pkg/config/input_seq.go` (`reset_on_nan` handling); the channel's own JSON label
+("reset_on_nan returns it to DISARMED on any pad dropout, so an auto-reconnect can
+never silently re-arm"). *(Why not probe with the TRIANGLE button itself? A button
+also reads as valid 0 when idle — the probe must be a node that is truthy while alive
+and `nan` when dead, which the constant-output `linear` over an axis is.)* **[I]**
+design reading of the same files.
 
 ## 7. Why a *default* config could not arm — the plausibility band
 
@@ -282,8 +311,9 @@ Now put the two together. A default-endpoint mapper channel at full deflection
 transmits ~0 or ~1984. Both sit **outside** 100–1900. So the arm switch at "ON"
 arrived as *implausible* → decoded as OFF → **a car driven by a default config can
 never arm**. Not a crash — a silent, total refusal. The W17 profile's fix is simply
-`crsf_min: 172, crsf_max: 1811` on every channel, plus (same wave-1 branch) a
-load-time lint that warns when a profile's endpoints leave the firmware's band.
+`crsf_min: 172, crsf_max: 1811` on every channel, plus (now on trunk `w17-headtrack`,
+same commit set) a load-time lint that warns when a profile's endpoints leave the
+firmware's band.
 **[C]** `../2026-08-16_vision_audit_report.md` §3 defect 3; the profile JSON.
 
 The teaching point: **two correct programs disagreed about a contract neither had
@@ -318,7 +348,7 @@ safe value: steering straight, throttle neutral (the ESC runs forward/brake — 
 
 Note the symmetry with §7: both defects are *composition* bugs between a sane mapper
 and a sane firmware. This is why the manual keeps hammering "the contract is the
-artifact" — and why the wave-1 branch adds a profile lint asserting `failsafe: 172` on
+artifact" — and why trunk now carries a profile lint asserting `failsafe: 172` on
 decodeSwitch channels rather than trusting future profile edits to remember.
 
 ## 9. The head-intent pipeline — log-only, by construction
@@ -418,10 +448,11 @@ weakest to strongest:
    shaping/arbitration/output paths before the FIRST_ACTIVE checklist passes, plus a
    four-point pre-push confirmation list (enum ends at 8; no gated identifiers;
    `go test ./pkg/headintent/` green including the byte-identity proof; `go list
-   -deps` shows no control-package edge). *(Accuracy note: at current `w17-headtrack`
-   HEAD this file says "R1–R14" in two places; the checklist is actually **R1–R16**,
-   and the wording is corrected on the unmerged wave-1 branch — confirmed audit low
-   finding 12.)* **[C]** FORK-NOTICE; audit §3.
+   -deps` shows no control-package edge). *(History: `FORK-NOTICE.md` used to say
+   "R1–R14" in two places against an actual R1–R16 checklist — confirmed audit low
+   finding 12. Fixed, now on trunk: `git grep 'R1–R16' FORK-NOTICE.md` at current
+   `w17-headtrack` HEAD returns three hits, zero "R1–R14" remain.)* **[C]**
+   FORK-NOTICE.md:68,73,125; audit §3.
 3. **The actual gate** — the FIRST_ACTIVE review itself (R1–R16 + bench evidence +
    owner approval), which is a process, not a grep. The hook and the notice exist so
    that *accidents* cannot outrun the process.
@@ -432,14 +463,14 @@ that must end at a known value, a dependency query, a byte-identity test — and
 automate the check at the moment of risk (push time). Absences that are merely
 remembered eventually stop being true.
 
-## 11. Current reality — the ledger for this chapter (2026-08-17)
+## 11. Current reality — the ledger for this chapter (updated 2026-09-03)
 
 | Thing | Where it lives | Status |
 |---|---|---|
-| Mapper current line | `w17-headtrack` @ `432a809` | everything in §1–§5, §9–§10 except as noted |
-| W17 profile + lint, 4 defect fixes, R1–R16 wording | `w17-audit-wave1` @ `c383972` | **unmerged**; awaits the owner's personal diff review (packet §7½.1) |
-| Defects 2 & 4 (eval heartbeat; `InputRead` recursion crash) | fixed only on wave-1 | **still present on `w17-headtrack`** — a schema-valid `read` cycle can still crash the current mapper (audit §3.4) |
-| U4 arbiter (+51 tests, flags off) | `u4-arbiter` @ `93be341` | branch-only by owner amendment; **never merges/pushes before R1–R16 + bench**; not in any running build |
+| Mapper current line | `w17-headtrack` (moves; `git rev-parse w17-headtrack` for the live tip) | everything in §1–§10 |
+| W17 profile + lint, 4 defect fixes, R1–R16 wording | **merged onto `w17-headtrack` directly** (no `w17-audit-wave1` ref remains; owner-authored) | trunk fact, not pending review |
+| Defects 2 & 4 (eval heartbeat; `InputRead` recursion crash) | fixed on `w17-headtrack` | verified at HEAD: `pkg/config/eval.go`'s heartbeat ticker and the `InputRead` re-entrancy guard (`read_cycles.go`) both exist on trunk (audit §3.4 closed) |
+| U4 arbiter (+51 tests at last check, flags off) | `u4-arbiter` branch — **actively moving during this 2026-09-02 readiness pass** (a separate builder session is landing steps there right now; do not cite a commit hash here, it will be stale within the hour) | branch-only by owner amendment; **never merges/pushes before R1–R16 + bench**; not in any running build |
 | Head-intent ingest | `w17-headtrack` (merged, live-validated) | **LOG-ONLY**; enum ends at `ACTIVE_LOG_ONLY = 8`; FIRST_ACTIVE = NO-GO |
 | Pad device id + COM port in the profile | placeholders | Windows-bench items (packet §4.7) |
 
