@@ -32,7 +32,7 @@ flowchart LR
     ESC["EscOutput → GPIO14 throttle"]
     DRS["DrsOutput → GPIO18 wing"]
     GIM["pan GPIO19 · tilt GPIO23"]
-    L2["Link2Sender → GPIO25<br/>14-byte frames, 20 Hz"]
+    L2["Link2Sender → GPIO25<br/>17-byte frames, 20 Hz"]
     TLM["CrsfFrameBuilder → GPIO17<br/>battery/GPS/mode, ~5 Hz"]
   end
 
@@ -133,7 +133,8 @@ commands the safe position at attach time (fix A4), so there is no unpowered-dut
   report decays and hard-zeros after 1.5 s.
 
 ### 2.7 `lib/link2` — reporting downstream
-`Link2Sender` snapshots the world every 50 ms into the 14-byte frame (chapter 09 §3).
+`Link2Sender` snapshots the world every 50 ms into the 17-byte frame (14-byte payload,
+chapter 09 §3).
 Two design points: throttle reported is **what the ESC is actually commanded** (zero in
 failsafe/disarm) so the engine sound can never contradict reality; and the braking flag
 is hysteresis-filtered by the sender so board #2 can drive the brake light directly.
@@ -141,7 +142,8 @@ is hysteresis-filtered by the sender so board #2 can drive the brake light direc
 review catch removed an early-return that would have silenced it (ROADMAP D6).
 
 ### 2.8 `lib/settings` + `lib/console` — the bench tuning surface
-Present only in the `esp32dev_tuning` build. `Settings` aggregates the tunables and
+`lib/console` is present only in the `esp32dev_tuning` build (`Settings` itself, and
+loading it, are in every build — see below). `Settings` aggregates the tunables and
 serializes them as a versioned, CRC-guarded blob for NVS flash; every load failure of
 any kind falls back to compiled defaults (the "never-brick chain"). **Update
 2026-09-03 — this is the v2 blob, not v1:** `Settings` carries **six** sub-configs
@@ -164,7 +166,7 @@ loads" saved tuning (wrong at the time — an over-reading of D8's "the NVS-save
 persists"); the C10 correction (2026-07-05) established the plain build then had **no
 load path at all**; and the source has since moved again — **today loading is in every
 build**: the non-console branch of `setup()` calls
-`settings::loadOrDefault(nvsStore)` (**[C]** `src/main.cpp:357`, verified 2026-08-17;
+`settings::loadOrDefault(nvsStore)` (**[C]** `src/main.cpp:802`, verified 2026-09-03;
 `CLAUDE.md` "Delivery vs tuning builds" pins it as an invariant, same
 length → CRC → version → `valid()` guard chain, any failure ⇒ complete compiled
 defaults). Only *editing* (the console) stays tuning-build-only. See

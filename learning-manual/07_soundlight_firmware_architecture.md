@@ -140,7 +140,9 @@ preserving the no-control-authority rule. **[C]**
 `lib/soundsynth/src/EngineSynth.cpp:64,69`. *(The repo's own `CLAUDE.md`/`AGENTS.md`
 still call this "an open owner decision — do not add one unilaterally"; that is stale
 instruction-file text, not a manual claim — flagged for the orchestrator, not fixed
-here.)*
+here (soundlight `docs-truth-1`), and due to be corrected by the pending OD-1
+instruction-file batch — once that lands this parenthetical itself becomes stale and
+can be dropped `[fix-wave: OD-1]`.)*
 
 > **[C] S3 verified this section in code**
 > (`soundlight_fw/03_sound_synthesis.md`, 9/9 tests pass + a harness compiled against the

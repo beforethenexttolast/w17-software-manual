@@ -406,8 +406,9 @@ the hard override. (09b, C10)
 
 **LEDC** — the ESP32 PWM peripheral generating servo pulses. `Esp32LedcPwm`. (03, 06)
 
-**link2** — this project's one-way UART protocol, board #1 → #2: 0xA5-framed 14-byte
-frames, 20 Hz, 500 ms staleness rule. Spec: `docs/link2_protocol.md`. (09)
+**link2** — this project's one-way UART protocol, board #1 → #2: 0xA5-framed 17-byte
+frames (14-byte payload), 20 Hz, 500 ms staleness rule. Spec: `docs/link2_protocol.md`.
+(09)
 
 **Link2Monitor** — board #2's staleness watchdog (`lib/link2monitor`): wraps the copied
 `Link2FrameAssembler`, stamps the arrival time of each CRC-valid frame, and returns the
