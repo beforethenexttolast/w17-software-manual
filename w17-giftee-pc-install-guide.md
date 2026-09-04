@@ -203,31 +203,36 @@ Lola, done once here.
    (`w17-mapper/configs/README.md`: "the profile is fail-safe until both are set"). That said,
    nothing today warns you if you forget one (`[fix-wave: MAP-5]`) — double-check both values
    yourself.
-5. **If you opened the mapper's web page for step 3 instead of using `-list-devices`, both that
-   page and its underlying control channel are reachable from every device on the same network
-   while the mapper runs, not just this PC** — neither is limited to this machine, and neither
-   checks who is asking (`w17-mapper/pkg/server/controller.go:81`,
-   `w17-mapper/pkg/http/controller.go:102`; `[fix-wave: MAP-8]`). On the giftee's home Wi-Fi or
-   the car's own hotspot this means anything else already on that network could, in principle,
-   start or stop the radio link the same way this guide has the pit crew do from the browser.
-   `-list-devices` never opens this exposure at all, which is why step 3 prefers it. If you do use
-   the web page, keep that step to a private/trusted network and close the mapper afterward; do
-   not leave it running unattended.
-6. **Add a Windows Firewall rule that keeps the mapper's controls reachable only from this PC,
-   not the network.** This closes off the same exposure permanently, not just while you remember
-   to keep step 5 on a trusted network — do this once, during this setup, before the kit is
-   considered final:
+5. **The mapper's gRPC (`:10000`) and Web-UI (`:3000`) ports bind to this PC only by default, not
+   the network** — `DefaultBindHost` is `127.0.0.1` for both listeners, an owner decision made for
+   exactly this product (`w17-mapper/pkg/server/controller.go:22-37`, owner decision OD-8(a);
+   `w17-mapper/pkg/http/controller.go:35-37`). Opening the mapper's web page for step 3 does not,
+   by itself, make it reachable from anything else on the giftee's home Wi-Fi or the car's own
+   hotspot. That loopback default only opens up if someone explicitly passes `-bind-all`
+   (`w17-mapper/cmd/elrs-joystick-control/main.go:84-91,136-143`) — neither this guide nor RACE DAY
+   ever does that: the ground station's mapper launcher only ever passes `-config-file-path`, with
+   no way to append `-bind-all` or any other flag
+   (`w17-ground-station/main/raceDayOrchestrator.js:44`). The one thing still reachable while the
+   web page is open is a browser on this **same** PC, and the mapper's CORS rule now limits that to
+   its own origin (`w17-mapper/pkg/http/controller.go:102`), so another tab or page open on this
+   machine can't read its responses either. `-list-devices` still opens no network listener at
+   all, which is why step 3 prefers it; if you do use the web page, close the mapper afterward
+   rather than leaving it running unattended.
+6. **The firewall rule below is defence-in-depth, not the fix for an open exposure — the mapper
+   already refuses connections from the network by default (step 5).** It is still worth setting
+   up once, during this setup, so that a future run is never accidentally reachable from the
+   network even if someone later passes `-bind-all` by mistake:
    - Open **Windows Defender Firewall with Advanced Security** (search for it from the Start
      menu) → **Inbound Rules** → **New Rule…**
    - Rule type: **Custom**. Program: browse to `elrs-joystick-control.exe` (wherever you put it
      in step 1). Protocol: **TCP**, Local ports: **3000, 10000** (the mapper's web page and its
      control channel). Scope: leave remote addresses as **Any**. Action: **Block the connection**.
      Apply to whichever network profile the hotspot uses (Private is the common case).
-   - This blocks connections arriving over the network to those two ports, but does **not** block
-     the ground station or your own browser talking to the mapper on **this same PC**
-     (`localhost`/`127.0.0.1` traffic never leaves the machine, so it isn't affected by this rule)
-     — RACE DAY and the mapper's web page (whether from step 3 or opened fresh here) keep working
-     exactly as before.
+   - This blocks connections arriving over the network to those two ports — redundant with the
+     loopback default unless `-bind-all` is ever used — but does **not** block the ground station
+     or your own browser talking to the mapper on **this same PC** (`localhost`/`127.0.0.1`
+     traffic never leaves the machine, so it isn't affected by this rule) — RACE DAY and the
+     mapper's web page (whether from step 3 or opened fresh here) keep working exactly as before.
    - `[win-TBD]` — this rule is not yet bench-verified on a real Windows box; confirm both halves
      after setting it up: the mapper's own web page still opens from this PC, and (if you have a
      second device on the same network to test with) it no longer opens from that second device.
@@ -294,7 +299,7 @@ The phone HUD is a nice-to-have, never the primary display (the laptop screen is
 | Car never arms, no error shown | An unfilled `REPLACE-WITH-*` placeholder (§5.3 step 3/4) | Re-check both placeholders in `w17-ds4.json` |
 | Hotspot won't start | Windows Mobile Hotspot needs an active internet-connected profile first (`[win-TBD]`) | Connect to any network first, then retry |
 | Settings seem to have silently reset | `correctness-2` — an unreadable `settings.json` resets to defaults and can overwrite its own backup | Confirm `correctness-2` closed before this kit is considered final |
-| Someone else on the network could reach the mapper's controls while it's open | `MAP-8` — the mapper's network ports aren't limited to this PC and have no login (§5.3 step 5) | Only run §5.3 on a trusted network, then add the firewall rule in §5.3 step 6; confirm `MAP-8` closed before this kit is considered final |
+| Worried the mapper's controls are reachable from the network while it's open | They aren't, by default — `MAP-8`'s loopback-only bind closed that (§5.3 step 5) | Prefer `-list-devices` (§5.3 step 3) over the web page; the §5.3 step 6 firewall rule is defence-in-depth only, needed if `-bind-all` is ever used |
 | Phone HUD stopped connecting | The 7-day sideload signature may have expired (§7) | Check the re-sign date before troubleshooting the network |
 
 ---
