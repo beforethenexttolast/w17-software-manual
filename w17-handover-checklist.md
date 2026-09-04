@@ -100,6 +100,21 @@ the box here.
 - [ ] **Both placeholders filled with values read off the actual giftee PC**
   (`w17-giftee-pc-install-guide.md` §5.3): `REPLACE-WITH-DS4-ID` and `REPLACE-WITH-COM-PORT` in
   the deployed `w17-ds4.json` — not copied from the owner's bench profile.
+- [ ] **`"w17_profile": true` present inside the `config` object** of the deployed `w17-ds4.json`
+  — not merely somewhere in the file: the headless bring-up unwraps the document and sends only
+  the inner `config` object onward, so a marker outside it never reaches the check
+  (`w17-mapper/pkg/config/profile_document.go:97-101`). This marker is what switches on every
+  arm-chain rule that stops the car re-arming itself after a controller dropout
+  (`w17-mapper/pkg/config/lint.go:208-209`) — an unmarked copy gets none of them. **Race day now
+  refuses to start on an unmarked profile:** pointing `-config-file-path` at a copy without the
+  marker is refused at bring-up with one plain sentence, before `SetConfig` and before the radio
+  link starts (`w17-mapper/pkg/client/grpc_client.go:154-159`;
+  `w17-mapper/pkg/config/profile_document.go:144-153`) — the failure mode is now "the car says why
+  it won't start," not "the car starts unprotected." **Cost to know:** this also means the mapper
+  binary can no longer start an unmarked upstream rig's config from the command line this way —
+  those configs still load fine in the mapper's own web editor, which stays permissive by design
+  (`w17-mapper/FORK-NOTICE.md:82`). Confirm the marker is present and unedited before every
+  handover.
 - [ ] **Lint clean on the deployed copy.** The committed repo copy is test-pinned
   (`w17-mapper/pkg/config/w17_profile_test.go`), but the deployed, hand-edited copy on the
   giftee's PC escapes that pin — it is per-PC and per-bus (`MAP-9`) and its shape isn't asserted
