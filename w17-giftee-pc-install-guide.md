@@ -209,7 +209,7 @@ Lola, done once here.
    `w17-mapper/pkg/http/controller.go:35-37`). Opening the mapper's web page for step 3 does not,
    by itself, make it reachable from anything else on the giftee's home Wi-Fi or the car's own
    hotspot. That loopback default only opens up if someone explicitly passes `-bind-all`
-   (`w17-mapper/cmd/elrs-joystick-control/main.go:84-91,136-143`) — neither this guide nor RACE DAY
+   (`w17-mapper/cmd/elrs-joystick-control/main.go:84-91`, `:136-143`) — neither this guide nor RACE DAY
    ever does that: the ground station's mapper launcher only ever passes `-config-file-path`, with
    no way to append `-bind-all` or any other flag
    (`w17-ground-station/main/raceDayOrchestrator.js:44`). The one thing still reachable while the
