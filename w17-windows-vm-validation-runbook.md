@@ -784,8 +784,12 @@ Five properties worth knowing before you rely on them:
   each step.
 - **`suite` forwards an ALLOW-LIST and exits 2 on everything else.** The parameters it will
   pass to `run-all.ps1` are `-InstallerPath -InstallDir -UserDataDir -MapperExe -Profile
-  -Ssid -Password -MdnsTimeoutMs -MapperWaitMs -Shell`, spelled in full. `-IncludeHidTransition`
-  and `-HidTransitionNonInteractive` are therefore refused — and so is every **ASCII** spelling
+  -Ssid -Password -MdnsTimeoutMs -MapperWaitMs -Shell -ElrsVidPid -HardwareExpected -RequireDs4
+  -RequireElrs -RequireWifi -RequireAdapterCapability -RequireHotspotBackend`, spelled in full
+  (the seven hardware-gate parameters added to the allow-list per V-A3 V3-3 — they do not
+  exist on GS `main` `379cf29` yet, only on FIX-A2's unmerged branch, so `suite` against
+  `main` today refuses them the same way it refuses anything else off the allow-list).
+  `-IncludeHidTransition` and `-HidTransitionNonInteractive` are therefore refused — and so is every **ASCII** spelling
   PowerShell binds to them, which is the point: PowerShell matches parameter names
   **case-insensitively and by unambiguous prefix**, so `-Inc`, `-Hid`, `-INC`, `--Inc` and
   `-hid:$true` all set those switches, and a first version of this guard that listed the two
@@ -793,7 +797,7 @@ Five properties worth knowing before you rely on them:
   horizontal bar — the only other characters PowerShell's own tokenizer treats as a parameter
   prefix) are not matched by this guard's own case statement, which is ASCII-only; verified
   V-A3: those tokens either fall to the guard's positional refusal, or — in the one slot that
-  passes it, as the value following one of the ten forwarded parameters — are read by
+  passes it, as the value following one of the seventeen forwarded parameters — are read by
   PowerShell itself as a *new* parameter name, which starves the parameter they followed of
   its value and aborts the whole script before its body runs. Step 7 needs a human at the DS4
   cable and the car unpowered / RX unbound (§3.1), so a wrapper must not be able to start it by

@@ -639,8 +639,27 @@ cmd_check() {
 # Deliberately absent: -IncludeHidTransition and -HidTransitionNonInteractive
 # (step 7, refused above); -MapperExeForHidTransition (meaningless without
 # them); -ResultsRoot (this wrapper owns it -- runbook 4.1's per-session guest
-# results root); and every CmdletBinding common parameter.
-SUITE_ALLOWED_PARAMS='installerpath installdir userdatadir mapperexe profile ssid password mdnstimeoutms mapperwaitms shell'
+# results root); every CmdletBinding common parameter; and -DryRun /
+# -FixturePath, run-all.ps1's macOS-only fixture-simulation pair (its own
+# header: "NEVER set this against a real Windows guest" -- the whole point of
+# `suite` is driving a real guest, so forwarding either would be actively
+# wrong, not merely unneeded).
+#
+# Extended (V-A3 V3-3) with nine parameters run-all.ps1 gained after this
+# guard was first written (GS `main` was `379cf29`; these landed on FIX-A2's
+# branch and are not yet on any trunk this workspace can push to): the five
+# per-device hardware gates -RequireDs4/-RequireElrs/-RequireWifi/
+# -RequireAdapterCapability/-RequireHotspotBackend, the -HardwareExpected
+# bulk switch that defaults all five to $true at once, and -ElrsVidPid. All
+# seven are meant to be turned on for exactly the bench session this wrapper
+# targets -- a missing device should read SKIPPED-no-hardware until the
+# owner deliberately says otherwise -- so refusing them would make the
+# documented driver (`suite`) unable to reach FIX-A2's own gates. This is a
+# forward extension only: none of the seven exist on GS `main` `379cf29`
+# today, so `suite` against that trunk refuses them as "not on suite's
+# allow-list" exactly as before, and the merge that lands FIX-A2 is the merge
+# that makes them real (V-A3 V3-3's own recorded follow-up).
+SUITE_ALLOWED_PARAMS='installerpath installdir userdatadir mapperexe profile ssid password mdnstimeoutms mapperwaitms shell elrsvidpid hardwareexpected requireds4 requireelrs requirewifi requireadaptercapability requirehotspotbackend'
 
 SUITE_STEP7_HINT="Run it deliberately, by hand:
     $0 --interactive ssh 'pwsh -NoProfile -File $GUEST_ROOT\\scripts\\windows-validation\\60-hid-transition.ps1 -MapperExe ...'
@@ -671,7 +690,7 @@ suite_guard() {
         esac
         case " $SUITE_ALLOWED_PARAMS " in
           *" $name "*) ;;
-          *) die "refusing '$a': not on suite's allow-list. This wrapper forwards only these run-all.ps1 parameters, spelled in full: -InstallerPath -InstallDir -UserDataDir -MapperExe -Profile -Ssid -Password -MdnsTimeoutMs -MapperWaitMs -Shell. Anything else -- abbreviations included -- goes through '$0 --interactive ssh' by hand, deliberately." ;;
+          *) die "refusing '$a': not on suite's allow-list. This wrapper forwards only these run-all.ps1 parameters, spelled in full: -InstallerPath -InstallDir -UserDataDir -MapperExe -Profile -Ssid -Password -MdnsTimeoutMs -MapperWaitMs -Shell -ElrsVidPid -HardwareExpected -RequireDs4 -RequireElrs -RequireWifi -RequireAdapterCapability -RequireHotspotBackend. Anything else -- abbreviations included -- goes through '$0 --interactive ssh' by hand, deliberately." ;;
         esac
         # A ':'-form carries its own value; a bare name expects the next token.
         case "$a" in
@@ -829,6 +848,18 @@ cmd_selftest() {
   _st_refuse -Hid
   _st_refuse -I
   _st_refuse -Inc -Hid
+  # V-A3 V3-3: against run-all.ps1's CURRENT param block (with -HardwareExpected
+  # present) a bare -H is ambiguous between -HardwareExpected and
+  # -HidTransitionNonInteractive and PowerShell would error on it; against the
+  # OLDER block V-A3 re-verified (no -HardwareExpected) -H and -h bind
+  # -HidTransitionNonInteractive outright. Either way this guard must refuse a
+  # bare -H/-h: it is not a full spelling of anything on the allow-list, so it
+  # falls through to the generic "not on suite's allow-list" refusal rather
+  # than the step-7-specific one -- still exit 2, still no banner, still no
+  # command built. Re-verified after extending the allow-list (V-A3's own
+  # cases, re-run here rather than only cited).
+  _st_refuse -H
+  _st_refuse -h
 
   echo '-- other spellings'
   _st_refuse --IncludeHidTransition
@@ -842,6 +873,12 @@ cmd_selftest() {
   _st_refuse -NotAParameter
   _st_refuse 'C:\stray\positional.exe'
   _st_refuse -Ssid W17-GRID stray-positional
+  # -DryRun/-FixturePath are run-all.ps1's macOS-only fixture-simulation pair
+  # (its own header: "NEVER set this against a real Windows guest") --
+  # deliberately NOT added to the allow-list alongside V-A3 V3-3's seven
+  # hardware-gate parameters, so both must still refuse.
+  _st_refuse -DryRun
+  _st_refuse -FixturePath 'scripts/windows-validation/fixtures/x.json'
 
   echo
   echo '-- the legitimate parameters still pass'
@@ -854,6 +891,17 @@ cmd_selftest() {
   _st_accept "-Shell pwsh" -Shell pwsh
   _st_accept "-MapperWaitMs 12000" -InstallerPath 'C:\w17\dist\gs.exe' -MapperExe 'C:\w17\mapper\m.exe' -Profile w17 -MapperWaitMs 12000
   _st_accept "-UserDataDir" -UserDataDir 'C:\Users\w17\AppData\Roaming\w17'
+
+  echo
+  echo '-- V-A3 V3-3: the seven hardware-gate parameters, forwarded intact'
+  _st_accept "-ElrsVidPid" -ElrsVidPid '0483:5740'
+  _st_accept "-HardwareExpected" -HardwareExpected
+  _st_accept "-RequireDs4:"'$true' -RequireDs4:'$true'
+  _st_accept "-RequireElrs "'$false' -RequireElrs '$false'
+  _st_accept "-RequireWifi:"'$true' -RequireWifi:'$true'
+  _st_accept "-RequireAdapterCapability:"'$true' -RequireAdapterCapability:'$true'
+  _st_accept "-RequireHotspotBackend:"'$true' -RequireHotspotBackend:'$true'
+  _st_accept "-HardwareExpected" -HardwareExpected -RequireWifi:'$false' -Ssid W17-GRID
 
   rmdir "$tmp" 2>/dev/null || true
   echo
