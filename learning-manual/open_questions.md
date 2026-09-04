@@ -334,10 +334,13 @@ These mirror the repos' own checklists — listed here so the manual tracks them
 
 55. **Are the dim light layers visible after the brightness cap + gamma?** Measured (exact
     integer replication of the LUT + cap pipeline): at the default 110/255 cap with gamma 2.2,
-    the rendered PWM duties are — disarmed halo (kDimWhite) **{1,1,1}**, always-on tail
-    (kDimRed) **{1,0,0}**, NeverConnected breathe peak **{1,3,3}**, armed teal **{0,9,7}**;
-    bright layers land at 40 (brake/amber/white). The quiet layers sit at 0.4–3.5 % duty —
-    plausibly fine at dusk, plausibly invisible in daylight. Bench: judge visibility, retune
+    the rendered PWM duties are — disarmed halo (kDimWhite) **{4,4,6}**, always-on tail
+    (kDimRed) **{6,0,0}**, NeverConnected breathe peak **{1,6,6}**, armed teal **{0,9,7}**
+    (`w17-soundlight-fw/lib/lights/src/LightRenderer.cpp:18-19` for kDimWhite/kDimRed,
+    `:88` for the NeverConnected grace-breathe peak — raised from the values this note
+    originally quoted, part of the visibility fix `sl:safety-1`); bright layers land at 40
+    (brake/amber/white). The quiet layers sit at ~0.4–2.4 % duty — plausibly fine at dusk,
+    plausibly invisible in daylight. Bench: judge visibility, retune
     `maxBrightness`/palette if needed (the power budget has ~5× real headroom, since `valid()`
     estimates **pre-gamma**: default worst case 510 mA budgeted vs ≈104 mA actual post-gamma
     hazard draw — conservative in the safe direction, so brightness can rise substantially
