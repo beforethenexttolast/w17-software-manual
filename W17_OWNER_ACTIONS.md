@@ -18,8 +18,7 @@ Only genuinely human-required actions appear here. Each: action · reason · pre
    C-2..C-4 and every fit print. File: `w17-3d-codex/11_cad/fit_check_coupons.scad`, `PRINT_SPEC.md`.
 
 ## CONNECT / PROVIDE WHEN ASKED
-- **DualShock 4 via USB to the Mac** — will be requested as CONNECT NOW once the A4 worker's host pre-check script exists.
-  Unlocks: mapper device enumeration + hot-plug behaviour on macOS (partial evidence; Windows stays BENCH-TBD).
+- **DualShock 4 via USB to the Mac — CONNECT NOW issued 2026-09-05 01:00** (run `wt-mapper-host/tools/host-precheck/ds4_precheck.sh` in your Terminal, ~2 min with the pad in hand). Unlocks: OBSERVED SDL indices 4/6/9/10 + hot-plug id persistence on macOS (Windows stays BENCH-TBD).
 - **ELRS TX handset via USB (TX16S)** — later; only for serial enumeration, with the car unpowered and no receiver in reach.
 
 ## WHEN EQUIPMENT ARRIVES
@@ -28,7 +27,7 @@ Only genuinely human-required actions appear here. Each: action · reason · pre
 - In-envelope 2S car pack (⬜ not sourced; shop to dimensions ≤70×40×22 mm, hard fail 75×45×25) → Phase B on-car power, later.
 
 ## AT THE CAR — NO POWER
-- Measurement sitting M-00…M-20 in ONE batch — wait for the B1 worker's reconciled recording sheet (this wave). Calipers + scale.
+- **Measurement sitting — READY (verified 2026-09-05 05:30: Opus review → fix → Opus re-verify → residual fix → re-verify PASS).** Files delivered to you: MEASUREMENT_SITTING_RUNBOOK.md, MEASUREMENT_RECORD_SHEET.md/.csv (canonical copy on 3d-codex branch offline/measurement-sitting 98e27a7). Do Station 0 (M-00, 10 min) first: it decides whether 24 shell-gated rows exist at all. 43 rows run today with nothing printed or assembled; 12 are BLOCKED on parts (PDB, SP3T, magnets, tyres, hub, adapter) and say so. One number per cell; "could not — why" is a first-class answer. Calipers (0.1 mm), scale (1 g), feeler gauges; no power, no battery in the car.
 - A2 no-power checklist (`w17-control-fw/project-review/13_phase_a_a2_no_power_checklist.md`) — after the C1 gate card is reconciled.
 
 ## AT THE BENCH — POWERED / GATED (each needs your explicit go, one at a time)
