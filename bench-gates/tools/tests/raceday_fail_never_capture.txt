@@ -1,0 +1,11 @@
+# SYNTHETIC — hand-written for the self-test. NOT bench evidence, NOT observed.
+# Serial cable out: the port never opens, backoff churns, the window closes.
+# Clock-only timestamps, to exercise the second timestamp shape.
+14:22:41.000 W17-RACEDAY-T0 operator pressed RACE DAY
+14:22:41.120 [mapper] started managed (pid 9100): C:\W17\elrs-joystick-control.exe -config-file-path C:\W17\w17-ds4.json
+14:22:43.300 (bring-up) starting the radio link on COM7 at 921600 baud, from the saved profile
+14:22:43.310 (port-loop)(initial) opening port COM7
+14:22:43.395 (port-loop)(initial) error opening port COM7
+14:22:43.430 (port-loop)(backoff) re-opening port COM7 (attempt: 1)
+14:22:43.470 (port-loop)(backoff) error re-opening port (sleeping 32ms)
+14:22:46.130 [raceday] the drive program has not raised the radio yet — reporting "not yet", not a fault

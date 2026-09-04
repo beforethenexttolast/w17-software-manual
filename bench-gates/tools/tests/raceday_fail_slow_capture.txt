@@ -1,0 +1,10 @@
+# SYNTHETIC — hand-written for the self-test. NOT bench evidence, NOT observed.
+# A cold laptop behind an AV scan: the port opens 7.4 s after spawn, so the
+# ground station's 5 s window has already closed and reported 'link-not-yet'.
+2026-09-12 14:11:02.100 W17-RACEDAY-T0 operator pressed RACE DAY
+2026-09-12 14:11:02.230 [mapper] started managed (pid 9001): C:\W17\elrs-joystick-control.exe -config-file-path C:\W17\w17-ds4.json
+2026-09-12 14:11:05.400 (bring-up) starting the radio link on COM7 at 921600 baud, from the saved profile
+2026-09-12 14:11:05.410 (port-loop)(initial) opening port COM7
+2026-09-12 14:11:07.240 [raceday] the drive program has not raised the radio yet — reporting "not yet", not a fault
+2026-09-12 14:11:09.660 (port-loop)(initial) port COM7 opened
+2026-09-12 14:11:09.688 (send-loop) starting, refresh rate 4ms

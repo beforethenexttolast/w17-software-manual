@@ -1,0 +1,7 @@
+# SYNTHETIC — hand-written for the self-test. NOT bench evidence, NOT observed.
+# The profile declares a transmitter with an empty tx.port: nothing is started.
+# Bracketed timestamps, to exercise that tolerance.
+[2026-09-12T15:00:00.000Z] W17-RACEDAY-T0 operator pressed RACE DAY
+[2026-09-12T15:00:00.140Z] [mapper] started managed (pid 9200): C:\W17\elrs-joystick-control.exe -config-file-path C:\W17\w17-ds4.json
+[2026-09-12T15:00:02.010Z] (bring-up) the saved profile declares a transmitter but its serial port (tx.port) is empty, so there is no port to start the radio link on -- fill it in; see configs/README.md
+[2026-09-12T15:00:07.150Z] [raceday] the drive program has not raised the radio yet — reporting "not yet", not a fault

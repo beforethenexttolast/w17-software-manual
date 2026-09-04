@@ -1,0 +1,13 @@
+# SYNTHETIC — hand-written for the self-test. NOT bench evidence, NOT observed.
+# Shape: what the card G-04 capture wrapper produces (ISO-8601 UTC + the verbatim line).
+# Merged: ground-station stdout and the drive program's own stdout in one stream.
+2026-09-12T14:03:20.900Z W17-RACEDAY-T0 operator pressed RACE DAY
+2026-09-12T14:03:20.912Z [raceday] external drive-program probe failed (treated as not running): tasklist unavailable
+2026-09-12T14:03:20.980Z [mapper] started managed (pid 8123): C:\W17\elrs-joystick-control.exe -config-file-path C:\W17\w17-ds4.json
+2026-09-12T14:03:21.640Z (devices): gamepad connected: Wireless Controller (id 030000004c050000cc09000000000000)
+2026-09-12T14:03:22.101Z (bring-up) starting the radio link on COM7 at 921600 baud, from the saved profile
+2026-09-12T14:03:22.118Z (port-loop) starting, port &{COM7 921600}
+2026-09-12T14:03:22.120Z (port-loop)(initial) opening port COM7
+2026-09-12T14:03:22.884Z (port-loop)(initial) port COM7 opened
+2026-09-12T14:03:22.905Z (send-loop) starting, refresh rate 4ms
+2026-09-12T14:03:22.930Z (recv-loop) starting, refresh rate 1s, max inactivity: 3s
