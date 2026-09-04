@@ -183,10 +183,20 @@ function Get-W17BandClass {
 # Set-StrictMode -Version Latest makes `.Count` a trap on the two shapes a
 # PowerShell pipeline routinely produces, and they are exactly the two guest
 # states that matter here:
-#   * NO matches at all -> the pipeline yields $null, and $null.Count THROWS
-#     ("The property 'Count' cannot be found on this object"). Note that the
-#     obvious fix, @($x), does NOT help: @($null).Count is 1, so a plain wrap
-#     turns "zero devices" into "one device".
+#   * NO matches at all -> the variable holds nothing, and .Count on it THROWS
+#     ("The property 'Count' cannot be found on this object"). Two different
+#     "nothings" reach this point and they do NOT behave alike, which is why
+#     this is a helper and not a bare @() wrap: an EMPTY PIPELINE assigns
+#     [AutomationNull]::Value, and @() wraps THAT to an EMPTY array (.Count 0);
+#     a REAL $null -- a hashtable field never set, a cmdlet that returned $null
+#     instead of an empty pipeline -- wraps to a ONE-element array containing
+#     $null (.Count 1), which would report one device when none are attached.
+#     The explicit $null branch below is what makes the two agree. (VERIFIED
+#     on macOS, pwsh 7.7.0-preview.4, 2026-09-05: empty pipeline -> 0, real
+#     $null -> 1. An earlier version of this comment claimed @($x) could not
+#     fix the zero-device case at all; that was wrong -- for the pipeline shape
+#     it would have. The helper is still the right fix, for the narrower reason
+#     above, and the self-test pins all three shapes separately.)
 #   * EXACTLY ONE match that is an [ordered] hashtable -> the pipeline yields
 #     the dictionary itself, and .Count returns its KEY count (7, 5, ...),
 #     not 1.
