@@ -119,7 +119,7 @@ The whole routine, in order. It takes about a minute once you've done it twice.
 1. **Plug the station box into your computer** with its one cable.
 2. **Turn on the controller.** [TBD-at-bench: controller connection — cable or wireless pairing, and to what]
 3. **Key into the car.** She wakes up: her tail light glows, and the ring above her cockpit — the halo — breathes softly for a few seconds while she gets herself sorted, then settles to a calm glow. [TBD-at-bench: final wake-up light show — she may get a proper ignition animation]
-4. **Open the app and press the one big RACE DAY button.** The app checks everything for you — her camera, the controller, the radio — and brings her cockpit view up on your screen.
+4. **Open the app and press the one big RACE DAY button.** The app checks everything for you — her Wi-Fi, the drive program, her own readings, the phone link — and brings her cockpit view up on your screen.
 5. **The start-lights moment.** Five red lights come on across the screen... and go out. That's your cue. (It's a Formula 1 thing. It never gets old.)
 6. **Wake her engine — the deliberate two-step.** She will never start with the throttle pressed, so she can never leap away from you:
    - Let go of everything. Hands off the triggers.
@@ -372,41 +372,59 @@ Draft notes for the owner (not for print):
   landed, so the printed text below is tomorrow's truth today,
   same pattern as the other decided-but-not-yet-built features
   above):**
-  - **[fix-wave: phone-video]** Section 4 promises "you're
-    looking out of her cockpit — her camera's live view." OD-3
-    (override) settled this 2026-09-03: live phone video **is** a
-    gift deliverable — H.264 720p60 pulled via WHEP/WebRTC from
-    the laptop's mediamtx into the phone app (OD-16 transport
-    ruling), a ranked branch with a design-first step. The §4
-    promise stays exactly as printed. Verified at HEAD the video
-    path is still a stub today —
-    `iPhone_rc/FPVHUDApp/Video/VideoSurface.swift` literally
-    renders "NO VIDEO / APFPV RTP / H.265 PIPELINE STUBBED", and
-    `FutureRTPHEVCReceiver.swift` is a TODO placeholder — so if
-    the phone ever ships before this branch lands, it should not
-    show that raw debug string to Lola. Suggested placeholder
-    line, in the booklet's own voice, for the video surface until
-    the real picture arrives (the owner edits the wording; this
-    is a starting draft, not print copy): *"Getting her camera
-    eyes ready — drive from the computer screen for now."*
-  - **[fix-wave: GS giftee-ux-3]** Section 3 step 4 ("press the
+  - **[fix-wave: phone-video] — LANDED, verified at iPhone_rc `7aaf2cf`.**
+    Section 4 promises "you're looking out of her cockpit — her
+    camera's live view." OD-3 (override) settled this 2026-09-03:
+    live phone video **is** a gift deliverable — H.264 720p60
+    pulled via WHEP/WebRTC from the laptop's mediamtx into the
+    phone app (OD-16 transport ruling). That branch has since
+    landed: `FPVHUDApp/Video/WhepVideoView.swift` and
+    `PhoneVideoController.swift` drive a bundled `WKWebView`
+    running `Resources/whep.html` / `whep.js`, which POSTs its SDP
+    offer to the WHEP endpoint built by
+    `PhoneVideoEndpoint.swift:128-129`; 156/156 tests pass and CI
+    is green at that SHA. The §4 promise is now literally true in
+    code — it is no longer a stub, and the placeholder line this
+    note used to suggest is no longer needed. What remains open is
+    bench-only: **glass-to-glass latency is `[bench-TBD]`** — this
+    has never run on real Windows or a real phone, so no number
+    exists to print.
+  - **[fix-wave: GS giftee-ux-3] — OD-6 LANDED at GS `263e69a`;
+    the wording gap is still open.** Section 3 step 4 ("press the
     one big RACE DAY button… brings her cockpit view up")
-    describes a one-press flow; the shipped ground station is a
-    three-press flow (RACE DAY, then STRAIGHT TO THE GRID, then
-    START), and RACE DAY itself checks hotspot/mapper/bridge
-    readiness, not camera/controller/radio as written. Confirmed:
-    `w17-ground-station/main/raceDayOrchestrator.js:73`
-    (`STEP_ORDER`), `renderer/setupFlow.js` (the GRID/START
-    handlers). OD-6 decided the code route: on race-day success
-    the app auto-navigates to GRID and, once every required check
-    is green, auto-STARTs (START ANYWAY stays as the manual
-    override) — this is now a plain in-flight fix, not an open
-    product call. Step 4's "brings her cockpit view up" becomes
-    literally true once that lands; its "checks her camera, the
-    controller, the radio" clause still overstates what RACE DAY
-    itself checks (hotspot/mapper/bridge) and is not covered by
-    this ruling — left as printed pending a further owner/doc
-    pass on that specific clause.
+    describes a one-press flow; the shipped ground station's
+    `STEP_ORDER` is now four steps — hotspot, mapper, telemetry,
+    bridge (`w17-ground-station/main/raceDayOrchestrator.js:76`,
+    owner decision OD-4 puts `telemetry` after `mapper`) — and
+    RACE DAY itself checks those four, not camera/controller/radio
+    as written. OD-6's code route has landed, not just been
+    decided: on a race-day bring-up that reports a positive link
+    claim, the app auto-navigates to GRID and auto-arms the last
+    press (`renderer/setupFlow.js:305-322`); a bring-up that could
+    not confirm the link still reaches GRID but does not auto-fire
+    (`link-not-yet`, `renderer/setupFlow.js:1774`). Step 4's
+    "brings her cockpit view up" is now literally true in the
+    positive-link case. Its "checks her camera, the controller,
+    the radio" clause still overstates what RACE DAY itself checks
+    — see the giftee line at §3 step 4 in the printed text above,
+    updated by this same sweep to say what RACE DAY actually
+    checks in booklet voice; the clause is fixed at the print
+    location, not deleted here.
+  - **[fix-wave: SYN-2 / MAP-2] — RULED (OD-5) and LANDED.** This
+    note used to record that RACE DAY did not start the radio
+    link and that only the mapper's own CLI flag or web UI did
+    (`client.Init` in `w17-mapper/pkg/client/grpc_client.go:35-36`;
+    the gRPC server handler at `pkg/server/server_grpc.go:162`).
+    Both halves are now wrong: owner decision OD-5(a) ruled that
+    the mapper itself should self-start the link from the
+    profile's own transmitter port, and mapper `ebf89fa` does it —
+    `selfStartLink` (`pkg/client/grpc_client.go:200-203` calls it,
+    body at `:268-310`) runs right after `SetConfig` inside the
+    same headless bring-up RACE DAY invokes. The booklet never
+    explicitly claimed "RACE DAY starts the radio," so there was
+    never a false printed statement to correct; this note is kept
+    only so nobody re-files SYN-2/MAP-2 as still open. Editorial
+    note only, no printed change.
   - **[owner-ruling: OD-2]** Section 5 and the "don't open her
     up" aside (section 8) are rewritten: OD-2 sets the ship image
     to `esp32dev`, under which the SP3T selector is never read
@@ -449,25 +467,10 @@ Draft notes for the owner (not for print):
     just a branch name.
 - **OWNER-GATED, NOT fixed here (product decisions, not typos)
   — flagged per the 2026-09-02 readiness review, left for the
-  owner's call. (Two items formerly in this list — the iPhone
-  video path and the GS one-press flow — moved to the
-  DECIDED/IN-FLIGHT section above once the owner's 2026-09-03
-  second round ruled on them; these three have no ruling yet.)**
-  - **[fix-wave: SYN-2 / MAP-2]** Neither section 3 nor section 7
-    says so, but today RACE DAY does not start the radio link —
-    `main/raceDayOrchestrator.js:44`'s mapper argv whitelist
-    cannot carry the TX serial port. What *does* call the
-    mapper's `StartLink` today is its own CLI launch flag
-    (`client.Init` in `w17-mapper/pkg/client/grpc_client.go:35-36`,
-    triggered by `-tx-serial-port-name` at process start) and its
-    own web UI (the gRPC server handler at
-    `w17-mapper/pkg/server/server_grpc.go:162`, invoked from the
-    browser) — RACE DAY calls neither. The booklet never
-    explicitly claims "RACE DAY starts the radio," so this is not
-    a false printed statement today — but it is the reason behind
-    whatever remains unreconciled once the GS giftee-ux-3 fix
-    above lands, so both should land together. Editorial note
-    only, no printed change.
+  owner's call. (Three items formerly in this list — the iPhone
+  video path, the GS one-press flow, and SYN-2/MAP-2's radio-link
+  start — moved to the DECIDED/IN-FLIGHT section above once ruled
+  on and landed; these two have no ruling yet.)**
   - **[owner-decision: reverse promise vs firmware]** Section 1's
     "One honest quirk: she doesn't reverse — just like the real
     thing" is NOT a software-enforced guarantee. Verified:
