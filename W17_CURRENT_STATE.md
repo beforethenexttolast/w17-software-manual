@@ -64,7 +64,7 @@ Tier A from the verdict: MAP-1/MAP-2 LANDED (mapper 6e99d51; CRSF-on-the-wire pr
 5. iPhone: DONE for the fix branch + instr (85ce486, CI green); feat/phone-live-video (rebase onto main → review → fix → verify → merge → push → observe CI).
 6. workspace: B6 manual DONE, B4 runbook DONE → CURRENT_STATUS narrative + memory at close-out; this file after each wave → push.
 7. 3d-codex: DONE for this program (B9 landed 5dddedb); measurement session M-00… is owner residue; production prints wait on fit-check coupons.
-8. Close-out: full baseline re-run on every trunk; CI green everywhere (OD-14); dated vision-alignment audit; memory + CURRENT_STATUS; close the push grant.
+8. Close-out: baseline (A) recorded 2026-09-04 in `closeout/baseline-2026-09-04.md` (all trunks green and matching §1; mapper row pre-B, to be re-run after mapper B lands); then the dated vision-alignment audit (B, Opus, CLOSEOUT-audit.md) → memory + CURRENT_STATUS → close the push grant.
 
 ## 8. Model-routing policy (A8)
 Fable 5.1 = orchestrator only (adjudication, synthesis, guarded merges). Opus 5 = difficult implementation + every independent adversarial review. Sonnet 5 = workforce (docs fixers, re-verifies, ratification edits, bounded research). Haiku 4.5 = optional mechanical work only. Every Agent/Workflow call names its model; reviewer ≠ implementer ≠ verifier contexts.
