@@ -355,7 +355,7 @@ Draft notes for the owner (not for print):
   half — that a DS4 actually raises `JOYDEVICEADDED`/`REMOVED` at all, and
   that the GUID is byte-identical across a real re-plug — is unverified on
   hardware and marked `[bench-TBD]` in the mapper's own docs
-  (`w17-mapper/configs/README.md:353-356`, `pkg/devices/hotplug.go:20-22`); a
+  (`w17-mapper/configs/README.md:353-356`); a
   fresh TRIANGLE press-and-release is still required after every reconnect,
   and that second half holds regardless of the hardware hedge — hot-plug
   touches none of the arm-toggle code, and `reset_on_nan` has already
