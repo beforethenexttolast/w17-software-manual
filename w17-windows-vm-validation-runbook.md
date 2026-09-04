@@ -12,9 +12,16 @@ this repo, at `scripts/vm/` (§2.4).
 
 **Start at §1.0** — a numbered owner checklist, in order — and run
 `scripts/vm/host-vm.sh doctor` before the first step. **Validated against the owner's actual
-Mac on 2026-09-05** (§1.0.1): every §1 step is now marked OBSERVED-feasible, INFERRED, or
-BLOCKED for *this* host. **One step is BLOCKED today: free host disk (§1.3) — 22.1 GB
-available against a ~70 GB budget.** Nothing else in §1 is blocked by the Mac itself.
+Mac on 2026-09-05** (§1.0.1), then reviewed adversarially and corrected the same day: every §1
+step is marked OBSERVED-feasible, INFERRED, or BLOCKED for *this* host. **One step is BLOCKED
+today: free host disk (§1.3) — about 20 GB available against a ~70 GB budget, so roughly
+50 GB must be freed.** Nothing else in §1 is blocked by the Mac itself.
+
+**Two things this document no longer leaves open**, because they change what you buy and where
+you run things: the AP-capable Wi-Fi adapter question is **closed, negative** (§1.9 — no vendor
+ships an ARM64 Windows driver for any candidate chipset, so `30-hotspot.ps1` runs on a real x64
+PC, not on this VM), and Fusion's Bluetooth device sharing is **removed** (§1.11 — a Bluetooth
+DualShock 4 will never appear in this guest, so USB is the only path).
 
 ## 0. Standing rules for everything below
 
@@ -32,12 +39,16 @@ should not be read as if A4 had specified a chipset.
 > to verify on the bench"*.
 >
 > Consequences, so the sequencing is explicit rather than discovered late:
-> - §1.8's passthrough step and §1.9's ARM64-driver `[win-TBD]` both presuppose a device
->   that does not exist yet. §1.9 is therefore **doubly open**: unknown chipset AND
->   unknown driver, for an unbought part.
-> - `30-hotspot.ps1` and the hotspot-interface half of `40-mdns-udp.ps1` cannot pass until
->   the purchase is made and an ARM64 driver is confirmed. Until then `30` reports its
->   clean "no usable hotspot backend" FAIL — that is the script working, not a defect.
+> - §1.8's passthrough step presupposes a device that does not exist yet. §1.9's **driver**
+>   half is no longer open, and the answer is **no** — see the next bullet.
+> - **`30-hotspot.ps1` and the hotspot half of `40-mdns-udp.ps1` do not run on this VM at
+>   all.** Their target is a **real x64 Windows PC** (a spare x64 laptop, or the giftee's own
+>   PC before handover), because no vendor publishes an ARM64 Windows driver for any
+>   candidate USB Wi-Fi chipset (§1.9, closed negative). The adapter purchase gates *that*
+>   session, not this one. Buying the adapter is still required — it is what `30` tests on
+>   x64 — but it will not make `30` work inside this guest.
+> - If `30` is ever run here anyway it reports its clean "no usable hotspot backend" FAIL —
+>   that is the script working, not a defect.
 > - `00-inventory.ps1` will honestly report `likely5GHzCapable = false` against an RT5370.
 > - **Everything else in the suite (`00`, `10`, `20`, `50`, `60`) is unaffected** and can
 >   run as soon as the VM exists. Do not hold the whole program for this one purchase.
@@ -79,12 +90,17 @@ license acceptance are all owner-facing GUI/account actions).
 Run `scripts/vm/host-vm.sh doctor` before you start and again after each step: it re-prints
 what is still missing, needs nothing installed, and changes nothing.
 
-1. **Free at least 70 GB** on the Mac's internal disk. **OBSERVED 2026-09-05: 22.1 GB free.**
+1. **Free about 50 GB more, so that at least 70 GB (decimal GB) is available** on the Mac's
+   internal disk. **OBSERVED 2026-09-05: 20.3 GB free** of a 245.1 GB container (`diskutil
+   info /`; `df -h /` shows `19Gi` — see §1.0.1 for why the numerals differ).
+   `scripts/vm/host-vm.sh doctor` prints the same figure and the amount still to free.
    **STOP here if you cannot** — nothing below fits (§1.3). External storage is the alternative.
-2. Install **VMware Fusion** from the `.dmg` (§1.1). Not the `.mpkg` — it fails on macOS 26.
-3. **Turn VoiceOver OFF** before powering on any VM (§1.1): a known macOS 26 Fusion defect
+2. Install **VMware Fusion** from the `.dmg` (§1.1). Not the `.mpkg` — reported to fail on
+   macOS 26.
+3. **Turn VoiceOver OFF** before powering on any VM (§1.1): a reported macOS 26 Fusion defect
    shuts the VM down at power-on while VoiceOver is active.
-4. Download the **Windows 11 Arm64 ISO** (§1.2); note where it lands.
+4. Download the **Windows 11 Arm64 ISO** (§1.2); note where it lands. **Do it in one sitting:
+   Microsoft's generated download link expires in about 24 hours.**
 5. Create the VM: **4 vCPU, 8 GB RAM, 100 GB disk, NAT networking** (§1.3). Install Windows.
    Create **one local account**; write down its exact name.
 6. Install **VMware Tools** from Broadcom's package download (§1.4) — the Fusion menu item is
@@ -95,14 +111,33 @@ what is still missing, needs nothing installed, and changes nothing.
 10. Add the `w17vm` block to `~/.ssh/config` (§1.5) using that address and account name.
 11. Carry three files into the guest (Fusion shared folder or drag-and-drop, both need Tools):
     `w17vm_ed25519.pub`, the PowerShell MSI, and `scripts/vm/guest-bootstrap.ps1`.
-12. In the guest, open **PowerShell as administrator** and run:
-    `powershell -ExecutionPolicy Bypass -File guest-bootstrap.ps1 -NatSubnet <your /24> -PublicKeyPath <the .pub> -PwshMsiPath <the .msi>`
-13. From the Mac: `ssh w17vm whoami` must succeed **with no password prompt**.
-14. `export W17_VMX=<the .vmx Fusion created>` then `scripts/vm/host-vm.sh check` — every
-    **gating** check must read PASS (INFO lines are expected to be unmet today).
-15. `scripts/vm/host-vm.sh snapshot clean-giftee-pc` (§1.7). This is the revert target.
+12. In the guest, open **PowerShell as administrator** and run (note `powershell`, not
+    `pwsh` — this script is what *installs* pwsh 7):
+    `powershell -ExecutionPolicy Bypass -File guest-bootstrap.ps1 -NatSubnet <your /24> -PublicKeyPath <the .pub> -PwshMsiPath <the .msi> -SshUser <the account from step 5>`
+    It must end in `RESULT: OK`. **`RESULT: ACTION REQUIRED` (exit 4) is not a pass** — it
+    means Windows' own *unscoped* `OpenSSH Server` firewall rule is still enabled and sshd is
+    reachable from every interface this guest raises. Do what the ACTION line says and re-run.
+    (`RESULT: FAILED` is exit 1, not elevated is 2, wrong platform is 3.)
+13. From the Mac: `ssh w17vm whoami` must succeed **with no password prompt**. A prompt is the
+    failure §1.5 describes, not a minor annoyance — stop and fix it.
+14. Set the VMX path — **keep the quotes, Fusion's default path contains a space:**
+    `export W17_VMX="/Users/<you>/Virtual Machines.localized/<name>.vmwarevm/<name>.vmx"`
+    then `scripts/vm/host-vm.sh check`. Every **gating** check must read PASS — including
+    `sshd-firewall-scope`, which step 12 is what makes passable. **INFO lines are expected to
+    be unmet today** (no adapter bought, no GCS box attached); gating FAILs are not.
+15. `scripts/vm/host-vm.sh stop`, then `scripts/vm/host-vm.sh snapshot clean-giftee-pc`
+    (§1.7). Snapshot the guest **powered off**: a live snapshot writes an ~8 GB memory image
+    onto the disk that is already this program's blocker, and reverting to it restores a
+    powered-*on* VM. `host-vm.sh snapshot` refuses a running VM for exactly that reason.
 16. **STOP.** Everything after this is Claude-driven (§2–§3). Do not install the ground
     station or the mapper by hand — validating the *install* is the point.
+
+**First Claude-side step after the STOP** (not owner work, listed here so the handoff has no
+gap): `scripts/vm/host-vm.sh stage` — it copies
+`w17-ground-station/scripts/windows-validation/` to `C:\w17\scripts\` on the guest. Nothing
+in steps 1–16 puts it there, and every §3 command runs `run-all.ps1` out of it. `check` and
+`suite` call `stage` themselves, so this is a statement about *what happens*, not another
+thing to remember.
 
 Devices (§1.8, §1.11) whenever you have them: pass the GCS box's **FT232RL** and the
 **DualShock 4** through over **USB**. The AP-capable 5 GHz adapter is **not bought yet** (§0).
@@ -114,19 +149,34 @@ Devices (§1.8, §1.11) whenever you have them: pass the GCS box's **FT232RL** a
 | macOS | 26.3 (build 25D125) | `sw_vers` |
 | CPU | Apple M4, 10 logical cores (4 P + 6 E) | `sysctl machdep.cpu.brand_string`, `hw.perflevel*.logicalcpu` |
 | RAM | 16 GiB | `sysctl hw.memsize` |
-| Free disk | **22.1 GB** of a 245.1 GB container | `diskutil info /` **and** `df -g` (two methods) |
+| Free disk | **20.3 GB / 18.9 GiB** of a 245.1 GB container — and about **9 GB** of that is free only if macOS reclaims purgeable space | `diskutil info /` (Container Free Space, decimal GB), `df -h /` (`19Gi`), `df -g /` (`18`), and Foundation's `volumeAvailableCapacityFor*Usage` keys — four methods, see the note below |
 | VMware Fusion | **not installed** | `/Applications/VMware Fusion.app` absent; `vmrun` not on `PATH` |
 | Windows ISO | **none** | no `.iso` in `~/Downloads` |
 | `pwsh` | **not on PATH** (a portable 7.7.0-preview.4 exists only in this session's scratchpad) | `which pwsh` |
+
+> **Why the free-disk numeral keeps changing, and which one to trust.** macOS answers three
+> different questions here: `diskutil` prints **decimal GB** (20.3), `df` prints **GiB** (19Gi
+> / 18), and Foundation's *opportunistic* capacity key reports what is free **without**
+> reclaiming purgeable content (~9 GB) — which is why an earlier measurement in this program
+> read 9.6 GiB and another read 22.1 GB. They are the same volume. `20.3 GB == 18.9 GiB`; the
+> drift from the 22.1 GB measured earlier on 2026-09-05 is real consumption in the hours since.
+> **The document, `host-vm.sh doctor` and §1.3's table all use decimal GB**, and `doctor`
+> prints the raw `df -h /` line beside it so the two numerals never have to be reconciled by
+> hand. Whichever you start from, **~50 GB still has to be freed** (70 − 20.3 ≈ 50).
 
 Every §1 step below was validated against **this** host. Where a step cannot be executed here,
 it is labelled BLOCKED with the thing that blocks it — never quietly left as if it would work.
 
 ### 1.1 VMware Fusion
 
-**Version.** Fusion moved off the `13.x` numbering to a calendar scheme: the current release
-is **VMware Fusion 25H2** (plus its `25H2uN` updates). An earlier draft of this document
-implied a 13.x download — check the portal's current release rather than hunting for 13.6.x.
+**Version.** Fusion moved off the `13.x` numbering to a calendar scheme. **Fusion Pro 26H1**
+(released 2026-05-14) is the current line and **25H2 / 25H2u1** the prior one — **VERIFIED**
+from Broadcom TechDocs read 2026-09-05 by the readiness program's **A3** research pass (a
+session report, not a repo file — its findings are folded in here). An earlier draft of this
+document implied a 13.x download, and a later one named 25H2 as current; **take whatever the
+portal shows as current.** The version number is not load-bearing here — the macOS 26 items
+below are. They were read against the **25H2** notes and have **not** been re-checked against
+26H1: if 26H1 has fixed them, the workarounds still cost nothing.
 
 **Host support.** Fusion 25H2's own system requirements are *"Any Mac that officially supports
 macOS 15 Sequoia or later"*, minimum 8 GB of memory, *"1.5 GB of free disk space for Fusion Pro
@@ -139,19 +189,29 @@ educational, and personal use. You no longer require a license key."* The earlie
 Broadcom-account-gated activation flow this document used to describe is **superseded**; you
 still download from the Broadcom Support Portal, which does want an account.
 
-**Two macOS 26 defects Broadcom documents as known issues — read before you blame the VM:**
+**Two macOS 26 defects to read before you blame the VM — and a note on where they come from:**
 
 1. **VoiceOver.** *"When VoiceOver is activated on macOS Tahoe 26, any attempt to power on a
    virtual machine, results in the VM shutting down abruptly."* Turn VoiceOver **off** before
    powering on a VM. A VM that dies instantly at power-on is this, not a broken image.
-2. **Deployment package.** Deploying the `.mpkg` on macOS 26 errors with *"Legacy Installer
-   Package. This installer package is incompatible with this version of macOS."* Install from
-   the ordinary `.dmg` instead. (§1.4 carries a third one, about VMware Tools.)
+2. **Deployment package.** Deploying the `.mpkg` on macOS 26 is reported to error with
+   *"Legacy Installer Package. This installer package is incompatible with this version of
+   macOS."* Install from the ordinary `.dmg` instead. (§1.4 carries a third one, about
+   VMware Tools.)
+
+> **Provenance, stated rather than implied.** Two sessions in this program disagree about where
+> the `.mpkg` and greyed-out-Tools items came from: one read them as Broadcom-documented known
+> issues in the 25H2 release notes, the other (the **A3** research pass, §5) attributes them to a
+> **forum thread**, explicitly *"not vendor-confirmed"*, and does not mention VoiceOver at all.
+> Neither page is re-fetchable offline and this document does not adjudicate, so all three are
+> labelled **INFERRED, and items 2 and the §1.4 one are possibly community-sourced.** The
+> operational advice is harmless either way: installing from the `.dmg`, turning VoiceOver off
+> and taking Broadcom's Tools package cost nothing if the defects turn out not to be real.
 
 `[win-TBD]`: the exact download URL and portal flow still change independent of this project,
-and this session did not walk it live — follow what the portal shows. The version, licensing,
-host-requirement and known-issue statements above are **INFERRED from Broadcom's own 25H2
-TechDocs pages, read 2026-09-05**, not from an install on this Mac.
+and this session did not walk it live — follow what the portal shows. The version, licensing
+and host-requirement statements above are **INFERRED from Broadcom's TechDocs pages read
+2026-09-05**, not from an install on this Mac.
 
 ### 1.2 Windows 11 ARM64 ISO
 
@@ -164,6 +224,9 @@ TechDocs pages, read 2026-09-05**, not from an install on this Mac.
   the correct edition"*. **OBSERVED 2026-09-05** (page fetched and read this session). The
   previous drafts' Insider-preview and UUP-dump fallbacks are **no longer needed**; do not use
   third-party ISO mirrors.
+- **The generated download link is time-limited — about 24 hours** (**A3** research pass, §5).
+  Open the page and download in one sitting; a link opened today and used tomorrow is dead,
+  and the page must be walked again.
 - Budget ~6.5 GB for the download. The page states no size; the ~6.5 GB figure is
   **INFERRED** from the x64 ISO's ~7 GB and reporting that the Arm64 image runs a few hundred
   MB smaller — treat it as a planning number, not a measurement.
@@ -214,10 +277,13 @@ what actually lands on the Mac's SSD:
 | One `clean-giftee-pc` snapshot's delta | ~5–15 | INFERRED. Fusion snapshots grow with post-snapshot writes; a full validation sweep writes a lot. |
 | **Total to plan against** | **~70+** | |
 
-**OBSERVED 2026-09-05: 22.1 GB free of a 245.1 GB container** (`diskutil info /`, cross-checked
-with `df -g`). **This step is BLOCKED on an owner action: free ~50 GB, or put the VM bundle on
-external storage.** `scripts/vm/host-vm.sh doctor` prints this verdict, and re-prints it after
-you free space, so you never have to re-derive the number.
+**OBSERVED 2026-09-05: 20.3 GB free of a 245.1 GB container** (`diskutil info /`, decimal GB;
+`df -h /` shows `19Gi`, `df -g /` shows `18` — same volume, GiB instead of GB, §1.0.1 has the
+reconciliation). **This step is BLOCKED on an owner action: free about 50 GB so that ≥ 70 GB
+is available, or put the VM bundle on external storage.** `scripts/vm/host-vm.sh doctor`
+prints this verdict in the same decimal GB as the table above, alongside the raw `df -h /`
+line, and re-prints it after you free space — so you never have to re-derive the number or
+reconcile two numerals for one fact.
 
 External storage is a real option but not a free one: `[win-TBD]` / INFERRED — keep the VM on
 an **APFS or HFS+** volume (exFAT/FAT handle Fusion's sparse files badly), and expect slower
@@ -269,7 +335,25 @@ Set-Service -Name sshd -StartupType Automatic
 New-NetFirewallRule -Name sshd -DisplayName 'OpenSSH Server (sshd)' -Enabled True `
   -Direction Inbound -Protocol TCP -Action Allow -LocalPort 22 `
   -Profile Private -RemoteAddress 192.168.x.0/24
+
+# AND disable Windows' OWN rule group, which Add-WindowsCapability installed and which is
+# UNSCOPED (any remote address). While it is enabled the scoped rule above is decorative:
+# sshd is reachable from every interface the guest raises, including the SoftAP that
+# 30-hotspot.ps1 creates. guest-bootstrap.ps1 does this for you, AFTER creating the scoped
+# rule, so it can never lock the Mac out of the NAT subnet.
+Get-NetFirewallRule -DisplayGroup 'OpenSSH Server' | Disable-NetFirewallRule
 ```
+
+**Two things about scope that are easy to get wrong.** `-Profile Private` is **not** isolation
+on its own — Windows commonly classifies a hosted-network/SoftAP adapter as Private too, so
+`-RemoteAddress` is the only thing keeping sshd off that interface. And an over-wide CIDR
+(`0.0.0.0/0` is CIDR-shaped) would undo it silently, which is why `guest-bootstrap.ps1`
+validates `-NatSubnet` as a real RFC1918 range with a `/16`–`/30` prefix rather than merely
+checking its shape.
+
+`guest-check.ps1`'s `sshd-firewall-scope` is a **GATING** check, not an informational one: it
+fails if any enabled inbound rule reaching TCP/22 is `Any`/`Public`-scoped. It can pass on a
+clean guest precisely because the step above disables the inbox rules.
 
 Then, from the Mac:
 
@@ -307,8 +391,6 @@ Host w17vm
     # guest IP (or a Fusion DHCP reservation) once the address is known, or this
     # line needs updating each session; [win-TBD], not exercised this session.
 ```
-
-Verify with `ssh w17vm 'whoami'` before trusting anything else in this document.
 
 ### 1.6 PowerShell 7 in the guest — REQUIRED, and Windows does not ship it
 
@@ -353,9 +435,17 @@ PowerShell 5.1**, and every script in `scripts/windows-validation/` carries
 throws, and every script that shells out dies.
 
 `run-all.ps1` **refuses to fall back** to `powershell.exe`: it resolves `pwsh`, checks its
-major version, and otherwise throws one clear message naming the `winget` line above. An
-earlier version preferred `pwsh` but silently fell back, which on a fresh guest turned one
-solvable setup problem into eight separate .NET stack traces.
+major version, and otherwise throws one clear message. An earlier version preferred `pwsh` but
+silently fell back, which on a fresh guest turned one solvable setup problem into eight
+separate .NET stack traces.
+
+> **⚠ That error message tells you to do the wrong thing.** `run-all.ps1`'s own text — and
+> `w17-ground-station/scripts/windows-validation/README.md` — say *"Install it on the guest,
+> then re-run: `winget install --id Microsoft.PowerShell --source winget`"*. **Do not follow
+> it here.** winget 1.11+ installs the MSIX, whose `pwsh` is a per-user execution alias that a
+> non-interactive `ssh … 'pwsh -File …'` cannot resolve, so you would hit the same error again
+> for the reason argued above. Install `PowerShell-7.6.5-win-arm64.msi` instead. Correcting
+> that message is a follow-up in `w17-ground-station`; this branch is read-only on that repo.
 
 Do this **before** the `clean-giftee-pc` snapshot below, so every reverted session already
 has PowerShell 7.
@@ -365,9 +455,15 @@ What is OBSERVED is only that the ARM64 MSI asset exists and its exact name and 
 
 ### 1.7 Snapshot `clean-giftee-pc` BEFORE any W17 install
 
-Take a VMware Fusion snapshot named exactly `clean-giftee-pc` **immediately after** Windows
-+ VMware Tools + OpenSSH are working, and **before** the first `10-install-gs.ps1` run or
-any other W17-related install. This is the revert target every validation session starts
+**Shut the guest down cleanly first** (`scripts/vm/host-vm.sh stop`), then take a VMware Fusion
+snapshot named exactly `clean-giftee-pc` — **after** Windows + VMware Tools + OpenSSH are
+working, and **before** the first `10-install-gs.ps1` run or any other W17-related install.
+Powering off first is not fussiness: `vmrun snapshot` on a *running* VM captures the guest's
+**memory** as well, which at §1.3's 8 GB guest is an ~8 GB `.vmem` written to a host whose free
+disk is this program's hardest blocker (§1.3's "~5–15 GB snapshot delta" row does not include
+it) — and reverting to a live snapshot restores a powered-**on** VM, so the documented
+`revert && start` chain fails with *"already powered on"*. `host-vm.sh snapshot` refuses a
+running VM unless you pass `--live`. This is the revert target every validation session starts
 from (§2.1) — it is what makes the whole suite idempotent across VM sessions, not just
 within one PowerShell run. Re-snapshot it (same name, or a new dated one — the owner's
 call) only when a deliberate change to the "clean" baseline is wanted (e.g., after a
@@ -377,6 +473,7 @@ From the Mac, that is one command — and it refuses to retake a snapshot that a
 so it is safe to re-run:
 
 ```sh
+scripts/vm/host-vm.sh stop            # powered off, for the reason above
 scripts/vm/host-vm.sh snapshot clean-giftee-pc
 ```
 
@@ -387,7 +484,7 @@ passthrough for:
 
 | # | device | what Windows actually sees | status |
 |---|---|---|---|
-| 1 | AP-capable 5 GHz USB Wi-Fi adapter (Mobile Hotspot backend under test) | a Wi-Fi adapter, if an ARM64 driver exists (§1.9) | **not bought — see §0's box before planning around this step** |
+| 1 | AP-capable 5 GHz USB Wi-Fi adapter (Mobile Hotspot backend under test) | **a raw USB device with no usable driver** — passthrough delivers the device, never the driver, and no vendor ships an ARM64 Windows driver for any candidate chipset (§1.9) | **not bought (§0) — AND no ARM64 driver exists for any candidate chipset (§1.9). Passing it through to THIS guest will not make `30-hotspot.ps1` work; that step runs on a real x64 PC.** |
 | 2 | The GCS box's **FT232RL USB-UART**, which is how the **ELRS TX module** reaches the PC | a numbered **COM port**, USB **VID 0403** (FTDI), FT232R default **PID 6001** | on hand (`HARDWARE_INVENTORY.md:77`) |
 | 3 | The DualShock 4, over **USB** | an HID device, VID **054C**, PID **05C4** / **09CC** (or **0BA0** for the dongle) | on hand |
 
@@ -423,23 +520,30 @@ but **not free** — expect slower boot/launch than a native x64 box, and budget
 any timeout this session's scripts use (`50-race-day.ps1`'s `-MapperWaitMs`,
 `10-install-gs.ps1`'s installer timeout) rather than assuming x64-native speeds.
 
-The bigger open question is the **Wi-Fi adapter driver**: the AP-capable 5 GHz USB
-adapter this program needs (a B4-brief requirement, not something A4 itself specifies —
-and **still unbought**, §0) needs an **ARM64-native Windows driver** to be usable
-inside an ARM64 guest at all (a passed-through USB device still needs a driver matching the
-GUEST's CPU architecture — x64 emulation does not cover kernel-mode drivers). Whether an
-RTL8812BU/AU-class chipset (the common class of 5 GHz-capable, hosted-network/Mobile
-Hotspot–capable USB adapter) ships an ARM64 driver from the vendor is **`[win-TBD]`** — this
-session has not identified a chipset or vendor driver availability — and cannot, because
-the adapter has not been chosen or bought (`CURRENT_STATUS.md:72`, "Owner residue:
-shopping only"). This `[win-TBD]` is therefore doubly open: unknown part, unknown driver. `00-inventory.ps1`'s `netsh wlan show drivers` parse is the first real
-evidence either way once the adapter and driver are in hand.
+**The Wi-Fi adapter question is CLOSED, and the answer is no.** An AP-capable USB Wi-Fi
+adapter passed through to this guest needs an **ARM64-native Windows driver** — passthrough
+delivers the device, never the driver, and Windows' x64 emulation does not cover kernel-mode
+drivers. As of 2026-09-05 **no vendor publishes an ARM64 Windows driver for any candidate USB
+Wi-Fi chipset** (MT7612U, MT7921AU, RTL8812AU/BU, RTL8821CU/8811CU, RTL8852AU/8832AU; Qualcomm
+and Intel ship no current USB Wi-Fi part at all). Realtek's own portal — the one authoritative
+source the survey could not reach by fetch — lists a single 2018 package for the 8812AU/BU
+line, *"32bit/64bit Windows7, Windows8.1, Windows10"*, v1030.25.0701.2017: **no ARM64 entry and
+no Windows 11 entry** (**OBSERVED** in-browser 2026-09-05, the 2026-09-05 ARM64-driver survey's
+Director addendum to the readiness program's **A3** research pass; the per-chipset survey is
+that report's §1).
 
-**Fallback, if the ARM64 driver does not exist:** a real x64 Windows PC (or an x64 VM on
-x64 hardware, which this Mac is not) becomes the validation target instead of this VM for
-the hotspot-specific scripts (`30`, and `40`'s reachability-from-hotspot-subnet checks);
-everything else in this suite (`00`, `10`, `20`, `50`, `60`) does not depend on the AP-capable
-adapter at all and stays valid on the ARM64 VM regardless.
+**Therefore `30-hotspot.ps1`, and `40-mdns-udp.ps1`'s hotspot-interface half, are ROUTED OFF
+THIS VM.** They run on a **real x64 Windows machine** — a spare x64 laptop, or the giftee's own
+PC before handover. **This is the plan, not a fallback.** **Everything else in the suite
+(`00`, `10`, `20`, `50`, `60`) is unaffected and stays on the ARM64 VM.** Do not pass the
+adapter through to this guest expecting `30` to work; buying the adapter is still required —
+it is what `30` tests on x64 — but it does not unblock the VM.
+
+`00-inventory.ps1`'s `netsh wlan show drivers` parse and `guest-check.ps1`'s
+`wifi-hosted-network` line stay useful as evidence *that this is the state* — 0 adapters, 0
+hosted-network-capable — not as a question still awaiting an answer.
+
+The FT232RL is the opposite case — see below.
 
 **The FT232RL has the same question, with a better-known answer.** Its driver is also
 kernel-mode and also must be ARM64-native. Two things reduce the risk: Windows Update supplies
@@ -464,7 +568,7 @@ each row is something a script in the suite depends on or something Windows will
 | 3 | **PowerShell 7** (`PowerShell-7.6.5-win-arm64.msi`) | every script is `#Requires -Version 7.0`; Windows 11 ships only 5.1 (§1.6) | GitHub PowerShell releases — **MSI, not winget/MSIX** | **arm64 MSI, OBSERVED to exist** |
 | 4 | **FTDI VCP driver** (CDM) | the ELRS TX's FT232RL → a COM port (§1.8) | Windows Update first; FTDI's CDM package as fallback, installed manually on ARM64 (§1.9) | INFERRED yes, `.exe` installer is not |
 | 5 | **DualShock 4 driver** | `60-hid-transition.ps1`, `20`'s pad id | **none — Windows inbox HID/XInput handles a USB DS4** | inbox, so yes |
-| 6 | **AP-capable 5 GHz USB Wi-Fi driver** | `30-hotspot.ps1`, `40`'s hotspot half | **unknown — the adapter is not bought** (§0, §1.9) | **`[win-TBD]`, doubly open** |
+| 6 | **AP-capable 5 GHz USB Wi-Fi driver** | `30-hotspot.ps1`, `40`'s hotspot half — **on a real x64 PC, not on this VM** | vendor x64 driver for whichever chipset is bought (§0, §1.9) | **No — closed negative (§1.9). This row is why 30/40-hotspot run on x64.** |
 | 7 | **.NET / VC++ redistributables** | — | **NOT NEEDED. See below.** | n/a |
 
 **Row 7 deserves the argument rather than the assertion**, because "install the VC++ redist"
@@ -489,35 +593,40 @@ INFERRED throughout — from the build configuration, not from an install on Win
 `10-install-gs.ps1` or a mapper launch fails with a missing-DLL dialog, that is a **new**
 finding and this row is where to record it.
 
-**Wi-Fi adapter driver: out of scope here.** Adapter selection and the ARM64-driver question
-for it are the procurement workstream's, not this document's. Read that workstream's finding
-before buying anything, and let **it** — not row 6 — settle which adapter and which driver.
-Row 6 stays `[win-TBD]` here on purpose rather than guessing a chipset ahead of it.
+**Wi-Fi adapter driver: the ARM64 half is settled, the chipset choice is not.** §1.9 closes the
+ARM64 question negatively for every candidate chipset, which is why row 6 targets x64. *Which*
+adapter to buy is still the procurement workstream's call (the A3 survey §6 recommends
+the RTL8812AU/BU class, e.g. an Alfa AWUS036ACH, on x64 driver maturity) — read that finding
+before buying, and let it, not this row, name the part.
 
 ### 1.11 USB passthrough on Apple silicon: what it can and cannot do
 
-All INFERRED (from how VMware Fusion's USB passthrough and Apple silicon virtualization work,
-plus this project's own device list), **not observed** — no Fusion exists on this Mac. Each
-row says what to check after connecting, so a wrong assumption is caught in one command
-instead of at the end of a sweep.
+Mostly INFERRED (from how VMware Fusion's USB passthrough and Apple silicon virtualization
+work, plus this project's own device list), **not observed** — no Fusion exists on this Mac.
+Two rows are stronger than that and say so inline: the Wi-Fi adapter row is a **closed
+negative** (§1.9) and the Bluetooth row is **VERIFIED** from Broadcom's own documentation. Each
+row says what to check after connecting, so a wrong assumption is caught in one command instead
+of at the end of a sweep.
 
 | thing | can Fusion pass it to the guest? | what to check after connecting |
 |---|---|---|
 | A USB serial adapter (the FT232RL) | **Yes** — a plain USB device | `host-vm.sh check` → `elrs-tx-serial-visible`, and a COM device with VID `0403` |
 | A USB HID gamepad (DS4 over cable) | **Yes** | `host-vm.sh check` → `dualshock4-visible` |
-| A USB Wi-Fi adapter | **Yes, as a raw USB device.** The guest then needs its own ARM64 driver (§1.9) — passthrough delivers the device, never the driver | `host-vm.sh check` → `wifi-hosted-network`, and `netsh wlan show drivers` in the raw evidence |
+| A USB Wi-Fi adapter | **Yes, as a raw USB device — and it will not work here.** The guest still needs its own ARM64 driver, and none exists for any candidate chipset (§1.9, closed negative). Passthrough delivers the device, never the driver | `host-vm.sh check` → `wifi-hosted-network` will read 0/0. That is the **expected** answer, not a defect; `30-hotspot.ps1` belongs on a real x64 PC |
 | The Mac's **built-in** Wi-Fi | **No.** It is not a USB device; the guest gets only the virtual NIC | — (this is why the hotspot needs its own USB adapter at all) |
-| The Mac's **Bluetooth radio** | **No.** Not a USB device on Apple silicon; there is no radio to hand over | a Bluetooth DS4 will simply never appear — use USB (§1.8 row 3) |
+| The Mac's **Bluetooth radio** | **No — VERIFIED.** Broadcom's own *Sharing Bluetooth Devices with a Virtual Machine*: *"Bluetooth device support is removed in VMware Fusion 13.6 and later."* Fusion is well past 13.6 (§1.1), so the feature is gone — this is not an Apple-silicon inference | a Bluetooth DS4 will simply never appear — use USB (§1.8 row 3), which is therefore the **only** path, not merely the sure one |
 | A camera / video capture | **Yes** in principle, but **out of scope** — there is no camera passthrough plan, which is why §1.3 notes this VM will likely never receive real video |
 | The Mac's internal SSD or a Thunderbolt device | **No** — USB passthrough only | — |
 
-Three consequences worth stating rather than discovering:
+Four consequences worth stating rather than discovering:
 
 1. **Passthrough is exclusive.** While the guest owns a device the Mac cannot use it, and
    vice versa. If a device "disappears" from the guest, check whether macOS grabbed it back.
 2. **Passthrough is not a driver.** Every row above that says "yes" still needs an ARM64
    driver in the guest. This is the whole of §1.9's open question.
-3. **A hub is one decision, not many.** The GCS box presents its contents through an internal
+3. **USB is the only path for the DS4, not merely the sure one** — Fusion removed Bluetooth
+   device sharing in 13.6 (row 5, VERIFIED), so §1.8 row 3's preference is now a requirement.
+4. **A hub is one decision, not many.** The GCS box presents its contents through an internal
    USB hub (`w17-gcs-box-guide.md` §1's one-cable promise). Fusion attaches devices, not hubs,
    so expect to enable **each** device behind it individually, and re-check after replug.
 
