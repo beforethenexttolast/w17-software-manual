@@ -42,7 +42,8 @@ into `program/offline-readiness`; queue trunk merge + push for an owner grant.
 ## 4. Dependency graph (what unlocks what)
 - Disk space / external SSD → VMware Fusion + Win11 ARM guest → PowerShell 7 + OpenSSH in guest → snapshot `clean-giftee-pc`
   → 00-inventory · 10-install-gs · 20-mapper-stage · 40-mdns-udp · 50-race-day (no hardware) → **VM-verified (not physical)**.
-- 5 GHz AP-capable USB Wi-Fi adapter (BUY, ARM64-driver-gated) → USB passthrough → 30-hotspot → hotspot half of WS3.
+- 5 GHz AP-capable USB Wi-Fi adapter → **a real x64 Windows PC** (A3 VERIFIED + Director OBSERVED 2026-09-05: no ARM64 Windows driver exists for any candidate USB Wi-Fi chipset, Realtek portal included) → 30-hotspot → hotspot half of WS3. The ARM64 VM can run every other step but NOT the hotspot step.
+- ELRS control path is PC → FT232RL USB-serial → CRSF → ES24TX Pro module (A3, from the repo docs); FT232RL has an ARM64 VCP driver (manual .inf). The TX16S is the RF-only backup handset, not a USB link.
 - DualShock 4 on USB → (now) mapper `-list-devices` + hot-plug on macOS (partial) → (VM) 60-hid-transition → BENCH-TBD on real Windows.
 - ELRS TX handset on USB → COM enumeration in VM; CRSF-on-the-wire needs the TX module + a sniffer → bench.
 - Coupon C-1 print → `fit_clearance` → measurement sitting M-00…M-20 → params → coupons C-2..C-4 → cage/tray fit prints → production.
@@ -55,3 +56,4 @@ label (OBSERVED/VERIFIED/BENCH-TBD/…), the exact command, and PASS/FAIL agains
 
 ## 6. Change log
 - 2026-09-05 00:20 — program opened; baseline verified; wave 1 (10 workers) launched. Host disk/Fusion/ISO gaps recorded.
+- 2026-09-05 00:50 — A3 done (reports/A3.md): ARM64 driver gap for USB Wi-Fi is market-wide (VERIFIED; Realtek portal OBSERVED by Director). Fusion ≥13.6 has no Bluetooth passthrough → DS4 on the VM is USB-only. Win11 ARM64 ISO is a direct Microsoft download.

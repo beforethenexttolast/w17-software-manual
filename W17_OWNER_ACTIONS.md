@@ -34,6 +34,9 @@ Only genuinely human-required actions appear here. Each: action · reason · pre
 - A2 closure → Phase B first power → D8 bring-up → BT1 → coordinated flash → race-day link/CRSF on the wire → phone latency → halo.
 - FIRST_ACTIVE: NO-GO until a separate reviewed safety milestone.
 
+## DECISIONS QUEUED FOR THE NEXT DECISION ROUND (not urgent, consolidated at end of wave 1)
+- **Hotspot validation host.** The ARM64 VM cannot drive any USB Wi-Fi adapter (no ARM64 drivers exist, A3 VERIFIED). Options: (a) borrow/identify an x64 Windows 11 PC for one hotspot session; (b) defer the hotspot half to the giftee-PC handover session (readiness decision A4 already says real PC only at handover); (c) both. Also: is the adapter part of the GIFT KIT (giftee PC lacks AP-capable Wi-Fi?) or only a validation tool? The purchase spec depends on this.
+
 ## LATER / POLISH
 - Booklet tone/style lines (the F1 worker will hand you a focused packet; facts are fixed by agents).
 - Push/merge grant for `program/offline-readiness` and the `offline/*` branches once wave 2 review passes (queued, not urgent).

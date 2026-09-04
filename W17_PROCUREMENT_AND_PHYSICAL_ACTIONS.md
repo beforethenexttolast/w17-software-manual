@@ -6,7 +6,7 @@ Fields: requirement/spec · why · unlocks · evidence/source · exact model nec
 ## BUY NOW
 | item | requirement | why | unlocks | source | exact model? | status |
 |---|---|---|---|---|---|---|
-| 5 GHz AP-capable USB Wi-Fi adapter | Mobile-Hotspot-capable on Windows 11 **ARM64** (driver must exist for ARM64) and 5 GHz SoftAP | hotspot half of the WS3 validation suite; race-day hotspot on the giftee PC | 30-hotspot.ps1, giftee-ux-2 checks | runbook §0 box, §1.8 | chipset matters (A3 research pending) | WAIT→BUY after A3 |
+| 5 GHz AP-capable USB Wi-Fi adapter | Mobile-Hotspot-capable on Windows 11 **ARM64** (driver must exist for ARM64) and 5 GHz SoftAP | hotspot half of the WS3 validation suite; race-day hotspot on the giftee PC | 30-hotspot.ps1, giftee-ux-2 checks | runbook §0 box, §1.8 | chipset family matters, exact model not: Realtek RTL8812AU/BU class (e.g. Alfa AWUS036ACH) primary per A3; x64 Windows only — NO ARM64 driver exists (VERIFIED/OBSERVED) | WAIT: owner decision on hotspot host + gift-kit scope (see W17_OWNER_ACTIONS.md) |
 | In-envelope 2S car pack | ≤70×40×22 mm target, hard fail 75×45×25; 2S soft-case ≥25C JST-XH balance, XT60 preferred | car has no fitting battery | Phase B on-car power (later) | HARDWARE_INVENTORY.md "Not on hand yet" #1 | no — shop to dimensions | not sourced |
 
 ## CHECK IF I ALREADY HAVE
