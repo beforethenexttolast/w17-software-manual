@@ -18,7 +18,11 @@
 
 ## Prerequisites
 
-- **The car must be UNPOWERED, or its RX UNBOUND. Not optional.**
+- **Run B is un-gated by A2/Phase B, but is a live-TX bench procedure under
+  `w17-windows-vm-validation-runbook.md`:370-397: car UNPOWERED or RP1 UNBOUND, no bound
+  RX powered in range, attended, discharges nothing (RESIDUAL A); requires explicit owner
+  authorization like every other gate.** Leave the TX module's antenna attached — an
+  antenna detach is not the sourced mitigation.
   A mapper that is actually driving was started with `-tx-serial-port-name` (or its
   profile's own `tx.port`), which means the COM port is open and CRSF is being
   transmitted (`w17-windows-vm-validation-runbook.md:370-384`,

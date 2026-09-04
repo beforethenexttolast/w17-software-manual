@@ -1,7 +1,8 @@
 # G-INDEX — ground-side bench-gate cards
 
 Ground side = laptop, Windows, mapper, phone video, and the FIRST_ACTIVE request.
-The firmware/bench side is `INDEX.md` and its un-prefixed cards (same folder).
+The firmware/bench side is `INDEX.md` and its un-prefixed cards (same folder); the two
+ladders share rule 3 below, which `INDEX.md` states as its rule 1b in the same words.
 Every card here is **NOT-EXECUTED**. Writing a card executes no gate.
 
 | Card | Gate | State today | Class |
@@ -55,9 +56,14 @@ right one.
 1. **FIRST_ACTIVE is NO-GO / BLOCKED.** No card runs, prepares or rehearses it
    (`head_tracking_unlock_plan.md:1366-1385`, `W17_CURRENT_STATE.md:61`).
 2. **A2 is NOT-EXECUTED ⇒ Phase B is BLOCKED.** G-02 waits (`W17_CURRENT_STATE.md:61`).
-3. **The car is unpowered, or its RX is unbound**, on every card that can put CRSF on a
-   wire — G-03 run B and all of G-04
-   (`w17-windows-vm-validation-runbook.md:370-384`).
+3. **Anything that can put CRSF on a wire — G-03 run B, all of G-04, and BG-06 T1 on the
+   firmware side (`INDEX.md` rule 1b) — is un-gated by A2/Phase B, but is a live-TX bench
+   procedure under `w17-windows-vm-validation-runbook.md`:370-397: car UNPOWERED or RP1
+   UNBOUND, no bound RX powered in range, attended, discharges nothing (RESIDUAL A);
+   requires explicit owner authorization like every other gate.** Do **not** substitute an
+   antenna detach: the sourced mitigation is (car unpowered OR RX unbound) and nothing
+   else, and running a TX module's PA into an open port is not authorised anywhere in this
+   project.
 4. **No card is R15 evidence.** R15 is *device loss ⇒ **arbiter** disarm*, against arbiter
    code parked on `u4-arbiter`, and it stays NO-GO after a green run of anything here
    (`60-hid-transition.ps1:13-29`, `CURRENT_STATUS.md:1384-1385`).

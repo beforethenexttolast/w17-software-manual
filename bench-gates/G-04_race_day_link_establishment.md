@@ -16,9 +16,13 @@
 
 ## Prerequisites
 
-- **Car UNPOWERED, or its RX UNBOUND.** Success on this card means the COM port opens and
-  CRSF starts going out over the ELRS TX. That is a live transmitter
-  (`w17-windows-vm-validation-runbook.md:370-384`).
+- **Un-gated by A2/Phase B, but a live-TX bench procedure under
+  `w17-windows-vm-validation-runbook.md`:370-397: car UNPOWERED or RP1 UNBOUND, no bound RX
+  powered in range, attended, discharges nothing (RESIDUAL A); requires explicit owner
+  authorization like every other gate.** Success on this card means the COM port opens and
+  CRSF starts going out over the ELRS TX. That is a live transmitter, and on gamepad loss
+  it *"still transmits at full rate … fail-to-neutral, not fail-silent"* (RESIDUAL A,
+  `w17-windows-vm-validation-runbook.md`:393-397).
 - Real Windows. The whole chain is Windows behaviour and is unproven until the WS3
   session (`W17_CURRENT_STATE.md:61`).
 - Prior WS3 steps staged: `10-install-gs.ps1` (GS installed) and `20-mapper-stage.ps1`
@@ -39,7 +43,7 @@
 | Real Windows PC + `pwsh` 7 | `w17-windows-vm-validation-runbook.md:170` |
 | GS installed build + mapper binary + filled profile | the real artefacts, not a dev tree |
 | The GCS box (FT232 / ELRS TX) on a COM port the profile names | the port that must open |
-| **A way to detach the ELRS TX from the antenna path, or an unbound RX** | so an open port and live CRSF reach nothing |
+| **The car unpowered, or the RP1 unbound** (`w17-windows-vm-validation-runbook.md`:384 — not optional) | so an open port and live CRSF reach nothing. **Leave the TX module's antenna attached**; an antenna detach is not the sourced mitigation and drives the module's PA into an open port |
 | DualShock 4 | the mapper enumerates SDL at boot |
 | `bench-gates/tools/raceday_timing.py` | the parser; python3, stdlib only |
 
