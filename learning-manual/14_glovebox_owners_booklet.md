@@ -19,16 +19,21 @@
 > the draft's markers (the controller bindings, the RACE DAY button name, the engine
 > start/stop control, the on-screen battery warning) turned out to be already decided
 > and test-pinned in the repos; the adversarial review (2026-08-21) had them resolved to
-> plain printed facts. What remains marked — **19 markers** (the draft's 26, minus those
+> plain printed facts. What remains marked — **18 markers** (the draft's 26, minus those
 > 8, plus 3 added by the 2026-08-20 pages, plus 1 added by the first 2026-09-03 truth
 > pass — the battery cool-down time had no code/thermal backing and was printed as a
 > plain fact by mistake — minus 3 removed by the second 2026-09-03 truth pass: the two
 > switch-ritual markers in section 5 turned out to be a pit-crew job, not a giftee
 > bench-fact gap at all (OD-2), and the controller-reconnect marker in section 9 turned
-> out to be a code fact, not a bench one — MAP-6) — is genuinely bench-only: feel,
-> ranges, charge times, Wi-Fi specifics, switch rituals, controller pairing. The booklet
-> prints only after (1) the owner's editorial pass and (2) the bench proves the
-> remaining facts.
+> out to be a code fact, not a bench one — MAP-6 — minus 1 removed by the 2026-09-05 F1
+> truth pass: section 3's key-in wake-up light show marker turned out to already be a
+> decided, test-pinned code fact — the bounded `NeverConnectedGraceMs` calm breathe
+> (`w17-soundlight-fw/lib/lights/include/lights/LightRenderer.hpp:202`, valid() bound
+> `:241`; render() logic `lib/lights/src/LightRenderer.cpp:216-247`) — matching what
+> section 6's "just after key-in" row already stated as plain fact with no marker of its
+> own) — is genuinely bench-only: feel, ranges, charge times, Wi-Fi specifics, switch
+> rituals, controller pairing. The booklet prints only after (1) the owner's editorial
+> pass and (2) the bench proves the remaining facts.
 >
 > **Owner free-texts ALL answered 2026-08-20** (the four decisions queued in
 > `../2026-08-16_orchestration_review_packet.md` §4 item 6, plus the extra-modes
@@ -118,7 +123,7 @@ The whole routine, in order. It takes about a minute once you've done it twice.
 
 1. **Plug the station box into your computer** with its one cable.
 2. **Turn on the controller.** [TBD-at-bench: controller connection — cable or wireless pairing, and to what]
-3. **Key into the car.** She wakes up: her tail light glows, and the ring above her cockpit — the halo — breathes softly for a few seconds while she gets herself sorted, then settles to a calm glow. [TBD-at-bench: final wake-up light show — she may get a proper ignition animation]
+3. **Key into the car.** She wakes up: her tail light glows, and the ring above her cockpit — the halo — breathes softly for a few seconds while she gets herself sorted. Either it settles to a calm glow, or, if something's not right inside, she'll blink amber within a few seconds to tell you plainly — either way, she never just breathes forever.
 4. **Open the app and press the one big RACE DAY button.** The app checks everything for you — her Wi-Fi, the drive program, her own readings, the phone link — and brings her cockpit view up on your screen.
 5. **The start-lights moment.** Five red lights come on across the screen... and go out. That's your cue. (It's a Formula 1 thing. It never gets old.)
 6. **Wake her engine — the deliberate two-step.** She will never start with the throttle pressed, so she can never leap away from you:
@@ -367,6 +372,24 @@ Draft notes for the owner (not for print):
   count is unchanged. Closes `MAP-6` in `w17-parts-to-gift-master-sequence.md`
   §0's table and `w17-handover-checklist.md`'s code-blockers list; tracked in
   `CURRENT_STATUS.md`, not here.
+- **2026-09-05 truth-pass edit (F1, offline readiness program, workspace-only
+  worktree — no repo other than this one touched):** Section 3 step 3's
+  key-in wake-up row dropped its `[TBD-at-bench: final wake-up light show —
+  she may get a proper ignition animation]` marker and now states the plain
+  fact. Independently re-verified against `w17-soundlight-fw` main `7220c08`
+  (unchanged from the program baseline): `LightRenderer::render()` gives the
+  boot moment a distinct, bounded "waiting for board #1" halo breathe —
+  `neverConnectedGraceMs = 5000` (`lib/lights/include/lights/LightRenderer.hpp:202`,
+  range-checked in `valid()` at `:241`) — that either clears into the normal
+  calm halo once board #1's first link2 frame arrives, or escalates to the
+  same amber hazard blink section 7 already documents, never breathing
+  forever (`lib/lights/src/LightRenderer.cpp:216-247`). This is the exact
+  behavior section 6's "Gentle breathing glow, just after key-in" row already
+  printed as a plain fact with no marker of its own (`[fix-wave:
+  soundlight docs-truth-7]`, 2026-09-03) — section 3's marker was simply
+  never retired when that row was fixed. No code changed; this is a
+  same-file consistency fix, not a new finding. Marker count in the banner
+  above corrected 19 → 18.
 - **DECIDED, IN-FLIGHT FIX-WAVE (owner adjudications, 2026-09-03
   second round — no longer open owner calls; code not yet
   landed, so the printed text below is tomorrow's truth today,
