@@ -22,7 +22,7 @@ Phase ends when the frontier is only: purchases · owner measurements/actions ·
 `u4-arbiter` 4e445c9 parked (FIRST_ACTIVE NO-GO, never push). **PUSH GRANT CLOSED**: no push, no trunk merge without a fresh grant.
 
 ## 2. Host facts (OBSERVED 2026-09-05)
-macOS 26.3, Apple M4, 16 GB RAM, **9.6 GiB free on a 228 GiB disk**. No VMware Fusion installed, no Windows ISO on disk,
+macOS 26.3, Apple M4, 16 GB RAM, **~20–22 GB free on a 228 GiB disk** (9.6 GiB at 23:57 included purgeable; 20 GiB at 01:30). No VMware Fusion installed, no Windows ISO on disk,
 no `pwsh` on PATH (a 7.7.0-preview.4 binary is staged in the session scratchpad for host-side script checks only).
 USB attached now: a generic USB3.2/2.1 hub + Realtek USB GbE (a dock). No gamepad, no ELRS handset, no Wi-Fi adapter.
 Tooling present: openscad, gh, go, node/npm, python3, ffmpeg, pio.
@@ -57,3 +57,4 @@ label (OBSERVED/VERIFIED/BENCH-TBD/…), the exact command, and PASS/FAIL agains
 ## 6. Change log
 - 2026-09-05 00:20 — program opened; baseline verified; wave 1 (10 workers) launched. Host disk/Fusion/ISO gaps recorded.
 - 2026-09-05 00:50 — A3 done (reports/A3.md): ARM64 driver gap for USB Wi-Fi is market-wide (VERIFIED; Realtek portal OBSERVED by Director). Fusion ≥13.6 has no Bluetooth passthrough → DS4 on the VM is USB-only. Win11 ARM64 ISO is a direct Microsoft download.
+- 2026-09-05 01:35 — wave 1: A1, A4, B1, B2, D1, F1 done; A2, C1, C2 running. Wave 2 launched: R-A (VM runbook+scripts), R-B (measurement pack + ingest chain), R-D (procurement + booklet), all Opus. CONNECT NOW #1 (DS4 wired) issued; C-1.stl delivered to owner.

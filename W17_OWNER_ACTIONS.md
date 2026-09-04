@@ -3,16 +3,17 @@
 Only genuinely human-required actions appear here. Each: action · reason · prerequisite · unlocks · runbook/file.
 
 ## DO NOW
-1. **Free ≥ 100 GB of disk (or attach an external SSD for the VM).** Reason: the Mac has 9.6 GiB free (OBSERVED); the VM
-   runbook sizes the guest at 80–100 GB (`w17-windows-vm-validation-runbook.md` §1.3). Prereq: none. Unlocks: all of Workstream A
-   beyond static checks. File: runbook §1.1–1.3.
+1. **Free about 50 GB more on the internal SSD, or put the VM bundle on an external APFS drive.** Reason: `df`/`diskutil` show
+   ~20–22 GB free (OBSERVED 2026-09-05 01:30; an earlier 9.6 GiB reading counted purgeable space) against the ~70 GB VM budget the
+   A1 worker derived for this Mac (`w17-windows-vm-validation-runbook.md` §1.3 on branch offline/vm-runbook). Prereq: none. Unlocks:
+   all of Workstream A beyond static checks. File: runbook §1.0 checklist (under Opus review R-A before you follow it).
 2. **Install VMware Fusion (free personal licence) and download the Windows 11 ARM64 ISO.** Reason: neither is on the Mac
    (OBSERVED). Prereq: item 1. Unlocks: guest creation → the one-shot bootstrap script the A1 worker is preparing. File: runbook §1.1–1.2.
 3. **Decide OP-49 (2S balancing USB-C charge module): adopt the on-hand IP2326 ×2 or select another.** Reason: `HARDWARE_INVENTORY.md`
    §"Not on hand yet" item 4 says the inventory and OP-49 disagree on whether a module is chosen; it blocks done-bar 4 and the M-16
    measurement row. Prereq: none. Unlocks: charge-flap CAD, charge-safety spec, procurement bucket. File:
    `w17-3d-codex/10_assembly_architecture/OPEN_PROBLEMS_AND_QUESTIONS.md` (OP-49).
-4. **Print fit-check coupon C-1 (peg/hole ladder) at draft settings, labelled TP.** Reason: it calibrates `fit_clearance`, which
+4. **Print fit-check coupon C-1 (peg/hole ladder) — the STL was sent to you (out/C-1.stl, 106×28×12 mm): draft PLA/PETG, 0.20 mm, 4 walls, 40 %, no supports, label TP-001; then note the first peg/hole step that fits and stays put when shaken.** Reason: it calibrates `fit_clearance`, which
    every other CAD model depends on (`w17-3d-codex/11_cad/README.md` "Order of operations" step 1). Prereq: none. Unlocks: coupons
    C-2..C-4 and every fit print. File: `w17-3d-codex/11_cad/fit_check_coupons.scad`, `PRINT_SPEC.md`.
 
