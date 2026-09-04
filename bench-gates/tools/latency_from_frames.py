@@ -339,6 +339,21 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
     if args.fps <= 0:
         die("--fps must be positive")
 
+    # The three optional rig rates get the SAME guard as --fps. Without it a
+    # negative value produced a negative "bias to SUBTRACT" and an interval
+    # whose low bound exceeded its high bound -- a malformed result presented
+    # as a valid one, on the tool whose entire job is honest uncertainty
+    # (R-C FIX-GND-4). Zero already read as "not given" and printed
+    # NOT ACCOUNTED, which is safe; this makes it explicit rather than
+    # incidental, so a typo is a usage error instead of a silent omission.
+    for flag, value in (("--src-refresh-hz", args.src_refresh_hz),
+                        ("--dst-refresh-hz", args.dst_refresh_hz),
+                        ("--camera-fps", args.camera_fps)):
+        if value is not None and value <= 0:
+            die("%s must be positive when given (got %g); omit the flag "
+                "entirely if you did not measure it -- the tool then says "
+                "NOT ACCOUNTED instead of inventing a bound" % (flag, value))
+
     samples: List[Sample] = [parse_pair(p) for p in args.pair]
     if args.pairs_file:
         samples.extend(read_pairs_file(args.pairs_file))

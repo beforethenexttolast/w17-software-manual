@@ -114,7 +114,69 @@ MARKERS: List[Tuple[str, str, str, str]] = [
      r"|declares a transmitter but its serial port"
      r"|declares \d+ transmitters)",
      "w17-mapper/pkg/client/grpc_client.go:279-290"),
+
+    # ---------------------------------------------------------------- W17T
+    # Structured lines added by the ground station on branch
+    # offline/raceday-timing-logs (GS commit 2f2690a, the branch tip after the
+    # R-G review fixes). Shape, verbatim:
+    #   W17T {"ev":"<name>","t":"<ISO-8601 UTC>","m":<performance.now() ms>,...}
+    # `m` is a process-relative monotonic companion to `t`: Windows Time
+    # resyncs at boot, and G-04 Part A reboots between all five cold runs, so
+    # the wall clock can step during the very seconds being measured. See the
+    # WALL-CLOCK STEP check in analyse().
+    # They are matched UNANCHORED on purpose. In the WS3 sink each line arrives
+    # inside RACEDAY_PROBE_RESULT.probeLog[] with a wrapper prefix of its own,
+    # `[t=<ISO> m=<ms>] `, added at
+    # scripts/windows-validation/lib/race-day-probe.js:126; the original text
+    # follows it verbatim, so every marker here still matches.
+    ("t0", "RACE DAY pressed (the app's own line, not an operator marker)",
+     r'W17T \{.*"ev":"raceday_press"',
+     "w17-ground-station/main/raceDayOrchestrator.js:309 (branch offline/raceday-timing-logs @ 2f2690a)"),
+
+    ("spawn", "ground station spawned the drive program (structured)",
+     r'W17T \{.*"ev":"mapper_spawn".*"pid":(?P<pid>\d+)',
+     "w17-ground-station/main/mapperRunner.js:238 (branch offline/raceday-timing-logs @ 2f2690a)"),
+
+    ("link_claim", "ground station SAW the radio come up (its own read-only stream)",
+     r'W17T \{.*"ev":"raceday_link_claim".*"kind":"(?P<kind>[^"]*)"',
+     "w17-ground-station/main/raceDayOrchestrator.js:537 (branch offline/raceday-timing-logs @ 2f2690a)"),
+
+    ("link_claim_late", "the radio came up AFTER the window closed (self-upgrade mirror)",
+     r'W17T \{.*"ev":"raceday_link_late".*"kind":"(?P<kind>[^"]*)"',
+     "w17-ground-station/main/raceDayOrchestrator.js:234 (the self-upgrade link mirror; branch offline/raceday-timing-logs @ 2f2690a)"),
+
+    ("stop_press", "STOP RACE DAY pressed",
+     r'W17T \{.*"ev":"raceday_stop_press"',
+     "w17-ground-station/main/raceDayOrchestrator.js:748 (branch offline/raceday-timing-logs @ 2f2690a)"),
 ]
+
+# A W17T line carries its OWN timestamp INSIDE the payload. That matters
+# because the sink most likely to exist on Windows — the WS3 probe's stderr /
+# its RACEDAY_PROBE_RESULT.probeLog[] array — is NOT stamped by any wrapper,
+# so without this the parser would count every W17T line as untimestamped and
+# drop it. The self-stamp is also strictly better than a wrapper stamp: it is
+# taken inside the app at the event, not when the pipeline got round to
+# reading the line.
+W17T_SELF_TS = re.compile(r'W17T \{.*?"t":"(?P<t>[^"]+)"')
+
+# The monotonic companion. `m` is Math.round(performance.now()) taken in the
+# same expression as `t`, so it is process-relative and immune to a wall-clock
+# step. G-04 Part A reboots Windows between all five cold runs and Windows Time
+# resynchronises at boot: a step of hundreds of ms to seconds during the very
+# 1-5 s being measured is a normal event, and without `m` it would land in the
+# number with nothing in the capture to reveal it (R-G fix 3).
+# Both endpoints of a leg must carry `m` for it to be used; `t` still places
+# the line absolutely, which is what lets a GS line merge with the mapper's
+# wrapper-stamped stdout in a Part B capture.
+W17T_SELF_MONO = re.compile(r'W17T \{.*?"m":(?P<m>-?\d+)')
+
+# How far the two clocks may disagree across one leg before the capture is
+# suspect rather than the machine. Chosen as an ORDER OF MAGNITUDE below the
+# thing being measured (LINK_UP_WAIT_MS = 5000) and well above scheduler noise
+# on the two Date/performance.now() reads, which are microseconds apart in the
+# same expression. It is a DETECTOR THRESHOLD for a corrupted capture, not a
+# PASS/FAIL threshold for the gate -- no gate verdict depends on it.
+WALL_CLOCK_STEP_TOLERANCE_MS = 250.0
 
 COMPILED = [(kind, name, re.compile(rx), cite) for kind, name, rx, cite in MARKERS]
 
@@ -170,8 +232,9 @@ def _parse_clock(text: str) -> Optional[dt.timedelta]:
 
 class Event:
     def __init__(self, ms: float, kind: str, name: str, cite: str, raw: str, line_no: int,
-                 fields: dict):
+                 fields: dict, mono: Optional[float] = None):
         self.ms = ms
+        self.mono = mono
         self.kind = kind
         self.name = name
         self.cite = cite
@@ -197,6 +260,35 @@ def parse_log(lines: Sequence[str]) -> Tuple[List[Event], dict]:
 
         ts_ms: Optional[float] = None
         rest = line
+
+        # A W17T line stamps itself; prefer that over any wrapper stamp on the
+        # same line (the wrapper stamp is a read time, the payload stamp is the
+        # event time), and accept it when there is no wrapper stamp at all.
+        self_m = W17T_SELF_TS.search(line)
+        if self_m:
+            when = _parse_datetime(self_m.group("t"))
+            if when is not None:
+                if base is None:
+                    base = when
+                ts_ms = (when - base).total_seconds() * 1000.0
+                for pattern, _k in TS_PATTERNS:
+                    mm = pattern.match(line)
+                    if mm:
+                        rest = mm.group("rest")
+                        break
+                stamped += 1
+                mono_m = W17T_SELF_MONO.search(line)
+                mono = float(mono_m.group("m")) if mono_m else None
+                for kind, name, rx, cite in COMPILED:
+                    m = rx.search(rest)
+                    if m:
+                        events.append(Event(ts_ms, kind, name, cite, rest.strip(), line_no,
+                                            {k: v for k, v in (m.groupdict() or {}).items()
+                                             if v is not None},
+                                            mono))
+                        break
+                continue
+
         for pattern, kind in TS_PATTERNS:
             m = pattern.match(line)
             if not m:
@@ -257,6 +349,9 @@ def analyse(events: List[Event], window_ms: float) -> dict:
     opened = first(events, "port_open_ok")
     send = first(events, "send_loop")
     not_yet = first(events, "link_not_yet")
+    claim = first(events, "link_claim")
+    claim_late = first(events, "link_claim_late")
+    stop_press = first(events, "stop_press")
     exited = first(events, "exit")
     refusal = first(events, "refusal")
 
@@ -294,7 +389,34 @@ def analyse(events: List[Event], window_ms: float) -> dict:
         if a is None or b is None:
             legs.append({"leg": name, "ms": None, "note": note or "endpoint marker missing"})
             return
-        legs.append({"leg": name, "ms": b.ms - a.ms, "note": note})
+        wall = b.ms - a.ms
+        # Prefer the monotonic delta whenever BOTH endpoints carry `m`. They
+        # are only comparable within one process run, which is exactly what a
+        # leg is here (raceDayOrchestrator and MapperRunner share the main
+        # process and the same `log` seam).
+        if a.mono is not None and b.mono is not None:
+            mono = b.mono - a.mono
+            drift = abs(wall - mono)
+            if drift > WALL_CLOCK_STEP_TOLERANCE_MS:
+                findings.append(
+                    "WALL-CLOCK STEP during %r: the wall clock says %.0f ms and the "
+                    "monotonic clock says %.0f ms, a disagreement of %.0f ms (tolerance "
+                    "%.0f ms). Windows Time almost certainly resynchronised mid-run. The "
+                    "monotonic figure is the one reported; treat the wall-clock number in "
+                    "this capture as unusable and say so in the evidence."
+                    % (name, wall, mono, drift, WALL_CLOCK_STEP_TOLERANCE_MS))
+                clock_note = ("monotonic (`m`); the wall clock disagreed by %.0f ms and "
+                              "was discarded" % drift)
+            else:
+                clock_note = ("monotonic (`m`); wall clock agreed to within %.0f ms"
+                              % drift)
+            note = (note + "; " + clock_note) if note else clock_note
+            legs.append({"leg": name, "ms": mono, "clock": "monotonic",
+                         "wall_ms": wall, "note": note})
+            return
+        note_wall = "wall clock only (no `m` on both endpoints)"
+        note = (note + "; " + note_wall) if note else note_wall
+        legs.append({"leg": name, "ms": wall, "clock": "wall", "note": note})
 
     leg("press -> spawn", t0, spawn)
     leg("spawn -> headless bring-up begins", spawn, bringup)
@@ -304,9 +426,35 @@ def analyse(events: List[Event], window_ms: float) -> dict:
     leg("spawn -> port OPEN  (THE GATE MEASUREMENT)", spawn, opened,
         "compared against LINK_UP_WAIT_MS")
     leg("press -> port OPEN  (what the operator experiences)", t0, opened)
+    leg("press -> GS saw the radio up (W17T)", t0, claim,
+        "GS-side observation; +0..100 ms poll quantisation (_awaitLink stepMs=100)")
+    leg("spawn -> GS saw the radio up (W17T)", spawn, claim,
+        "GS-side fallback gate when the mapper's own stdout is not in this capture")
+    leg("press -> radio up LATE, after the window (W17T)", t0, claim_late,
+        "the over-window datum G-04 criterion 1 asks for (raceDayOrchestrator.js:234)")
+    leg("STOP pressed -> drive program exited", stop_press, exited,
+        "G-04 criterion 10; the checklist asks for this lag and states no threshold")
 
     gate = next(l for l in legs if l["leg"].startswith("spawn -> port OPEN"))
     measured = gate["ms"]
+    gate_source = "mapper's own '(port-loop)(initial) port ... opened' line"
+    if measured is None:
+        fallback = next(l for l in legs if l["leg"].startswith("spawn -> GS saw"))
+        if fallback["ms"] is not None:
+            measured = fallback["ms"]
+            gate_source = ("ground station's own W17T raceday_link_claim (the mapper's "
+                           "stdout is not in this capture); includes 0..100 ms of poll "
+                           "quantisation and is the GS's OBSERVATION of the claim, not "
+                           "the port-open instant")
+            findings.append(
+                "the gate number below is the GROUND STATION's observation of the link "
+                "claim, not the mapper's own port-open line. It is late by 0..100 ms "
+                "(raceDayOrchestrator.js:512 _awaitLink polls every 100 ms) and is an "
+                "upper bound on the true port-open latency.")
+    if measured is None and claim_late is not None:
+        findings.append(
+            "the radio came up AFTER the window closed; see the 'radio up LATE' leg for "
+            "how far outside it was. That number is the datum G-04 criterion 1 asks for.")
 
     if measured is None:
         verdict = "FAIL"
@@ -334,6 +482,7 @@ def analyse(events: List[Event], window_ms: float) -> dict:
         ],
         "legs": legs,
         "gate_measurement_ms": measured,
+        "gate_source": gate_source,
         "headroom_ms": headroom,
         "verdict": verdict,
         "reason": reason,
@@ -425,7 +574,8 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
             "(main/main.js:62) and the mapper (fmt.Printf) both log without one, "
             "so the capture MUST be stamped by the wrapper — see card G-04, "
             "'Exact commands'.")
-    if first(events, "spawn") is None and first(events, "port_open_ok") is None:
+    if (first(events, "spawn") is None and first(events, "port_open_ok") is None
+            and first(events, "t0") is None):
         die("neither a spawn marker nor a port-open marker is present: there is "
             "nothing to measure. Check that BOTH the ground station's stdout and "
             "the drive program's stdout are in this capture.")

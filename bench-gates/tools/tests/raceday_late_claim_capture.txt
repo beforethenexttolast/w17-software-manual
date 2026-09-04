@@ -1,0 +1,5 @@
+[raceday-probe] W17T {"ev":"raceday_press","t":"2026-09-12T14:03:20.100Z","busy":false}
+[raceday-probe] [mapper] started managed (pid 8123): C:\W17\elrs-joystick-control.exe -config-file-path C:\W17\w17-ds4.json
+[raceday-probe] W17T {"ev":"mapper_spawn","t":"2026-09-12T14:03:20.412Z","pid":8123}
+[raceday-probe] [raceday] the drive program has not raised the radio yet — reporting "not yet", not a fault
+[raceday-probe] W17T {"ev":"raceday_link_late","t":"2026-09-12T14:03:27.940Z","kind":"running"}

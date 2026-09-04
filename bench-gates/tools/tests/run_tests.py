@@ -140,6 +140,84 @@ check("widening the window does not move the measurement",
 code, out, err = run([RACEDAY, os.path.join(HERE, "does-not-exist_capture.txt")])
 check("missing logfile exits 2", code == 2, "exit=%d" % code)
 
+# --- 8. the W17T structured lines the ground station emits on branch
+#        offline/raceday-timing-logs (@ 2f2690a). Four fixtures, one per sink
+#        and one per failure mode the card cares about.
+
+# 8a. The WS3 sink: RACEDAY_PROBE_RESULT.probeLog[]. NO wrapper timestamp at
+#     all, so the tool has to read the payload's own `t` or drop every line.
+code, out, err, blob = run_json(
+    [RACEDAY, os.path.join(HERE, "raceday_ws3_probelog_capture.txt")])
+r = blob["result"]
+check("ws3 probelog fixture exits 0", code == 0, "exit=%d stderr=%s" % (code, err.strip()))
+check("ws3 probelog fixture is self-stamped, not wrapper-stamped",
+      blob["stats"]["lines_timestamped"] == 4,
+      str(blob["stats"]["lines_timestamped"]))
+check("ws3 probelog gate falls back to the GS-side claim = 2104 ms",
+      near(r["gate_measurement_ms"], 2104.0), str(r["gate_measurement_ms"]))
+check("ws3 probelog says the gate number is a GS observation",
+      "GROUND STATION" in r["gate_source"] or
+      any("upper bound" in f for f in r["findings"]),
+      str(r["gate_source"]))
+
+# 8b. A Part B capture: wrapper-stamped, and the mapper's OWN port-open line is
+#     present, so the real gate measurement wins over the GS-side fallback.
+code, out, err, blob = run_json(
+    [RACEDAY, os.path.join(HERE, "raceday_partb_merged_capture.txt")])
+r = blob["result"]
+check("partB merged fixture exits 0", code == 0, "exit=%d" % code)
+check("partB merged gate = 2070 ms from the mapper's own line",
+      near(r["gate_measurement_ms"], 2070.0), str(r["gate_measurement_ms"]))
+gs_leg = [l for l in r["legs"] if l["leg"].startswith("spawn -> GS saw")][0]
+check("partB merged shows the GS-side leg alongside it (2106 ms)",
+      near(gs_leg["ms"], 2106.0), str(gs_leg["ms"]))
+
+# 8c. The over-window case: the radio comes up AFTER LINK_UP_WAIT_MS closes.
+#     Only the link mirror (raceDayOrchestrator.js:234) fires here, and this is
+#     the datum G-04 criterion 1's FAIL branch asks for.
+code, out, err, blob = run_json(
+    [RACEDAY, os.path.join(HERE, "raceday_late_claim_capture.txt")])
+r = blob["result"]
+check("late-claim fixture exits 1", code == 1, "exit=%d" % code)
+late = [l for l in r["legs"] if "radio up LATE" in l["leg"]][0]
+check("late-claim reports how far outside the window it was (7840 ms)",
+      near(late["ms"], 7840.0), str(late["ms"]))
+
+# 8d. The FINAL shipped shapes: probeLog `[t=... m=...]` prefix AND the
+#     monotonic `m` inside every payload.
+code, out, err, blob = run_json(
+    [RACEDAY, os.path.join(HERE, "raceday_final_shapes_capture.txt")])
+r = blob["result"]
+check("final-shapes fixture exits 1 (over-window)", code == 1, "exit=%d" % code)
+check("final-shapes matched all four W17T markers despite the wrapper prefix",
+      len([e for e in r["timeline"]
+           if e["kind"] in ("t0", "spawn", "link_claim_late", "stop_press")]) == 4,
+      str([e["kind"] for e in r["timeline"]]))
+late = [l for l in r["legs"] if "radio up LATE" in l["leg"]][0]
+check("final-shapes late leg = 9512 ms", near(late["ms"], 9512.0), str(late["ms"]))
+check("final-shapes legs are measured on the monotonic clock",
+      all(l.get("clock") == "monotonic" for l in r["legs"] if l["ms"] is not None),
+      str([(l["leg"], l.get("clock")) for l in r["legs"] if l["ms"] is not None]))
+
+# 8e. Windows Time resyncs mid-run -- the exact event G-04 Part A invites by
+#     rebooting between all five cold runs. The wall clock steps +4000 ms
+#     between press and the link claim; the monotonic clock does not. Without
+#     `m` this capture reads 6104 ms and FAILS the 5000 ms window on a clock
+#     bug rather than on the constant.
+code, out, err, blob = run_json(
+    [RACEDAY, os.path.join(HERE, "raceday_clock_step_capture.txt")])
+r = blob["result"]
+check("clock-step fixture exits 0", code == 0, "exit=%d" % code)
+check("clock-step gate uses the monotonic delta (2104 ms, not 6104 ms)",
+      near(r["gate_measurement_ms"], 2104.0), str(r["gate_measurement_ms"]))
+check("clock-step raises a WALL-CLOCK STEP finding",
+      any("WALL-CLOCK STEP" in f for f in r["findings"]), str(r["findings"]))
+check("clock-step names the size of the disagreement",
+      any("4000 ms" in f for f in r["findings"]), str(r["findings"]))
+check("clock-step keeps the wall-clock figure visible for the record",
+      any(l.get("wall_ms") is not None for l in r["legs"]),
+      str([l.get("wall_ms") for l in r["legs"]]))
+
 
 print("latency_from_frames.py")
 
@@ -214,6 +292,22 @@ code, out, err = run([LATENCY, "--fps", "0", "--pair", "1,2"])
 check("fps 0 exits 2", code == 2, "exit=%d" % code)
 code, out, err = run([LATENCY, "--fps", "240", "--pair", "abc,2"])
 check("non-numeric pair exits 2", code == 2, "exit=%d" % code)
+
+# --- the three optional rig rates get the same guard as --fps (R-C FIX-GND-4).
+#     A negative used to produce a negative "bias to SUBTRACT" and an inverted
+#     median interval, at exit 0.
+for flag in ("--src-refresh-hz", "--dst-refresh-hz", "--camera-fps"):
+    code, out, err = run([LATENCY, "--fps", "240", "--pair", "1200,1236", flag, "-60"])
+    check("%s -60 exits 2" % flag, code == 2, "exit=%d" % code)
+    check("%s -60 says which flag and why" % flag,
+          flag in err and "must be positive" in err, err.strip()[:160])
+    code, out, err = run([LATENCY, "--fps", "240", "--pair", "1200,1236", flag, "0"])
+    check("%s 0 exits 2" % flag, code == 2, "exit=%d" % code)
+
+code, out, err = run([LATENCY, "--fps", "240", "--pair", "1200,1236"])
+check("omitting all three rates is still exit 0", code == 0, "exit=%d" % code)
+check("omitting all three rates says NOT ACCOUNTED", "NOT ACCOUNTED" in out,
+      out.strip()[-160:])
 
 print("")
 print("%d checks, %d failures" % (checks, len(failures)))
