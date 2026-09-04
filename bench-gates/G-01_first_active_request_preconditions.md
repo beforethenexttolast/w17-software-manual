@@ -240,7 +240,7 @@ bench-gates/evidence/G-01/
   authority_tips.txt                  # git -C ... rev-parse for each source read
 ```
 
-## Downstream unlocked by PASS
+## Downstream unlocked by PASS — none, by construction
 
 **Nothing.** By construction. A completed packet lets an owner *see* the distance to
 FIRST_ACTIVE in one place; it unlocks no gate, authorises no test, and does not itself

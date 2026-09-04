@@ -117,11 +117,18 @@ Reduce the frame indices. Two runs, then the delta:
 ```sh
 cd /Users/vitaliykhomenko/Documents/projects
 
+# The three rates below are RIG FACTS from step 1, not defaults. Substitute what you
+# MEASURED on this rig -- the tool cannot tell a guess from a measurement, and criterion 5
+# reads as satisfied the moment all three are supplied, whatever they say. If you did not
+# measure one, OMIT the flag: the tool then prints `systematic bias NOT ACCOUNTED`, which
+# is an honest gap; a plausible-looking 60/60/30 is not. (A non-positive value is now a
+# usage error, exit 2, rather than a silently inverted interval.)
+
 python3 bench-gates/tools/latency_from_frames.py \
   --fps 240 \
   --pairs-file bench-gates/evidence/G-02/phone_drive_pairs.csv \
   --label "phone, DRIVE profile, 5 m, 2026-__-__" \
-  --src-refresh-hz 60 --dst-refresh-hz 60 --camera-fps 30 \
+  --src-refresh-hz <MEASURED> --dst-refresh-hz <MEASURED> --camera-fps <MEASURED> \
   --json bench-gates/evidence/G-02/phone_drive.json
 echo "exit=$?"
 
@@ -129,7 +136,7 @@ python3 bench-gates/tools/latency_from_frames.py \
   --fps 240 \
   --pairs-file bench-gates/evidence/G-02/laptop_drive_pairs.csv \
   --label "laptop, DRIVE profile, same run" \
-  --src-refresh-hz 60 --dst-refresh-hz 60 --camera-fps 30 \
+  --src-refresh-hz <MEASURED> --dst-refresh-hz <MEASURED> --camera-fps <MEASURED> \
   --json bench-gates/evidence/G-02/laptop_drive.json
 echo "exit=$?"
 
@@ -196,7 +203,7 @@ What *does* exist, and what it is worth:
 | 2 | Both runs are steady-state | ≥ 25 samples, taken ≥ 60 s after `phase live`, `dropped=0` throughout | any dropped frames, or samples inside the start-up transient |
 | 3 | The number is repeatable | median of a second capture within **2 capture frames** (8.33 ms at 240 fps) of the first | wider ⇒ the rig, not the pipeline, is the dominant term; fix the rig |
 | 4 | p95 is meaningful | `n ≥ 20` (the script says so explicitly) | fewer samples ⇒ report the median only, and say p95 was not established |
-| 5 | The systematic bias is bounded, not ignored | all three of `--src-refresh-hz`, `--camera-fps`, `--dst-refresh-hz` supplied | the script prints `systematic bias NOT ACCOUNTED`, and the result is a raw number with an unknown floor |
+| 5 | The systematic bias is bounded, not ignored | all three of `--src-refresh-hz`, `--camera-fps`, `--dst-refresh-hz` supplied **from step 1's measurements of this rig** — the tool cannot tell a guess from a measurement, so this criterion is only as good as the honesty of the three numbers | the script prints `systematic bias NOT ACCOUNTED`, and the result is a raw number with an unknown floor |
 | 6 | An owner target, **if and only if one is adopted** | `--median-target-ms` / `--p95-target-ms` met (script exit 0) | script exit 1 |
 
 The gate's own verdict is **the measured delta plus its uncertainty, handed to the

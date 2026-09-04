@@ -93,6 +93,12 @@
 > * **nothing logs the button press at all** — `appWiring.js:338` calls `raceDay.start()`
 >   and `start()` (`raceDayOrchestrator.js:273-301`) logs nothing on entry.
 >
+> **Partly closed on a branch, not on `main`.** `offline/raceday-timing-logs` @ `2f2690a`
+> adds five self-stamped `W17T` lines (the press included) and stamps the WS3 probe's
+> `probeLog[]`. Until that branch lands on GS `main`, everything below assumes the shipped
+> `379cf29` behaviour; where the W17T lines are present they are strictly better, because
+> each carries its own event-time `t` and a monotonic `m`. See *Expected evidence*.
+>
 > So the run is split in two, and both halves are stamped by the capture wrapper.
 > **Part A** measures the number (mapper launched with race day's exact argv, its own
 > stdout captured); **Part B** presses the real button and records which of the four
@@ -153,6 +159,35 @@
 
 ## Exact commands
 
+**Step 0 — prove the capture wrapper before you trust a single number.** Every instant in
+Part A comes from `ForEach-Object { (Get-Date)… }` stamping lines as they leave a native
+Go binary's stdout through a PowerShell pipeline into `Tee-Object`. **If that pipeline
+buffers** — and it can, depending on the host, the redirection, and whether a console is
+attached — every line receives roughly the same stamp, and the measurement is *silently
+wrong* rather than absent. `raceday_timing.py` exits **2** only when **no** line carries a
+timestamp; a clustered set of stamps parses fine and yields a confident, false number.
+This is the same discipline BG-06 applies to its own decoder — *prove the tool before you
+trust its silence*:
+
+```powershell
+$sanity = ".\G-04_stamp_sanity_$(Get-Date -Format yyyyMMdd-HHmmss).txt"
+$stamp = { process { '{0} {1}' -f (Get-Date).ToUniversalTime().ToString('o'), $_ } }
+
+# IDENTICAL pipeline shape to the Part A capture below: a native process's
+# stdout -> ForEach-Object stamper -> Tee-Object.
+& {
+  & cmd /c "for /L %i in (1,1,10) do @(echo tick %i & timeout /t 1 /nobreak >nul)"
+} | ForEach-Object -Process $stamp | Tee-Object -FilePath $sanity
+```
+
+**Read the ten stamps. They must be ~1 s apart.**
+
+> **STOP CONDITION.** If the stamps are clustered — several lines within a few
+> milliseconds of each other, or all ten inside one second — **the capture method is the
+> finding.** Fix it before collecting any runs; a Part A capture taken through a buffering
+> pipeline produces a plausible number that means nothing. Save `stamp_sanity.txt` in the
+> evidence folder either way: it is what makes every later figure interpretable.
+
 Part A — cold-start measurement. One command emits the marker and launches, so the
 press→spawn leg is real:
 
@@ -211,9 +246,14 @@ python3 bench-gates/tools/raceday_timing.py \
   --json bench-gates/evidence/G-04/partA_cold_run1.json
 echo "exit=$?"      # 0 = inside the window, 1 = outside / never claimed, 2 = unusable capture
 
-# merged view: GS spawn line + the mapper's own lines, sorted by their stamps
+# merged view: Part B's GS lines + PART A's mapper capture, sorted by their stamps.
+# There is deliberately NO partB_mapper.txt: under a real RACE DAY press the mapper's
+# stdout is piped ONLY into a bounded 200-line x 400-char in-memory ring and is never
+# echoed and never written to a file (mapperRunner.js:144-151 `_record` pushes into
+# `this._ring` and nothing else; :163-167 `stdio: ['ignore','pipe','pipe']`). That is by
+# design and is not a defect to work around -- it is exactly why Part A exists.
 sort -m bench-gates/evidence/G-04/partB_gs.txt \
-        bench-gates/evidence/G-04/partB_mapper.txt \
+        bench-gates/evidence/G-04/partA_cold_run1.txt \
   | python3 bench-gates/tools/raceday_timing.py - \
       --json bench-gates/evidence/G-04/partB_merged.json
 echo "exit=$?"
@@ -240,6 +280,33 @@ Markers the parser keys on, each with the line that prints it:
 | `[raceday] the drive program has not raised the radio yet — reporting "not yet", not a fault` | `main/raceDayOrchestrator.js:481` |
 | `[mapper] exited (N)` | `main/mapperRunner.js:222` |
 | `(bring-up) the saved profile declares no transmitter …` / `… tx.port … is empty …` | `grpc_client.go:279-290` |
+
+**The app's own structured lines** (branch `offline/raceday-timing-logs` @ `2f2690a`; not
+yet on GS `main`). Each is one JSON object on one line, tagged `W17T`, carrying its own
+ISO `t` **and** a monotonic `m` (`Math.round(performance.now())`):
+
+| Marker | Printed by |
+|---|---|
+| `W17T {"ev":"raceday_press",…}` | `main/raceDayOrchestrator.js:309` — **the press**, so `W17-RACEDAY-T0` becomes optional for Part B |
+| `W17T {"ev":"mapper_spawn",…,"pid":N}` | `main/mapperRunner.js:238` |
+| `W17T {"ev":"raceday_link_claim",…,"kind":…}` | `main/raceDayOrchestrator.js:537` — the GS **saw** the radio come up |
+| `W17T {"ev":"raceday_link_late",…,"kind":…}` | `main/raceDayOrchestrator.js:234` — the self-upgrade mirror (criterion 8). **The only line that fires on an over-window run**, and therefore the only source of the "how far outside" number criterion 1's FAIL branch asks for |
+| `W17T {"ev":"raceday_stop_press",…}` | `main/raceDayOrchestrator.js:748` — pairs with `[mapper] exited` for criterion 10's lag |
+
+**Where these lines can actually be read on Windows.** Two sinks, and only two:
+
+1. **The app's stdout**, but only when something captures it — the Part B command below.
+2. **`RACEDAY_PROBE_RESULT.probeLog[]`** in the WS3 result JSON, where each entry is
+   stamped `[t=<ISO> m=<ms>] ` by `scripts/windows-validation/lib/race-day-probe.js:126`.
+   This sink needs **no** console capture at all and is the more reliable of the two.
+   Do **not** rely on the probe's stderr copy: `50-race-day.ps1:326` truncates it to the
+   last 40 lines (`$data.probeStderrTail = … Select-Object -Last 40`; `probeLog[]` itself
+   is written whole at `race-day-probe.js:250`, then printed at `:252`).
+
+`raceday_timing.py` reads a `W17T` line's own payload `t` in preference to any wrapper
+stamp — the payload stamp is the *event* time, a wrapper stamp is the *read* time — so an
+unstamped `probeLog[]` extract parses correctly, and it measures on `m` whenever both ends
+of a leg carry one. That is what makes step 0's buffering risk survivable on the WS3 path.
 
 Plus: five cold `spawn -> port OPEN` figures, one warm figure, the unplugged-serial
 failure shape, screenshots of each DRIVE PROGRAM wording, and whether each sequence
@@ -272,6 +339,19 @@ halted.
 > (`raceDayOrchestrator.js:94-96`, `README.md:263-264`), and this card is how a human
 > reads the same latency in a form that can be argued about.
 
+### THRESHOLD MISSING — owner/bench decides
+
+*(Folded under PASS / FAIL, as on every other card, rather than standing as a fourteenth
+top-level heading.)*
+
+| Missing number | Where the gap is | What this card does instead |
+|---|---|---|
+| The **acceptable** cold link latency (as distinct from the current 5000 ms *window*) | nothing states what is acceptable to a giftee; 5000 is explicitly unvalidated (`raceDayOrchestrator.js:89-96`) | measures against 5000, reports headroom and spread, and recommends nothing |
+| Minimum headroom | not recorded anywhere | criterion 2 proposes **1000 ms** as a *review* trigger, not as a standard; it is this card's suggestion and must be ratified or replaced |
+| Acceptable spread across cold runs | not recorded anywhere | criterion 3 proposes **2000 ms** on the same footing |
+| Acceptable STOP-button lag | `setup_flow_bench_checklist.md:239` says "record any lag", no number | recorded, not judged |
+| How many cold runs constitute a characterisation | not recorded anywhere | five, chosen by this card; say so when reporting |
+
 ## Stop conditions
 
 Stop immediately if:
@@ -286,7 +366,14 @@ Stop immediately if:
 - the mapper panics or exits on its own during bring-up — capture the stdout tail and
   stop; that is MAP-1-shaped and belongs in a report, not in a retry loop;
 - the parser exits **2** ("no line carries a timestamp"): fix the capture before
-  collecting more runs, or the whole session produces nothing measurable.
+  collecting more runs, or the whole session produces nothing measurable;
+- **step 0's ten stamps are clustered rather than ~1 s apart**: the capture method is the
+  finding. A buffering pipeline gives every line nearly the same stamp, and the parser
+  cannot tell that from a fast machine — it exits 2 only on *no* stamps, never on *wrong*
+  ones. Fix the capture before collecting runs;
+- the parser prints a **WALL-CLOCK STEP** finding: Windows Time resynchronised mid-run.
+  The monotonic figure it reports is still good; the wall-clock one in that capture is
+  not, and the evidence must say so.
 
 ## Rollback
 
@@ -313,7 +400,14 @@ bench-gates/evidence/G-04/
   partA_warm.txt / .json
   partA_serial_unplugged.txt    # the failure shape
   latency_summary.md            # five cold figures, min/median/max, spread, recommendation
-  partB_gs.txt / partB_mapper.txt / partB_merged.json
+  stamp_sanity.txt              # step 0: ten ~1 s-apart stamps through the SAME pipeline
+  partB_gs.txt / partB_merged.json
+                                # NO partB_mapper.txt -- under a real press the mapper's
+                                # stdout goes only to a bounded in-memory ring
+                                # (mapperRunner.js:144-151, :163-167). The merged view
+                                # lays partB_gs.txt beside PART A's mapper capture.
+  partB_probelog.txt            # RACEDAY_PROBE_RESULT.probeLog[], the WS3 sink; stamped
+                                # `[t=<ISO> m=<ms>]` at race-day-probe.js:126
   partB_wordings.md             # each DRIVE PROGRAM kind seen, verbatim, + halt or not
   partB_screenshots/            # GARAGE card in each state
   stop_and_kill.md              # criteria 10 and 11
@@ -358,16 +452,6 @@ bench-gates/evidence/G-04/
   characterise that PC.
 - **A lag on STOP** (criterion 10) is asked to be *recorded* by the checklist
   (`setup_flow_bench_checklist.md:239`) with no threshold attached.
-
-## THRESHOLD MISSING — owner/bench decides
-
-| Missing number | Where the gap is | What this card does instead |
-|---|---|---|
-| The **acceptable** cold link latency (as distinct from the current 5000 ms *window*) | nothing states what is acceptable to a giftee; 5000 is explicitly unvalidated (`raceDayOrchestrator.js:89-96`) | measures against 5000, reports headroom and spread, and recommends nothing |
-| Minimum headroom | not recorded anywhere | criterion 2 proposes **1000 ms** as a *review* trigger, not as a standard; it is this card's suggestion and must be ratified or replaced |
-| Acceptable spread across cold runs | not recorded anywhere | criterion 3 proposes **2000 ms** on the same footing |
-| Acceptable STOP-button lag | `setup_flow_bench_checklist.md:239` says "record any lag", no number | recorded, not judged |
-| How many cold runs constitute a characterisation | not recorded anywhere | five, chosen by this card; say so when reporting |
 
 ## Evidence label
 

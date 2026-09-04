@@ -82,11 +82,26 @@ right one.
 |---|---|---|
 | `latency_rig.html` | G-02 | offline, self-contained: full-screen flash + 7-digit ms counter + 12-bit binary flash-id strip. No network, no external asset |
 | `latency_from_frames.py` | G-02 | frame indices → latency; random bound = one capture frame; systematic bias itemised and reported separately. Targets are opt-in. `exit 0/1/2` |
-| `raceday_timing.py` | G-04 | timestamped capture → press/spawn/claim deltas; PASS/FAIL against `LINK_UP_WAIT_MS`. Refuses an unstamped capture (`exit 2`) rather than inventing a zero. Every marker carries its own `path:line` |
-| `tests/run_tests.py` | both | synthetic fixtures, 52 checks. `python3 bench-gates/tools/tests/run_tests.py` → exit 0 |
+| `raceday_timing.py` | G-04 | timestamped capture → press/spawn/claim deltas; PASS/FAIL against `LINK_UP_WAIT_MS`. Refuses a capture with **no** stamp anywhere (`exit 2`) rather than inventing a zero. Every marker carries its own `path:line`. Also reads the app's own `W17T` lines (branch `offline/raceday-timing-logs` @ `2f2690a`): it prefers each line's self-stamped `t` over any wrapper stamp, measures on the monotonic `m` when both ends of a leg carry one, and raises a **WALL-CLOCK STEP** finding when the two clocks disagree by more than 250 ms |
+| `tests/run_tests.py` | both | synthetic fixtures, **81 checks**. `python3 bench-gates/tools/tests/run_tests.py` → exit 0 |
 
 Fixtures are `*_capture.txt`, not `*.log`, because the workspace `.gitignore:30` ignores
-`*.log`.
+`*.log`. Ten of them: five original raceday shapes, plus `raceday_ws3_probelog_capture.txt`
+(the WS3 sink, self-stamped only), `raceday_partb_merged_capture.txt`,
+`raceday_late_claim_capture.txt` (the over-window case), `raceday_final_shapes_capture.txt`
+(the shipped shapes with `m` and the probeLog prefix) and
+`raceday_clock_step_capture.txt` — that last one reads **6104 ms and FAILs** on the wall
+clock and **2104 ms and PASSes** on `m`, which is exactly the Windows-Time-resync failure
+G-04 Part A invites by rebooting between all five cold runs.
+
+## Heading contract
+
+Each `G-*` card carries the same thirteen sections as the `BG-*` cards, in the same order,
+under this set's slightly shorter wording: `Topology` (not `Topology (ASCII)`),
+`Exact procedure` / `Exact commands` (no `(numbered)` / `(fenced)`), `PASS / FAIL criteria`
+(not `PASS/FAIL criteria (objective numbers)`) and `Evidence label` (not `… at card
+creation`). `INDEX.md` records the same mapping. There is no fourteenth heading: G-04's
+`THRESHOLD MISSING` block sits inside its PASS / FAIL section, as on every other card.
 
 ## Where the evidence goes
 
