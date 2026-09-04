@@ -54,10 +54,10 @@ per spread" structure stands in for page numbers).
 
 | Section | Line (quoted) | Why it needs a human | Alternative A | Alternative B |
 |---|---|---|---|---|
-| 4 (line ~152) | "**One honest thing about the phone app:** think of it as a fun extra, not the main event. The computer screen is always there and always current — the pit crew keeps the phone app itself fresh behind the scenes (a little chore, done about once a week), so if it ever looks out of date or won't open, that's a known quirk of a phone app made just for her, not something you did." | Longest, most explanatory paragraph in the booklet; reads like a support-doc caveat dropped into a gift booklet. Written in the 2026-09-03 truth pass to cover the weekly re-sign honestly, not voiced by the owner. | Trim to: "One honest thing: the phone app is a fun extra, not the main event — the computer screen is always there. The pit crew keeps the phone app fresh behind the scenes; if it ever looks out of date, that's just her app being hers, not something you did." | Split the mechanism out of the promise: keep "She's a fun extra, not the main event — the computer's always there and always right." as its own sentence, and fold the weekly-refresh caveat into the section 9 troubleshooting table instead of the main narrative. |
-| 6 (line ~180) | "**Green, right at the outer edges of the tail light** \| Her rear wing is open. If she's braking or has stopped herself at the same moment, that always shows first." | The second sentence is a priority-order disclaimer (which light wins) merged in from a 2026-09-03 fix; useful but reads like a rules footnote rather than the dictionary-entry voice of the rest of the table. | Drop the second sentence from the table entirely — it's an edge case, not something Lola needs to parse from a legend. | Shorten to "…open. (Braking always shows first if both happen together.)" — keeps it, but as a parenthetical aside instead of a full sentence. |
-| 9 (line ~252) | "Reconnect the controller — she picks it right back up, so there's no need to close the app or start over. She always plays it safe though: a dropped controller switches her engine off, so wake it again with a fresh triangle press, same two-step as section 3." | Two clauses doing two different jobs (reassurance, then a caveat) back to back; the "she always plays it safe though" pivot is functional but a little clunky next to the rest of the troubleshooting table's terser rows. Rewritten for the MAP-6 closure (2026-09-04), not voice-reviewed. | "Just reconnect it — she picks it right back up, no need to close the app. One thing though: a dropped controller switches her engine off for safety, so give her a fresh triangle press to wake it again (section 3's two-step)." | Split into two table cells' worth of content kept in one line but reordered: lead with the caveat, end on the reassurance — "A dropped controller switches her engine off, on purpose — just reconnect and give her a fresh triangle press. She picks the pad right back up; no need to close the app." |
-| 1 (line ~76) | "**One note:** her companion app runs on your own computer — and her helmet view runs on your phone (section 4). Both were installed and set up when she was handed over, so they're ready to go. If you ever change computers or phones, ping Vitaliy — it's a five-minute job." | The "it's a five-minute job" estimate is a specific time promise with no source behind it (not measured, not in any doc) — reads like a filler reassurance rather than a checked fact. Not wrong, just unverifiable as stated. | Drop the time estimate: "…ping Vitaliy — happy to help." | Make it explicitly informal rather than quantified: "…ping Vitaliy — it's a quick fix, not a big deal." |
+| 4 (line ~157) | "**One honest thing about the phone app:** think of it as a fun extra, not the main event. The computer screen is always there and always current — the pit crew keeps the phone app itself fresh behind the scenes (a little chore, done about once a week), so if it ever looks out of date or won't open, that's a known quirk of a phone app made just for her, not something you did." | Longest, most explanatory paragraph in the booklet; reads like a support-doc caveat dropped into a gift booklet. Written in the 2026-09-03 truth pass to cover the weekly re-sign honestly, not voiced by the owner. | Trim to: "One honest thing: the phone app is a fun extra, not the main event — the computer screen is always there. The pit crew keeps the phone app fresh behind the scenes; if it ever looks out of date, that's just her app being hers, not something you did." | Split the mechanism out of the promise: keep "She's a fun extra, not the main event — the computer's always there and always right." as its own sentence, and fold the weekly-refresh caveat into the section 9 troubleshooting table instead of the main narrative. |
+| 6 (line ~185) | "**Green, right at the outer edges of the tail light** \| Her rear wing is open. If she's braking or has stopped herself at the same moment, that always shows first. `[TBD-at-bench: how bright and visible this actually reads on the finished car]`" | The second sentence is a priority-order disclaimer (which light wins) merged in from a 2026-09-03 fix; useful but reads like a rules footnote rather than the dictionary-entry voice of the rest of the table. | Alternative A (**warning: this reverts the 2026-09-03 light-legend fix `678286a`; the priority is real — `w17-soundlight-fw/lib/lights/src/LightRenderer.cpp:336-350` shows braking genuinely overwrites the DRS-green pixels**) — drop the second sentence from the table entirely. Do not pick this without knowing it un-documents a real behavior. | Shorten to "…open. (Braking always shows first if both happen together.)" — keeps it, but as a parenthetical aside instead of a full sentence. |
+| 9 (line ~257) | "Reconnect the controller — she picks it right back up, so there's no need to close the app or start over. She always plays it safe though: a dropped controller switches her engine off, so wake it again with a fresh triangle press, same two-step as section 3." | Two clauses doing two different jobs (reassurance, then a caveat) back to back; the "she always plays it safe though" pivot is functional but a little clunky next to the rest of the troubleshooting table's terser rows. Rewritten for the MAP-6 closure (2026-09-04), not voice-reviewed. | "Just reconnect it — she picks it right back up, no need to close the app. One thing though: a dropped controller switches her engine off for safety, so give her a fresh triangle press to wake it again (section 3's two-step)." | Split into two table cells' worth of content kept in one line but reordered: lead with the caveat, end on the reassurance — "A dropped controller switches her engine off, on purpose — just reconnect and give her a fresh triangle press. She picks the pad right back up; no need to close the app." |
+| 1 (line ~81) | "**One note:** her companion app runs on your own computer — and her helmet view runs on your phone (section 4). Both were installed and set up when she was handed over, so they're ready to go. If you ever change computers or phones, ping Vitaliy — it's a five-minute job." | The "it's a five-minute job" estimate is a specific time promise with no source behind it (not measured, not in any doc) — reads like a filler reassurance rather than a checked fact. Not wrong, just unverifiable as stated. | Drop the time estimate: "…ping Vitaliy — happy to help." | Make it explicitly informal rather than quantified: "…ping Vitaliy — it's a quick fix, not a big deal." |
 | 3 (line ~126, this pass's own fix) | "…breathes softly for a few seconds while she gets herself sorted. Either it settles to a calm glow, or, if something's not right inside, she'll blink amber within a few seconds to tell you plainly — either way, she never just breathes forever." | This is F1's own fix (§1 above) — deliberately modeled on section 6's already-approved wording to stay in voice, but it duplicates section 6's sentence almost verbatim across two sections. Flagging for awareness, not because it's wrong. | Leave as-is (safest — matches an already-approved sentence). | Shorten section 3's version to just "…gets herself sorted, then settles to a calm glow (see section 6 if she ever blinks amber instead)." and let section 6 carry the full explanation once. |
 
 ---
@@ -72,6 +72,7 @@ what unlocks them. No `[win-TBD]` markers appear in the printed booklet text its
 
 **Unlocked by assembly + first power-up (Phase B, still BLOCKED — A2 NOT-EXECUTED):**
 - Station box wall adapter, yes/no (§1)
+- Whether she visibly refuses to charge with the key in, or the key-out rule stands alone (§2)
 - Charging flap location on the body (§2)
 - Charge light location + exact meanings (§2)
 - Charge time low→full (§2)
@@ -84,9 +85,15 @@ what unlocks them. No `[win-TBD]` markers appear in the printed booklet text its
 - Charge-light colors: charging / done / problem (§6)
 - Safe lift points for carrying her (§8)
 
-**Unlocked by a Windows/GS validation session with the built car (WS3, `w17-windows-vm-validation-runbook.md`):**
+**Unlocked by a Windows/GS validation session with the built car (WS3, `w17-windows-vm-validation-runbook.md`) — USB half only:**
 - Controller connection: cable vs. wireless pairing, and to what (§3, §5.2 of the install
-  guide carries the same open marker)
+  guide carries the same open marker). **Split by connection type:** the USB half resolves
+  under WS3 on the Fusion VM. The wireless-pairing half needs the giftee's real x64 PC —
+  `w17-windows-vm-validation-runbook.md:216-219` already marks a Bluetooth DS4 `[win-TBD]`
+  ("needs the guest to see a Bluetooth radio at all"), and Broadcom's own VMware Fusion
+  documentation states Bluetooth device sharing was removed in Fusion 13.6+ while the
+  installed release is 26H1 — so the VM cannot answer the wireless half at all, regardless
+  of how WS3 goes.
 - Whether the phone's video appears automatically or needs one tap the first time, and
   which Wi-Fi the phone should join (§4) — this one also needs OD-16's WHEP path
   exercised against a real hotspot, not just the code path (already `CI GREEN` at
@@ -104,6 +111,27 @@ powered, controller connected):**
   in the source as a placeholder pattern, not a measurement
 - How to part-charge for long-term storage — whether the charger has a storage setting
   (§8)
+
+### 3.1 Known-stale scaffolding line (draft notes, out of print scope)
+
+The booklet's own draft-notes "not-yet-built" list (`14_glovebox_owners_booklet.md:276-279`
+in this worktree) still reads: *"Features that are decided-but-not-yet-built (one-press
+start, **ignition light show**, **wing-open tell**, charge-state light, **on-screen
+low-battery warning**, **the phone helmet view's live picture**)…"*. At least four of the
+six are already built and shipped, and this packet's own "Verification performed" section
+(§ below) cites the code for three of them: the DRS-green wing tell
+(`LightRenderer.cpp:36,341,344`), the two-tier low-battery banner
+(`renderer/index.html:569-571`, `shared/lowBattery.mjs`), and the phone live picture
+(OD-16 WHEP landed at iPhone `7aaf2cf`) — plus the ignition-on animation, which exists in
+shipped code (`LightRenderer.hpp:178-193`; `LightRenderer.cpp:25-31,263-297`, a cyan
+starter-comet sweep crossfading into armed teal) but which the booklet's engine-start step
+(§3, "The halo turns **teal**") never prints. This bullet is scaffolding, not printed
+content, so it is out of this pass's fix scope per §0's own rule — but it is the owner's
+orientation context for the editorial pass, and leaving it stale mis-sets expectations.
+Flagging here rather than silently correcting it (the packet's own convention is to fix
+printed content, not draft notes) — either edit it in place the same way the marker count
+was corrected, or fold the retired-marker's second half (the ignition animation) into §3
+step 6 the next time the booklet is touched.
 
 ---
 
