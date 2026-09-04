@@ -19,12 +19,15 @@ Windows UI flow (SmartScreen's "More info" button, a controller showing up in De
 without an inline tag is not thereby confirmed; it is simply not an open question about *this
 app's* behavior.
 
-**Do not run this guide's final stages (§6–§7) yet.** Fourteen 2026-09-02 grand-review findings
-(the full, authoritative list is `w17-parts-to-gift-master-sequence.md` §0) mean the RACE DAY
-button does not work end to end today for reasons that have nothing to do with hardware readiness
-— see the callout in §6. Everything up through §5 (unpacking, installing, first launch, pairing
-the controller) is safe to do any time; treat §6–§7 as blocked until `CURRENT_STATUS.md` records
-those findings closed.
+**§6–§7 are no longer blocked.** The 2026-09-02 grand-review findings that used to stop the RACE
+DAY path here are closed in code: MAP-1 (the config double-wrap panic) and MAP-2/SYN-2 (RACE DAY
+never starting the radio link) landed at mapper `ebf89fa` (`pkg/client/grpc_client.go:50-65`
+`configPayload`, `:200-203`→`selfStartLink` `:268-310`), and the ground-station side landed at
+`263e69a` (`main/raceDayOrchestrator.js:76` `STEP_ORDER`, `renderer/setupFlow.js:305-322` OD-6
+auto-GRID). **`[win-TBD]`** still stands: none of this has been run on the giftee's own Windows
+box — that is exactly what the WS3 Windows-VM validation run (`w17-parts-to-gift-master-sequence.md`
+stage 11, `WINDOWS-VM` gate) exists to prove, and it has not happened yet. Read §6's table below as
+"closed in code, unproven on Windows," not as "done."
 
 ---
 
@@ -239,33 +242,40 @@ Lola, done once here.
 
 ---
 
-## 6. RACE DAY — what it does today, and what still doesn't work
+## 6. RACE DAY — what it does today, closed in code, unproven on Windows
 
 **Read this before you demonstrate RACE DAY to anyone.** The one-action promise — press RACE DAY,
 the hotspot comes up, the drive program starts with the saved profile, the phone link switches on
-— is the design intent, but the 2026-09-02 grand review found it is not fully wired yet:
+— was blocked by 2026-09-02 grand-review findings. Those are now closed in code:
 
-| Finding | What happens today | Fix-wave id |
-|---|---|---|
-| The mapper panics on its own committed profile | `elrs-joystick-control.exe` crashes on startup with the exact `w17-ds4.json` this guide has you install, before it ever reaches the controller | `MAP-1` |
-| RACE DAY never starts the radio link | Even once MAP-1 is fixed, pressing RACE DAY brings up the hotspot and starts the drive program, but the program never opens the COM port to the car — no control signal ever leaves the PC | `MAP-2` / `SYN-2` |
-| The booklet's "one press" does not match the app | The booklet (as of this writing) says one press brings up the cockpit view and checks the camera/controller/radio; the app needs RACE DAY, then a separate "straight to the grid" press, then START — and RACE DAY's checks don't cover camera/controller/radio at all | `giftee-ux-3` (owner-gated wording choice, not yet resolved) |
+| Finding | What used to happen | Fix-wave id | Closed at |
+|---|---|---|---|
+| The mapper panics on its own committed profile | `elrs-joystick-control.exe` crashed on startup with the exact `w17-ds4.json` this guide has you install, before it ever reached the controller | `MAP-1` | mapper `ebf89fa`, `pkg/client/grpc_client.go:50-65` (`configPayload` unwraps before the server re-wraps) |
+| RACE DAY never started the radio link | Pressing RACE DAY brought up the hotspot and started the drive program, but the program never opened the COM port to the car — no control signal ever left the PC | `MAP-2` / `SYN-2` | mapper `ebf89fa`, `pkg/client/grpc_client.go:200-203` → `selfStartLink` `:268-310`; ground station `263e69a`, `main/raceDayOrchestrator.js:76` (`STEP_ORDER` includes `mapper`) |
+| The booklet's "one press" does not match the app | The app needed RACE DAY, then a separate "straight to the grid" press, then START | owner decision OD-6 | ground station `263e69a`, `renderer/setupFlow.js:305-322` — a bring-up that reports a positive link claim auto-advances to GRID and arms the last press; a failed bring-up still leaves the operator at the card |
 
-**None of this is a hardware problem, and none of it means A2 or Phase B is unfinished** — it is
-pure ground-station/mapper software that a separate fix wave (readiness WS-1) is closing. This
-guide names the findings so nobody demonstrates RACE DAY to the owner or to Lola and reports it
-broken as if it were new. **Check `CURRENT_STATUS.md` for each id's status before relying on RACE
-DAY at all.**
+**`[win-TBD]`** — none of the above has run on the giftee's own Windows box. The code path is
+closed and native/unit-tested at both trunks; the WS3 Windows-VM run
+(`w17-parts-to-gift-master-sequence.md` stage 11, `WINDOWS-VM` gate) is the only thing that turns
+"closed in code" into "works on her PC," and it has not happened yet. **Do not demonstrate RACE DAY
+as proven until `CURRENT_STATUS.md` records a WS3 pass.**
 
-Once those land, the expected sequence is:
+The current sequence is:
 
 1. Press **RACE DAY** on the GARAGE screen.
-2. The card shows three steps in order — hotspot, drive program, phone link — each turning green
-   as it completes (`w17-ground-station/main/raceDayOrchestrator.js` `STEP_ORDER`).
+2. The card shows four steps in order — hotspot, mapper (drive program + radio link), telemetry,
+   phone bridge — each turning green as it completes
+   (`w17-ground-station/main/raceDayOrchestrator.js:76` `STEP_ORDER`; owner decision OD-4 puts
+   `telemetry` after `mapper` because it reads that program's own stream).
 3. If any step fails, the ones already up **stay up** — nothing is wound back — and the failed
    step shows a plain-language reason (the same module's header comment). Pressing RACE DAY again
    is always safe; it re-runs **idempotently** — pressing it five times in a row lands in the same
    state as pressing it once, never five copies of anything running on top of each other.
+4. A bring-up is only walked straight through to GRID-and-armed when the mapper step reports a
+   positive link claim (`kind === 'running'`, `renderer/setupFlow.js:320`); a first bring-up
+   whose 5 s link window (`LINK_UP_WAIT_MS`, `main/raceDayOrchestrator.js:97`, itself `[bench-TBD]`)
+   closes before the radio answers reports `link-not-yet` and still reaches GRID, but does not
+   auto-fire the last press.
 
 ---
 
@@ -294,8 +304,8 @@ The phone HUD is a nice-to-have, never the primary display (the laptop screen is
 | SmartScreen blocks the installer | Unsigned `.exe`, expected | More info → Run anyway (§3) |
 | App window never opens / process lingers with no window | Cancelled a quit prompt after the window closed (`SYN-1`) | End the process in Task Manager, relaunch; confirm `SYN-1` closed |
 | No video / black cockpit view | Installer built before `boundaries-1` was fixed | Check `CURRENT_STATUS.md`; rebuild/reinstall from a fixed CI run |
-| Mapper crashes on launch | `MAP-1` (config double-wrap) not yet fixed | Do not proceed past §5.3 until `CURRENT_STATUS.md` shows it closed |
-| RACE DAY says "running" but the car never responds | `MAP-2`/`SYN-2` — the radio link never actually starts | Confirm fix-wave status; this is not a wiring or COM-port mistake |
+| Mapper crashes on launch | `MAP-1` (config double-wrap) was the cause; closed in code at mapper `ebf89fa` (`pkg/client/grpc_client.go:50-65`) | `[win-TBD]` — if it still happens on this PC, it is a new defect, not `MAP-1`; report it rather than re-checking §5.3 |
+| RACE DAY says "running" but the car never responds | `MAP-2`/`SYN-2` used to leave the radio link never started; closed in code at mapper `ebf89fa` (`selfStartLink`, `grpc_client.go:268-310`) and GS `263e69a` | `[win-TBD]` — the mapper step only claims `running` on a positive link answer (`main/raceDayOrchestrator.js:102` `LINK_BEARING_KINDS`); if it still happens on this PC, check the profile's `tx.port` against the actual COM port before assuming new software |
 | Car never arms, no error shown | An unfilled `REPLACE-WITH-*` placeholder (§5.3 step 3/4) | Re-check both placeholders in `w17-ds4.json` |
 | Hotspot won't start | Windows Mobile Hotspot needs an active internet-connected profile first (`[win-TBD]`) | Connect to any network first, then retry |
 | Settings seem to have silently reset | `correctness-2` — an unreadable `settings.json` resets to defaults and can overwrite its own backup | Confirm `correctness-2` closed before this kit is considered final |
