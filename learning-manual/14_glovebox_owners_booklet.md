@@ -249,7 +249,7 @@ If she stops by herself often in the same spot, that's a clue worth sharing — 
 | Key is in, but she won't wake up | Push the key fully home. If nothing, her battery is probably empty — key out, charge her. | Ping the pit crew |
 | Plugged in, but no charge light | Is the key **out**? Key out is the charging rule. Try another USB-C charger and check the plug is fully seated. | Ping the pit crew |
 | The app can't find her / no picture | Check the station box cable is plugged into the computer — that little box is her radio, and the picture rides on it. Close the app, open it, press RACE DAY again. | Ping the pit crew |
-| Controller does nothing | Today, simply reconnecting it isn't enough to bring her back — close the app and start the whole routine again from section 3. (The team is working on a fix that won't need the restart.) | Ping the pit crew |
+| Controller does nothing | Reconnect the controller — she picks it right back up, so there's no need to close the app or start over. She always plays it safe though: a dropped controller switches her engine off, so wake it again with a fresh triangle press, same two-step as section 3. | Ping the pit crew |
 | Whole car blinking amber, won't drive | That's her safe-stop — section 7. Get a little closer, wait for the picture, restart the engine. | Ping the pit crew |
 | The halo breathes gently and never settles, and she's just sitting there | If the pit crew has ever turned on the shelf-show trick from section 5, that's it working exactly as built — not a fault. Ping the pit crew to switch her back to her everyday self. | Ping the pit crew |
 | Engine won't start (the two-step doesn't take) | Let go of **everything** — the trigger must be fully at rest first. Count to three, try again. | Ping the pit crew |
@@ -337,6 +337,36 @@ Draft notes for the owner (not for print):
     (`LightRenderer.hpp:114-116`, "the D6 teal breathe") — by
     design, not a fault — so section 9's row now points there
     instead of prescribing a key-cycle non-fix.
+- **2026-09-04 truth-pass edit — `[closed: MAP-6]`, mapper branch B landed on
+  `w17-headtrack` (tip `ebf89fa`):** Section 9's "Controller does nothing" row
+  now reads "reconnect the controller… wake it again with a fresh triangle
+  press." This replaces the interim line the first 2026-09-03 pass wrote in
+  anticipation of this fix ("today, simply reconnecting it isn't enough…
+  close the app and start the whole routine again" — that bullet, formerly
+  filed here under "DECIDED, IN-FLIGHT FIX-WAVE," is retired by this one).
+  Verified against the landed code, not anticipated this time: the poll loop
+  now handles `JOYDEVICEADDED`/`JOYDEVICEREMOVED`, and a pad that drops and
+  returns is re-opened under the same id — derived from GUID and name only,
+  unaffected by the gap — so the profile resolves it again with no mapper
+  restart (`w17-mapper/pkg/devices/hotplug.go:99-146`, `:171-185`;
+  `pkg/devices` tests 20/0 at the tip). **The hedge that must stay attached
+  to this fact — never printed to Lola, but kept in this source note:** that
+  half is proven only against a fake SDL event source; the Windows/HIDAPI
+  half — that a DS4 actually raises `JOYDEVICEADDED`/`REMOVED` at all, and
+  that the GUID is byte-identical across a real re-plug — is unverified on
+  hardware and marked `[bench-TBD]` in the mapper's own docs
+  (`w17-mapper/configs/README.md:353-356`, `pkg/devices/hotplug.go:20-22`); a
+  fresh TRIANGLE press-and-release is still required after every reconnect,
+  and that second half holds regardless of the hardware hedge — hot-plug
+  touches none of the arm-toggle code, and `reset_on_nan` has already
+  returned the toggle to DISARMED on the dropout
+  (`w17-mapper/pkg/config/input_seq.go:267-275`, `:285-287`;
+  `w17-mapper/configs/w17-ds4.json:138`). The bench-only marker for this row
+  was already retired from the marker-count banner above in the second
+  2026-09-03 pass (this was always a code fact, not a bench one), so that
+  count is unchanged. Closes `MAP-6` in `w17-parts-to-gift-master-sequence.md`
+  §0's table and `w17-handover-checklist.md`'s code-blockers list; tracked in
+  `CURRENT_STATUS.md`, not here.
 - **DECIDED, IN-FLIGHT FIX-WAVE (owner adjudications, 2026-09-03
   second round — no longer open owner calls; code not yet
   landed, so the printed text below is tomorrow's truth today,
@@ -377,22 +407,6 @@ Draft notes for the owner (not for print):
     itself checks (hotspot/mapper/bridge) and is not covered by
     this ruling — left as printed pending a further owner/doc
     pass on that specific clause.
-  - **[fix-wave: MAP-6]** Section 9's "Controller does nothing"
-    row now reads "today, simply reconnecting it isn't enough…
-    close the app and start the whole routine again." This
-    replaces the old (false) "reconnect the controller… then do
-    the two-step engine start again" line. OD-9 confirmed the
-    gap and ruled it fixed in code and in the booklet: the
-    mapper's gamepad registry is enumerated once at boot
-    (`w17-mapper/pkg/devices/controller.go:43`), so a pad that
-    drops and returns is never seen again until the mapper
-    restarts — restarting the whole drive program is the only
-    thing that currently restores control, exactly as the fix
-    text says (`w17-mapper.v2report.json` id `MAP-6`, CONFIRMED
-    high). The bench-only marker that used to sit on this row
-    ("reconnect steps") is retired — this was always a code fact,
-    not a bench one — and the marker-count banner above was
-    corrected.
   - **[owner-ruling: OD-2]** Section 5 and the "don't open her
     up" aside (section 8) are rewritten: OD-2 sets the ship image
     to `esp32dev`, under which the SP3T selector is never read
