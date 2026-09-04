@@ -686,7 +686,7 @@ suite_guard() {
             die "refusing '$a'. -ResultsRoot is this wrapper's to set: 'suite' gives the guest this evidence session's own results root (runbook 4.1) so the pull carries THIS run and not runs 1..N. Use --session STAMP to choose the session instead." ;;
         esac
         case "${low%%:*}" in
-          *=*) die "refusing '$a'. 'pwsh -File' does not bind '-Name=value' -- it silently IGNORES the token and runs with that parameter unset, which is worse than an error. Write '-Name value' or '-Name:value'." ;;
+          *=*) die "refusing '$a'. 'pwsh -File' does not bind '-Name=value' -- it hard-errors on the token (exit 1; VERIFIED V-A4 2026-09-05 against run-all.ps1's param block), so the suite would never start. Write '-Name value' or '-Name:value'." ;;
         esac
         case " $SUITE_ALLOWED_PARAMS " in
           *" $name "*) ;;
