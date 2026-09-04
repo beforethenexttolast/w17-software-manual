@@ -94,6 +94,10 @@ the box here.
   `MAP-8` by orchestrator escalation pending the owner's ruling on its disputed worst case** — 14
   ids total (`MAP-1`, `MAP-2`/`SYN-2`, `MAP-3`, `MAP-4`, `MAP-5`, `MAP-6`, `MAP-9`, `SYN-1`,
   `boundaries-1`, `correctness-2`, `correctness-4`, `giftee-ux-2`, `giftee-ux-5`, `MAP-8`).
+  This section inherits the master sequence's own status rather than duplicating it: as of
+  2026-09-04, 13 of the 14 ids are closed in code at mapper `ebf89fa` / GS `263e69a` (`giftee-ux-3`
+  stays owner-gated wording); this checkbox still stays unchecked until stage 11's Windows-VM pass
+  proves it, not just the code.
 
 ## 4. Mapper profile
 
