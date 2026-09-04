@@ -298,13 +298,15 @@ step 11 gets three files into the guest) and graceful guest shutdown work, and w
 `00-inventory.ps1`'s `VMTools` service check — and `scripts/vm/guest-check.ps1`'s
 `vmware-tools` line — report on.
 
-> **⚠ On macOS 26 the menu item does not work.** Broadcom's 25H2 release notes list it as a
-> known issue: *"The Install VMware Tools button is grayed out on a device that uses macOS 26
-> Tahoe operating system,"* with the workaround being to download the Tools package from
-> Broadcom's own package downloads and attach the ISO to the VM by hand
-> (Virtual Machine → Settings → CD/DVD → point it at the downloaded `.iso`, then run the
-> installer from inside the guest). **INFERRED** from that release-notes page, read 2026-09-05
-> — not walked on this Mac, which has no Fusion.
+> **⚠ On macOS 26 the menu item is reported not to work.** *"The Install VMware Tools button
+> is grayed out on a device that uses macOS 26 Tahoe operating system,"* with the workaround
+> being to download the Tools package from Broadcom's own package downloads and attach the ISO
+> to the VM by hand (Virtual Machine → Settings → CD/DVD → point it at the downloaded `.iso`,
+> then run the installer from inside the guest). **INFERRED, and possibly community-sourced**
+> — one session in this program read this as a Broadcom-documented 25H2 known issue, another
+> attributes it to a forum thread and explicitly *"not vendor-confirmed"* (§1.1's provenance
+> note). Not walked on this Mac, which has no Fusion. Following the workaround costs nothing
+> if the defect is not real: try the menu item first, and fall back to the package.
 
 `[win-TBD]`: not executed this session. Both `guest-check.ps1` and the inventory script say
 plainly if Tools are missing or not running, so a skipped step here surfaces immediately
