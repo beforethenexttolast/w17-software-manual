@@ -718,9 +718,9 @@ would trip the same error again — §1.6 has the argument. Install
 **`run-all.ps1` has to be ON the guest first**, and nothing in §1 puts it there: §1.0 step 11
 carries the key, the MSI and `guest-bootstrap.ps1`, and §2.3 below covers the GS installer and
 the mapper bundle. `scripts/vm/host-vm.sh stage` copies
-`w17-ground-station/scripts/windows-validation/` to `C:\w17\scripts\`; `check` and `suite`
-call it themselves, so the only way to hit "file not found" is to run the raw `ssh` line above
-before ever running either verb.
+`w17-ground-station/scripts/windows-validation/` to `C:\w17\scripts\`; `suite` calls it
+before it runs and `check` calls it after its own capture (§4.1 rule 2), so the only way to hit
+"file not found" is to run the raw `ssh` line above before ever running either verb.
 
 ### 2.3 Getting the build onto the guest
 
@@ -751,9 +751,9 @@ BUILT artifact. Getting that artifact onto the guest is either:
 - **The validation suite itself** — `w17-ground-station/scripts/windows-validation/`, which is
   where `run-all.ps1` and the seven numbered scripts live. It is not an *artifact*, but it is
   the third thing that has to reach the guest and nothing in §1 carries it:
-  `scripts/vm/host-vm.sh stage` does, into `C:\w17\scripts\windows-validation\`. `check`
-  and `suite` call `stage` first, so in normal use it happens by itself; run it by hand only
-  when driving the numbered scripts directly over `ssh`.
+  `scripts/vm/host-vm.sh stage` does, into `C:\w17\scripts\windows-validation\`. `suite`
+  stages before it runs and `check` stages after its own capture, so in normal use it happens
+  by itself; run it by hand only when driving the numbered scripts directly over `ssh`.
 
 ```sh
 scripts/vm/host-vm.sh stage                       # the suite itself
@@ -867,9 +867,11 @@ A full sweep, in order (matches `run-all.ps1`'s own sequencing and skip logic �
 
 Or, for everything automatable in one call: `scripts/vm/host-vm.sh suite <params…>`, which runs
 `run-all.ps1` with whichever parameters are available (see its own `.DESCRIPTION` — it skips,
-never fails, a step it lacks parameters for). **`suite` refuses `-IncludeHidTransition` and
-`-HidTransitionNonInteractive` outright**; step 7 is opt-in only when `run-all.ps1` is invoked
-by hand, deliberately, with §3.1 read first.
+never fails, a step it lacks parameters for). **`suite` forwards an allow-list of parameters
+and exits 2 on anything else**, so `-IncludeHidTransition`, `-HidTransitionNonInteractive` and
+every abbreviation PowerShell would bind to them (`-Inc`, `-Hid`, `--Inc`, `-hid:$true` …) are
+all refused (§2.4); step 7 is opt-in only when `run-all.ps1` is invoked by hand, deliberately,
+with §3.1 read first.
 
 ### 3.1 Step 7 safety precondition — the one place a live TX is involved
 
