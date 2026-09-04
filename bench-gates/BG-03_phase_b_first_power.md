@@ -98,7 +98,11 @@ partial pass:
    same toggle. Contract: `lib/channels/include/channels/ArmGate.hpp`. **A fresh neutral appearing
    to re-arm is a regression, not a bench quirk** (PB:69-74).
 
-**B3 — Actuators (bench, unloaded) & board #2** (PB:83-106; D8 Phases 6–7b, 9). Only after B2
+**B3 — Actuators (bench, unloaded) & board #2** (PB:83-106; **D8 Phases 6, 7b and 9 — NOT Phase 7,
+which is ESC + motor (`D8_BENCH_BRINGUP.md`:210) and therefore Phase C.** `PHASE_B_FIRST_POWER.md`:83
+cites the range as "6–7b"; that range includes the motor phase and contradicts this card's own
+precondition 6 — ESC motor leads disconnected for the whole of this card. The source defect is
+recorded for a control-fw session.) Only after B2
 passes **completely**; reconnect actuators **one at a time**:
 
 10. **B3.1** Narrow steering endpoints to the linkage's mechanical travel; sweep full L/R with the

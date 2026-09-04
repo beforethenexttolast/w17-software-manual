@@ -6,12 +6,21 @@ explicit **THRESHOLD MISSING**. Nothing here is a measured draw.
 
 > **Read this first.** A current limit on a bench supply is a *fuse you chose*, and the only
 > honest way to choose it is: know the expected draw, set the limit a little above it, and stop
-> the moment it trips. **This project's documents do not state an expected draw for a single
-> load.** No datasheet current figure for the ESP32 modules, the camera, the Wi-Fi module, the
+> the moment it trips. **This project's documents do not state an expected draw for any car-side
+> 5 V load.** No datasheet current figure for the ESP32 modules, the camera, the Wi-Fi module, the
 > RP1, the amplifier, the DS3235SG or the MG90S appears anywhere in the workspace, the firmware
 > repos, or `HARDWARE_INVENTORY.md`. So this table cannot end in a number — it ends in a
 > **procedure that derives the number at the bench, one subsystem at a time**, and in a list of
 > the thresholds that are missing. Inventing them would be worse than leaving them blank.
+>
+> **The ground side is the counter-example, and it is the template.** `w17-gcs-box-guide.md`:135-139
+> does state four cited per-device 5 V figures — ES24TX Pro **~300–500 mA** `[A]`, RT5370 Wi-Fi
+> **≤160 mA** (dongle datasheet), FT232RL **~15–50 mA** (FTDI datasheet), hub **~100 mA** `[A]` —
+> summing to **≈775–810 mA** worst case, against a 900 mA port budget and a **~700 mA** decision
+> threshold (`:141-157`). `w17-control-fw/docs/bill_of_materials_v2.md`:200 likewise fixes the
+> IP2326 charge rate at **≤1.5 A**. That is exactly the shape T1–T13 below need: a cited figure,
+> an `[A]`/`[I]` evidence tag, and a stated decision threshold. Nothing equivalent exists for the
+> car's rails, which is why the rows below are blank.
 
 ## The gate this belongs to
 

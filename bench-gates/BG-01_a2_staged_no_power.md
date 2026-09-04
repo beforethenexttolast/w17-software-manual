@@ -65,7 +65,7 @@ and both then become hard preconditions later.
                         UBEC A   UBEC B   ESC 12 AWG feed      <-- all three fitted at S6,
                         (S6)      (S6)         (S6)                in ONE sitting (A2:484-489)
                           |         |
-                       Rail A    Rail B (+C1 1000uF, fitted at S6)
+                       Rail A    Rail B (+cap C1 1000uF, fitted at S6)
                           |         |
    camera, WiFi, ESP32#1, ESP32#2,  |  steering DS3235SG, MG90S x3, blower
    RP1, WS2812, MAX98357A, Hall VCC |
@@ -86,7 +86,7 @@ and both then become hard preconditions later.
    change before it is a build change (`w17-parts-to-gift-master-sequence.md`:145-147).
 2. **SF — PDB frame.** Build the XT60 input, the star node, both ESP32 **female header sockets**
    (boards not seated), the rail A/B output headers, the signal headers, the rail branch looms
-   (guide:145-150). Run rows **P1–P7** (A2:234-243). C1 is **not** fitted here (A2:230-232).
+   (guide:145-150). Run rows **P1–P7** (A2:234-243). Cap C1 is **not** fitted here (A2:230-232).
 3. **S1 — divider.** 27 kΩ from raw batt+ to the tap, 10 kΩ tap → GND, tap wire to GPIO34
    (guide:151-154). Run **D1–D3** (A2:263-267). **The UBECs must not exist on the batt+ node
    yet** — that is the whole reason S1 sits here.
@@ -95,8 +95,9 @@ and both then become hard preconditions later.
 5. **S3 — link2.** Run **C3** and **C4**. C4 is falsifiable: a beep at GPIO26 means a wire exists
    that must not (A2:300-306, stop 9).
 6. **S4 — CRSF pair and each 3-pin actuator lead, one lead at a time.** Two passes per lead:
-   continuity **plug seated**, isolation **board unseated** (A2:310-311). Run **C1, C2, C5–C11,
-   C10b, K1–K4, PD1**. Fit **C3 (100 nF) at the GPIO34 pin end** here (A2:329-334).
+   continuity **plug seated**, isolation **board unseated** (A2:310-311). Run **rows C1, C2, C5–C11,
+   C10b, K1–K4, PD1** (row IDs — not the 1000 µF capacitor, which this card also calls C1; see
+   step 11). Fit **C3 (100 nF) at the GPIO34 pin end** here (A2:329-334).
 7. **S8a executes inside step 6**, at the ESC lead: cut the red wire, run **E0, E1, E2, E3, E6**
    and take **both photos on the bare ends**, *then* insulate (A2:313-315, :578-595). Do not
    build the ESC lead and defer the cut — after insulation these rows are unrunnable.
@@ -108,7 +109,8 @@ and both then become hard preconditions later.
 10. **S5 — WS2812 path** on the soundlight side: **W1–W5** (A2:471-477). W2/W3 are diode-mode and
     single-shot.
 11. **S6 — attach the batt+ consumers in ONE sitting:** both UBEC inputs, the ESC 12 AWG feed, and
-    **C1 across rail B, stripe to GND, laid flat** (A2:484-489). **Photograph C1 with the stripe
+    cap **C1** (the 1000 µF bulk capacitor, `w17-pdb-build-and-connector-guide.md`:119 — not A2 row
+    C1) **across rail B, stripe to GND, laid flat** (A2:484-489). **Photograph cap C1 with the stripe
     visible immediately** (photo 14) — no no-power measurement can distinguish a reversed 1000 µF
     (A2:504-506, :634-639). Re-run the full §2 visual list now that everything is together.
 12. **S7 — whole-harness composite.** Grounds **G1–G14**; battery/rail screens **M1, M2, M3**;
@@ -139,8 +141,12 @@ open bench-gates/tools/pdb_continuity_sheet.md
 # 3. The authority, always open beside the worksheet:
 open w17-control-fw/project-review/13_phase_a_a2_no_power_checklist.md
 
-# 4. Confirm the pin map you are wiring against is the real one, not this card:
-sed -n '30,60p' w17-control-fw/lib/config/include/config/PinMap.hpp
+# 4. Confirm the pin map you are wiring against is the real one, not this card.
+#    BOTH boards: 1,70p covers the whole of each file (63 and 30 lines), so nothing
+#    this card's steps depend on can be cropped out -- GPIO16/17 (CRSF), 25/26 (link2,
+#    the GPIO26 that C4 and hard stop 9 exist for), 13 (steering), 14 (ESC), 35 (Hall):
+sed -n '1,70p' w17-control-fw/lib/config/include/config/PinMap.hpp
+sed -n '1,70p' w17-soundlight-fw/lib/config/include/config/PinMap.hpp
 ```
 
 **Commands that must NOT be run during BG-01:** anything containing `pio run`, `-t upload`,
@@ -197,7 +203,8 @@ The ten hard stops (A2:766-780), each reachable from a named row (A2:786-797):
 4. Any GPIO with continuity to batt+ (S5r, MS11).
 5. No common ground between any two devices (S4r, G1–G14).
 6. Reversed polarity anywhere — XT60, UBEC, ESC power input, cap, diode band (§2 visual, W2–W4,
-   CP1/CP2, PW1/PW2, and for C1 **the photo plus the visual are the only evidence**).
+   CP1/CP2, PW1/PW2, and for cap **C1** (the 1000 µF, not the A2 row of the same name) **the photo
+   plus the visual are the only evidence**).
 7. A connector orientation you cannot positively identify — trace it; never "probably right".
 8. GPIO35 pull-up tied to 5 V instead of 3V3 (H1b).
 9. A wire present at GPIO26 (C4).
@@ -235,7 +242,7 @@ bench-gates/evidence/BG-01/<UTC-stamp>/
   photos/01_board1_top.jpg … photos/15_selector.jpg      # A2 §10 items 1-15
   photos/03a_esc_red_severed_preshrink.jpg               # A2 §10 item 3, BOTH shots
   photos/03b_esc_red_insulated.jpg
-  photos/14_c1_stripe.jpg                                # the only evidence stop 6 gets for C1
+  photos/14_c1_stripe.jpg                                # the only evidence stop 6 gets for cap C1
   notes_deviations.md      # every PASS-with-note and every NOT-ASSEMBLED block
   attestation.txt          # A2 §12 Part 2, owner-signed
 ```

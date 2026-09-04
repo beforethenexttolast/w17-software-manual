@@ -101,7 +101,12 @@ raised floors (soundlight #55)."** *Source question: `learning-manual/open_quest
    budget has real headroom — `valid()`'s model is a **true upper bound** at **180 mA**
    (`LightRenderer.hpp`:226 with `kNumPixels` 30) against a **900 mA** budget
    (`LightRenderer.hpp`:209), while the actual all-amber hazard draw is **≈104 mA**
-   (`LightRenderer.hpp`:215-216). **Brightness can rise substantially within budget** — but check
+   (`LightRenderer.hpp`:215-216). It is a true upper bound **for any palette whose pre-gamma
+   channel sum is ≤ 2×255; the 2-pixel rain-light white is the documented exception and scales
+   with the cap** (`LightRenderer.hpp`:219-225 — *"at 2 pixels it is ~7 mA over the model"*, and
+   `LightRenderer.hpp`:133 is what keeps `rainLight{6,2}` to two pixels).
+   **Brightness can rise substantially within budget, but not without limit — the compile-time
+   ceiling is `maxBrightness` ≤ 227** (see the derivation under PASS/FAIL) — and check
    the **UBEC headroom** before raising the cap (`w17-soundlight-fw/docs/SIMULATION.md`:49-53), and
    re-run the native suite, because the floors are `static_assert`ed and a careless edit fails the
    build rather than shipping something invisible.
@@ -194,7 +199,7 @@ The *numbers* are compile-time facts; the *verdict* is a human judgement. Both b
 | Tail vs brake | brake unmistakably brighter; the tail never reads as a stuck brake light | the tail competes with the brake bar |
 | Disarmed vs armed halo | disarmed reads **dimmer** than armed | they look the same |
 | Colour families | teal / amber / red never confusable across a room | any confusion ⇒ a safety-signal problem, not a taste problem |
-| Power, if the cap is raised | model stays a true upper bound and within **900 mA**; measured strip draw recorded; UBEC headroom checked | raising the cap without the headroom check |
+| Power, if the cap is raised | `maxBrightness` **≤ 227** (above that the build fails `valid()`); model stays a true upper bound within **900 mA** for any palette whose pre-gamma channel sum is ≤ 2×255 (`LightRenderer.hpp`:219-225; the 2-pixel rain-light white is the documented exception and scales with the cap); measured strip draw recorded; UBEC headroom checked | raising the cap without the headroom check |
 
 > **THRESHOLD MISSING — owner/bench decides:** *what "visible" means here.* No document sets a lux
 > level, a viewing distance, or a contrast ratio. `kMinVisibleDuty = 6` is a **floor the code
@@ -202,10 +207,30 @@ The *numbers* are compile-time facts; the *verdict* is a human judgement. Both b
 > criterion for the human question. The verdict is the owner's, on the owner's bench, in both
 > lighting conditions.
 >
-> **THRESHOLD MISSING — owner/bench decides:** *the maximum acceptable `maxBrightness`.* The
-> budget arithmetic permits a substantial rise (180 mA modelled vs 900 mA budgeted, ≈104 mA
-> actual), but the real constraint is the **UBEC rail headroom**, and **no current figure exists
-> for any other rail-A load** — see `bench-gates/tools/first_power_current_limits.md`, rows T1–T13.
+> **DERIVED, not a threshold — the compile-time ceiling is `maxBrightness` ≤ 227.** This is
+> arithmetic on the shipped constants, computable at a desk with no hardware, and it bounds the
+> owner's ruling from above. `valid()` requires
+> `((2 · 20 · renderedDuty(255, cap)) / 255) · kNumPixels ≤ 900` with `kNumPixels = 30`
+> (`LightRenderer.hpp`:11, :209, :226, :242) and `renderedDuty(ch, cap) = kGamma[ch·cap/255]`
+> over the γ = 2.2 LUT at `:90-102` and `:110-111`. Re-deriving that integer pipeline gives:
+>
+> | cap | modelled strip draw |
+> |---|---|
+> | 110 (shipped) | 180 mA |
+> | 150 | 360 mA |
+> | 180 | 540 mA |
+> | 200 | 690 mA |
+> | 220 | 840 mA |
+> | **227** | **900 mA — exactly the budget, the last value that passes** |
+> | 228 | 930 mA — `valid()` returns false and **the build fails** |
+>
+> So 227 is the hard ceiling; the **UBEC rail headroom** is the real one and is lower.
+>
+> **THRESHOLD MISSING — owner/bench decides:** *the maximum acceptable `maxBrightness`,*
+> somewhere in **1 … 227**. The budget arithmetic permits a substantial rise (180 mA modelled vs
+> 900 mA budgeted, ≈104 mA actual), but the real constraint is the **UBEC rail headroom**, and
+> **no current figure exists for any other rail-A load** — see
+> `bench-gates/tools/first_power_current_limits.md`, rows T1–T13.
 
 ## Stop conditions
 

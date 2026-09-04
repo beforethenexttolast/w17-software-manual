@@ -117,8 +117,10 @@ including the phases BG-03 deliberately does not cover: Phase 0, Phase 3b, Phase
     the motor at full throttle** for EMI double-counts. **OD-11's full-throttle half**: log
     `isrEntries()` / `lastWindowEntries()` / `guardFaults()` over a full-throttle pass, then with
     the pull-up lifted; expect **≲ 9 entries / 100 ms** in normal running against the guard's
-    **180 / 100 ms** bound; a window that ran more than 10× long is judged only against the
-    elapsed-scaled allowance (a 2 s stall: **36 000** entries). Use `npm run demo:low-battery` on
+    **180 / 100 ms** bound; a window that ran more than 10× long is judged only when it carries
+    **≥ 10×** the elapsed-scaled allowance (a 2 s stall: **36 000** entries) — the 10× factor is
+    the source's, `D8_BENCH_BRINGUP.md`:254-256, and dropping it makes the rule stricter than the
+    firmware and inconsistent with the 36 000 quoted beside it. Use `npm run demo:low-battery` on
     the ground station to confirm the HUD's warning UI **before** trusting a real low reading, so a
     HUD bug and a hardware defect are never diagnosed as the same thing (D8:238-262).
 12. **Phase 9 — link2 → board #2.** Flash soundlight; wire GPIO25 → GPIO16, **common ground**,
