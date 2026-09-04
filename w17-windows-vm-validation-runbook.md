@@ -648,7 +648,7 @@ that directory to `PATH` or call it by full path). The `-T fusion` flag selects 
 host type.
 
 ```sh
-VMX=~/Virtual\ Machines.localized/w17-giftee-pc.vmwarevm/w17-giftee-pc.vmx   # path is whatever Fusion actually created — confirm with `vmrun -T fusion list` while it's running once
+VMX="$HOME/Virtual Machines.localized/w17-giftee-pc.vmwarevm/w17-giftee-pc.vmx"   # KEEP THE QUOTES — the default path contains a space. Path is whatever Fusion actually created; confirm with `vmrun -T fusion list` while it's running once
 
 # start headless (no Fusion window needs to be open)
 vmrun -T fusion start "$VMX" nogui
@@ -689,7 +689,19 @@ physically present) to know when to act. Through `run-all.ps1` the equivalent sw
 `-IncludeHidTransition` and `-HidTransitionNonInteractive`.
 
 `run-all.ps1` will refuse to start if the guest has no PowerShell 7 (§1.6) — that is the
-intended behaviour, not a bug; it names the `winget` line in its own error.
+intended behaviour, not a bug. **Its error text recommends `winget install --id
+Microsoft.PowerShell`; do NOT follow it.** winget 1.11+ installs the MSIX, whose `pwsh` is a
+per-user execution alias that a non-interactive `ssh … 'pwsh -File …'` cannot resolve, so you
+would trip the same error again — §1.6 has the argument. Install
+`PowerShell-7.6.5-win-arm64.msi` instead. Correcting that message is a follow-up in
+`w17-ground-station`, which this branch is read-only on.
+
+**`run-all.ps1` has to be ON the guest first**, and nothing in §1 puts it there: §1.0 step 11
+carries the key, the MSI and `guest-bootstrap.ps1`, and §2.3 below covers the GS installer and
+the mapper bundle. `scripts/vm/host-vm.sh stage` copies
+`w17-ground-station/scripts/windows-validation/` to `C:\w17\scripts\`; `check` and `suite`
+call it themselves, so the only way to hit "file not found" is to run the raw `ssh` line above
+before ever running either verb.
 
 ### 2.3 Getting the build onto the guest
 
@@ -717,7 +729,15 @@ BUILT artifact. Getting that artifact onto the guest is either:
   needed, verify what actually landed inside
   `resources\app.asar.unpacked\node_modules\serialport\` on the guest before trusting it.
 
+- **The validation suite itself** — `w17-ground-station/scripts/windows-validation/`, which is
+  where `run-all.ps1` and the seven numbered scripts live. It is not an *artifact*, but it is
+  the third thing that has to reach the guest and nothing in §1 carries it:
+  `scripts/vm/host-vm.sh stage` does, into `C:\w17\scripts\windows-validation\`. `check`
+  and `suite` call `stage` first, so in normal use it happens by itself; run it by hand only
+  when driving the numbered scripts directly over `ssh`.
+
 ```sh
+scripts/vm/host-vm.sh stage                       # the suite itself
 scp dist/W17*Setup*.exe w17vm:'C:\w17\dist\'
 scp -r <mapper build dir> w17vm:'C:\w17\mapper\'
 ```
@@ -734,35 +754,56 @@ the two guest-side setup steps that bite silently (the `authorized_keys` split, 
 
 | script | runs on | what it does |
 |---|---|---|
-| `scripts/vm/host-vm.sh` | the **Mac** | `vmrun` + `ssh`/`scp` wrapper: `doctor start stop status snapshot revert snapshots screenshot ip ssh push pull bootstrap check suite`. Every verb is idempotent; `--dry-run` prints the exact commands and executes none. |
-| `scripts/vm/guest-bootstrap.ps1` | the **guest**, elevated | OpenSSH Server + service, `authorized_keys` in the correct file with the correct ACL, ONE scoped firewall rule (Private profile, your NAT subnet only), PowerShell 7 from the ARM64 MSI. Idempotent; `-DryRun` reports without changing. Runs under Windows PowerShell 5.1 on purpose — it is what installs pwsh 7. |
-| `scripts/vm/guest-check.ps1` | the **guest** | Read-only readiness verdict + JSON evidence: Windows version/arch, pwsh ≥ 7.4 **and where it resolved from**, execution policy, sshd + the scope of any TCP/22 rule, VMware Tools, COM ports with VID:PID (FTDI flagged), DS4 HID, and `netsh wlan show drivers` parsed for hosted-network / Wi-Fi Direct / radio types. |
+| `scripts/vm/host-vm.sh` | the **Mac** | `vmrun` + `ssh`/`scp` wrapper: `doctor start stop status snapshot revert snapshots screenshot ip ssh push pull stage bootstrap check suite`. Every verb is idempotent; `--dry-run` prints the exact commands and executes none. Every `ssh`/`scp` runs `BatchMode=yes` + `ConnectTimeout=10` so the password prompt §1.5 predicts fails fast instead of hanging an unattended run; `--interactive` drops BatchMode for the one deliberate `ssh -t` case. `--session STAMP` pins the evidence session (§4.1). |
+| `scripts/vm/guest-bootstrap.ps1` | the **guest**, elevated | OpenSSH Server + service; `authorized_keys` in the file **the ssh login account** (`-SshUser`) will actually be read from, with the correct ACL; ONE scoped firewall rule (Private profile, your NAT subnet only, validated as a real RFC1918 range) **and Windows' own unscoped inbox rule disabled**; PowerShell 7 from the ARM64 MSI. Idempotent; `-DryRun` reports without changing. Exits 0 OK / 1 failed / 2 not elevated / 3 not Windows / **4 configured but a posture action is outstanding**. Runs under Windows PowerShell 5.1 on purpose — it is what installs pwsh 7. |
+| `scripts/vm/guest-check.ps1` | the **guest** | Read-only readiness verdict + JSON evidence: Windows version/arch, pwsh ≥ 7.4 **and where it resolved from**, execution policy, sshd + **a GATING check on the scope of every enabled rule reaching TCP/22**, VMware Tools, COM ports with VID:PID (FTDI flagged), DS4 HID, and `netsh wlan show drivers` parsed for hosted-network / Wi-Fi Direct / radio types. |
 
 Three properties worth knowing before you rely on them:
 
 - **`doctor` needs nothing installed.** It is the one thing runnable on this Mac today, and it
   prints one `BLOCKED` line per outstanding owner action (§1.0). Run it first, and again after
   each step.
-- **`suite` never passes `-IncludeHidTransition`.** Step 7 needs a human at the DS4 cable and
-  the car unpowered (§3.1); a wrapper must not be able to start it by accident. Run that one
-  deliberately, by hand, over `ssh -t`.
+- **`suite` REFUSES `-IncludeHidTransition`** (and `-HidTransitionNonInteractive`): it exits 2
+  with the reason rather than passing them through. Step 7 needs a human at the DS4 cable and
+  the car unpowered / RX unbound (§3.1), so a wrapper must not be able to start it by accident.
+  Run that one deliberately, by hand, over `ssh -t` (`host-vm.sh --interactive ssh '…'`). This
+  is enforced in the code, not only stated here — an earlier version printed the denial three
+  lines above the command that did it.
+- **`stage` is what puts the suite on the guest.** Nothing in §1 does (§2.2, §2.3). `check` and
+  `suite` call it first, so the gap only bites someone driving the numbered scripts by raw
+  `ssh`.
+- **`check` opens the evidence session.** It writes `evidence/.current-session`, and `suite`
+  and `screenshot` reuse that stamp, so one session is one directory (§4.1 rule 1). Before,
+  each verb minted its own stamp and scattered a session across three.
 - **`guest-check.ps1` is a pre-flight, not a second `00-inventory.ps1`.** It runs *before* the
   suite is staged, so a missing `pwsh` or a passthrough that did not land costs one round trip
   instead of eight failing scripts. `00-inventory.ps1` remains the suite's own survey, in the
   suite's own result envelope.
 
-**Executed by this session, on macOS, under PowerShell 7.7.0-preview.4:** `bash -n` over
-`host-vm.sh`; `Parser::ParseFile` over both `.ps1` files (0 errors); `guest-check.ps1
--SelfTest` (17 assertions over the `netsh` parser, the band classifier, the yes/no tristate
-and the VID:PID extractor — **PASSED**, and it caught a real `Set-StrictMode` defect where a
-single-token radio-type list returned a bare string whose `.Count` threw); `host-vm.sh doctor`
-for real against this Mac; and every mutating verb under `--dry-run`.
+**Executed on macOS, under PowerShell 7.7.0-preview.4 (twice: the authoring pass and a
+subsequent adversarial review + fix pass, both 2026-09-05):** `bash -n` over `host-vm.sh`;
+`Parser::ParseFile` over both `.ps1` files (0 errors); `guest-check.ps1 -SelfTest` — now **26
+assertions, all PASSING**, over the `netsh` parser, the band classifier, the yes/no tristate,
+the VID:PID extractor and the StrictMode counting helper; `host-vm.sh doctor` for real against
+this Mac; every verb under `--dry-run`, including a VMX path containing spaces and arguments
+containing spaces; `guest-bootstrap.ps1`'s `-NatSubnet` validation across ten inputs; and the
+workspace link checker both ways.
+
+The self-test grew because running the code found two more instances of the same
+`Set-StrictMode` `.Count` trap the first pass fixed once — and in the states that matter: with
+**zero** devices attached the enumeration *threw* and the two passthrough checks silently
+vanished from the output, and with **exactly one** device it reported the hashtable's key count
+("7 COM device(s)"). Note that the obvious repair, `@($x)`, fixes only the second: `@($null)`
+has `.Count` 1, so it would report one device when none are attached. That is why the fix is a
+guarded helper with its own 0-device and 1-device test cases.
 
 **NOT executed, and nothing here claims otherwise:** every Windows-only cmdlet —
-`Add-WindowsCapability`, `Get-Service sshd`, `New-NetFirewallRule`, `Get-CimInstance
-Win32_PnPEntity`, `netsh`, `icacls`, `msiexec` — and every `vmrun` call. A parse check does not
-run code; the defect above is proof that only running it finds that class of bug, and the
-Windows half has not been run.
+`Add-WindowsCapability`, `Get-Service sshd`, `New-NetFirewallRule`, `Disable-NetFirewallRule`,
+`Get-LocalGroupMember`, `Get-CimInstance Win32_PnPEntity`, `netsh`, `icacls`, `msiexec` — and
+every `vmrun`, `ssh` and `scp` call against a guest. `shellcheck` is not installed on this Mac,
+so `host-vm.sh` has had `bash -n` and dry-runs only. A parse check does not run code; the
+defects above are proof that only running it finds that class of bug, and the Windows half has
+not been run.
 
 ---
 
@@ -773,19 +814,21 @@ A full sweep, in order (matches `run-all.ps1`'s own sequencing and skip logic �
 
 | # | command (via `ssh w17vm`) | what it needs from you | evidence it produces |
 |---|---|---|---|
-| 0 | `vmrun -T fusion revertToSnapshot "$VMX" clean-giftee-pc && vmrun -T fusion start "$VMX" nogui` | the VMX path | a known-clean starting state |
+| 0 | `scripts/vm/host-vm.sh revert clean-giftee-pc && scripts/vm/host-vm.sh start` | the VMX path (`W17_VMX`, quoted) | a known-clean starting state. Use the wrapper, not raw `vmrun`: `revert` powers the VM off first, and `start` is a no-op when it is already running — a raw `revertToSnapshot && start` chain fails with *"already powered on"* whenever the snapshot was taken live |
 | 1 | `pwsh -File 00-inventory.ps1` | nothing | host survey JSON — confirm the Wi-Fi adapter, COM port, and DS4 all show up as expected BEFORE spending time on anything else |
 | 2 | `pwsh -File 10-install-gs.ps1 -InstallerPath ...` | the installer, scp'd on first (§2.3) | install verified. **The meaning of a FAIL here has flipped, and this row used to say the opposite:** `boundaries-1` (and `boundaries-6`) are **CLOSED WITH EVIDENCE** on GS `main` — CI fetches mediamtx before packaging and `scripts/assert-packaged.js` gates it (`w17-ground-station/scripts/windows-validation/README.md:47`; `W17_CURRENT_STATE.md` §1, GS `b632409`, first green `windows-latest` run). A miss now is a **regression**, or something NSIS drops that CI's `dist\win-unpacked` assertion cannot see — not a known defect reproducing |
 | 3 | `pwsh -File 20-mapper-stage.ps1 -MapperExe ... -Profile ...` | the mapper binary + profile, scp'd | racePrep staged into settings.json; FAILS if the profile still has `REPLACE-WITH-` placeholders (MAP-5) |
-| 4 | `pwsh -File 30-hotspot.ps1 -InstallDir ... -Password ...` | the real hotspot password (never invented) | hotspot start/verify/teardown through the app's own code; clean FAIL if no AP-capable adapter/driver landed (§1.9); **the adapter is not bought yet — see §0** |
-| 5 | `pwsh -File 40-mdns-udp.ps1 -InstallDir ...` | nothing new | firewall state, a real mDNS query, a UDP 5601 replay-telemetry receive |
+| 4 | `pwsh -File 30-hotspot.ps1 -InstallDir ... -Password ...` — **on a real x64 Windows PC, NOT on this VM** (§1.9) | the real hotspot password (never invented), the bought adapter, and an x64 host | hotspot start/verify/teardown through the app's own code. Run here it reports a clean "no usable hotspot backend" FAIL, because no ARM64 driver exists for any candidate chipset — that is the script working. **The adapter is not bought yet — see §0** |
+| 5 | `pwsh -File 40-mdns-udp.ps1 -InstallDir ...` | nothing new | firewall state, a real mDNS query, a UDP 5601 replay-telemetry receive. Its **hotspot-interface half** belongs with row 4 on the x64 PC (§1.9); the rest runs here |
 | 6 | `pwsh -File 50-race-day.ps1 -InstallDir ... -UserDataDir ...` | step 3 to have run; **car unpowered** (§3.1's MAP-8 note) | reproduces MAP-1 (mapper panic) if it still bites, plus MAP-8 port-reachability evidence while the mapper is briefly alive. MAP-2/SYN-2 reproduce **every** run and are recorded in `data.expectedFindingsReproduced` rather than the exit code — so a **FAIL here means something NEW**, not the finding we already know about |
 | 7 | **⚠ read §3.1 FIRST** — (human present) `pwsh -File 60-hid-transition.ps1 -MapperExe ...` via `ssh -t`, mapper started by hand first | a human at the DS4 cable, **and the car unpowered / RX unbound** | Windows HID-transition + mapper-**process** continuity; MAP-6 code citation. **Not R15 evidence — R15 stays NO-GO** |
 | — | `vmrun -T fusion stop "$VMX" soft` | | |
 
-Or, for everything automatable in one call: `run-all.ps1` with whichever parameters are
-available (see its own `.DESCRIPTION` — it skips, never fails, a step it lacks parameters
-for). Step 7 is opt-in there too: pass `-IncludeHidTransition`.
+Or, for everything automatable in one call: `scripts/vm/host-vm.sh suite <params…>`, which runs
+`run-all.ps1` with whichever parameters are available (see its own `.DESCRIPTION` — it skips,
+never fails, a step it lacks parameters for). **`suite` refuses `-IncludeHidTransition` and
+`-HidTransitionNonInteractive` outright**; step 7 is opt-in only when `run-all.ps1` is invoked
+by hand, deliberately, with §3.1 read first.
 
 ### 3.1 Step 7 safety precondition — the one place a live TX is involved
 
@@ -846,8 +889,11 @@ network — that discipline does not depend on which premise is current.
 - Whether race day's mapper step crashes against the REAL committed profile shape
   (`MAP-1`), and — structurally, every run — that the RF link is never started by race day
   regardless (`MAP-2`).
-- Whether the mapper's gRPC (`:10000`) and grpc-web (`:3000`) ports are reachable on all
-  interfaces while the mapper is briefly alive (`MAP-8`).
+- Whether the mapper's gRPC (`:10000`) and grpc-web (`:3000`) ports are reachable **from
+  off-host** while the mapper is briefly alive (`MAP-8`). Since mapper `5d4e12d` (OD-8a) both
+  listeners default to **`127.0.0.1`**, so the **expected finding is "not reachable"**; a
+  reachable result is a regression or an unexpected `-bind-all` (§3.1). This bullet used to say
+  "on all interfaces", which is the stale premise §3.1 exists to retract.
 - Windows-visible HID continuity across a physical DS4 unplug/replug, and whether the
   mapper PROCESS survives it — evidence toward `MAP-6`. **Not R15.**
 
@@ -882,28 +928,44 @@ anything captured by hand goes in the same place, by the same rules.
 
 ```
 evidence/
+  .current-session                 # the open session's stamp; host-vm.sh check writes it
   <UTC stamp>/                     # 20260905T084500Z — one directory per SESSION
     guest-check.json               # host-vm.sh check   — readiness BEFORE anything is staged
-    results/
-      <stamp>.json                 # run-all.ps1's combined table
-      <stamp>/00-inventory.json    # each numbered script's own envelope
-      <stamp>/10-install-gs.json
+    guest-bootstrap.json           # pulled by check when present — the record of the firewall
+                                   #   scope, the authorized_keys ACL and the pwsh install
+    results/                       # host-vm.sh suite — THIS run only (the guest's ResultsRoot
+                                   #   is C:\w17\results\<UTC stamp>, one per session)
+      <run stamp>.json             # run-all.ps1's combined table
+      <run stamp>/00-inventory.json  # each numbered script's own envelope
+      <run stamp>/10-install-gs.json
       ...
     screen-<UTC stamp>.png         # host-vm.sh screenshot — one per thing a human must eyeball
-    NOTES.md                       # written by hand; see the four required lines below
+    NOTES.md                       # scaffolded by check; the four lines below are yours
 ```
+
+The two stamps are different clocks and that is deliberate: the **outer** one is the Mac-side
+session (UTC, `20260905T084500Z`), the **inner** one is `run-all.ps1`'s own
+(`yyyyMMdd-HHmmss`, guest local). One outer directory therefore holds exactly one sweep's
+results, and `guest-check.json` beside them.
 
 **Rules, all four of which exist because their absence has cost a re-run somewhere:**
 
 1. **One directory per session, named for the UTC instant it started.** Never overwrite a
-   previous one; a re-run is a new directory. `host-vm.sh` does this by construction.
+   previous one; a re-run is a new directory. `host-vm.sh check` **opens** the session and
+   records its stamp in `evidence/.current-session`; `suite` and `screenshot` reuse it, and
+   `--session STAMP` pins it by hand. (Each of the three used to mint its own stamp, which put
+   one session in three directories and quietly defeated rule 2.)
 2. **`guest-check.json` is captured first, before anything is installed or staged.** It is the
    only record of what the guest looked like *un*modified — including whether passthrough
-   landed. A results directory without it cannot be interpreted later.
+   landed. A results directory without it cannot be interpreted later. So **run `check`
+   before `suite`**: that ordering is what makes rule 1's session pointer exist. `check` also
+   pulls `guest-bootstrap.json` if the guest has one — that file, not the check output, is the
+   record of the firewall scope and the ACL.
 3. **Raw output is kept, not just the parse.** `guest-check.ps1` keeps `data.wlan.raw`, and
    `00-inventory.ps1` keeps its own `netsh` text, precisely because the locale and format of
    that output are `[win-TBD]`: if the parser is wrong, the evidence must still be readable.
-4. **`NOTES.md` carries four lines, and a session is not finished without them:** the snapshot
+4. **`NOTES.md` carries four lines, and a session is not finished without them** (`check`
+   scaffolds the headings, it cannot fill them in): the snapshot
    the session started from (`clean-giftee-pc`, or which other); which artifacts were staged
    and **from which CI run** (§2.3); which USB devices were passed through; and which steps
    were **skipped**, with why. Steps skipped for a missing parameter are invisible in
@@ -928,9 +990,10 @@ FIRST_ACTIVE unlock item** (restated because these are the rules most likely to 
 from a green run here) — those stay gated on real hardware and on arbiter code that is
 still parked, independent of how clean a VM run looks.
 
-A green sweep also does not mean the hotspot path is proven: until the AP-capable 5 GHz
-adapter in §0 is bought and shown to have an ARM64 driver, `30` and `40`'s hotspot half
-are SKIPPED-or-cleanly-FAILING, not passing.
+A green sweep also says **nothing at all** about the hotspot path: `30` and `40`'s hotspot half
+are **not run on this VM** (§1.9 — no ARM64 driver exists for any candidate chipset). They are
+an **x64 task**, on a separate machine, gated on the adapter purchase. A green VM sweep never
+speaks to them, and must not be reported as if it did.
 
 ### 5.1 One experiment worth running while the VM exists
 
