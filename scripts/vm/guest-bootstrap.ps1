@@ -372,8 +372,11 @@ try {
     # creates. Nothing used to disable it -- the step was tagged 'skipped',
     # which reads as "nothing to do" and never touched the exit code, and 1.0
     # step 14 told the owner INFO lines were expected to be unmet. So: disable
-    # it, AFTER the scoped rule above exists, so this can never lock the Mac
-    # out of the NAT subnet.
+    # it, AFTER the scoped rule above exists, so this cannot lock the Mac out
+    # of the NAT subnet PROVIDED -NatSubnet names the subnet the Mac actually
+    # reaches this guest on -- a valid-but-wrong /24 still locks ssh out until
+    # someone returns to the guest console (runbook 1.5). That is recoverable
+    # (step 12 is a console step) but a wasted trip; it is not "can never".
     $inbox = @(Get-NetFirewallRule -DisplayGroup 'OpenSSH Server' -ErrorAction SilentlyContinue |
         Where-Object { $_.Enabled -eq 'True' })
     $inboxNames = ($inbox | ForEach-Object { $_.Name }) -join ', '

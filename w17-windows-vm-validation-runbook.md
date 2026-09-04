@@ -279,7 +279,7 @@ what actually lands on the Mac's SSD:
 | Guest after install + Windows Update | ~30–40 | INFERRED from Windows 11's 64 GB volume requirement and typical post-update footprint. **Not measured — no VM exists.** |
 | pwsh 7 + GS install + mapper bundle + results | ~2 | MSI 103 MiB (OBSERVED), NSIS + mapper bundle small |
 | One `clean-giftee-pc` snapshot's delta | ~5–15 | INFERRED. Fusion snapshots grow with post-snapshot writes; a full validation sweep writes a lot. |
-| **Total to plan against** | **~46–65 → plan 70** | the rows above sum to 45.5–65; rounded up to a round 70 for headroom, which is `host-vm.sh`'s `MIN_FREE_GB` |
+| **Total to plan against** | **~45–65 → plan 70** | the rows above sum to 45–65 (1.5 + 6.5 + 30 + 2 + 5 = 45.0 low; 1.5 + 6.5 + 40 + 2 + 15 = 65.0 high); rounded up to a round 70 for headroom, which is `host-vm.sh`'s `MIN_FREE_GB` |
 
 **OBSERVED 2026-09-05: 20.3 GB free of a 245.1 GB container** (`diskutil info /`, decimal GB;
 `df -h /` shows `19Gi`, `df -g /` shows `18` — same volume, GiB instead of GB, §1.0.1 has the
