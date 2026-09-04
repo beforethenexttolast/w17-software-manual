@@ -51,14 +51,17 @@
 #   stage                  copy w17-ground-station/scripts/windows-validation/
 #                          to the guest. NOTHING else puts it there, and every
 #                          `suite` / runbook §3 command runs run-all.ps1 from
-#                          it. `check` and `suite` call this first.
+#                          it. `suite` calls it before running; `check` calls
+#                          it AFTER capturing guest-check.json.
 #   bootstrap KEY SUBNET [MSI]
 #                          copy guest-bootstrap.ps1 + the public key (and, if
 #                          given, the pwsh MSI) to the guest and print the
 #                          ELEVATED command to run there
-#   check [OUTDIR]         stage, then copy + run guest-check.ps1 and pull its
-#                          JSON (plus guest-bootstrap.json, if present) back.
-#                          OPENS the evidence session (§4.1).
+#   check [OUTDIR]         copy + run guest-check.ps1 and pull its JSON (plus
+#                          guest-bootstrap.json, if present) back, THEN stage.
+#                          OPENS the evidence session (§4.1). Nothing but
+#                          guest-check.ps1 itself reaches the guest before its
+#                          state is captured.
 #   suite [EXTRA...]       run-all.ps1 for the automatable steps only, into
 #                          this session's own guest results root, then pull
 #                          that run's results into the session directory.
@@ -136,7 +139,14 @@ die()  { printf 'host-vm: %s\n' "$*" >&2; exit 2; }
 info() { printf '  %s\n' "$*"; }
 ok()   { printf 'OK      %s\n' "$*"; }
 bad()  { printf 'BLOCKED %s\n' "$*"; }
-warn() { printf 'WARN    %s\n' "$*"; }
+# STDERR, deliberately. warn() is called from session_stamp(), which callers
+# read through `$(...)` -- on stdout the warning text became PART OF the
+# session stamp, so `suite` with no open session built a guest ResultsRoot
+# containing spaces and an embedded newline and sent it through a cmd.exe
+# login shell. A diagnostic must never be able to contaminate a value.
+# (info/ok/bad stay on stdout: they are this script's report, and no function
+# that calls them is read through a command substitution -- keep it that way.)
+warn() { printf 'WARN    %s\n' "$*" >&2; }
 
 # Non-interactive by construction. The autonomous-drive design (runbook §2) is
 # `ssh` with nobody at the console, and the exact failure §1.5 predicts -- a
@@ -540,12 +550,23 @@ cmd_bootstrap() {
   echo '            4 configured, but a posture action is OUTSTANDING (read it).'
 }
 
+# check -- capture the guest's state FIRST, then stage.
+#
+# ORDER IS LOAD-BEARING (runbook §4.1 rule 2, §2.3, §5): guest-check.json is the
+# only record of what the guest looked like UNMODIFIED, so nothing this wrapper
+# installs or stages may precede it. `stage` used to run at the TOP of this
+# function, which made three sentences in the runbook false. It runs at the end
+# instead -- `suite` needs the suite staged, `check` does not, and the session
+# still ends with both the capture and the staging done.
+#
+# The one thing that does precede the capture is guest-check.ps1 itself, copied
+# to C:\w17\scripts\vm\. It has to be: it is the measuring instrument. It
+# installs nothing and writes only its own JSON.
 cmd_check() {
   local stamp out
   stamp="$(session_open)"
   out="${1:-$EVIDENCE_ROOT/$stamp}"
   run mkdir -p "$out"
-  cmd_stage
   ssh_ "cmd /c mkdir \"$GUEST_ROOT\\scripts\\vm\" 2>nul & exit 0"
   scp_ "$SCRIPT_DIR/guest-check.ps1" "$SSH_HOST:$GUEST_ROOT\\scripts\\vm\\"
   ssh_ "pwsh -NoProfile -File $GUEST_ROOT\\scripts\\vm\\guest-check.ps1 -EvidencePath $GUEST_ROOT\\evidence\\guest-check.json"
@@ -557,6 +578,8 @@ cmd_check() {
     || info "no guest-bootstrap.json on the guest yet (runbook 1.0 step 12 has not run there) -- not fatal"
   notes_scaffold "$out" "$stamp"
   info "$out/guest-check.json"
+  # Only now: the guest's un-modified state is already captured and pulled.
+  cmd_stage
 }
 
 # ---------------------------------------------------------------------------
