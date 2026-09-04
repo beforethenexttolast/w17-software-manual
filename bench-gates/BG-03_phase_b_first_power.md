@@ -39,7 +39,8 @@ with the checkbox detail in `w17-control-fw/docs/D8_BENCH_BRINGUP.md` (cited as 
 - A way to spin the rear axle by hand (PB:36).
 - A bench PSU or the battery via the XT60 split — see
   `bench-gates/tools/first_power_current_limits.md` before choosing a limit, and read its
-  finding: **the project documents no expected current for any 5 V load.**
+  finding: **the project documents no expected current for any car-side 5 V load** (the
+  ground-side GCS box loads do have cited figures — `w17-gcs-box-guide.md:135-139`).
 - Car on a stand. Battery pullable. Observer.
 
 ## Topology (ASCII)
@@ -152,6 +153,8 @@ passes **completely**; reconnect actuators **one at a time**:
 cd /Users/vitaliykhomenko/Documents/projects
 
 # 0. GATE CHECK, every session, before anything is plugged in.
+#    STOP if any line says "Phase B stays BLOCKED", or no dated "PHASE-B-OPEN" line
+#    appears: the rest of this card is not runnable.
 grep -n "A2 .*NOT-EXECUTED\|Phase B .*BLOCKED\|PHASE-B-OPEN" CURRENT_STATUS.md | head
 
 # 1. Evidence folder + environment stamp.
@@ -294,8 +297,10 @@ bench-gates/evidence/BG-03/<UTC-stamp>/
   frame around `saved` is expected, a failsafe blip is the *safe* direction. **Nothing has measured
   this** — D8:89-97 is the only place the observation gets made.
 - **The full-throttle Hall/EMI half of OD-11 is D8 Phase 8**, `[bench-TBD]`, and needs motor power.
-- **No current figure exists for any 5 V load in this project** — see
+- **No current figure exists for any car-side 5 V load in this project** — see
   `bench-gates/tools/first_power_current_limits.md`, rows T1–T13, all **THRESHOLD MISSING**.
+  (Ground-side 5 V loads are documented — `w17-gcs-box-guide.md:135-139`; firmware-side loads
+  still are not.)
 - The **ESC's own neutral/range calibration** is its manual's business, not the firmware's
   (D8:215-216).
 

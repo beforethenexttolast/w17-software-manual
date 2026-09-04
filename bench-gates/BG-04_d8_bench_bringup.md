@@ -145,6 +145,8 @@ including the phases BG-03 deliberately does not cover: Phase 0, Phase 3b, Phase
 cd /Users/vitaliykhomenko/Documents/projects
 
 # Phase -1, and again before Phase 1 and Phase 3 (D8:8-10):
+#   STOP if any line says "Phase B stays BLOCKED", or no dated "PHASE-B-OPEN" line
+#   appears: the rest of this card is not runnable.
 grep -n "A2 .*NOT-EXECUTED\|Phase B .*BLOCKED\|PHASE-B-OPEN" CURRENT_STATUS.md | head
 
 bench-gates/tools/bench_capture.sh BG-04 --no-serial --note "D8 bench bring-up, phase <N>"

@@ -14,7 +14,7 @@ been observed leaving the mapper."** *No runbook owns it today; this card is tha
 >
 > T1's PC half is the one nothing has ever observed. It is **un-gated by A2/Phase B, but a live-TX
 > bench procedure under `w17-windows-vm-validation-runbook.md`:370-397: car UNPOWERED or RP1
-> UNBOUND, no bound RX powered in range, attended, discharges nothing (RESIDUAL A); it requires
+> UNBOUND, no bound RX powered in range, attended, discharges nothing (RESIDUAL A); requires
 > explicit owner authorization like every other gate.** The ground-track worker owns the mapper's
 > own behaviour; this card owns the **wire-level proof** and the tool that produces it.
 
@@ -35,7 +35,7 @@ every other gate.**
     transmitter, not about the COM port: on gamepad loss the mapper *"still transmits at full
     rate … fail-to-neutral, not fail-silent, so the firmware's radio-loss failsafe still does not
     fire"*, with switch channels latching downstream
-    (`w17-windows-vm-validation-runbook.md`:393-397, `CURRENT_STATUS.md`:1373-1376).
+    (`w17-windows-vm-validation-runbook.md`:393-397, `CURRENT_STATUS.md`:1380-1385).
 0c. **Attended.** Powering the TX module is powering hardware, and the workspace `CLAUDE.md`
     forbids powering hardware in an unattended session. Same rule as T2's observer.
 0d. **This discharges nothing on the FIRST_ACTIVE ladder** — it is a bench procedure under
@@ -279,7 +279,7 @@ bench-gates/evidence/BG-06/<UTC-stamp>/
   (`closeout/vision-alignment-2026-09-04.md`:266) becomes a dated observation with a byte capture
   behind it — **T1 alone does that**, and T1 is **un-gated by A2/Phase B, but a live-TX bench
   procedure under `w17-windows-vm-validation-runbook.md`:370-397: car UNPOWERED or RP1 UNBOUND, no
-  bound RX powered in range, attended, discharges nothing (RESIDUAL A); it requires explicit owner
+  bound RX powered in range, attended, discharges nothing (RESIDUAL A); requires explicit owner
   authorization like every other gate.**
 - **T2 PASS** is the frame-level evidence for **Phase B B1.1** and **D8 Phase 2**, and it de-risks
   every later row that assumes "the link works".

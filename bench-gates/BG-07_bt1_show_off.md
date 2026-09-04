@@ -191,6 +191,18 @@ xtensa-esp32-elf-nm -C w17-control-fw/.pio/build/esp32dev_btshowoff/firmware.elf
 > acceptable 3.3 V draw with BT active*. BT1 lists all four as things to **observe and record**;
 > it fixes a number for **none** of them (BT1:54-68). The first run is what sets them, and the
 > owner rules on whether each is acceptable. Do not import a number from elsewhere.
+>
+> **What to expect (not a threshold — a planning envelope, non-canonical, do not treat as a
+> standard):** `_handoff/2026-08-16_bt_showoff_design_draft.md`:296-299 estimates Bluedroid
+> Classic BT at **≈140 KB of heap** (≈70 KB base reservation + ≈70 KB on stack start), leaving
+> **≈150 KB free** worst-case on a WROOM-32's 520 KB SRAM; and `:119` carries forward the CRSF
+> failsafe's own **same 500 ms staleness timeout, ≈540 ms worst-case detection including tick
+> quantization** as the BT-mode disconnect path, since it is the identical `FailsafeStateMachine`
+> instance. The draft itself says at `:283-284` these are *"planning envelopes from cited
+> sources, not measurements of this firmware — the bench gate (§9) owns the real numbers,"* and
+> `_handoff/README.md` marks the whole folder non-canonical. This row's own THRESHOLD MISSING
+> claim stands unchanged; the envelope is only a sanity check for what BG-07's first run should
+> land near.
 
 ## Stop conditions
 

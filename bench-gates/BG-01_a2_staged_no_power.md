@@ -70,7 +70,7 @@ and both then become hard preconditions later.
    camera, WiFi, ESP32#1, ESP32#2,  |  steering DS3235SG, MG90S x3, blower
    RP1, WS2812, MAX98357A, Hall VCC |
                                     |
-   27k/10k divider on batt+ -> GPIO34 (S1; C3 100nF at the PIN end, fitted at S4)
+   27k/10k divider on batt+ -> GPIO34 (S1; cap C3 100nF at the PIN end, fitted at S4)
    A3144 Hall -> GPIO35, 10k pull-up to 3V3 AT THE ESP32 #1 END (S2)
    link2: GPIO25 (#1) -> GPIO16 (#2).  GPIO26 CARRIES NO WIRE (S3 / stop 9)
    CRSF:  RP1 TX -> GPIO16, GPIO17 -> RP1 RX (S4)
@@ -92,12 +92,13 @@ and both then become hard preconditions later.
    yet** — that is the whole reason S1 sits here.
 4. **S2 — Hall.** Sensor lead + the **board-end** 10 kΩ pull-up GPIO35 → 3V3 (A2:275-280). Run
    **H1, H1b, H2, H3, H4, H5**. H5 records populated *or* not populated; blank is not a pass.
-5. **S3 — link2.** Run **C3** and **C4**. C4 is falsifiable: a beep at GPIO26 means a wire exists
-   that must not (A2:300-306, stop 9).
+5. **S3 — link2.** Run **row C3** and **row C4** (A2 continuity rows — not cap C3 (100 nF, step
+   6) or cap C4, `w17-pdb-build-and-connector-guide.md`:119-122). Row C4 is falsifiable: a beep at
+   GPIO26 means a wire exists that must not (A2:300-306, stop 9).
 6. **S4 — CRSF pair and each 3-pin actuator lead, one lead at a time.** Two passes per lead:
    continuity **plug seated**, isolation **board unseated** (A2:310-311). Run **rows C1, C2, C5–C11,
    C10b, K1–K4, PD1** (row IDs — not the 1000 µF capacitor, which this card also calls C1; see
-   step 11). Fit **C3 (100 nF) at the GPIO34 pin end** here (A2:329-334).
+   step 11). Fit **cap C3 (100 nF) at the GPIO34 pin end** here (A2:329-334).
 7. **S8a executes inside step 6**, at the ESC lead: cut the red wire, run **E0, E1, E2, E3, E6**
    and take **both photos on the bare ends**, *then* insulate (A2:313-315, :578-595). Do not
    build the ESC lead and defer the cut — after insulation these rows are unrunnable.
@@ -144,7 +145,7 @@ open w17-control-fw/project-review/13_phase_a_a2_no_power_checklist.md
 # 4. Confirm the pin map you are wiring against is the real one, not this card.
 #    BOTH boards: 1,70p covers the whole of each file (63 and 30 lines), so nothing
 #    this card's steps depend on can be cropped out -- GPIO16/17 (CRSF), 25/26 (link2,
-#    the GPIO26 that C4 and hard stop 9 exist for), 13 (steering), 14 (ESC), 35 (Hall):
+#    the GPIO26 that row C4 and hard stop 9 exist for), 13 (steering), 14 (ESC), 35 (Hall):
 sed -n '1,70p' w17-control-fw/lib/config/include/config/PinMap.hpp
 sed -n '1,70p' w17-soundlight-fw/lib/config/include/config/PinMap.hpp
 ```
@@ -172,7 +173,7 @@ sed -n '1,70p' w17-soundlight-fw/lib/config/include/config/PinMap.hpp
 | D2 | **≈ 27 kΩ** | **≈ 20 kΩ = the old design got built — stop** |
 | D3 | **≈ 37 kΩ** | anything ≪ 37 kΩ |
 | H1 | **≈ 10 kΩ to 3V3** | ≈10 kΩ to **5 V** instead = stop 8 |
-| C4 | **no beep from GPIO26** | any beep = stop 9 |
+| row C4 | **no beep from GPIO26** | any beep = stop 9 |
 | W1 | **≈ 330 Ω** | 0 Ω beep = the resistor was bypassed |
 | W2 | **0.15–0.35 V forward** (after the 1000 µF settles) | outside the band, or OL both ways |
 | W3 | **OL** | a forward reading = the diode is backwards |
@@ -207,7 +208,7 @@ The ten hard stops (A2:766-780), each reachable from a named row (A2:786-797):
    plus the visual are the only evidence**).
 7. A connector orientation you cannot positively identify — trace it; never "probably right".
 8. GPIO35 pull-up tied to 5 V instead of 3V3 (H1b).
-9. A wire present at GPIO26 (C4).
+9. A wire present at GPIO26 (row C4).
 10. A strap pin (GPIO27/32) continuous to 3V3, to either 5 V rail, or to any other signal, in any
     position (MS9, MS10, MS12, MS13). **Not a stop:** an absent or floating selector — that reads
     as Drive by design.

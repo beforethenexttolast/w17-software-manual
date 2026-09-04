@@ -104,7 +104,7 @@ laptop/Windows/phone — and the shared rule between them is rule 1b below.
 | BG-03 | `A2-CLOSED` **and** `PHASE-B-OPEN`; observer; wheels off ground; motor leads off; RP1 on "No Pulses" | B2 in full is what makes motor power *considerable*; BG-04, BG-05, BG-06-T2 become reachable |
 | BG-04 | BG-03, especially **B2** | D8 stage 6 done; Phase 11a → shippable as `esp32dev` |
 | BG-05 | `A2-CLOSED` + `PHASE-B-OPEN`; copy check run **first** to learn whether this is even a coordinated-flash situation | **`COORD-FLASH`**; D8 Phase 9 closes |
-| BG-06 | **T1: un-gated by A2/Phase B, but a live-TX bench procedure under `w17-windows-vm-validation-runbook.md`:370-397 — car UNPOWERED or RP1 UNBOUND, no bound RX powered in range, attended, discharges nothing (RESIDUAL A); requires explicit owner authorization like every other gate.** T2: full Phase B rules | closes the standing "no frame has ever been observed leaving the mapper" finding; frame-level evidence for B1.1 / D8 Phase 2 |
+| BG-06 | **T1: un-gated by A2/Phase B, but a live-TX bench procedure under `w17-windows-vm-validation-runbook.md`:370-397: car UNPOWERED or RP1 UNBOUND, no bound RX powered in range, attended, discharges nothing (RESIDUAL A); requires explicit owner authorization like every other gate.** T2: full Phase B rules | closes the standing "no frame has ever been observed leaving the mapper" finding; frame-level evidence for B1.1 / D8 Phase 2 |
 | BG-07 | `A2-CLOSED` + `PHASE-B-OPEN` + **owner opens BT1** + SP3T wired + a genuine pad | **`BT1`**; makes the `SHIP-IMAGE` upgrade path available under OD-2 |
 | BG-08 | `A2-CLOSED` + `PHASE-B-OPEN`; A2 gate **S5** passed; strip behind its shipped diffuser | closes the dim-light halo gate and soundlight open question **#55** |
 

@@ -84,6 +84,8 @@ D8 Phase 9 and Phase 11a; **it does not open the gate on its own** (CF:3-6).*
 ```bash
 cd /Users/vitaliykhomenko/Documents/projects
 
+# STOP if any line says "Phase B stays BLOCKED", or no dated "PHASE-B-OPEN" line
+# appears: the rest of this card is not runnable.
 grep -n "A2 .*NOT-EXECUTED\|Phase B .*BLOCKED\|PHASE-B-OPEN" CURRENT_STATUS.md | head
 bench-gates/tools/bench_capture.sh BG-05 --no-serial --note "coordinated two-board flash"
 

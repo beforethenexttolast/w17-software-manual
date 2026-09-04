@@ -127,5 +127,6 @@ Phase B, with an observer, wheels off the ground, ESC motor leads disconnected.
 
 It is not a permission to power anything, it does not set any limit, and it must not be read as
 "the numbers are known". Its one substantive claim is the finding in the report:
-**the project has no documented current figures for its 5 V loads**, and the first Phase B
-session is where they get created.
+**the project has no documented current figures for its car-side 5 V loads**, and the first
+Phase B session is where they get created. (The ground-side 5 V loads in the GCS box do have
+cited figures: `w17-gcs-box-guide.md:135-139`.)

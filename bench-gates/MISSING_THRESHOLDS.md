@@ -66,20 +66,20 @@ project are **ground-side** (`w17-gcs-box-guide.md`:135-139), and they are the t
 rows should follow: a cited figure, an `[A]`/`[I]` evidence tag, and a stated decision
 threshold.
 
-| # | Row | Card it blocks |
-|---|---|---|
-| **T1** | Rail-A quiescent, boards idle, nothing else connected | BG-03 |
-| **T2** | Rail-A with the camera + Wi-Fi module streaming | BG-03 |
-| **T3** | Rail-B with the steering servo holding centre, unloaded | BG-03 |
-| **T4** | Rail-B peak during a full-lock steering sweep (the reason cap C1 exists) | BG-03 |
-| **T5** | Per-MG90S, idle and moving | BG-03 |
-| **T6** | Blower (always-on, rail B) | BG-03 |
-| **T7** | MAX98357A + speaker at the shipped `sound.volume` | BG-03 / BG-04 Phase 9 |
-| **T8** | RP1 receiver | BG-03 |
-| **T9** | ESP32 module, Wi-Fi off, both boards | BG-03 |
-| **T10** | ESP32 #1 with **Bluetooth active** (BT show-off build). **≡ MT-19** — one number, listed once | BG-07 (`BT1_BENCH_GATE.md`:66 lists it as an unmeasured bench item) |
-| **T12** | ESC standby (logic only) on batt+, motor leads off | BG-03 |
-| **T13** | Inrush allowance at pack connection — the XT90-S anti-spark exists *because* it is large, and no number is stated | BG-01 §S7 / BG-03 |
+| # | Row | Card it blocks | Source |
+|---|---|---|---|
+| **T1** | Rail-A quiescent, boards idle, nothing else connected | BG-03 | `tools/first_power_current_limits.md`:81 |
+| **T2** | Rail-A with the camera + Wi-Fi module streaming | BG-03 | `tools/first_power_current_limits.md`:82 |
+| **T3** | Rail-B with the steering servo holding centre, unloaded | BG-03 | `tools/first_power_current_limits.md`:83 |
+| **T4** | Rail-B peak during a full-lock steering sweep (the reason cap C1 exists) | BG-03 | `tools/first_power_current_limits.md`:84 |
+| **T5** | Per-MG90S, idle and moving | BG-03 | `tools/first_power_current_limits.md`:85 |
+| **T6** | Blower (always-on, rail B) | BG-03 | `tools/first_power_current_limits.md`:86 |
+| **T7** | MAX98357A + speaker at the shipped `sound.volume` | BG-03 / BG-04 Phase 9 | `tools/first_power_current_limits.md`:87 |
+| **T8** | RP1 receiver | BG-03 | `tools/first_power_current_limits.md`:88 |
+| **T9** | ESP32 module, Wi-Fi off, both boards | BG-03 | `tools/first_power_current_limits.md`:89 |
+| **T10** | ESP32 #1 with **Bluetooth active** (BT show-off build). **≡ MT-19** — one number, listed once | BG-07 (`BT1_BENCH_GATE.md`:66 lists it as an unmeasured bench item) | `tools/first_power_current_limits.md`:90 |
+| **T12** | ESC standby (logic only) on batt+, motor leads off | BG-03 | `tools/first_power_current_limits.md`:92 |
+| **T13** | Inrush allowance at pack connection — the XT90-S anti-spark exists *because* it is large, and no number is stated | BG-01 §S7 / BG-03 | `tools/first_power_current_limits.md`:93 |
 
 Full row text and the derivation procedure: `tools/first_power_current_limits.md`:81-93.
 
@@ -101,11 +101,11 @@ Full row text and the derivation procedure: `tools/first_power_current_limits.md
 `BT1_BENCH_GATE.md`:54-68 asks each of these to be *observed and recorded*. No row states a
 number.
 
-| # | The number | Card |
-|---|---|---|
-| **MT-16** | Free-heap watermark with BT active | **BG-07** |
-| **MT-17** | Control-tick jitter with BT active | **BG-07** |
-| **MT-18** | Real disconnect → outputs-safe latency | **BG-07** |
+| # | The number | Card | Source |
+|---|---|---|---|
+| **MT-16** | Free-heap watermark with BT active | **BG-07** | `BT1_BENCH_GATE.md`:57 |
+| **MT-17** | Control-tick jitter with BT active | **BG-07** | `BT1_BENCH_GATE.md`:58 |
+| **MT-18** | Real disconnect → outputs-safe latency | **BG-07** | `BT1_BENCH_GATE.md`:62 |
 
 ### 2d. Halo — 1
 
