@@ -10,6 +10,11 @@ card names its source in its first line.
 
 ## The ladder
 
+The ASCII below draws BG-05, BG-07 and BG-08 under BG-04 for layout reasons only. **BG-04 is
+not their prerequisite:** BG-05 and BG-08 need `A2-CLOSED` + `PHASE-B-OPEN` (rows below),
+BG-07 needs those plus the owner opening BT1. The prerequisites table is the authority; where
+it and the drawing differ, the table wins.
+
 ```
   OWNER RESIDUE (no gate, but SF cannot start without them)
      OW1  socket-stack caliper  vs  S0 >= 9.82 mm          ] both OWED,
@@ -139,6 +144,11 @@ calls `bench-gates/tools/…`. That path exists only **after** this branch is me
 | [`tools/bench_capture.sh`](tools/bench_capture.sh) | evidence folder + env/HEAD stamp + read-only timestamped serial capture + sha256 manifest | none | `--no-serial` needs none; the serial half is **Phase B** |
 | [`tools/pdb_continuity_sheet.md`](tools/pdb_continuity_sheet.md) | no-power multimeter worksheet using A2's own row IDs | none | a multimeter |
 | [`tools/first_power_current_limits.md`](tools/first_power_current_limits.md) | what the documents fix, and the **13 thresholds that are missing** | none | — |
+| [`MISSING_THRESHOLDS.md`](MISSING_THRESHOLDS.md) | the **single deduplicated list** of all **27** missing numbers across both card sets: **7** the owner can rule today, **20** a bench must measure | none | — |
+
+The `G-*` cards bring four more tools into the same directory — `latency_rig.html`,
+`latency_from_frames.py`, `raceday_timing.py` and `tests/run_tests.py` (81 checks, exit 0).
+All four are host-only. [`tools/README.md`](tools/README.md) lists both sets.
 
 ## Evidence
 
