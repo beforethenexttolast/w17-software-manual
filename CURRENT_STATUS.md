@@ -8,35 +8,30 @@ workspace-level source for all of those and for project execution status.
 Overwrite it in place when state changes; do not append history. Instruction files
 (`CLAUDE.md` / `AGENTS.md`) must not duplicate anything below.
 
-_Last updated: **2026-09-04 (readiness program — fix wave landing; four trunks green)** — the
-compact, compaction-proof program state now lives in **`W17_CURRENT_STATE.md`** (trunk SHAs, branch
-ledger, owner decisions A1–A11 incl. OD-16…OD-19, dependency graph, model policy); read it first.
-Since the 2026-09-03 entry: two more usage-limit stops (both recovered from worktree state — partial
-work continued, nothing duplicated). **Landed + PUSHED, each reviewed → fixed → independently
-re-verified → guarded ff:** control-fw main `39a4f3c` (B1 runbooks, OD-17/18 plan ratifications,
-OD-1 instruction files, sensor-honesty + CI teeth: battery implausible band with a symmetric dwell,
-Hall rate guard with a compile-time 20× margin, delivery-shape ELF check, test-registration check;
-360 native, 5 envs, **CI green**); soundlight main `7220c08` (docs, instruction files, lights truth +
-loop WDT + throttle clamp, link2 owned copy re-synced; 150 native, **CI green**); ground-station
-main `439f09f` (instruction files, packaging + resilience, **root cause of the missing video relay:
-a `build` field in package.json made electron-builder ignore electron-builder.yml** — removed,
-pinned by a test; windows_amd64 mediamtx digest recorded + `--require-pin`; three Windows-CI
-hotfixes; B4 validation-script suite; 1525/72, **first-ever green windows-latest run** with the
-relay asserted inside the package and the NSIS installer uploaded); iPhone_rc main `85ce486`
-(telemetry honesty: no demo seed, provenance per field, plain-language stale/lost banners, resolved
-simulator destination; OD-16 instruction amendment; 84 tests, **CI green** — first green on that
-repo); mapper `w17-headtrack` `6e99d51` (branch A: MAP-1 unwrap, MAP-2 self-start from the profile,
-placeholder refusal, MAP-3/4/8/10/11, per-caller adoption barrier; 240 tests, `-race` clean; pushed
-through the pre-push hook); 3d-codex main `5dddedb` (placement study, parametric OpenSCAD, fit-check
-coupons, measurement-session prompt); workspace: readiness runbooks, manual truth pass, Windows-VM
-runbook. **In flight:** GS branch B (race-day truth + lifecycle; review done, fixer applying the
-credential-safe single write per OD-19), mapper branch B (hot-plug, lint teeth, hook assertion,
-CORS), phone live video (OD-16: WHEP/WebRTC in a bundled web view; safety core verified at socket
-level; fixer applying doc/gate items). Then: GS contract re-mirror, mapper release dispatch (its
-first CI run), close-out audit. `u4-arbiter` @ `4e445c9` parked, ratified, never pushed; FIRST_ACTIVE
-NO-GO unchanged. Owner residue unchanged: shopping list (incl. the 5 GHz AP adapter that gates the
-hotspot validation scripts), measurement session M-00…, VMware Fusion + Windows 11 ARM install,
-booklet editorial pass.
+_Last updated: **2026-09-04 (readiness program CLOSED — software ready except assembly and bench)** —
+compact state: **`W17_CURRENT_STATE.md`**; evidence: `closeout/baseline-2026-09-04.md` and
+`closeout/vision-alignment-2026-09-04.md` (independent Opus audit: **no outstanding software defect**).
+**Final trunks, all reviewed → fixed → independently re-verified → guarded ff → pushed, CI GREEN at HEAD:**
+control-fw main `39a4f3c` (360 native, 5 envs); soundlight main `7220c08` (150 native, 2 envs; link2 copy
+in sync); ground-station main `379cf29` (1685/73; first-ever green windows-latest run — installer built with
+the video relay asserted inside the package; race-day truth + lifecycle; docs sweep); iPhone_rc main `7aaf2cf`
+(156; telemetry honesty; phone live video via WHEP/WebRTC, OD-16); mapper `w17-headtrack` `b859af1` (296,
+`-race` clean; headless bring-up MAP-1/2/5, per-caller adoption, loopback default, hot-plug, lint teeth,
+fail-closed hook enum check, Windows-timer test fix; release run 33845314514 GREEN, bundle uploaded);
+3d-codex main `5dddedb` (placement study, parametric OpenSCAD, fit-check coupons). Every Tier-A grand-verdict
+blocker is closed in code with evidence; owner decisions A1–A12 (OD-1…OD-19 + addenda) are persisted in
+`2026-09-02_readiness_program.md`. **PUSH GRANT (A7) CLOSED 2026-09-04** — future pushes need a fresh grant.
+**What remains is not software:** owner residue — shopping (5 GHz AP-capable USB Wi-Fi adapter, which gates
+the hotspot half of the Windows validation suite; the 2S balancing USB-C charge module, OP-49, now on the
+list in `HARDWARE_INVENTORY.md`; powered hub, SP3T switch, ELRS TX label, TX16S check), the no-power
+measurement session M-00… (`w17-3d-codex/w17-mechanical-measurement-session-prompt.md`), VMware Fusion +
+Windows 11 ARM install for the WS3 validation session (`w17-windows-vm-validation-runbook.md`; PowerShell 7
+on the guest), and the booklet editorial pass (booklet voice for the new plain-language lines). Bench gates
+unchanged and all open: A2 ⇒ Phase B, BT1, FIRST_ACTIVE (`u4-arbiter` `4e445c9` parked, ratified OD-17/18,
+never pushed), dim-light halo visibility, phone glass-to-glass latency (98–136 ms simulator, `[bench-TBD]`),
+gamepad hot-plug on real Windows/HIDAPI, the race-day link window (5 s, `[bench-TBD]`), CRSF on the wire.
+Five usage-limit stops during the program, every one recovered from durable state without rerunning
+completed work; two lessons recorded in memory (continue partial worktrees; verify suites by exit code).
 **No hardware; nothing flashed or powered; A2 stays NOT-EXECUTED, Phase B stays BLOCKED.**
 Prior pass, **2026-09-02 (readiness program OPENED — vision aligned, six workstreams
 launched)** — the owner set the end goal "EVERYTHING IS READY, only assembly remains before
