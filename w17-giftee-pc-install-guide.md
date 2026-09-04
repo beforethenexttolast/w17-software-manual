@@ -186,25 +186,33 @@ Lola, done once here.
    from THIS PC** (`w17-mapper/configs/README.md`): `REPLACE-WITH-DS4-ID` (a fingerprint of the
    controller, different on this PC than on the owner's bench, and different again if the pad is
    later used over Bluetooth instead of USB) and `REPLACE-WITH-COM-PORT` (the COM port you wrote
-   down in §2). **Today, the only way to read the controller's id is to briefly open the mapper's
-   own web page** at `http://localhost:3000` while it is running with the pad plugged in, and
-   read the id off its gamepad list — a build-time/pit-crew step, never something the giftee sees
-   or needs to do. (A simpler picker is planned but does not exist yet — tracked as
-   `[fix-wave: MAP-9]`.) Edit both placeholders in `w17-ds4.json` with a plain text editor, save,
-   and leave the mapper closed afterward.
+   down in §2). **Two ways to read them, both with the pad plugged in.** Prefer running
+   `elrs-joystick-control -list-devices` from a terminal (Command Prompt or PowerShell, from
+   wherever you put the program in step 1): it prints one JSON document — the gamepad's
+   `id`/`name`/`guid`/`bus`, plus the machine's `serial_ports` — and exits, opening no serial
+   port, binding no network port, and starting no server at all
+   (`w17-mapper/cmd/elrs-joystick-control/main.go:114-131`,
+   `w17-mapper/configs/README.md:57-84`); this avoids step 5's exposure below entirely. The other
+   way still works too — briefly open the mapper's own web page at `http://localhost:3000` while
+   it is running with the pad plugged in, and read the id off its gamepad list — but that is the
+   path step 5 warns about. Either way this is a build-time/pit-crew step, never something the
+   giftee sees or needs to do. Edit both placeholders in `w17-ds4.json` with a plain text editor,
+   save, and leave the mapper closed afterward.
 4. **Until both placeholders are filled, the profile fails safe, not silently dangerous** — every
    channel sits at its disarmed default and the car simply never arms
    (`w17-mapper/configs/README.md`: "the profile is fail-safe until both are set"). That said,
    nothing today warns you if you forget one (`[fix-wave: MAP-5]`) — double-check both values
    yourself.
-5. **While the mapper is running for this step, both the web page you just opened and its
-   underlying control channel are reachable from every device on the same network, not just
-   this PC** — neither is limited to this machine, and neither checks who is asking
-   (`w17-mapper/pkg/server/controller.go:81`, `w17-mapper/pkg/http/controller.go:102`;
-   `[fix-wave: MAP-8]`). On the giftee's home Wi-Fi or the car's own hotspot this means anything
-   else already on that network could, in principle, start or stop the radio link the same way
-   this guide has the pit crew do from the browser. Keep this step to a private/trusted network
-   and close the mapper afterward; do not leave it running unattended.
+5. **If you opened the mapper's web page for step 3 instead of using `-list-devices`, both that
+   page and its underlying control channel are reachable from every device on the same network
+   while the mapper runs, not just this PC** — neither is limited to this machine, and neither
+   checks who is asking (`w17-mapper/pkg/server/controller.go:81`,
+   `w17-mapper/pkg/http/controller.go:102`; `[fix-wave: MAP-8]`). On the giftee's home Wi-Fi or
+   the car's own hotspot this means anything else already on that network could, in principle,
+   start or stop the radio link the same way this guide has the pit crew do from the browser.
+   `-list-devices` never opens this exposure at all, which is why step 3 prefers it. If you do use
+   the web page, keep that step to a private/trusted network and close the mapper afterward; do
+   not leave it running unattended.
 6. **Add a Windows Firewall rule that keeps the mapper's controls reachable only from this PC,
    not the network.** This closes off the same exposure permanently, not just while you remember
    to keep step 5 on a trusted network — do this once, during this setup, before the kit is
@@ -218,7 +226,8 @@ Lola, done once here.
    - This blocks connections arriving over the network to those two ports, but does **not** block
      the ground station or your own browser talking to the mapper on **this same PC**
      (`localhost`/`127.0.0.1` traffic never leaves the machine, so it isn't affected by this rule)
-     — RACE DAY and the step-3 web-page check above keep working exactly as before.
+     — RACE DAY and the mapper's web page (whether from step 3 or opened fresh here) keep working
+     exactly as before.
    - `[win-TBD]` — this rule is not yet bench-verified on a real Windows box; confirm both halves
      after setting it up: the mapper's own web page still opens from this PC, and (if you have a
      second device on the same network to test with) it no longer opens from that second device.
