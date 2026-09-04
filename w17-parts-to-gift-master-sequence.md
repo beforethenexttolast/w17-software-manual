@@ -82,16 +82,16 @@ file only names them so nobody mistakes "closed in code" for "proven on the gift
 | 2 | PDB + harness build order | Hardware | SF→S1…S8 (see §3) | [`w17-pdb-build-and-connector-guide.md`](w17-pdb-build-and-connector-guide.md) §5 | Not started |
 | 3 | A2 staged no-power gates | Hardware | SF, S1, S2, S3, S4, S4b, S5, S6, S7, S8a, S8b | [`w17-control-fw/project-review/13_phase_a_a2_no_power_checklist.md`](w17-control-fw/project-review/13_phase_a_a2_no_power_checklist.md) | **NOT-EXECUTED** |
 | 4 | A2 closure — two-part gate | Hardware | A2-CLOSED | same file, §12 (cross-references [`11_hardware_validation_plan.md`](w17-control-fw/project-review/11_hardware_validation_plan.md)) | Not reached |
-| 5 | Phase B opens (owner's call) | Hardware | PHASE-B-OPEN | [`11_hardware_validation_plan.md`](w17-control-fw/project-review/11_hardware_validation_plan.md) §Phase B; standalone doc `w17-control-fw/docs/PHASE_B_FIRST_POWER.md` **(being written — reference by path; not yet on disk at this writing)** | **BLOCKED** |
+| 5 | Phase B opens (owner's call) | Hardware | PHASE-B-OPEN | [`11_hardware_validation_plan.md`](w17-control-fw/project-review/11_hardware_validation_plan.md) §Phase B; standalone doc `w17-control-fw/docs/PHASE_B_FIRST_POWER.md` | **BLOCKED** |
 | 6 | Bench bring-up, Phases 0–9 | Hardware | D8-P0 … D8-P9 | [`w17-control-fw/docs/D8_BENCH_BRINGUP.md`](w17-control-fw/docs/D8_BENCH_BRINGUP.md) | Not started |
-| 7 | Two-board coordinated flash | Hardware | COORD-FLASH | `w17-control-fw/docs/COORDINATED_FLASH.md` **(being written)** | Not started |
+| 7 | Two-board coordinated flash | Hardware | COORD-FLASH | `w17-control-fw/docs/COORDINATED_FLASH.md` | Not started |
 | 8 | On the car + delivery hand-off | Hardware | D8-P11, D8-P11a, SHIP-IMAGE | D8 Phases 11 / 11a | Not started |
-| 9 | BT show-off bench gate (only if `SHIP-IMAGE` = `esp32dev_btshowoff`) | Hardware | BT1 | `w17-control-fw/docs/BT1_BENCH_GATE.md` **(being written)**; design doc [`bt_showoff_design.md`](w17-control-fw/docs/bt_showoff_design.md) §9 | Not started; conditional |
+| 9 | BT show-off bench gate (only if `SHIP-IMAGE` = `esp32dev_btshowoff`) | Hardware | BT1 | `w17-control-fw/docs/BT1_BENCH_GATE.md`; design doc [`bt_showoff_design.md`](w17-control-fw/docs/bt_showoff_design.md) §9 | Not started; conditional |
 | 10 | Code blockers closed | Ground/software | CODE-BLOCKERS-CLOSED | this file §0 + `CURRENT_STATUS.md` | **Achieved in code** (13/14 ids; `giftee-ux-3` owner-gated) — `[win-TBD]`, unproven on Windows |
-| 11 | Ground side assembled + validated | Ground/software | GCS-GROUND, WINDOWS-VM | [`w17-gcs-box-guide.md`](w17-gcs-box-guide.md) §5, `w17-mapper/configs/README.md`, `w17-windows-vm-validation-runbook.md` **(being written)** | Partial (parts inventory only) |
+| 11 | Ground side assembled + validated | Ground/software | GCS-GROUND, WINDOWS-VM | [`w17-gcs-box-guide.md`](w17-gcs-box-guide.md) §5, `w17-mapper/configs/README.md`, `w17-windows-vm-validation-runbook.md` | Partial (parts inventory only) |
 | 12 | ELRS backup handset bind | Hardware (parallel) | ELRS-BACKUP-BIND | [`w17-elrs-backup-handset.md`](w17-elrs-backup-handset.md) §4 | Not started |
 | 13 | Giftee-PC install + dry run | Ground/software | GIFTEE-PC-INSTALL | [`w17-giftee-pc-install-guide.md`](w17-giftee-pc-install-guide.md) (this program) | Not started; no longer blocked on stage 10 (achieved in code) — waiting on stage 11's Windows VM pass |
-| 14 | iPhone HUD install (sideload) | Ground/software (parallel) | IPHONE-INSTALL | `iPhone_rc/docs/GIFTEE_INSTALL.md` **(being written)** | Not started |
+| 14 | iPhone HUD install (sideload) | Ground/software (parallel) | IPHONE-INSTALL | `iPhone_rc/docs/GIFTEE_INSTALL.md` | Not started |
 | 15 | Booklet markers resolved | Docs | BOOKLET-RESOLVE | `learning-manual/14_glovebox_owners_booklet.md`, stubs 21/22 | 21 genuine bench-only markers open |
 | 16 | Handover | Convergence | HANDOVER | [`w17-handover-checklist.md`](w17-handover-checklist.md) (this program) | Not started; requires all of the above |
 
@@ -197,10 +197,9 @@ conditions.**
 - **Gate token:** PHASE-B-OPEN.
 - **Canonical doc:** [`11_hardware_validation_plan.md`](w17-control-fw/project-review/11_hardware_validation_plan.md)
   §Phase B (B1–B4) is the risk-register-linked ledger of what Phase B must retire; the standalone
-  procedural doc `w17-control-fw/docs/PHASE_B_FIRST_POWER.md` is **being written** (readiness
-  WS-2, a sibling task to this one) and will be the step-by-step for this stage — **reference it
-  by this path; it does not exist on disk as of this writing**, so treat `11_hardware_validation_plan.md`
-  §Phase B as the interim source until it lands.
+  procedural doc `w17-control-fw/docs/PHASE_B_FIRST_POWER.md` is the step-by-step for this stage —
+  both docs exist on disk; use `PHASE_B_FIRST_POWER.md` as the primary walkthrough and
+  `11_hardware_validation_plan.md` §Phase B as the risk-register ledger it traces back to.
 - **Evidence of done:** a dated line in `CURRENT_STATUS.md` recording the owner's go-ahead.
 - **Stop conditions:** A2 not closed (stage 4); ESC motor power must stay disconnected through
   this entire stage (`w17-control-fw/CLAUDE.md` "Hardware gates").
@@ -225,8 +224,7 @@ conditions.**
   gets you there safely).
 - **Who:** owner, hands-on; Claude Code guides.
 - **Gate token:** COORD-FLASH.
-- **Canonical doc:** `w17-control-fw/docs/COORDINATED_FLASH.md` **(being written — readiness
-  WS-2 sibling task; reference by this path)**. Until it lands, the interim source is D8 Phase 9
+- **Canonical doc:** `w17-control-fw/docs/COORDINATED_FLASH.md` (on disk). See also D8 Phase 9
   plus `w17-control-fw/docs/link2_protocol.md` (the payload table is the single source of truth
   for what "matching versions" means — `w17-control-fw/CLAUDE.md` "link2" module note: this repo
   owns the protocol, soundlight holds a copy, and `tools/link2_copy_check.sh --strict` is the
@@ -264,8 +262,7 @@ conditions.**
 - **Who:** owner, hands-on; gated on the owner opening it explicitly (`bt_showoff_design.md` §9:
   "No BT code runs on powered hardware before BT1 is opened by the owner").
 - **Gate token:** BT1.
-- **Canonical doc:** `w17-control-fw/docs/BT1_BENCH_GATE.md` **(being written — readiness WS-2
-  sibling task; reference by this path)**. Design source: [`bt_showoff_design.md`](w17-control-fw/docs/bt_showoff_design.md)
+- **Canonical doc:** `w17-control-fw/docs/BT1_BENCH_GATE.md` (on disk). Design source: [`bt_showoff_design.md`](w17-control-fw/docs/bt_showoff_design.md)
   §5/§7 (the bench-only item list) and §9 ("Relationship to gates").
 - **Evidence of done:** the §5/§7 bench-only list executed car-on-stand first; the SP3T selector
   continuity rows (added to `w17-a2-execution-session-prompt.md` by this program — cross-link
@@ -294,8 +291,7 @@ not a local `electron-builder` run. **This gate token does NOT mean proven on Wi
 - **Gate tokens:** GCS-GROUND (box + driver story), WINDOWS-VM (autonomous validation pass).
 - **Canonical docs:** [`w17-gcs-box-guide.md`](w17-gcs-box-guide.md) §5 (driver story — see its
   new pointer to the install guide, cross-link §4), `w17-mapper/configs/README.md` (the profile
-  and its two placeholders), `w17-windows-vm-validation-runbook.md` **(being written — readiness
-  WS-3 sibling task; reference by this path)**.
+  and its two placeholders), `w17-windows-vm-validation-runbook.md` (on disk).
 - **Evidence of done:** the §4 USB power-budget bench pass recorded (bus-powered vs 12 V hub
   decided per its own three criteria); `REPLACE-WITH-DS4-ID` / `REPLACE-WITH-COM-PORT` filled
   with real values read off the giftee's actual hardware (not the owner's bench — MAP-9 records
@@ -341,8 +337,7 @@ not a local `electron-builder` run. **This gate token does NOT mean proven on Wi
 - **Who:** owner (Mac + Xcode), Claude Code (guide, reminder cadence).
 - **Gate token:** IPHONE-INSTALL. Independent of the car and the GCS box — can run any time after
   the app itself is ready.
-- **Canonical doc:** `iPhone_rc/docs/GIFTEE_INSTALL.md` **(being written — readiness WS-2 sibling
-  task, owned by the iPhone_rc repo; reference by this path)**. Decision source:
+- **Canonical doc:** `iPhone_rc/docs/GIFTEE_INSTALL.md` (on disk, owned by the iPhone_rc repo). Decision source:
   [`2026-09-02_readiness_program.md`](2026-09-02_readiness_program.md) §1 row A2.
 - **Evidence of done:** app installed on the giftee's phone; the 7-day re-sign date and the
   reminder mechanism recorded in the handover checklist (stage 16).
