@@ -206,7 +206,7 @@ gate. Part identities and envelopes come from the Claude-side electrical inputs
 | JST-XH 2S 3-pin extension (male–female) | ×1 | ✅ | 2026-07-30 | pack balance lead → IP2326 charger. Fits either pack (both ZEEE packs use JST-XH) |
 | In-envelope 2S car pack (≤75×45×25) | ×1 minimum | ⬜ | — | **NOT ON HAND — nothing that fits the car has ever arrived.** ⚠ **Corrected 2026-07-31:** this file previously carried a "ZEEE 1500 mAh, 69×35×18, ✅ arrived 2026-07-29" row. **That pack never existed.** The 07-29 owner report said only *"one battery"*; this file mapped those words to the *ordered* 1500 line and then wrote in the **order-spec dimensions as if they were measured**. The pack that actually came is the 5200 below (supplier mix-up, owner 2026-07-31). Nothing is owed *against an order* here — the owner is sourcing a replacement and **may buy to spec rather than to the ZEEE part number**; see the sourcing spec in the delivery-log entry for 2026-07-31 |
 | ZEEE 5200 mAh 2S LiPo — **BENCH ONLY, not a car pack** | not ordered as such | ✅ (received) | 2026-07-30 | **The only battery on hand.** **138×47×37 mm — exceeds the ≤75×45×25 mm envelope on all three axes** (+63 / +2 / +12 mm; ≈3.9× the volume). Wrong item (owner: *"some misunderstanding"*, 2026-07-31); a replacement is being sought. Two independent reasons it cannot be the car pack: `w17-3d-codex/BUILD_SHEET.md` already ruled a **115**×35×24 pack won't fit the 2024 body (this one is 23 mm longer still), and the Z3 central tub is only **14–40 mm wide where it is ≥45 mm tall**, so a 47-wide × 37-tall pack does not drop in. **Assumption, not measured:** a 2S 5200 typically weighs ~250–300 g — weigh it before any CG argument cites a number. Bench use stays **A2 + Phase B gated** like every other powered activity, and its higher fault energy is a *new* bench-safety consideration, not a cleared one |
-| IP2326 2S Type-C balancing charger | ×1 ordered | ✅ | 2026-07-29 | onboard USB-C charging, 18.3×31 mm; balancing confirmed at selection. **2 on hand** per the owner (2026-07-29) against ×1 recorded as ordered — same reading as the MH-ET row: the arrival count is owner-stated, the order count is what is unverified |
+| IP2326 2S Type-C balancing charger | ×1 ordered | ✅ | 2026-07-29 | onboard USB-C charging, 18.3×31 mm; balancing confirmed at selection. **2 on hand** per the owner (2026-07-29) against ×1 recorded as ordered — same reading as the MH-ET row: the arrival count is owner-stated, the order count is what is unverified. **Cross-repo note (2026-09-04):** `w17-3d-codex/10_assembly_architecture/OPEN_PROBLEMS_AND_QUESTIONS.md` OP-49 still marks the 2S balancing-charge module a **BLOCKER**, "still unselected," with the exact SKU/datasheet, full board/connector/heatsink envelope, cell-interface, interlock, and a charge-safety specification all listed as missing. Physical possession here is not the same thing as OP-49's "selected" — see item 4 below |
 | 1N5819 Schottky diode | — | 🏠 | — | **from office stock** (owner, 2026-07-24) — not an ordered delivery line; not individually delivery-verified here |
 
 ---
@@ -228,6 +228,17 @@ what is left:
 2. **Neodymium magnets 3×1 mm (§7)** — ⏳ ordered/in transit (owner, 2026-07-22); the A3144 Hall
    sensor + ESC are on hand, but the wheel-speed pickup can't be exercised without its axle magnets.
 3. **Tamiya tyres (§B)** — ⏳ ordered/on the way (owner, 2026-07-22); the rcMart order has not landed.
+4. **2S balancing USB-C charge module — formal selection (OP-49, added 2026-09-04)** — ⬜ **not
+   selected in the sense `w17-3d-codex` requires**, even though a candidate part (§E's IP2326, 2
+   on hand) already sits in this file. `w17-3d-codex/10_assembly_architecture/
+   OPEN_PROBLEMS_AND_QUESTIONS.md:81` (OP-49) is a **BLOCKER** for done-bar item 4 (onboard USB-C
+   charging) and lists as missing: the exact SKU/datasheet on record, the complete board +
+   connector + heatsink envelope, cell-interface details, the charge/run interlock implementation,
+   charge-state access, reverse/backfeed isolation, thermal/fault evidence, and a **separate
+   charge-safety specification that must close before any powered charge test**. Owner action:
+   either formally adopt the on-hand IP2326 as the selected module and work through OP-49's
+   remaining list against it, or select a different module and update both this file and OP-49
+   together so they stop disagreeing about whether a module has been chosen.
 
 > **Cleared by the 2026-07-29 delivery:** MH-ET D1-Mini ESP32 (§4/§E), MG90S micro servos ×3 (§6),
 > rear 68 mm oil shock (§10), thermal paste (§13), ceramic + electrolytic cap kits (§E), IP2326
