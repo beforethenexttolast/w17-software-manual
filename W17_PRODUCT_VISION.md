@@ -219,3 +219,44 @@ gates govern all hardware work.
   reviews, runbooks, install guides, handover checklist, mechanical designs pending measurement —
   is complete and reviewed. The hardware phase (assembly, A2, Phase B, flashing, bench gates,
   handover) is the only remaining work. The done-bar 1–8 is unchanged.
+
+## Amendments — 2026-09-04 truth notes (close-out doc sweep)
+
+Locked text above is unedited; these entries correct citations and record what has shipped since
+lock time. No decision changes.
+
+- **Correcting the 2026-08-16 reality check at "Head tracking (9)" (line 118):** "no arbiter code"
+  is stale in reading order — the 2026-08-16 amendment two sentences later already approved
+  branch-only arbiter code, and it now exists: `w17-mapper`'s `u4-arbiter` branch carries the U4
+  arbiter implementation through commit `4e445c9`. It has never been merged or pushed
+  (`git ls-remote --heads origin` on `w17-mapper` returns only `w17-headtrack`), so the activation
+  gate this reality check describes (FIRST_ACTIVE = NO-GO, R1–R16 unpassed) is unaffected — only
+  the flat "no arbiter code" clause was overtaken by the paragraph's own amendment.
+- **Re-pointing the 2026-08-16 reality check at "Wheel (10)" (line 128):** the citation
+  `w17-mapper/pkg/devices/util.go:27` for `JoystickOpen` no longer lands there — at `w17-headtrack`
+  `ebf89fa`, line 27 is a comment. The SDL `JoystickOpen` call sites are now
+  `w17-mapper/pkg/devices/util.go:47` (inside the production `sdlOpener.Open`) and
+  `w17-mapper/pkg/devices/inventory.go:135` (the `-list-devices` inventory scan). The underlying
+  claim — the mapper reads devices through SDL's joystick API, the level sim wheels enumerate at —
+  is unchanged; `controller.go`'s `JoystickEventState` calls (`:216`, `:263`) still hold.
+- **"Sound profile selector + volume" and "Ignition-on animation + DRS-open tell" (backlog,
+  lines 151–156) are built and shipped**, not merely "recorded, not scheduled" as the backlog
+  heading still says. The link2 v2 `soundProfile` and `volume` fields are on the wire
+  (`w17-control-fw/docs/link2_protocol.md:112-113`) and consumed into the synth on the soundlight
+  side (`w17-soundlight-fw/src/main.cpp:293`, `applyOperatorVolume` at `:296`). The DRS-open green
+  tell is implemented, budget-checked and visibility-checked at compile time
+  (`w17-soundlight-fw/lib/lights/src/LightRenderer.cpp:36` `kDrsGreen`, `:115`, `:161`, rendered at
+  `:341`/`:344`). A backlog that still reads "recorded, not scheduled" here understates what v1.0
+  already contains; the remaining open questions are the bench-only ones (halo/floor daylight
+  visibility, the DRS flap linkage itself), not the software.
+- **Adding to the 2026-09-02 showcase-mode amendment (line 197-199):** the amendment records the
+  showcase-mode trigger as DECIDED — board-1 SP3T boot strap, firmware on `control-fw` main — which
+  is accurate, but does not note that under OD-2's ship image decision (`esp32dev`, not
+  `esp32dev_btshowoff`, unless BT1 passes before handover), the selector is never read at runtime:
+  `w17-control-fw/src/main.cpp:147` pins `kBootStrapReading` to `bootmode::StrapReading::Floating`
+  at compile time, and `:148`'s `#ifdef W17_BT_SHOWOFF` gates the only code path that would sample
+  the physical strap behind a build flag the ship image does not define. The booklet already
+  describes this correctly (quick-show driving and the shelf show as pit-crew-only unlocks, not a
+  giftee-reachable switch); this vision text did not. Showcase mode is explicitly not on the done
+  bar (decision 2, "core-if-cheap"), so this is a truth gap in the backlog description, not a scope
+  change.
