@@ -14,7 +14,9 @@
        under Windows OpenSSH, and the admin one needs its ACL tightened or
        sshd silently refuses it;
     3. creates ONE scoped inbound firewall rule for sshd -- Private profile,
-       and only from the Fusion NAT subnet you name;
+       and only from the Fusion NAT subnet you name -- AND disables Windows'
+       own inbox 'OpenSSH Server' rule group, which is UNSCOPED (any remote
+       address) and silently re-opens what the scoped rule narrows;
     4. installs PowerShell 7 (the whole validation suite is
        `#Requires -Version 7.0`; Windows 11 ships only 5.1).
 
@@ -37,6 +39,19 @@
   interface is exactly where an unauthenticated service must not appear
   (runbook 1.5, MAP-8 / boundaries-3).
 
+  -Profile Private is NOT isolation on its own -- Windows commonly classifies
+  a hosted-network/SoftAP adapter as Private too. The RemoteAddress scope is
+  the only thing keeping sshd off that interface, which is why -NatSubnet is
+  validated as an actual RFC1918 /16../30 range and not merely CIDR-SHAPED.
+
+  Installing the OpenSSH.Server capability also installs Windows' own
+  'OpenSSH Server' firewall rule group, which is unscoped. An earlier version
+  only REPORTED it, tagged 'skipped' -- a tag that reads as "nothing to do"
+  and never touched the exit code, so the scoped rule above was decorative.
+  This script now disables those rules once the scoped one is in place. If it
+  cannot (or -KeepInboxOpenSshRule is given) the step is 'action-required'
+  and the script exits 4: configured, but a posture action is OUTSTANDING.
+
   DEFAULT SHELL IS LEFT ALONE. Windows OpenSSH runs cmd.exe as the login
   shell. That is why every documented invocation is
   `ssh w17vm 'pwsh -NoProfile -File C:\...\x.ps1 -Param value'` -- cmd passes
@@ -55,6 +70,20 @@
 
 .PARAMETER PublicKey
   The public key as a literal string, as an alternative to -PublicKeyPath.
+
+.PARAMETER SshUser
+  The Windows account that will LOG IN over ssh -- the `User` line in the Mac's
+  ~/.ssh/config, which `host-vm.sh bootstrap` passes automatically. Windows
+  OpenSSH picks the authorized_keys file from THAT account's group membership,
+  not from whoever is running this elevated script. Defaults to $env:USERNAME,
+  correct only when they are the same account (the normal case after runbook
+  1.0 step 5). Getting it wrong produces the silent password prompt 1.5 warns
+  about.
+
+.PARAMETER KeepInboxOpenSshRule
+  Do NOT disable Windows' own unscoped 'OpenSSH Server' firewall rules. The
+  script then reports 'action-required' and exits 4 rather than pretending the
+  one-scoped-rule property holds.
 
 .PARAMETER PwshMsiPath
   Path to a locally staged PowerShell 7 ARM64 MSI. PREFERRED over winget on
@@ -76,9 +105,12 @@
   Report what each step WOULD do and change nothing.
 
 .EXAMPLE
-  pwsh -NoProfile -File guest-bootstrap.ps1 -NatSubnet 192.168.230.0/24 `
+  # powershell.exe (5.1), NOT pwsh: this script is what INSTALLS pwsh 7.
+  powershell -ExecutionPolicy Bypass -File guest-bootstrap.ps1 `
+       -NatSubnet 192.168.230.0/24 `
        -PublicKeyPath C:\w17\scripts\vm\w17vm.pub `
-       -PwshMsiPath C:\w17\dist\PowerShell-7.6.5-win-arm64.msi
+       -PwshMsiPath C:\w17\dist\PowerShell-7.6.5-win-arm64.msi `
+       -SshUser w17
 #>
 [CmdletBinding()]
 param(
@@ -88,8 +120,10 @@ param(
 
     [string] $PublicKeyPath,
     [string] $PublicKey,
+    [string] $SshUser = $env:USERNAME,
     [string] $PwshMsiPath,
     [switch] $SkipPwsh,
+    [switch] $KeepInboxOpenSshRule,
     [string] $EvidencePath = 'C:\w17\evidence\guest-bootstrap.json',
     [switch] $DryRun
 )
@@ -97,13 +131,36 @@ param(
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
 
+# The ValidatePattern above checks the SHAPE of a CIDR string and nothing
+# more: it happily admits 0.0.0.0/0, 0.0.0.0/1 and 999.999.999.999/99. A typo
+# or a copied example would then widen the sshd rule onto every interface this
+# guest ever raises -- including the SoftAP 30-hotspot.ps1 creates, which is
+# the one place the runbook (1.5) says an unauthenticated service must not
+# appear. -Profile Private does not save you: Windows classifies a SoftAP
+# adapter as Private too. So the SCOPE is validated here, before anything is
+# created.
+$octets = [int[]]($NatSubnet.Split('/')[0].Split('.'))
+$prefix = [int]$NatSubnet.Split('/')[1]
+if (@($octets | Where-Object { $_ -gt 255 }).Count -gt 0) {
+    throw "invalid IPv4 in -NatSubnet: $NatSubnet"
+}
+if ($prefix -lt 16 -or $prefix -gt 30) {
+    throw "-NatSubnet prefix /$prefix is out of range. A Fusion NAT segment is a /24. Anything wider than /16 would put sshd on every interface this guest ever raises, including the SoftAP that 30-hotspot.ps1 creates (runbook 1.5)."
+}
+if (-not ($octets[0] -eq 10 -or
+          ($octets[0] -eq 172 -and $octets[1] -ge 16 -and $octets[1] -le 31) -or
+          ($octets[0] -eq 192 -and $octets[1] -eq 168))) {
+    throw "-NatSubnet must be an RFC1918 private range (10/8, 172.16/12, 192.168/16); got $NatSubnet. Read it from ``ipconfig`` in the guest, or from Fusion's VM network settings pane."
+}
+
 $script:Steps = New-Object System.Collections.ArrayList
 $script:Failed = $false
+$script:ActionRequired = $false
 
 function Add-Step {
     param(
         [Parameter(Mandatory)][string] $Name,
-        [Parameter(Mandatory)][ValidateSet('changed', 'already', 'skipped', 'failed', 'would-change')][string] $State,
+        [Parameter(Mandatory)][ValidateSet('changed', 'already', 'skipped', 'action-required', 'failed', 'would-change')][string] $State,
         [string] $Detail = ''
     )
     [void]$script:Steps.Add([ordered]@{ step = $Name; state = $State; detail = $Detail })
@@ -111,11 +168,15 @@ function Add-Step {
         'changed'      { 'CHANGED ' }
         'already'      { 'ALREADY ' }
         'skipped'      { 'SKIPPED ' }
+        'action-required' { 'ACTION  ' }
         'failed'       { 'FAILED  ' }
         'would-change' { 'WOULD   ' }
     }
     Write-Host "$tag$Name$(if ($Detail) { " -- $Detail" })"
     if ($State -eq 'failed') { $script:Failed = $true }
+    # Distinct from both SKIPPED (nothing to do) and FAILED (setup broken):
+    # everything is configured, but a POSTURE action is outstanding. Exit 4.
+    if ($State -eq 'action-required') { $script:ActionRequired = $true }
 }
 
 function Test-Elevated {
@@ -131,6 +192,7 @@ $IsWindowsHost = if ($PSVersionTable.PSVersion.Major -ge 6) { $IsWindows } else 
 
 Write-Host '=== W17 guest bootstrap ==='
 Write-Host "  NAT subnet   : $NatSubnet"
+Write-Host "  ssh login    : $SshUser"
 Write-Host "  dry run      : $([bool]$DryRun)"
 Write-Host ''
 
@@ -151,7 +213,11 @@ if (-not (Test-Elevated)) {
 try {
     $cap = Get-WindowsCapability -Online -Name 'OpenSSH.Server*' |
         Select-Object -First 1
-    if ($null -ne $cap -and $cap.State -eq 'Installed') {
+    if ($null -eq $cap) {
+        # Without this, $cap.Name below throws under StrictMode and surfaces
+        # as an opaque "You cannot call a method on a null-valued expression".
+        Add-Step 'openssh-server-capability' 'failed' "this Windows image offers no OpenSSH.Server capability (Get-WindowsCapability -Online -Name 'OpenSSH.Server*' returned nothing). Check the image and Windows Update -- the whole autonomous-drive design (runbook 2.2) needs sshd."
+    } elseif ($cap.State -eq 'Installed') {
         Add-Step 'openssh-server-capability' 'already' $cap.Name
     } elseif ($DryRun) {
         Add-Step 'openssh-server-capability' 'would-change' "would Add-WindowsCapability $($cap.Name)"
@@ -205,16 +271,41 @@ if (-not $keyText) {
     Add-Step 'authorized-keys' 'failed' 'the value given does not look like an OpenSSH public key (a PRIVATE key must never be copied to the guest)'
 } else {
     try {
-        $me = [Security.Principal.WindowsIdentity]::GetCurrent()
-        $isAdminAccount = (New-Object Security.Principal.WindowsPrincipal($me)).IsInRole(
-            [Security.Principal.WindowsBuiltInRole]::Administrator)
+        # WHICH FILE? sshd picks it from the LOGIN account's group membership.
+        # This script is guaranteed elevated (Test-Elevated ran), so
+        # [WindowsIdentity]::GetCurrent() describes whoever RAN it -- which
+        # under the normal UAC flow from a standard account is an ADMIN while
+        # the ssh User is not. Keying off it wrote the key into
+        # administrators_authorized_keys, which sshd does not read for a
+        # non-admin login: the silent password prompt runbook 1.5 warns about,
+        # produced by the very script written to prevent it. Resolve
+        # -SshUser's group membership instead, and print which file and why.
+        $isAdminAccount = $null
+        $howResolved = ''
+        $shortUser = $SshUser.Split('\')[-1]
+        try {
+            $admins = @(Get-LocalGroupMember -SID 'S-1-5-32-544' -ErrorAction Stop)
+            $isAdminAccount = @($admins | Where-Object {
+                    $_.Name -eq $SshUser -or $_.Name.Split('\')[-1] -eq $shortUser
+                }).Count -gt 0
+            $howResolved = "resolved from the Administrators group for '$SshUser'"
+        } catch {
+            # No Get-LocalGroupMember, or a domain/Entra oddity: fall back to
+            # the running identity and SAY SO rather than guessing silently.
+            $me = [Security.Principal.WindowsIdentity]::GetCurrent()
+            $isAdminAccount = (New-Object Security.Principal.WindowsPrincipal($me)).IsInRole(
+                [Security.Principal.WindowsBuiltInRole]::Administrator)
+            $howResolved = "FALLBACK -- could not enumerate Administrators ($($_.Exception.Message)); used the ELEVATED identity '$($me.Name)', which is right only if it is also the ssh login account"
+        }
 
         if ($isAdminAccount) {
             $akPath = Join-Path $env:ProgramData 'ssh\administrators_authorized_keys'
-            $akKind = 'administrators_authorized_keys (this account is an administrator)'
+            $akKind = "administrators_authorized_keys -- '$SshUser' is an administrator ($howResolved)"
         } else {
-            $akPath = Join-Path $env:USERPROFILE '.ssh\authorized_keys'
-            $akKind = "per-user authorized_keys for $($me.Name)"
+            $profileDir = Join-Path (Split-Path -Parent $env:USERPROFILE) $shortUser
+            if (-not (Test-Path -LiteralPath $profileDir)) { $profileDir = $env:USERPROFILE }
+            $akPath = Join-Path $profileDir '.ssh\authorized_keys'
+            $akKind = "per-user authorized_keys for '$SshUser' ($howResolved)"
         }
 
         $existing = if (Test-Path -LiteralPath $akPath) { Get-Content -LiteralPath $akPath } else { @() }
@@ -233,7 +324,7 @@ if (-not $keyText) {
                 # Required ACL: Administrators + SYSTEM only, inheritance off.
                 & icacls.exe $akPath /inheritance:r /grant '*S-1-5-32-544:F' /grant '*S-1-5-18:F' | Out-Null
             } else {
-                & icacls.exe $akPath /inheritance:r /grant "${env:USERNAME}:F" /grant '*S-1-5-18:F' | Out-Null
+                & icacls.exe $akPath /inheritance:r /grant "${shortUser}:F" /grant '*S-1-5-18:F' | Out-Null
             }
             Add-Step 'authorized-keys' 'changed' "$akKind at $akPath (ACL tightened)"
         }
@@ -274,15 +365,42 @@ try {
         Add-Step 'firewall-sshd' 'changed' "$ruleName Private/$NatSubnet TCP/22"
     }
 
-    # Report, never silently remove: Windows' own inbox rule group is
-    # unscoped, and an enabled copy of it re-opens what the rule above
-    # deliberately narrows.
-    $inbox = Get-NetFirewallRule -DisplayGroup 'OpenSSH Server' -ErrorAction SilentlyContinue |
-        Where-Object { $_.Enabled -eq 'True' }
-    if ($inbox) {
-        Add-Step 'firewall-inbox-openssh-rule' 'skipped' ("Windows' own unscoped 'OpenSSH Server' rule(s) are ENABLED (" +
-            (($inbox | ForEach-Object { $_.Name }) -join ', ') +
-            "). They widen what W17-sshd narrows. Disable them by hand once key auth works.")
+    # Installing the OpenSSH.Server capability brings Windows' OWN rule group
+    # with it, and that one is UNSCOPED (any remote address). While it is
+    # enabled, W17-sshd's narrow scope is decorative: sshd is reachable from
+    # every interface the guest raises, including the SoftAP 30-hotspot.ps1
+    # creates. Nothing used to disable it -- the step was tagged 'skipped',
+    # which reads as "nothing to do" and never touched the exit code, and 1.0
+    # step 14 told the owner INFO lines were expected to be unmet. So: disable
+    # it, AFTER the scoped rule above exists, so this can never lock the Mac
+    # out of the NAT subnet.
+    $inbox = @(Get-NetFirewallRule -DisplayGroup 'OpenSSH Server' -ErrorAction SilentlyContinue |
+        Where-Object { $_.Enabled -eq 'True' })
+    $inboxNames = ($inbox | ForEach-Object { $_.Name }) -join ', '
+    if ($inbox.Count -eq 0) {
+        Add-Step 'firewall-inbox-openssh-rule' 'already' "no enabled unscoped 'OpenSSH Server' inbox rule -- only the scoped W17-sshd rule reaches TCP/22"
+    } elseif ($KeepInboxOpenSshRule) {
+        Add-Step 'firewall-inbox-openssh-rule' 'action-required' ("-KeepInboxOpenSshRule given, so Windows' UNSCOPED 'OpenSSH Server' rule(s) stay ENABLED ($inboxNames). " +
+            'They widen what W17-sshd narrows, onto every interface including the SoftAP 30-hotspot.ps1 raises (runbook 1.5). ' +
+            "Disable them with: Get-NetFirewallRule -DisplayGroup 'OpenSSH Server' | Disable-NetFirewallRule")
+    } elseif ($DryRun) {
+        Add-Step 'firewall-inbox-openssh-rule' 'would-change' "would disable Windows' unscoped 'OpenSSH Server' rule(s): $inboxNames"
+    } else {
+        try {
+            $inbox | Disable-NetFirewallRule -ErrorAction Stop
+            $stillOn = @(Get-NetFirewallRule -DisplayGroup 'OpenSSH Server' -ErrorAction SilentlyContinue |
+                Where-Object { $_.Enabled -eq 'True' })
+            if ($stillOn.Count -eq 0) {
+                Add-Step 'firewall-inbox-openssh-rule' 'changed' "disabled Windows' unscoped 'OpenSSH Server' rule(s) ($inboxNames) -- only the scoped W17-sshd rule now reaches TCP/22"
+            } else {
+                Add-Step 'firewall-inbox-openssh-rule' 'action-required' ("tried to disable Windows' unscoped 'OpenSSH Server' rule(s), but $($stillOn.Count) are still ENABLED (" +
+                    (($stillOn | ForEach-Object { $_.Name }) -join ', ') +
+                    '). Group Policy can re-enable them. Disable them by hand, then re-run this script.')
+            }
+        } catch {
+            Add-Step 'firewall-inbox-openssh-rule' 'action-required' ("could not disable Windows' unscoped 'OpenSSH Server' rule(s) ($inboxNames): $($_.Exception.Message). " +
+                "Disable them by hand: Get-NetFirewallRule -DisplayGroup 'OpenSSH Server' | Disable-NetFirewallRule")
+        }
     }
 } catch {
     Add-Step 'firewall-sshd' 'failed' $_.Exception.Message
@@ -320,8 +438,10 @@ if ($SkipPwsh) {
 $result = [ordered]@{
     script  = 'guest-bootstrap'
     ok      = (-not $script:Failed)
+    actionRequired = $script:ActionRequired
     dryRun  = [bool]$DryRun
     subnet  = $NatSubnet
+    sshUser = $SshUser
     steps   = @($script:Steps)
     machine = $env:COMPUTERNAME
     utc     = (Get-Date).ToUniversalTime().ToString('o')
@@ -341,6 +461,14 @@ Write-Host ''
 if ($script:Failed) {
     Write-Host 'RESULT: FAILED -- fix the FAILED lines above and re-run (this script is idempotent).'
     exit 1
+}
+if ($script:ActionRequired) {
+    Write-Host 'RESULT: ACTION REQUIRED (exit 4) -- everything is configured, but the'
+    Write-Host 'ACTION line(s) above are a POSTURE problem, not a cosmetic note: sshd is'
+    Write-Host 'still reachable from every interface this guest raises, including the'
+    Write-Host 'SoftAP 30-hotspot.ps1 creates (runbook 1.5). Do what the line says, then'
+    Write-Host 're-run this script. guest-check.ps1 GATES on this.'
+    exit 4
 }
 Write-Host 'RESULT: OK'
 Write-Host ''
