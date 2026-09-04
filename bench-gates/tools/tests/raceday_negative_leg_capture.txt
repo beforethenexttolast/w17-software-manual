@@ -1,0 +1,22 @@
+# SYNTHETIC — hand-written for the self-test. NOT bench evidence, NOT observed.
+# Reproduces V-C's N-1 finding: G-04's merged view is Part B's GS-side capture
+# `sort -m`'d with Part A's mapper-only cold-run capture. The two are DIFFERENT
+# RUNS, minutes apart, so once merged the parser's naive spawn/port-open pairing
+# straddles the gap between them. Here: Part A (the cold run, argv line +
+# bring-up/port-loop/send-loop, NO spawn marker of its own — see G-04's own
+# rationale, "Part A remains the measurement") was captured at 13:50:00Z; Part B
+# (the real button press, its own W17T raceday_press + the GS's
+# "[mapper] started managed" echo + W17T mapper_spawn) at 14:03:20Z, ~13 minutes
+# later. `sort -m` interleaves them by timestamp exactly as G-04's reduce step
+# does; unpatched, "spawn -> port OPEN (THE GATE MEASUREMENT)" computes as
+# -799696 ms and is reported PASS with +804696 ms of "headroom". This capture
+# must be refused (exit 2), not scored.
+2026-09-12T13:50:00.000Z W17-RACEDAY-T0 part A cold run, argv = -config-file-path C:\W17\w17-ds4.json
+2026-09-12T13:50:00.501Z (bring-up) starting the radio link on COM7 at 921600 baud, from the saved profile
+2026-09-12T13:50:00.518Z (port-loop) starting, port &{COM7 921600}
+2026-09-12T13:50:00.520Z (port-loop)(initial) opening port COM7
+2026-09-12T13:50:01.284Z (port-loop)(initial) port COM7 opened
+2026-09-12T13:50:01.305Z (send-loop) starting, refresh rate 4ms
+2026-09-12T14:03:20.900Z W17T {"ev":"raceday_press","t":"2026-09-12T14:03:20.900Z"}
+2026-09-12T14:03:20.980Z [mapper] started managed (pid 8123): C:\W17\elrs-joystick-control.exe -config-file-path C:\W17\w17-ds4.json
+2026-09-12T14:03:20.981Z W17T {"ev":"mapper_spawn","t":"2026-09-12T14:03:20.981Z","pid":8123}

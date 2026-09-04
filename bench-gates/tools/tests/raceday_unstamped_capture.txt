@@ -1,0 +1,5 @@
+# SYNTHETIC — the FAILURE MODE this tooling exists to catch: a raw capture with
+# no timestamps at all, which is what the shipped software actually produces.
+[mapper] started managed (pid 8123): C:\W17\elrs-joystick-control.exe -config-file-path C:\W17\w17-ds4.json
+(port-loop)(initial) opening port COM7
+(port-loop)(initial) port COM7 opened

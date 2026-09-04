@@ -1,0 +1,8 @@
+2026-09-12T14:03:20.098Z W17T {"ev":"raceday_press","t":"2026-09-12T14:03:20.100Z","busy":false}
+2026-09-12T14:03:20.410Z [mapper] started managed (pid 8123): C:\W17\elrs-joystick-control.exe -config-file-path C:\W17\w17-ds4.json
+2026-09-12T14:03:20.411Z W17T {"ev":"mapper_spawn","t":"2026-09-12T14:03:20.412Z","pid":8123}
+2026-09-12T14:03:21.180Z (bring-up) starting the radio link on COM7 at 921600 baud, from the saved profile
+2026-09-12T14:03:21.190Z (port-loop)(initial) opening port COM7
+2026-09-12T14:03:22.480Z (port-loop)(initial) port COM7 opened
+2026-09-12T14:03:22.518Z W17T {"ev":"raceday_link_claim","t":"2026-09-12T14:03:22.516Z","kind":"running"}
+2026-09-12T14:03:22.600Z (send-loop) starting, refresh rate 250Hz

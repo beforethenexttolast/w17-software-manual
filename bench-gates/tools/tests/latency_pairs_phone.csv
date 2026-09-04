@@ -1,0 +1,14 @@
+# SYNTHETIC — hand-written for the self-test. NOT bench evidence, NOT observed.
+# 240 fps capture; n_source = frame the flash edge appears on the source monitor,
+# n_display = frame the same edge appears on the phone screen.
+n_source,n_display,label
+1200,1236,edge 1
+1680,1719,edge 2
+2160,2194,edge 3
+2640,2678,edge 4
+3120,3155,edge 5
+3600,3641,edge 6
+4080,4114,edge 7
+4560,4597,edge 8
+5040,5076,edge 9
+5520,5559,edge 10

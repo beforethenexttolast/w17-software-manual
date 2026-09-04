@@ -1,0 +1,8 @@
+[t=2026-09-12T14:03:19.998Z m=118] [raceday] external drive-program probe failed (treated as not running): connect ECONNREFUSED
+[t=2026-09-12T14:03:20.100Z m=220] W17T {"ev":"raceday_press","t":"2026-09-12T14:03:20.100Z","m":220,"busy":false}
+[t=2026-09-12T14:03:20.412Z m=532] [mapper] started managed (pid 8123): C:\W17\elrs-joystick-control.exe -config-file-path C:\W17\w17-ds4.json
+[t=2026-09-12T14:03:20.412Z m=532] W17T {"ev":"mapper_spawn","t":"2026-09-12T14:03:20.412Z","m":532,"pid":8123}
+[t=2026-09-12T14:03:27.940Z m=8060] [raceday] the drive program has not raised the radio yet — reporting "not yet", not a fault
+[t=2026-09-12T14:03:29.612Z m=9732] W17T {"ev":"raceday_link_late","t":"2026-09-12T14:03:29.612Z","m":9732,"kind":"running"}
+[t=2026-09-12T14:03:31.004Z m=11124] W17T {"ev":"raceday_stop_press","t":"2026-09-12T14:03:31.004Z","m":11124,"busy":false}
+[t=2026-09-12T14:03:31.100Z m=11220] [mapper] exited (0) — stopped by this app

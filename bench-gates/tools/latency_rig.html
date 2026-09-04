@@ -1,0 +1,224 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>W17 glass-to-glass latency rig</title>
+<!--
+  W17 OFFLINE READINESS — bench-gate tooling (card G-02).
+
+  WHAT THIS IS. A self-contained, offline HTML page shown on the SOURCE monitor
+  that the FPV camera is pointed at. It gives a high-speed capture three things
+  it can read back frame by frame:
+
+    1. a full-screen FLASH (black <-> white) on a fixed period, so the moment of
+       change is unmistakable at 240 fps even through a lossy H.264 encode;
+    2. a large millisecond COUNTER (monotonic, from performance.now()), so a
+       single still frame that catches both screens can be cross-checked
+       without counting frames at all;
+    3. a 12-bit binary STRIP encoding the flash id, rendered as large solid
+       cells, so the reading can be a number produced by a script rather than a
+       judgement about a picture. The strip idea is taken from the method
+       already recorded at iPhone_rc/docs/SIMULATOR_TESTING.md:230-242, where a
+       10-bit strip was burned into the test source for the same reason.
+
+  WHAT IT IS NOT. It is not a measurement by itself and it produces no number.
+  The number comes from filming BOTH screens in one shot and running
+  bench-gates/tools/latency_from_frames.py over the two frame indices. Nothing
+  here talks to the car, the mapper, the firmware, CRSF, a servo or a gimbal;
+  it is a page on a monitor.
+
+  NO NETWORK. No external script, style, font or image. Open it with file:// on
+  the machine driving the source monitor. It must keep working with the Wi-Fi
+  off, because the bench rig is a hotspot with no internet.
+
+  URL PARAMETERS (all optional):
+    ?period=2000   flash period in ms (default 2000, minimum 250)
+    ?duty=0.5      fraction of the period the screen is WHITE (default 0.5)
+    ?strip=1       show the binary strip (default 1; 0 hides it)
+    ?counter=1     show the millisecond counter (default 1)
+    ?mirror=1      mirror horizontally, for a rig that films via a mirror
+  Keyboard: F = force a flash edge now.  H = hide/show the help footer.
+-->
+<style>
+  :root { color-scheme: dark; }
+  html, body {
+    margin: 0; padding: 0; height: 100%; width: 100%;
+    background: #000; color: #fff;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "DejaVu Sans Mono", monospace;
+    overflow: hidden;
+  }
+  #stage {
+    position: fixed; inset: 0;
+    display: grid; grid-template-rows: 14vh 1fr auto;
+    background: #000;
+    transition: none; /* a transition would smear the very edge we are timing */
+  }
+  #stage.on { background: #fff; }
+  #strip {
+    display: grid; grid-auto-flow: column; grid-auto-columns: 1fr;
+    border-bottom: 0.6vh solid #808080;
+  }
+  .cell { background: #000; }
+  .cell.hi { background: #fff; }
+  /* On a WHITE flash the strip would vanish into the background, so the strip
+     row keeps its own dark plate and inverts nothing. */
+  #stripPlate { background: #202020; display: grid; }
+  #middle {
+    display: flex; align-items: center; justify-content: center;
+    flex-direction: column; gap: 1vh;
+  }
+  #counter {
+    font-size: 16vh; font-weight: 700; letter-spacing: -0.02em;
+    font-variant-numeric: tabular-nums;
+    color: #ff2d2d;                    /* readable on black AND on white */
+    text-shadow: 0 0 0.4vh #000;
+    line-height: 1;
+  }
+  #flashid { font-size: 6vh; color: #22c55e; text-shadow: 0 0 0.4vh #000; }
+  #state {
+    font-size: 5vh; letter-spacing: 0.3em; color: #38bdf8; text-shadow: 0 0 0.4vh #000;
+  }
+  #foot {
+    padding: 1.2vh 2vw; font-size: 1.8vh; line-height: 1.5;
+    background: #111; color: #bbb; border-top: 0.3vh solid #333;
+  }
+  #foot b { color: #eee; }
+  #foot.hidden { display: none; }
+  .mirrored { transform: scaleX(-1); }
+</style>
+</head>
+<body>
+<div id="stage">
+  <div id="stripPlate"><div id="strip"></div></div>
+  <div id="middle">
+    <div id="counter">0000000</div>
+    <div id="flashid">FLASH 0</div>
+    <div id="state">DARK</div>
+  </div>
+  <div id="foot">
+    <b>W17 glass-to-glass latency rig.</b> Point the car camera at this screen. Film this
+    screen and the phone/laptop screen together at 240&nbsp;fps. Note the capture frame index
+    of the same flash edge on each, then run
+    <b>bench-gates/tools/latency_from_frames.py</b>.
+    Keys: <b>F</b> force a flash edge &middot; <b>H</b> hide this footer.
+    This page sends nothing anywhere and controls nothing.
+  </div>
+</div>
+<script>
+(function () {
+  'use strict';
+
+  var q = new URLSearchParams(location.search);
+  function num(name, dflt, min, max) {
+    var v = parseFloat(q.get(name));
+    if (!isFinite(v)) return dflt;
+    if (typeof min === 'number' && v < min) return min;
+    if (typeof max === 'number' && v > max) return max;
+    return v;
+  }
+  function flag(name, dflt) {
+    var v = q.get(name);
+    if (v === null) return dflt;
+    return v !== '0' && v !== 'false';
+  }
+
+  var PERIOD  = num('period', 2000, 250, 60000);   // ms between flash edges
+  var DUTY    = num('duty', 0.5, 0.05, 0.95);
+  var SHOW_STRIP   = flag('strip', true);
+  var SHOW_COUNTER = flag('counter', true);
+  var MIRROR       = flag('mirror', false);
+
+  var STRIP_BITS = 12;                             // flash ids 0..4095, then wraps
+
+  var stage   = document.getElementById('stage');
+  var strip   = document.getElementById('strip');
+  var plate   = document.getElementById('stripPlate');
+  var counter = document.getElementById('counter');
+  var flashid = document.getElementById('flashid');
+  var stateEl = document.getElementById('state');
+  var foot    = document.getElementById('foot');
+
+  if (MIRROR) stage.classList.add('mirrored');
+  if (!SHOW_COUNTER) counter.style.visibility = 'hidden';
+  if (!SHOW_STRIP) plate.style.display = 'none';
+
+  // Bit cells: bit 0 is LEFTMOST, matching the SIMULATOR_TESTING.md convention
+  // so a reader written for one strip reads the other.
+  var cells = [];
+  for (var i = 0; i < STRIP_BITS; i++) {
+    var d = document.createElement('div');
+    d.className = 'cell';
+    strip.appendChild(d);
+    cells.push(d);
+  }
+
+  var t0 = performance.now();
+  var flashCount = 0;
+  var lastEdgeAt = t0;
+  var on = false;
+  var forcedEdge = false;
+
+  function paintStrip(value) {
+    for (var b = 0; b < STRIP_BITS; b++) {
+      var hi = ((value >> b) & 1) === 1;
+      var c = cells[b];
+      if (hi !== (c.className === 'cell hi')) c.className = hi ? 'cell hi' : 'cell';
+    }
+  }
+
+  function frame(now) {
+    var elapsed = now - t0;
+
+    // The counter is the elapsed millisecond count since page load, zero-padded
+    // to 7 digits so its width never changes (a changing width is one more
+    // thing to misread on a still frame).
+    if (SHOW_COUNTER) {
+      var ms = Math.floor(elapsed);
+      counter.textContent = String(ms % 10000000).padStart(7, '0');
+    }
+
+    var sinceEdge = now - lastEdgeAt;
+    var wantOn = on;
+    if (forcedEdge) {
+      wantOn = !on;
+      forcedEdge = false;
+      lastEdgeAt = now;
+      sinceEdge = 0;
+    } else if (!on && sinceEdge >= PERIOD * (1 - DUTY)) {
+      wantOn = true;
+      lastEdgeAt = now;
+    } else if (on && sinceEdge >= PERIOD * DUTY) {
+      wantOn = false;
+      lastEdgeAt = now;
+    }
+
+    if (wantOn !== on) {
+      on = wantOn;
+      stage.classList.toggle('on', on);
+      stateEl.textContent = on ? 'LIGHT' : 'DARK';
+      if (on) {
+        // A new flash id is minted on the DARK -> LIGHT edge only, so the id a
+        // capture frame shows is unambiguous: it belongs to the light phase it
+        // is painted on.
+        flashCount = (flashCount + 1) & ((1 << STRIP_BITS) - 1);
+        flashid.textContent = 'FLASH ' + flashCount;
+        if (SHOW_STRIP) paintStrip(flashCount);
+      }
+    }
+
+    requestAnimationFrame(frame);
+  }
+
+  document.addEventListener('keydown', function (e) {
+    var k = (e.key || '').toLowerCase();
+    if (k === 'f') { forcedEdge = true; e.preventDefault(); }
+    if (k === 'h') { foot.classList.toggle('hidden'); e.preventDefault(); }
+  });
+
+  paintStrip(0);
+  requestAnimationFrame(frame);
+})();
+</script>
+</body>
+</html>
