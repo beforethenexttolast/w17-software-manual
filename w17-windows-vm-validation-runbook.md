@@ -773,11 +773,11 @@ the two guest-side setup steps that bite silently (the `authorized_keys` split, 
 
 | script | runs on | what it does |
 |---|---|---|
-| `scripts/vm/host-vm.sh` | the **Mac** | `vmrun` + `ssh`/`scp` wrapper: `doctor start stop status snapshot revert snapshots screenshot ip ssh push pull stage bootstrap check suite`. Every verb is idempotent; `--dry-run` prints the exact commands and executes none. Every `ssh`/`scp` runs `BatchMode=yes` + `ConnectTimeout=10` so the password prompt §1.5 predicts fails fast instead of hanging an unattended run; `--interactive` drops BatchMode for the one deliberate `ssh -t` case. `--session STAMP` pins the evidence session (§4.1). |
+| `scripts/vm/host-vm.sh` | the **Mac** | `vmrun` + `ssh`/`scp` wrapper: `doctor start stop status snapshot revert snapshots screenshot ip ssh push pull stage bootstrap check suite selftest`. Every verb is idempotent; `--dry-run` prints the exact commands and executes none. Every `ssh`/`scp` runs `BatchMode=yes` + `ConnectTimeout=10` so the password prompt §1.5 predicts fails fast instead of hanging an unattended run; `--interactive` drops BatchMode for the one deliberate `ssh -t` case. `--session STAMP` pins the evidence session (§4.1). |
 | `scripts/vm/guest-bootstrap.ps1` | the **guest**, elevated | OpenSSH Server + service; `authorized_keys` in the file **the ssh login account** (`-SshUser`) will actually be read from, with the correct ACL; ONE scoped firewall rule (Private profile, your NAT subnet only, validated as a real RFC1918 range) **and Windows' own unscoped inbox rule disabled**; PowerShell 7 from the ARM64 MSI. Idempotent; `-DryRun` reports without changing. Exits 0 OK / 1 failed / 2 not elevated / 3 not Windows / **4 configured but a posture action is outstanding**. Runs under Windows PowerShell 5.1 on purpose — it is what installs pwsh 7. |
 | `scripts/vm/guest-check.ps1` | the **guest** | Read-only readiness verdict + JSON evidence: Windows version/arch, pwsh ≥ 7.4 **and where it resolved from**, execution policy, sshd + **a GATING check on the scope of every enabled rule reaching TCP/22**, VMware Tools, COM ports with VID:PID (FTDI flagged), DS4 HID, and `netsh wlan show drivers` parsed for hosted-network / Wi-Fi Direct / radio types. |
 
-Three properties worth knowing before you rely on them:
+Five properties worth knowing before you rely on them:
 
 - **`doctor` needs nothing installed.** It is the one thing runnable on this Mac today, and it
   prints one `BLOCKED` line per outstanding owner action (§1.0). Run it first, and again after
