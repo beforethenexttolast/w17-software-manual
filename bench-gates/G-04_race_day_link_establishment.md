@@ -236,7 +236,10 @@ $env:ELECTRON_ENABLE_LOGGING = '1'
 > probe's result object carries **no timing fields at all** (`:232-251`), so it answers
 > the *outcome* question and not the *timing* one. Part A remains the measurement.
 
-Reduce:
+Reduce. **This step runs on the Mac, not the Windows PC** — copy every capture file made in
+the two Windows blocks above (`G-04_partA_cold_*.txt`, `G-04_stamp_sanity_*.txt`,
+`G-04_partB_gs_*.txt`) across to this machine first, into `bench-gates/evidence/G-04/` under
+the plain names the commands below expect:
 
 ```sh
 cd /Users/vitaliykhomenko/Documents/projects
@@ -252,11 +255,22 @@ echo "exit=$?"      # 0 = inside the window, 1 = outside / never claimed, 2 = un
 # echoed and never written to a file (mapperRunner.js:144-151 `_record` pushes into
 # `this._ring` and nothing else; :163-167 `stdio: ['ignore','pipe','pipe']`). That is by
 # design and is not a defect to work around -- it is exactly why Part A exists.
+#
+# THIS MERGED VIEW IS A SIDE-BY-SIDE READING AID ONLY, NEVER A GATE NUMBER. Part A
+# and Part B are two DIFFERENT RUNS, minutes or hours apart; sorted together they
+# have no shared clock origin, so a spawn/port-open pairing that straddles the two
+# files is meaningless even when it happens to come out positive. THE GATE ALWAYS
+# COMES FROM A SINGLE PART A CAPTURE ON ITS OWN (the "Reduce" block just above this
+# one) -- never from this merge. If the pairing straddles the two files the wrong
+# way, raceday_timing.py now refuses the capture outright (exit 2, "NEGATIVE LEG
+# DURATION ... this capture is not one run"); a same-direction straddle that still
+# parses is not thereby a valid gate reading either -- read this file's verdict as
+# "what the two logs looked like side by side", not as PASS/FAIL evidence.
 sort -m bench-gates/evidence/G-04/partB_gs.txt \
         bench-gates/evidence/G-04/partA_cold_run1.txt \
   | python3 bench-gates/tools/raceday_timing.py - \
       --json bench-gates/evidence/G-04/partB_merged.json
-echo "exit=$?"
+echo "exit=$?"      # a non-zero exit here (esp. 2) does not fail this card -- see above
 
 # to test a candidate replacement for the constant without editing any code:
 python3 bench-gates/tools/raceday_timing.py \
@@ -406,6 +420,10 @@ bench-gates/evidence/G-04/
                                 # stdout goes only to a bounded in-memory ring
                                 # (mapperRunner.js:144-151, :163-167). The merged view
                                 # lays partB_gs.txt beside PART A's mapper capture.
+                                # partB_merged.json is a READING AID ONLY, NEVER A GATE
+                                # NUMBER -- Part A and Part B are different runs, minutes
+                                # or hours apart. The gate always comes from a single
+                                # Part A capture (partA_cold_run*.json) on its own.
   partB_probelog.txt            # RACEDAY_PROBE_RESULT.probeLog[], the WS3 sink; stamped
                                 # `[t=<ISO> m=<ms>]` at race-day-probe.js:126
   partB_wordings.md             # each DRIVE PROGRAM kind seen, verbatim, + halt or not

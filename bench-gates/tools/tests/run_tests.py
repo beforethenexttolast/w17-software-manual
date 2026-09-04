@@ -218,6 +218,28 @@ check("clock-step keeps the wall-clock figure visible for the record",
       any(l.get("wall_ms") is not None for l in r["legs"]),
       str([l.get("wall_ms") for l in r["legs"]]))
 
+# 8f. A merged view built from TWO DIFFERENT RUNS (G-04's own Part A cold-run
+#     capture `sort -m`'d with its Part B GS-side capture, minutes apart) must
+#     be refused, not scored — V-C's N-1: unpatched, this exact shape computed
+#     a -799696 ms gate leg and reported PASS with +804696 ms of "headroom".
+code, out, err, blob = run_json(
+    [RACEDAY, os.path.join(HERE, "raceday_negative_leg_capture.txt")])
+r = blob["result"]
+check("negative-leg fixture exits 2, not 0 or 1", code == 2, "exit=%d" % code)
+check("negative-leg fixture verdict is UNUSABLE, not PASS",
+      r["verdict"] == "UNUSABLE", r["verdict"])
+check("negative-leg fixture carries no gate measurement",
+      r["gate_measurement_ms"] is None, str(r["gate_measurement_ms"]))
+check("negative-leg fixture raises a NEGATIVE LEG DURATION finding",
+      any("NEGATIVE LEG DURATION" in f for f in r["findings"]), str(r["findings"]))
+check("negative-leg fixture names the gate leg by name",
+      any("THE GATE MEASUREMENT" in f for f in r["findings"]), str(r["findings"]))
+check("negative-leg fixture says the merged view is a reading aid, not a gate",
+      any("reading aid only, never a gate measurement" in f for f in r["findings"]),
+      str(r["findings"]))
+check("negative-leg fixture points back to a single Part A capture",
+      any("single Part A capture" in f for f in r["findings"]), str(r["findings"]))
+
 
 print("latency_from_frames.py")
 

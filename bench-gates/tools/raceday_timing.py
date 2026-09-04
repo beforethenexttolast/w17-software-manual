@@ -32,7 +32,10 @@
 # EXIT CODES
 #   0  parsed, and the link was claimed inside the window   (PASS)
 #   1  parsed, and it was not                                (FAIL)
-#   2  usage / parse error: no timestamps, or no spawn marker to measure from
+#   2  usage / parse error: no timestamps, no spawn marker to measure from, or
+#      a NEGATIVE-DURATION leg (the capture is not one run — e.g. two different
+#      captures, such as G-04's Part A + Part B merged view, sorted together
+#      and parsed as a single timeline; see G-04 "Exact commands")
 #
 # No dependencies beyond the standard library. Python 3.8+.
 
@@ -435,13 +438,27 @@ def analyse(events: List[Event], window_ms: float) -> dict:
     leg("STOP pressed -> drive program exited", stop_press, exited,
         "G-04 criterion 10; the checklist asks for this lag and states no threshold")
 
+    # A negative-duration leg means this capture is not one run: two different
+    # captures (most commonly G-04's Part A cold-run file merged with its
+    # Part B GS-side file, `sort -m`'d together per the card's "Exact
+    # commands") were parsed as if they were a single timeline, so an event
+    # that really happened later ends up stamped earlier than one it should
+    # follow. Nothing else in this script can detect that on its own — the
+    # parser has no notion of "which file did this line come from" once the
+    # lines are merged — so any leg computed below zero is refused outright,
+    # the same way an unstamped capture is refused, rather than reported as a
+    # PASS with implausible headroom.
+    negative_legs = [l for l in legs if l["ms"] is not None and l["ms"] < 0]
+
     gate = next(l for l in legs if l["leg"].startswith("spawn -> port OPEN"))
     measured = gate["ms"]
     gate_source = "mapper's own '(port-loop)(initial) port ... opened' line"
-    if measured is None:
+    gate_is_fallback = False
+    if measured is None and not negative_legs:
         fallback = next(l for l in legs if l["leg"].startswith("spawn -> GS saw"))
         if fallback["ms"] is not None:
             measured = fallback["ms"]
+            gate_is_fallback = True
             gate_source = ("ground station's own W17T raceday_link_claim (the mapper's "
                            "stdout is not in this capture); includes 0..100 ms of poll "
                            "quantisation and is the GS's OBSERVATION of the claim, not "
@@ -451,24 +468,52 @@ def analyse(events: List[Event], window_ms: float) -> dict:
                 "claim, not the mapper's own port-open line. It is late by 0..100 ms "
                 "(raceDayOrchestrator.js:512 _awaitLink polls every 100 ms) and is an "
                 "upper bound on the true port-open latency.")
-    if measured is None and claim_late is not None:
+    if measured is None and not negative_legs and claim_late is not None:
         findings.append(
             "the radio came up AFTER the window closed; see the 'radio up LATE' leg for "
             "how far outside it was. That number is the datum G-04 criterion 1 asks for.")
 
-    if measured is None:
+    if negative_legs:
+        bad = ", ".join(repr(l["leg"]) for l in negative_legs)
+        findings.append(
+            "NEGATIVE LEG DURATION on %s: an end-event is timestamped BEFORE its "
+            "start-event, so this capture is not one run. This is what a merged "
+            "side-by-side view (e.g. G-04's Part A cold-run file sorted together "
+            "with its Part B GS-side file) looks like when it is fed to this parser "
+            "as if it were a single timeline — the two files come from different "
+            "runs, minutes or hours apart, and their events interleave without "
+            "regard for which run they belong to. Such a merged view is a reading "
+            "aid only, never a gate measurement: the gate always comes from a "
+            "single Part A capture on its own (see G-04 'Exact commands')." % bad)
+        verdict = "UNUSABLE"
+        reason = ("this capture contains %d negative-duration leg(s) (%s) and cannot "
+                  "be scored as a gate measurement — it is not one run" % (len(negative_legs), bad))
+        measured = None
+        gate_source = None
+    elif measured is None:
         verdict = "FAIL"
         reason = ("the radio claim was never observed in this capture, so the "
                   "window cannot be said to have been met")
     elif measured <= window_ms:
         verdict = "PASS"
-        reason = ("the transmitter port opened %.0f ms after spawn, inside the "
-                  "%.0f ms window" % (measured, window_ms))
+        if gate_is_fallback:
+            reason = ("the ground station OBSERVED the radio link up %.0f ms after spawn "
+                      "(an upper bound — see FINDINGS; the mapper's own port-open line is "
+                      "not in this capture), inside the %.0f ms window" % (measured, window_ms))
+        else:
+            reason = ("the transmitter port opened %.0f ms after spawn, inside the "
+                      "%.0f ms window" % (measured, window_ms))
     else:
         verdict = "FAIL"
-        reason = ("the transmitter port opened %.0f ms after spawn, OUTSIDE the "
-                  "%.0f ms window — this is the datum that settles the constant, "
-                  "not only a red mark" % (measured, window_ms))
+        if gate_is_fallback:
+            reason = ("the ground station OBSERVED the radio link up %.0f ms after spawn "
+                      "(an upper bound — see FINDINGS; the mapper's own port-open line is "
+                      "not in this capture), OUTSIDE the %.0f ms window — this is the datum "
+                      "that settles the constant, not only a red mark" % (measured, window_ms))
+        else:
+            reason = ("the transmitter port opened %.0f ms after spawn, OUTSIDE the "
+                      "%.0f ms window — this is the datum that settles the constant, "
+                      "not only a red mark" % (measured, window_ms))
 
     headroom = None if measured is None else window_ms - measured
 
@@ -496,6 +541,7 @@ def analyse(events: List[Event], window_ms: float) -> dict:
             "anything about FIRST_ACTIVE / R15, which stay NO-GO "
             "(W17_CURRENT_STATE.md:61, CURRENT_STATUS.md:1384-1385).",
         ],
+        "unusable": bool(negative_legs),
     }
 
 
@@ -594,6 +640,8 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
             except OSError as exc:
                 die("could not write %s: %s" % (args.json, exc))
 
+    if result.get("unusable"):
+        return EXIT_USAGE
     return EXIT_PASS if result["verdict"] == "PASS" else EXIT_FAIL
 
 
