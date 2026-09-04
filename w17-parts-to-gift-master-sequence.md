@@ -171,7 +171,8 @@ conditions.**
 - **Evidence of done:** the §11 measurement table filled with real readings, PASS/FAIL, gate, and
   photo # for every row (including the H5/G11/G14/PD1/CP1–CP3/E7 conditional rows, each recorded
   as present *or* explicitly N/A — never blank).
-- **Stop conditions:** any of the 9 hard stops in §13 — full stop, no powering, report.
+- **Stop conditions:** any of the 10 hard stops in §13 (stop 10, the boot-mode strap-pin check,
+  was added 2026-09-02/03) — full stop, no powering, report.
   **Two measurements are OWED before SF's first joint and gate nothing else until closed:** the
   socket-stack caliper (stage 1) and the MH-ET silkscreen adjacent-pin derivation.
 
