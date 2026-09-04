@@ -1,24 +1,51 @@
 # BG-06 — CRSF on the wire
 
 *The open bench gate named in `CURRENT_STATUS.md`'s top entry and
-`closeout/vision-alignment-2026-09-04.md`:264 as* **"CRSF on the wire — not one frame has ever
+`closeout/vision-alignment-2026-09-04.md`:266 as* **"CRSF on the wire — not one frame has ever
 been observed leaving the mapper."** *No runbook owns it today; this card is that runbook.*
 
 > **Two independent wires carry CRSF in this project, and only one of them is car-side.** They fail
 > differently, they need different equipment, and they can be proven on different days:
 >
-> | Tap | Wire | Baud | Gate that owns it | Needs the car? |
+> | Tap | Wire | Baud | Gate that owns it | Car-side gate? |
 > |---|---|---|---|---|
-> | **T1** | PC (`elrs-joystick-control` / mapper) → ELRS TX module, over USB serial | **921600** | this card, **PC half** | **No** — TX module + PC only |
+> | **T1** | PC (`elrs-joystick-control` / mapper) → ELRS TX module, over USB serial | **921600** | this card, **PC half** | **un-gated by A2/Phase B, but a live-TX bench procedure** — see Prerequisites |
 > | **T2** | RP1 receiver → ESP32 #1 GPIO16 | **420000** | this card, **car half**; also Phase B **B1.1** and D8 Phase 2 | **Yes** — Phase B |
 >
-> T1's PC half is the one nothing has ever observed. It is **independent of A2 and Phase B**: no
-> car, no battery, no firmware. The ground-track worker owns the mapper's own behaviour; this card
-> owns the **wire-level proof** and the tool that produces it.
+> T1's PC half is the one nothing has ever observed. It is **un-gated by A2/Phase B, but a live-TX
+> bench procedure under `w17-windows-vm-validation-runbook.md`:370-397: car UNPOWERED or RP1
+> UNBOUND, no bound RX powered in range, attended, discharges nothing (RESIDUAL A); it requires
+> explicit owner authorization like every other gate.** The ground-track worker owns the mapper's
+> own behaviour; this card owns the **wire-level proof** and the tool that produces it.
 
 ## Prerequisites
 
-**T1 (PC → TX module) — no car-side gate at all:**
+**T1 (PC → TX module) — un-gated by A2/Phase B, but a live-TX bench procedure under
+`w17-windows-vm-validation-runbook.md`:370-397: car UNPOWERED or RP1 UNBOUND, no bound RX powered
+in range, attended, discharges nothing (RESIDUAL A); requires explicit owner authorization like
+every other gate.**
+
+**T1 preconditions — all of them, before the TX module is powered:**
+
+0a. **The car is UNPOWERED, or its RP1 is UNBOUND. Not optional**
+    (`w17-windows-vm-validation-runbook.md`:384). Today this is trivially true — nothing is
+    assembled — but it must be *stated and checked*, because it stops being trivially true the
+    day A2 opens.
+0b. **No bound receiver is powered anywhere in range.** RESIDUAL A is about a live full-rate
+    transmitter, not about the COM port: on gamepad loss the mapper *"still transmits at full
+    rate … fail-to-neutral, not fail-silent, so the firmware's radio-loss failsafe still does not
+    fire"*, with switch channels latching downstream
+    (`w17-windows-vm-validation-runbook.md`:393-397, `CURRENT_STATUS.md`:1373-1376).
+0c. **Attended.** Powering the TX module is powering hardware, and the workspace `CLAUDE.md`
+    forbids powering hardware in an unattended session. Same rule as T2's observer.
+0d. **This discharges nothing on the FIRST_ACTIVE ladder** — it is a bench procedure under
+    FIRST_ACTIVE, which is NO-GO; it is **not** an R15 test and unlocks nothing
+    (`w17-windows-vm-validation-runbook.md`:385-391).
+0e. **Do not detach the TX module's antenna.** The sourced mitigation is (car unpowered OR RP1
+    unbound) and nothing else; running a TX module's PA into an open port is not authorised
+    anywhere in this project and risks the module.
+
+**T1 equipment and configuration:**
 
 1. The ELRS TX module and a PC running the mapper (`w17-mapper`, `elrs-joystick-control`).
 2. A saved profile whose `tx.port` names the port the link will actually run on. **A link started
@@ -55,7 +82,8 @@ been observed leaving the mapper."** *No runbook owns it today; this card is tha
 ## Topology (ASCII)
 
 ```
-  T1 — PC half (NO car, NO battery, NO firmware; independent of A2/Phase B)
+  T1 — PC half (NO car, NO battery, NO firmware; un-gated by A2/Phase B, but a
+       live-TX bench procedure: car UNPOWERED or RP1 UNBOUND, attended — see above)
   -------------------------------------------------------------------------
      elrs-joystick-control (mapper)
             |  USB serial, 921600 8N1
@@ -93,6 +121,9 @@ been observed leaving the mapper."** *No runbook owns it today; this card is tha
 2. **Prove the adapter can do the baud.** Loop the adapter's TX to its own RX, send a known byte
    pattern at the target rate, and confirm it comes back. **Do this with the adapter off the car's
    wire.** If it fails, the adapter is the finding, not the link.
+2b. **T1 — check the live-TX preconditions 0a–0e out loud, and write them down.** Car unpowered
+    or RP1 unbound; no bound RX powered in range; someone else present; antenna attached. **If any
+    one of them cannot be asserted, stop — this is a gate, not a free run.**
 3. **T1 — wire the tap** on the PC→TX-module line: adapter **RX** to the line, adapter **GND** to
    common, adapter **TX unconnected**.
 4. **T1 — start the mapper** on its profile and let the link come up on the profile's own `tx.port`
@@ -135,7 +166,8 @@ python3 bench-gates/tools/crsf_sniff.py --file /tmp/w17_ref.bin --quiet --summar
 # 2. Evidence folder.
 bench-gates/tools/bench_capture.sh BG-06 --no-serial --note "CRSF on the wire, tap T1/T2"
 
-# 3. T1 — PC -> ELRS TX module, 921600 (no car, no Phase B gate):
+# 3. T1 — PC -> ELRS TX module, 921600.  NOT gated by A2/Phase B, but a LIVE TX:
+#    car UNPOWERED or RP1 UNBOUND, no bound RX powered in range, attended.
 python3 bench-gates/tools/crsf_sniff.py \
   --port /dev/tty.usbserial-TAP --baud 921600 --seconds 30 \
   --raw-out bench-gates/evidence/BG-06/<stamp>/T1_pc_to_tx.bin \
@@ -205,6 +237,10 @@ python3 bench-gates/tools/crsf_sniff.py \
   `-tx-serial-port-name` (if passed at all) names the **same** port as the profile's `tx.port`;
   bring-up prints a warning when they disagree and **the warning is the only thing that notices**
   (`w17-mapper/configs/README.md`:23-30).
+- **T1: any of preconditions 0a–0e cannot be asserted** — in particular a bound RP1 powered
+  anywhere in range. Stop before the TX module is powered. This tap transmits at full rate and
+  fails to *neutral*, not to silence (RESIDUAL A, `w17-windows-vm-validation-runbook.md`:393-397),
+  so a bound receiver in range is being driven whether or not anyone intended it.
 - **Any temptation to conclude "the wire is fine" from a capture taken with a decoder that failed
   its own tests.** The tool proof is step 1 for exactly this reason.
 
@@ -223,6 +259,7 @@ python3 bench-gates/tools/crsf_sniff.py \
 ```
 bench-gates/evidence/BG-06/<UTC-stamp>/
   meta.txt   MANIFEST.txt
+  T1_preconditions.txt           # 0a-0e asserted, by name, with who was present
   tool_proof_unit_tests.txt      # test_crsf_sniff.py output + exit code
   tool_proof_xcheck.txt          # crsf_xcheck_cpp.sh output + exit code
   adapter_loopback.txt           # proof the adapter does 420000 / 921600
@@ -239,8 +276,11 @@ bench-gates/evidence/BG-06/<UTC-stamp>/
 ## Downstream unlocked by PASS
 
 - **The standing finding closes**: "not one frame has ever been observed leaving the mapper"
-  (`closeout/vision-alignment-2026-09-04.md`:264) becomes a dated observation with a byte capture
-  behind it — **T1 alone does that, with no car and no Phase B**.
+  (`closeout/vision-alignment-2026-09-04.md`:266) becomes a dated observation with a byte capture
+  behind it — **T1 alone does that**, and T1 is **un-gated by A2/Phase B, but a live-TX bench
+  procedure under `w17-windows-vm-validation-runbook.md`:370-397: car UNPOWERED or RP1 UNBOUND, no
+  bound RX powered in range, attended, discharges nothing (RESIDUAL A); it requires explicit owner
+  authorization like every other gate.**
 - **T2 PASS** is the frame-level evidence for **Phase B B1.1** and **D8 Phase 2**, and it de-risks
   every later row that assumes "the link works".
 - Together they separate two failure classes that otherwise look identical on the car: *nothing is
@@ -267,7 +307,11 @@ bench-gates/evidence/BG-06/<UTC-stamp>/
 
 ## Evidence label at card creation
 
-**NOT-EXECUTED** for both taps. No CRSF frame has ever been observed on either wire in this
+**NOT-EXECUTED** for both taps, and **both are gated**: T2 by A2 + Phase B, T1 by the live-TX
+precondition set 0a–0e. T1 is un-gated by A2/Phase B — it is not blocked by them and it is the
+cheapest open gate in the project — but it is a gated bench procedure with a stated precondition
+set, not a "no gate at all" item.
+ No CRSF frame has ever been observed on either wire in this
 project. The **tooling**, by contrast, is **VERIFIED** offline on this Mac: `test_crsf_sniff.py`
 21/21 exit 0, and `crsf_xcheck_cpp.sh` 300/300 vectors matching the firmware's own
 `CrsfParser.cpp`, 0 mismatches — that is a statement about the decoder, **not** about any wire.
