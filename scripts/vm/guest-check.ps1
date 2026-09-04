@@ -26,7 +26,9 @@
     * pwsh >= 7.4, and WHERE it resolves from (a per-user MSIX alias resolves
       for an interactive shell and not for machine-context tooling);
     * execution policy per scope;
-    * sshd service state, plus the scope of any inbound rule on TCP/22;
+    * sshd service state, plus the scope of every enabled inbound rule that
+      reaches TCP/22 -- GATING, because the guest raises its own SoftAP during
+      30-hotspot.ps1 and an unscoped sshd rule follows it there (runbook 1.5);
     * VMware Tools service;
     * COM ports with VID:PID -- the ELRS TX rides an FT232RL (FTDI VID 0403),
       flagged when seen. READ-ONLY ENUMERATION: no port is ever opened;
@@ -178,6 +180,25 @@ function Get-W17BandClass {
     @{ tokens = $tokens; likely5GHzCapable = $null; why = "band-ambiguous PHYs only: $($tokens -join ',')" }
 }
 
+# Set-StrictMode -Version Latest makes `.Count` a trap on the two shapes a
+# PowerShell pipeline routinely produces, and they are exactly the two guest
+# states that matter here:
+#   * NO matches at all -> the pipeline yields $null, and $null.Count THROWS
+#     ("The property 'Count' cannot be found on this object"). Note that the
+#     obvious fix, @($x), does NOT help: @($null).Count is 1, so a plain wrap
+#     turns "zero devices" into "one device".
+#   * EXACTLY ONE match that is an [ordered] hashtable -> the pipeline yields
+#     the dictionary itself, and .Count returns its KEY count (7, 5, ...),
+#     not 1.
+# Every pipeline result in this file goes through this before anything asks it
+# for a .Count or indexes it. The self-test covers both cases; the same class
+# of bug already hid once in Get-W17BandClass.
+function ConvertTo-W17Array {
+    param([Parameter(Mandatory)][AllowNull()][AllowEmptyCollection()] $Value)
+    if ($null -eq $Value) { return , @() }
+    , @($Value)
+}
+
 # PNPDeviceID -> VID/PID. Returns $nulls rather than throwing on a non-USB id.
 function Get-W17VidPid {
     param([Parameter(Mandatory)][AllowEmptyString()][string] $PnpDeviceId)
@@ -240,6 +261,18 @@ Interface name: Wi-Fi 2
     Assert-Eq $true (ConvertTo-W17Tristate 'Yes') 'Yes'
     Assert-Eq $false (ConvertTo-W17Tristate 'No') 'No'
     Assert-Eq $null (ConvertTo-W17Tristate 'Nicht verfuegbar') 'unknown word -> null'
+
+    Write-Host 'ConvertTo-W17Array (the 0-device and 1-device cases that broke com-ports/ds4):'
+    Assert-Eq 0 (ConvertTo-W17Array $null).Count 'null (no devices at all) -> 0, not a throw and not 1'
+    Assert-Eq 0 (ConvertTo-W17Array @()).Count 'empty array -> 0'
+    Assert-Eq 0 (ConvertTo-W17Array (@() | ForEach-Object { $_ })).Count 'empty PIPELINE -> 0'
+    $oneOrdered = [ordered]@{ name = 'USB Serial Port (COM3)'; com = '3'; vid = '0403'; pid = '6001'; status = 'OK'; problem = 0; isFtdi = $true }
+    Assert-Eq 7 $oneOrdered.Count 'a bare [ordered] reports its KEY count -- this is the trap'
+    Assert-Eq 1 (ConvertTo-W17Array $oneOrdered).Count 'ONE [ordered] device -> 1, not its key count'
+    Assert-Eq 1 (ConvertTo-W17Array (@($oneOrdered) | ForEach-Object { $_ })).Count 'one device THROUGH a pipeline -> 1'
+    Assert-Eq 2 (ConvertTo-W17Array @($oneOrdered, $oneOrdered)).Count 'two devices -> 2'
+    Assert-Eq '0403' (ConvertTo-W17Array $oneOrdered)[0].vid 'a single result is still indexable'
+    Assert-Eq 1 @(ConvertTo-W17Array $oneOrdered | Where-Object { $_.isFtdi }).Count 'and still filterable (the $ftdi shape)'
 
     Write-Host 'Get-W17VidPid:'
     Assert-Eq '0403' (Get-W17VidPid 'USB\VID_0403&PID_6001\A50285BI').vid 'FT232RL vid'
@@ -306,7 +339,10 @@ Invoke-Guarded 'os' {
     }
     $arm = ($os.OSArchitecture -match 'ARM') -or ($env:PROCESSOR_ARCHITECTURE -eq 'ARM64') -or ($env:PROCESSOR_ARCHITEW6432 -eq 'ARM64')
     Add-Check 'windows-arm64' $arm -Advisory ("OSArchitecture='$($os.OSArchitecture)'. ARM64 is expected on an Apple silicon Fusion guest; the ground-station installer and the mapper are x64 and run under emulation (runbook 1.9). NOT a failure either way.")
-    Add-Check 'windows-build' $true "$($os.Caption) build $($os.BuildNumber)"
+    # ADVISORY: this records the build, it does not judge it. It used to be
+    # gating and hardcoded to $true, which inflated the "n/n gating checks
+    # passed" denominator with a check that could not fail.
+    Add-Check 'windows-build' $true -Advisory "$($os.Caption) build $($os.BuildNumber)"
 }
 
 # --- PowerShell 7 ------------------------------------------------------------
@@ -342,7 +378,9 @@ Invoke-Guarded 'execution-policy' {
     # AllSigned policy blocks the whole suite. RemoteSigned or Bypass is fine;
     # files copied by scp are not mark-of-the-web tagged, but say so rather
     # than relying on it.
-    Add-Check 'execution-policy' ($eff -in @('RemoteSigned', 'Unrestricted', 'Bypass')) "effective policy '$eff' (Restricted/AllSigned would block `pwsh -File`)"
+    # Single-quoted on purpose: in a double-quoted PowerShell string the
+    # backticks around `pwsh -File` are escape characters and are eaten.
+    Add-Check 'execution-policy' ($eff -in @('RemoteSigned', 'Unrestricted', 'Bypass')) ('effective policy ''' + $eff + ''' (Restricted/AllSigned would block `pwsh -File`)')
 }
 
 # --- sshd + its firewall scope ----------------------------------------------
@@ -361,7 +399,11 @@ Invoke-Guarded 'firewall-22' {
     $rules = Get-NetFirewallRule -Direction Inbound -Enabled True -ErrorAction Stop |
         Where-Object {
             $ports = Get-NetFirewallPortFilter -AssociatedNetFirewallRule $_ -ErrorAction SilentlyContinue
-            $ports -and ($ports.LocalPort -contains '22' -or $ports.LocalPort -contains 22)
+            # 'Any' is the allow-all-inbound-ports shape. It reaches TCP/22 like
+            # any explicit '22' rule does, and matching only the literal port
+            # left the widest possible rule unflagged.
+            $ports -and (($ports.LocalPort -contains '22') -or ($ports.LocalPort -contains 22) -or
+                ($ports.Protocol -in @('TCP', 'Any') -and $ports.LocalPort -contains 'Any'))
         }
     $data.inboundRulesOnPort22 = @($rules | ForEach-Object {
             $addr = Get-NetFirewallAddressFilter -AssociatedNetFirewallRule $_ -ErrorAction SilentlyContinue
@@ -372,14 +414,22 @@ Invoke-Guarded 'firewall-22' {
                 remoteAddress = if ($addr) { @($addr.RemoteAddress) } else { @() }
             }
         })
-    $wide = @($data.inboundRulesOnPort22 | Where-Object {
+    $wide = ConvertTo-W17Array ($data.inboundRulesOnPort22 | Where-Object {
             $_.profile -match 'Any|Public' -or $_.remoteAddress -contains 'Any'
         })
-    # ADVISORY, not a gate: an unscoped rule is a posture problem worth
-    # naming, but it is not what stops the suite from running.
-    Add-Check 'sshd-firewall-scope' ($wide.Count -eq 0) -Advisory ("$($data.inboundRulesOnPort22.Count) enabled inbound rule(s) on TCP/22; " +
-        "$($wide.Count) of them unscoped (Any/Public). This guest raises its OWN SoftAP during 30-hotspot.ps1 -- " +
-        'an unscoped sshd rule follows it onto that interface (runbook 1.5).')
+    # GATING, not advisory. It was advisory, and 1.0 step 14 told the owner
+    # that INFO lines are expected to be unmet -- which together instructed
+    # them to ignore the one line saying sshd is reachable from EVERY
+    # interface, including the SoftAP 30-hotspot.ps1 raises in this same
+    # suite. guest-bootstrap.ps1 now disables Windows' own unscoped inbox
+    # 'OpenSSH Server' rules, so a clean guest CAN pass this, which is what
+    # makes gating it fair rather than merely strict.
+    Add-Check 'sshd-firewall-scope' ($wide.Count -eq 0) ("$($data.inboundRulesOnPort22.Count) enabled inbound rule(s) reaching TCP/22; " +
+        "$($wide.Count) of them UNSCOPED (Any/Public profile, or RemoteAddress Any): " +
+        "$(if ($wide.Count -gt 0) { ($wide | ForEach-Object { $_.name }) -join ', ' } else { 'none' }). " +
+        'This guest raises its OWN SoftAP during 30-hotspot.ps1 and an unscoped sshd rule follows it onto that ' +
+        'interface (runbook 1.5). Fix: Get-NetFirewallRule -DisplayGroup ''OpenSSH Server'' | Disable-NetFirewallRule ' +
+        '(or re-run guest-bootstrap.ps1, which does it), leaving only the scoped W17-sshd rule.')
     $data.firewallProfiles = @(Get-NetFirewallProfile | ForEach-Object {
             [ordered]@{ name = "$($_.Name)"; enabled = [bool]$_.Enabled; inboundAction = "$($_.DefaultInboundAction)" }
         })
@@ -400,7 +450,7 @@ Invoke-Guarded 'vmware-tools' {
 
 # --- COM ports (READ-ONLY enumeration; no port is opened) --------------------
 Invoke-Guarded 'com-ports' {
-    $ports = Get-CimInstance Win32_PnPEntity |
+    $ports = ConvertTo-W17Array (Get-CimInstance Win32_PnPEntity |
         Where-Object { $_.Name -match '\(COM\d+\)' -or $_.PNPClass -eq 'Ports' } |
         ForEach-Object {
             $vp = Get-W17VidPid $_.PNPDeviceID
@@ -413,9 +463,9 @@ Invoke-Guarded 'com-ports' {
                 problem = $_.ConfigManagerErrorCode
                 isFtdi  = ($vp.vid -eq '0403')
             }
-        }
-    $data.comPorts = @($ports)
-    $ftdi = @($ports | Where-Object { $_.isFtdi })
+        })
+    $data.comPorts = $ports
+    $ftdi = ConvertTo-W17Array ($ports | Where-Object { $_.isFtdi })
     # The ELRS TX handset reaches the PC through the GCS box's FT232RL
     # USB-UART (w17-gcs-box-guide.md:44, HARDWARE_INVENTORY.md:77); FTDI's
     # USB vendor id is 0403 and the FT232R's default product id 6001. The
@@ -428,13 +478,13 @@ Invoke-Guarded 'com-ports' {
 # --- DualShock 4 HID ---------------------------------------------------------
 Invoke-Guarded 'ds4' {
     # 054C:05C4 first-gen DS4, 054C:09CC second-gen, 054C:0BA0 the USB dongle.
-    $ds4 = Get-CimInstance Win32_PnPEntity |
+    $ds4 = ConvertTo-W17Array (Get-CimInstance Win32_PnPEntity |
         Where-Object { $_.PNPDeviceID -match 'VID_054C&PID_(05C4|09CC|0BA0)' } |
         ForEach-Object {
             $vp = Get-W17VidPid $_.PNPDeviceID
             [ordered]@{ name = $_.Name; vid = $vp.vid; pid = $vp.pid; class = $_.PNPClass; status = $_.Status }
-        }
-    $data.dualShock4Devices = @($ds4)
+        })
+    $data.dualShock4Devices = $ds4
     Add-Check 'dualshock4-visible' ($ds4.Count -gt 0) -Advisory ("$($ds4.Count) DualShock 4 device node(s). " +
         'USB is the sure path for VM testing -- a Bluetooth pad pairs to the GUEST Bluetooth stack, which a Fusion ' +
         'guest on Apple silicon does not get (runbook 1.11). Note the pad id differs between USB and Bluetooth ' +
@@ -449,8 +499,8 @@ Invoke-Guarded 'wlan' {
         raw      = $raw          # kept verbatim: locale/format is [win-TBD]
         adapters = @($adapters)
     }
-    $hosted = @($adapters | Where-Object { $_.hostedNetworkSupported -eq $true })
-    $fiveGhz = @($adapters | Where-Object { $_.likely5GHzCapable -eq $true })
+    $hosted = ConvertTo-W17Array ($adapters | Where-Object { $_.hostedNetworkSupported -eq $true })
+    $fiveGhz = ConvertTo-W17Array ($adapters | Where-Object { $_.likely5GHzCapable -eq $true })
     Add-Check 'wifi-hosted-network' ($hosted.Count -gt 0) -Advisory ("$($adapters.Count) Wi-Fi driver(s); $($hosted.Count) advertise hosted-network support, " +
         "$($fiveGhz.Count) list a 5 GHz PHY. A driver string is a HINT, not an observed radio. The AP-capable 5 GHz " +
         'adapter is NOT BOUGHT YET and its ARM64 driver is unknown (runbook 0 and 1.9), so 0/0 here is the expected ' +
@@ -461,12 +511,12 @@ Invoke-Guarded 'wlan' {
 }
 
 # --- verdict -----------------------------------------------------------------
-$gating = @($checks | Where-Object { -not $_.advisory })
-$failed = @($gating | Where-Object { $_.ok -ne $true })
+$gating = ConvertTo-W17Array ($checks | Where-Object { -not $_.advisory })
+$failed = ConvertTo-W17Array ($gating | Where-Object { $_.ok -ne $true })
 $result = [ordered]@{
     script    = 'guest-check'
     ok        = ($failed.Count -eq 0)
-    summary   = "$($gating.Count - $failed.Count)/$($gating.Count) gating checks passed; $(@($checks | Where-Object { $_.advisory }).Count) advisory"
+    summary   = "$($gating.Count - $failed.Count)/$($gating.Count) gating checks passed; $((ConvertTo-W17Array ($checks | Where-Object { $_.advisory })).Count) advisory"
     checks    = @($checks)
     data      = $data
     notes     = @($notes)
