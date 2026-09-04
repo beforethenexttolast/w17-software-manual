@@ -18,6 +18,13 @@ _vendor/
 # Scratch dirs for one-off local HTML previews.
 .preview-tmp/
 
+# Windows-VM validation captures (w17-windows-vm-validation-runbook.md §4.1):
+# per-session JSON results and guest screenshots. The CONCLUSIONS go in
+# CURRENT_STATUS.md; the raw captures stay on the machine that made them.
+# ANCHORED: unanchored, this matched any directory named "evidence" at any
+# depth in the workspace, not just the one the convention names.
+/evidence/
+
 # Common generated files
 node_modules/
 dist/
