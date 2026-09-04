@@ -62,7 +62,7 @@ Tier A from the verdict: MAP-1/MAP-2 LANDED (mapper 6e99d51; CRSF-on-the-wire pr
 1. sl: DONE (7220c08); CI green check pending.
 2. cf: DONE (39a4f3c); CI green check pending; nothing on hardware.
 3. GS: DONE — A 22ce2e5, instruction files 9de86ae, B4 scripts 439f09f, contract re-mirror f3237cf, B 263e69a; CI GREEN at HEAD; first windows-latest run → record windows_amd64 digest → `--require-pin`.
-4. mapper: A 6e99d51 + B ebf89fa landed; first CI run RED on three Windows-only pkg/link timing tests → fix/link-tests-windows-timer (Sonnet) → verify → merge → push re-runs the release workflow → GREEN needed for OD-14. u4-arbiter never.
+4. mapper: A 6e99d51 + B ebf89fa + Windows-timer test fix b859af1 landed (all through the pre-push hook); release run on b859af1 being watched → GREEN closes OD-14 for the mapper. u4-arbiter never.
 5. iPhone: DONE for the fix branch + instr (85ce486, CI green); feat/phone-live-video (rebase onto main → review → fix → verify → merge → push → observe CI).
 6. workspace: B6 manual DONE, B4 runbook DONE, post-mapper docs DONE → vision-alignment audit (Opus, in flight) → CURRENT_STATUS narrative + memory at close-out → push.
 7. 3d-codex: DONE for this program (B9 landed 5dddedb); measurement session M-00… is owner residue; production prints wait on fit-check coupons.
