@@ -59,6 +59,19 @@
   changes the quoting rules for every command in the runbook, so this script
   does not do it.
 
+  BENCH-TBD (V-A3 V3-2): the single-quote strategy host-vm.sh's
+  suite_build_remote() uses for space-bearing values (e.g. -InstallDir
+  'C:\Program Files\W17 Ground Station') has never been executed against
+  cmd.exe as this login shell -- cmd.exe does not treat ' as a quoting
+  character, and it is unverified offline whether the value survives that
+  hop intact or is split into stray positional tokens. Settle it on the
+  first guest session, before trusting any space-bearing value: run
+  `host-vm.sh --dry-run suite -InstallDir 'C:\Program Files\W17 Ground
+  Station'`, take the printed remote command, and run it against a two-line
+  probe script on the guest that echoes `$InstallDir`. PASS = the value
+  comes back as one string, `C:\Program Files\W17 Ground Station`. FAIL =
+  anything else, including a truncated `C:\Program`.
+
 .PARAMETER NatSubnet
   The Fusion NAT subnet the Mac reaches this guest on, in CIDR form, e.g.
   192.168.230.0/24. Read it from `ipconfig` in the guest or Fusion's own VM

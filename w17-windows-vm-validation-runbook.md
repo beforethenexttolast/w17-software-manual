@@ -785,16 +785,22 @@ Five properties worth knowing before you rely on them:
 - **`suite` forwards an ALLOW-LIST and exits 2 on everything else.** The parameters it will
   pass to `run-all.ps1` are `-InstallerPath -InstallDir -UserDataDir -MapperExe -Profile
   -Ssid -Password -MdnsTimeoutMs -MapperWaitMs -Shell`, spelled in full. `-IncludeHidTransition`
-  and `-HidTransitionNonInteractive` are therefore refused — and so is every spelling
-  PowerShell would bind to them, which is the point: PowerShell matches parameter names
+  and `-HidTransitionNonInteractive` are therefore refused — and so is every **ASCII** spelling
+  PowerShell binds to them, which is the point: PowerShell matches parameter names
   **case-insensitively and by unambiguous prefix**, so `-Inc`, `-Hid`, `-INC`, `--Inc` and
   `-hid:$true` all set those switches, and a first version of this guard that listed the two
-  full names let all of them through. Step 7 needs a human at the DS4 cable and the car
-  unpowered / RX unbound (§3.1), so a wrapper must not be able to start it by accident. Run
-  that one deliberately, by hand, over `ssh -t` (`host-vm.sh --interactive ssh '…'`). Enforced
-  in `suite_guard()`, and re-proved on demand by `host-vm.sh selftest` — 31 host-only cases,
-  no VM, no ssh, nothing powered — because an earlier version printed the denial three lines
-  above the command that did it, twice.
+  full names let all of them through. Three **non-ASCII dash** forms (en dash, em dash,
+  horizontal bar — the only other characters PowerShell's own tokenizer treats as a parameter
+  prefix) are not matched by this guard's own case statement, which is ASCII-only; verified
+  V-A3: those tokens either fall to the guard's positional refusal, or — in the one slot that
+  passes it, as the value following one of the ten forwarded parameters — are read by
+  PowerShell itself as a *new* parameter name, which starves the parameter they followed of
+  its value and aborts the whole script before its body runs. Step 7 needs a human at the DS4
+  cable and the car unpowered / RX unbound (§3.1), so a wrapper must not be able to start it by
+  accident. Run that one deliberately, by hand, over `ssh -t` (`host-vm.sh --interactive ssh
+  '…'`). Enforced in `suite_guard()`, and re-proved on demand by `host-vm.sh selftest` — 31
+  host-only cases, no VM, no ssh, nothing powered — because an earlier version printed the
+  denial three lines above the command that did it, twice.
 - **`stage` is what puts the suite on the guest.** Nothing in §1 does (§2.2, §2.3). `suite`
   stages before it runs; `check` stages *after* it has captured `guest-check.json`, so the
   gap only bites someone driving the numbered scripts by raw `ssh`.
@@ -872,6 +878,18 @@ and exits 2 on anything else**, so `-IncludeHidTransition`, `-HidTransitionNonIn
 every abbreviation PowerShell would bind to them (`-Inc`, `-Hid`, `--Inc`, `-hid:$true` …) are
 all refused (§2.4); step 7 is opt-in only when `run-all.ps1` is invoked by hand, deliberately,
 with §3.1 read first.
+
+**BENCH-TBD, first guest session (V-A3 V3-2):** before trusting any `suite` call carrying a
+space-bearing value (`-InstallDir 'C:\Program Files\W17 Ground Station'`, `-Password '...'`,
+a multi-word `-Ssid`), settle whether the single-quote wrapping `suite_build_remote()` uses
+actually survives Windows OpenSSH's `cmd.exe` login shell — it has never been executed against
+a real Windows guest. **Do this once, the first time `suite` runs for real, before relying on
+its output for anything else:** run `scripts/vm/host-vm.sh --dry-run suite -InstallDir 'C:\Program
+Files\W17 Ground Station'`, take the printed remote command, and run it against a two-line probe
+script on the guest that echoes `$InstallDir`. **PASS** = the value comes back as one string,
+`C:\Program Files\W17 Ground Station`. **FAIL** = anything else, including a truncated
+`C:\Program` — if it fails, every space-bearing `suite` call to date is suspect and the fix is
+`\"` double quotes in `suite_build_remote()` (`host-vm.sh:695-712`).
 
 ### 3.1 Step 7 safety precondition — the one place a live TX is involved
 

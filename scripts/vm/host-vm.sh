@@ -14,12 +14,19 @@
 # SAFETY (workspace CLAUDE.md rules 1-7). Nothing here flashes, powers, or
 # connects hardware, and nothing opens a serial port. `suite` forwards an
 # ALLOW-LIST of run-all.ps1 parameters and exits 2 on anything else — so
-# -IncludeHidTransition, -HidTransitionNonInteractive and every spelling
-# PowerShell would bind to them (-Inc, -Hid, -INC, --Inc, -hid:$true …) are
-# refused: step 7 needs a human at the DS4 cable AND the car unpowered / RX
-# unbound (runbook §3.1), so it is never something this wrapper starts on its
-# own. That refusal is ENFORCED in suite_guard(), not merely asserted in this
-# header, and `host-vm.sh selftest` re-proves it on demand, host-only.
+# -IncludeHidTransition, -HidTransitionNonInteractive and every ASCII
+# spelling PowerShell binds to them (-Inc, -Hid, -INC, --Inc, -hid:$true …)
+# are refused; non-ASCII dash forms (en dash, em dash, horizontal bar) abort
+# binding before the script runs rather than being caught by this guard's own
+# case match, which is ASCII-only (verified V-A3: every one of those tokens
+# either falls to the guard's positional refusal, or — in the one slot that
+# passes it — is read by PowerShell itself as a new parameter name, which
+# starves the parameter it followed of its value and aborts before the
+# script body runs). Step 7 needs a human at the DS4 cable AND the car
+# unpowered / RX unbound (runbook §3.1), so it is never something this
+# wrapper starts on its own. That refusal is ENFORCED in suite_guard(), not
+# merely asserted in this header, and `host-vm.sh selftest` re-proves it on
+# demand, host-only.
 # A VM result is never physical proof: A2 stays NOT-EXECUTED, Phase B stays
 # BLOCKED, R15 stays NO-GO.
 #
@@ -608,9 +615,15 @@ cmd_check() {
 #
 # Three facts about PowerShell binding this guard depends on, each VERIFIED the
 # same way:
-#   * `-Name:value` binds; `-Name=value` does NOT (it is read as a parameter
-#     literally called "Name=value" and errors). The name is therefore
-#     everything before the first ':' or '='.
+#   * `-Name:value` binds; `-Name=value` does NOT -- but it does not error
+#     either. `pwsh -File` (the only mode this wrapper uses) silently ignores
+#     the whole token and runs with that parameter left unset (V-A3 V3-4:
+#     verified on macOS pwsh 7.7.0-preview.4; `-File` argument handling is
+#     shared cross-platform, so Windows is INFERRED identical). That makes
+#     refusing it here MORE valuable than a bind error would be -- a
+#     `-Ssid=W17-GRID` typo would otherwise run the whole suite against the
+#     default SSID with nothing on stderr. The name is therefore everything
+#     before the first ':' or '='.
 #   * A token starting with '-' is ALWAYS read as a parameter name, never as
 #     the preceding parameter's value: `-Password -Inc` does not set the
 #     password to "-Inc" -- it errors on the missing argument AND sets the
@@ -654,7 +667,7 @@ suite_guard() {
             die "refusing '$a'. -ResultsRoot is this wrapper's to set: 'suite' gives the guest this evidence session's own results root (runbook 4.1) so the pull carries THIS run and not runs 1..N. Use --session STAMP to choose the session instead." ;;
         esac
         case "${low%%:*}" in
-          *=*) die "refusing '$a'. PowerShell does not bind '-Name=value' -- it reads the whole token as a parameter name and errors. Write '-Name value' or '-Name:value'." ;;
+          *=*) die "refusing '$a'. 'pwsh -File' does not bind '-Name=value' -- it silently IGNORES the token and runs with that parameter unset, which is worse than an error. Write '-Name value' or '-Name:value'." ;;
         esac
         case " $SUITE_ALLOWED_PARAMS " in
           *" $name "*) ;;
@@ -695,6 +708,11 @@ suite_build_remote() {
   # hotspot password. PowerShell reads single quotes as a literal string,
   # which survives the cmd.exe login shell Windows OpenSSH uses (left alone
   # deliberately -- see guest-bootstrap.ps1's header).
+  # BENCH-TBD (V-A3 V3-2): this quoting has never been executed against a
+  # real Windows guest -- cmd.exe's own argument splitting and Windows
+  # pwsh.exe's CRT-style argv split are both unverified offline. First guest
+  # session: run the echo-back check in the runbook's first-session step
+  # before trusting any space-bearing -InstallDir/-Password/-Ssid value.
   #
   # ResultsRoot is THIS session's own directory on the guest, so the pull
   # below carries this run's results and not sessions 1..N (runbook 4.1).
