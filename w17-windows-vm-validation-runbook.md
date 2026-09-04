@@ -106,7 +106,10 @@ what is still missing, needs nothing installed, and changes nothing.
 6. Install **VMware Tools** from Broadcom's package download (§1.4) — the Fusion menu item is
    greyed out on macOS 26.
 7. Download **`PowerShell-7.6.5-win-arm64.msi`** (§1.6) to the Mac.
-8. In the guest, run `ipconfig`. Write down the IPv4 address and its `/24` subnet.
+8. In the guest, run `ipconfig`. Write down the IPv4 address **and its subnet with the last
+   octet set to 0** — address `192.168.230.5` → subnet `192.168.230.0/24`. Step 12 wants the
+   *subnet*; `192.168.230.5/24` passes every validator in `guest-bootstrap.ps1` and then
+   scopes sshd to the wrong thing.
 9. On the Mac: `ssh-keygen -t ed25519 -f ~/.ssh/w17vm_ed25519 -C "w17-vm"`.
 10. Add the `w17vm` block to `~/.ssh/config` (§1.5) using that address and account name.
 11. Carry three files into the guest (Fusion shared folder or drag-and-drop, both need Tools):
@@ -135,9 +138,10 @@ what is still missing, needs nothing installed, and changes nothing.
 **First Claude-side step after the STOP** (not owner work, listed here so the handoff has no
 gap): `scripts/vm/host-vm.sh stage` — it copies
 `w17-ground-station/scripts/windows-validation/` to `C:\w17\scripts\` on the guest. Nothing
-in steps 1–16 puts it there, and every §3 command runs `run-all.ps1` out of it. `check` and
-`suite` call `stage` themselves, so this is a statement about *what happens*, not another
-thing to remember.
+in steps 1–16 puts it there, and every §3 command runs `run-all.ps1` out of it. `suite` calls
+`stage` before it runs, and `check` calls it *after* capturing `guest-check.json` (§4.1 rule 2
+— the capture must see an unmodified guest), so this is a statement about *what happens*, not
+another thing to remember.
 
 Devices (§1.8, §1.11) whenever you have them: pass the GCS box's **FT232RL** and the
 **DualShock 4** through over **USB**. The AP-capable 5 GHz adapter is **not bought yet** (§0).
@@ -275,7 +279,7 @@ what actually lands on the Mac's SSD:
 | Guest after install + Windows Update | ~30–40 | INFERRED from Windows 11's 64 GB volume requirement and typical post-update footprint. **Not measured — no VM exists.** |
 | pwsh 7 + GS install + mapper bundle + results | ~2 | MSI 103 MiB (OBSERVED), NSIS + mapper bundle small |
 | One `clean-giftee-pc` snapshot's delta | ~5–15 | INFERRED. Fusion snapshots grow with post-snapshot writes; a full validation sweep writes a lot. |
-| **Total to plan against** | **~70+** | |
+| **Total to plan against** | **~46–65 → plan 70** | the rows above sum to 45.5–65; rounded up to a round 70 for headroom, which is `host-vm.sh`'s `MIN_FREE_GB` |
 
 **OBSERVED 2026-09-05: 20.3 GB free of a 245.1 GB container** (`diskutil info /`, decimal GB;
 `df -h /` shows `19Gi`, `df -g /` shows `18` — same volume, GiB instead of GB, §1.0.1 has the
@@ -342,7 +346,10 @@ New-NetFirewallRule -Name sshd -DisplayName 'OpenSSH Server (sshd)' -Enabled Tru
 # UNSCOPED (any remote address). While it is enabled the scoped rule above is decorative:
 # sshd is reachable from every interface the guest raises, including the SoftAP that
 # 30-hotspot.ps1 creates. guest-bootstrap.ps1 does this for you, AFTER creating the scoped
-# rule, so it can never lock the Mac out of the NAT subnet.
+# rule -- so as long as the scoped rule names the RIGHT subnet, the Mac keeps its way in.
+# A valid-but-wrong /24 (see 1.0 step 8) passes every validator and then locks ssh out until
+# someone returns to the guest console; that is recoverable -- step 12 is a console step --
+# but it is a wasted trip, so check the subnet before you run it.
 Get-NetFirewallRule -DisplayGroup 'OpenSSH Server' | Disable-NetFirewallRule
 ```
 
@@ -625,7 +632,10 @@ Four consequences worth stating rather than discovering:
 1. **Passthrough is exclusive.** While the guest owns a device the Mac cannot use it, and
    vice versa. If a device "disappears" from the guest, check whether macOS grabbed it back.
 2. **Passthrough is not a driver.** Every row above that says "yes" still needs an ARM64
-   driver in the guest. This is the whole of §1.9's open question.
+   driver in the guest. That is §1.9 — **closed negative** for the Wi-Fi adapter (no ARM64
+   driver exists for any candidate chipset, so the hotspot moves to a real x64 PC), still
+   only **INFERRED-positive** for the FT232RL and the DS4, whose drivers Windows is expected
+   to supply but which nobody has watched enumerate on ARM64 yet.
 3. **USB is the only path for the DS4, not merely the sure one** — Fusion removed Bluetooth
    device sharing in 13.6 (row 5, VERIFIED), so §1.8 row 3's preference is now a requirement.
 4. **A hub is one decision, not many.** The GCS box presents its contents through an internal
@@ -680,8 +690,15 @@ See `w17-ground-station/scripts/windows-validation/README.md` §"Driving them fr
 concrete invocation pattern and how to `scp` results back. In short:
 
 ```sh
-ssh w17vm 'pwsh -File C:\w17\scripts\windows-validation\run-all.ps1 <params...>'
-scp -r w17vm:'C:\w17\scripts\windows-validation\results\<timestamp>' ./evidence/
+# Preferred: session-aware, and the only form §4.1's evidence layout expects.
+scripts/vm/host-vm.sh check                       # opens the session, stamp in .current-session
+scripts/vm/host-vm.sh suite <allow-listed params...>
+
+# The raw equivalent, for driving one script by hand. <stamp> is that same
+# session stamp; `suite` passes -ResultsRoot for you precisely so the pull
+# carries THIS run and not runs 1..N.
+ssh w17vm 'pwsh -File C:\w17\scripts\windows-validation\run-all.ps1 -ResultsRoot C:\w17\results\<stamp> <params...>'
+scp -r w17vm:'C:\w17\results\<stamp>' ./evidence/<stamp>/results
 ```
 
 A plain (non-interactive) `ssh host 'command'` works for every script except
@@ -765,39 +782,61 @@ Three properties worth knowing before you rely on them:
 - **`doctor` needs nothing installed.** It is the one thing runnable on this Mac today, and it
   prints one `BLOCKED` line per outstanding owner action (§1.0). Run it first, and again after
   each step.
-- **`suite` REFUSES `-IncludeHidTransition`** (and `-HidTransitionNonInteractive`): it exits 2
-  with the reason rather than passing them through. Step 7 needs a human at the DS4 cable and
-  the car unpowered / RX unbound (§3.1), so a wrapper must not be able to start it by accident.
-  Run that one deliberately, by hand, over `ssh -t` (`host-vm.sh --interactive ssh '…'`). This
-  is enforced in the code, not only stated here — an earlier version printed the denial three
-  lines above the command that did it.
-- **`stage` is what puts the suite on the guest.** Nothing in §1 does (§2.2, §2.3). `check` and
-  `suite` call it first, so the gap only bites someone driving the numbered scripts by raw
-  `ssh`.
+- **`suite` forwards an ALLOW-LIST and exits 2 on everything else.** The parameters it will
+  pass to `run-all.ps1` are `-InstallerPath -InstallDir -UserDataDir -MapperExe -Profile
+  -Ssid -Password -MdnsTimeoutMs -MapperWaitMs -Shell`, spelled in full. `-IncludeHidTransition`
+  and `-HidTransitionNonInteractive` are therefore refused — and so is every spelling
+  PowerShell would bind to them, which is the point: PowerShell matches parameter names
+  **case-insensitively and by unambiguous prefix**, so `-Inc`, `-Hid`, `-INC`, `--Inc` and
+  `-hid:$true` all set those switches, and a first version of this guard that listed the two
+  full names let all of them through. Step 7 needs a human at the DS4 cable and the car
+  unpowered / RX unbound (§3.1), so a wrapper must not be able to start it by accident. Run
+  that one deliberately, by hand, over `ssh -t` (`host-vm.sh --interactive ssh '…'`). Enforced
+  in `suite_guard()`, and re-proved on demand by `host-vm.sh selftest` — 31 host-only cases,
+  no VM, no ssh, nothing powered — because an earlier version printed the denial three lines
+  above the command that did it, twice.
+- **`stage` is what puts the suite on the guest.** Nothing in §1 does (§2.2, §2.3). `suite`
+  stages before it runs; `check` stages *after* it has captured `guest-check.json`, so the
+  gap only bites someone driving the numbered scripts by raw `ssh`.
 - **`check` opens the evidence session.** It writes `evidence/.current-session`, and `suite`
   and `screenshot` reuse that stamp, so one session is one directory (§4.1 rule 1). Before,
   each verb minted its own stamp and scattered a session across three.
 - **`guest-check.ps1` is a pre-flight, not a second `00-inventory.ps1`.** It runs *before* the
-  suite is staged, so a missing `pwsh` or a passthrough that did not land costs one round trip
-  instead of eight failing scripts. `00-inventory.ps1` remains the suite's own survey, in the
+  suite is staged — `check` stages only after the pull — so a missing `pwsh` or a passthrough
+  that did not land costs one round trip instead of eight failing scripts, and
+  `guest-check.json` still describes an unmodified guest (§4.1 rule 2). The one thing that
+  reaches the guest ahead of it is `guest-check.ps1` itself: it is the instrument, it installs
+  nothing. `00-inventory.ps1` remains the suite's own survey, in the
   suite's own result envelope.
 
-**Executed on macOS, under PowerShell 7.7.0-preview.4 (twice: the authoring pass and a
-subsequent adversarial review + fix pass, both 2026-09-05):** `bash -n` over `host-vm.sh`;
-`Parser::ParseFile` over both `.ps1` files (0 errors); `guest-check.ps1 -SelfTest` — now **26
-assertions, all PASSING**, over the `netsh` parser, the band classifier, the yes/no tristate,
-the VID:PID extractor and the StrictMode counting helper; `host-vm.sh doctor` for real against
-this Mac; every verb under `--dry-run`, including a VMX path containing spaces and arguments
-containing spaces; `guest-bootstrap.ps1`'s `-NatSubnet` validation across ten inputs; and the
-workspace link checker both ways.
+**Executed on macOS, under PowerShell 7.7.0-preview.4 (three times: the authoring pass, an
+adversarial review + fix pass, and an independent re-verification + second fix pass, all
+2026-09-05):** `bash -n` over `host-vm.sh`; `Parser::ParseFile` over both `.ps1` files (0
+errors); `guest-check.ps1 -SelfTest` — **26 assertions, all PASSING** — over the `netsh`
+parser, the band classifier, the yes/no tristate, the VID:PID extractor and the StrictMode
+counting helper; `host-vm.sh selftest` — **31 assertions, all PASSING** — over the step-7
+allow-list, including every abbreviation and case variant a reviewer got past the first
+version of that guard; `host-vm.sh doctor` for real against this Mac; every verb under
+`--dry-run`, including a VMX path containing spaces and arguments containing spaces;
+`guest-bootstrap.ps1`'s `-NatSubnet` validation across ten inputs; and the workspace link
+checker both ways.
 
 The self-test grew because running the code found two more instances of the same
 `Set-StrictMode` `.Count` trap the first pass fixed once — and in the states that matter: with
 **zero** devices attached the enumeration *threw* and the two passthrough checks silently
 vanished from the output, and with **exactly one** device it reported the hashtable's key count
-("7 COM device(s)"). Note that the obvious repair, `@($x)`, fixes only the second: `@($null)`
-has `.Count` 1, so it would report one device when none are attached. That is why the fix is a
-guarded helper with its own 0-device and 1-device test cases.
+("7 COM device(s)").
+
+**Correction, 2026-09-05.** An earlier draft of this paragraph said the obvious repair,
+`@($x)`, could not fix the zero-device case, because `@($null).Count` is 1. That claim was
+wrong and the sentence is withdrawn: an **empty pipeline** does not assign `$null`, it assigns
+`[AutomationNull]::Value`, which `@()` wraps to an **empty** array — `@($x).Count` is **0**
+(VERIFIED twice on this Mac, pwsh 7.7.0-preview.4: empty pipeline → 0, real `$null` → 1).
+A plain `@($x)` would have worked for both guest states above. The shipped fix is still a
+guarded helper, for the narrower and honest reason that a **real** `$null` — a hashtable field
+never set, a cmdlet that returns `$null` instead of an empty pipeline — *does* wrap to a
+one-element array and would report one device when none are attached. Its self-test pins all
+three shapes separately: `$null` → 0, `@()` → 0, empty pipeline → 0.
 
 **NOT executed, and nothing here claims otherwise:** every Windows-only cmdlet —
 `Add-WindowsCapability`, `Get-Service sshd`, `New-NetFirewallRule`, `Disable-NetFirewallRule`,
