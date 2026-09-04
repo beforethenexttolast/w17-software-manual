@@ -12,11 +12,14 @@
 # replace the one-time owner setup in §1.
 #
 # SAFETY (workspace CLAUDE.md rules 1-7). Nothing here flashes, powers, or
-# connects hardware, and nothing opens a serial port. `suite` REFUSES — it
-# exits 2 — when handed -IncludeHidTransition or -HidTransitionNonInteractive:
-# step 7 needs a human at the DS4 cable AND the car unpowered / RX unbound
-# (runbook §3.1), so it is never something this wrapper starts on its own.
-# That refusal is ENFORCED in cmd_suite(), not merely asserted in this header.
+# connects hardware, and nothing opens a serial port. `suite` forwards an
+# ALLOW-LIST of run-all.ps1 parameters and exits 2 on anything else — so
+# -IncludeHidTransition, -HidTransitionNonInteractive and every spelling
+# PowerShell would bind to them (-Inc, -Hid, -INC, --Inc, -hid:$true …) are
+# refused: step 7 needs a human at the DS4 cable AND the car unpowered / RX
+# unbound (runbook §3.1), so it is never something this wrapper starts on its
+# own. That refusal is ENFORCED in suite_guard(), not merely asserted in this
+# header, and `host-vm.sh selftest` re-proves it on demand, host-only.
 # A VM result is never physical proof: A2 stays NOT-EXECUTED, Phase B stays
 # BLOCKED, R15 stays NO-GO.
 #
@@ -58,7 +61,10 @@
 #                          OPENS the evidence session (§4.1).
 #   suite [EXTRA...]       run-all.ps1 for the automatable steps only, into
 #                          this session's own guest results root, then pull
-#                          that run's results into the session directory
+#                          that run's results into the session directory.
+#                          EXTRA is allow-listed -- see cmd_suite()
+#   selftest               host-only regression test of that allow-list
+#                          (needs no VM, no Fusion, no ssh)
 #
 # Configuration, in precedence order: flags, then environment, then
 # ~/.w17vm.conf (plain `KEY=value` lines, sourced).
@@ -553,28 +559,112 @@ cmd_check() {
   info "$out/guest-check.json"
 }
 
+# ---------------------------------------------------------------------------
 # suite -- the automatable part of runbook 3 only.
-cmd_suite() {
-  local stamp out a remote
-  # ENFORCED, not asserted (this script's SAFETY header, runbook 2.4/3.1).
-  # These used to be interpolated straight through into run-all.ps1's command
-  # line, so the banner three lines below denied what the command then did.
+#
+# THE STEP-7 REFUSAL IS AN ALLOW-LIST, NOT A DENY-LIST.
+#
+# The first version of this guard matched four exact-case literals
+# (-IncludeHidTransition / -HidTransitionNonInteractive, bare and :value).
+# That is not enough, because bash `case` and PowerShell parameter binding
+# disagree in two ways: PowerShell is case-INSENSITIVE, and it binds any
+# UNAMBIGUOUS PREFIX of a parameter name. VERIFIED on this Mac (pwsh
+# 7.7.0-preview.4) against a replica of run-all.ps1's param block: `-Inc`,
+# `-INC`, `-includehidtransition`, `--Inc`, `--IncludeHidTransition` and
+# `-includehidtransition:$true` all set -IncludeHidTransition; `-Hid` and
+# `-hid` set -HidTransitionNonInteractive; and the pair `-Inc -Hid` runs step 7
+# NON-INTERACTIVELY. Every one of those walked straight through the literal
+# guard while the banner below still said the switch had not been passed.
+#
+# So this verb no longer tries to enumerate what to refuse. It forwards ONLY
+# the parameters named in SUITE_ALLOWED_PARAMS, spelled in FULL, and dies
+# (exit 2) on anything else. Over-refusal is free -- it costs one clear error
+# message, and `--interactive ssh` is right there for anything exotic. Under-
+# refusal is a safety defect. The two step-7 switches are additionally refused
+# by prefix, ahead of the allow-list, so that they get their own message.
+#
+# Three facts about PowerShell binding this guard depends on, each VERIFIED the
+# same way:
+#   * `-Name:value` binds; `-Name=value` does NOT (it is read as a parameter
+#     literally called "Name=value" and errors). The name is therefore
+#     everything before the first ':' or '='.
+#   * A token starting with '-' is ALWAYS read as a parameter name, never as
+#     the preceding parameter's value: `-Password -Inc` does not set the
+#     password to "-Inc" -- it errors on the missing argument AND sets the
+#     switch. A value that starts with '-' must be written `-Password:-value`.
+#   * A one-letter prefix such as `-I` or `-M` is ambiguous and errors; it is
+#     refused here anyway, because "PowerShell would have errored" is a weaker
+#     guarantee than "this wrapper never sent it".
+#
+# `selftest` (below) exercises all of this.
+# ---------------------------------------------------------------------------
+
+# run-all.ps1's parameters that `suite` will forward, lower-cased, full names.
+# Deliberately absent: -IncludeHidTransition and -HidTransitionNonInteractive
+# (step 7, refused above); -MapperExeForHidTransition (meaningless without
+# them); -ResultsRoot (this wrapper owns it -- runbook 4.1's per-session guest
+# results root); and every CmdletBinding common parameter.
+SUITE_ALLOWED_PARAMS='installerpath installdir userdatadir mapperexe profile ssid password mdnstimeoutms mapperwaitms shell'
+
+SUITE_STEP7_HINT="Run it deliberately, by hand:
+    $0 --interactive ssh 'pwsh -NoProfile -File $GUEST_ROOT\\scripts\\windows-validation\\60-hid-transition.ps1 -MapperExe ...'
+It discharges nothing: R15 stays NO-GO."
+
+# Dies unless every argument is a forwardable run-all.ps1 parameter (or a value
+# belonging to one). Prints nothing on success.
+suite_guard() {
+  local a low name want_value=0 taking=0
   for a in "$@"; do
+    taking="$want_value"; want_value=0
     case "$a" in
-      -IncludeHidTransition|-IncludeHidTransition:*|-HidTransitionNonInteractive|-HidTransitionNonInteractive:*)
-        die "refusing '$a'. Step 7 (60-hid-transition.ps1) needs a human at the DS4 cable AND the car UNPOWERED / RX UNBOUND (runbook 3.1); it discharges nothing and R15 stays NO-GO. Run it deliberately, by hand:
-    $0 --interactive ssh 'pwsh -NoProfile -File $GUEST_ROOT\\scripts\\windows-validation\\60-hid-transition.ps1 -MapperExe ...'" ;;
+      *\'*) die "refusing an argument containing a single quote, which this quoting cannot survive: $a" ;;
+    esac
+    case "$a" in
+      -*)
+        low="$(printf '%s' "$a" | tr '[:upper:]' '[:lower:]')"
+        low="${low#-}"; low="${low#-}"
+        name="${low%%:*}"; name="${name%%=*}"
+        case "$name" in
+          i|in|inc*|includ*|hid*|hidtransition*|mapperexeforhid*)
+            die "refusing '$a'. PowerShell binds parameter names case-insensitively and by unambiguous PREFIX, so this argument is (or abbreviates) a step-7 switch: 60-hid-transition.ps1 needs a human at the DS4 cable AND the car UNPOWERED / RX UNBOUND (runbook 3.1). $SUITE_STEP7_HINT" ;;
+          resultsroot*)
+            die "refusing '$a'. -ResultsRoot is this wrapper's to set: 'suite' gives the guest this evidence session's own results root (runbook 4.1) so the pull carries THIS run and not runs 1..N. Use --session STAMP to choose the session instead." ;;
+        esac
+        case "${low%%:*}" in
+          *=*) die "refusing '$a'. PowerShell does not bind '-Name=value' -- it reads the whole token as a parameter name and errors. Write '-Name value' or '-Name:value'." ;;
+        esac
+        case " $SUITE_ALLOWED_PARAMS " in
+          *" $name "*) ;;
+          *) die "refusing '$a': not on suite's allow-list. This wrapper forwards only these run-all.ps1 parameters, spelled in full: -InstallerPath -InstallDir -UserDataDir -MapperExe -Profile -Ssid -Password -MdnsTimeoutMs -MapperWaitMs -Shell. Anything else -- abbreviations included -- goes through '$0 --interactive ssh' by hand, deliberately." ;;
+        esac
+        # A ':'-form carries its own value; a bare name expects the next token.
+        case "$a" in
+          *:*) ;;
+          *)   want_value=1 ;;
+        esac
+        ;;
+      *)
+        [ "$taking" = 1 ] || die "refusing the positional argument '$a'. Every value must follow the parameter it belongs to (e.g. -Ssid W17-GRID); run-all.ps1's positional binding would otherwise put it somewhere neither of us chose."
+        ;;
     esac
   done
-  stamp="$(session_stamp)"
-  out="$EVIDENCE_ROOT/$stamp"
-  run mkdir -p "$out"
-  cmd_stage
+}
+
+# Set by suite_build_remote. A global, not a $(...) capture: the banner below
+# is owner-facing stdout and must not end up inside the command it describes.
+SUITE_REMOTE=''
+
+# Guard, THEN announce, THEN build -- one code path, in that order, so the
+# banner can never describe a command the guard has not already vetted.
+suite_build_remote() {
+  local stamp="$1"; shift
+  local a
+  suite_guard "$@"
   echo 'Running run-all.ps1 WITHOUT -IncludeHidTransition.'
   echo 'Step 7 (60-hid-transition.ps1) is human-in-the-loop and has a safety'
   echo 'precondition -- car UNPOWERED or RX UNBOUND (runbook 3.1). This wrapper'
-  echo 'REFUSES that switch (it exits 2, above); run step 7 deliberately, by'
-  echo 'hand, over ssh -t.'
+  echo 'REFUSES that switch, and every abbreviation of it, by allow-list (it'
+  echo 'exits 2); run step 7 deliberately, by hand, over ssh -t.'
   # Per-argument quoting. "$*" joined argv on IFS inside a double-quoted
   # string, which destroyed every argument containing a space -- and the two
   # most likely parameters both contain one by construction: -InstallDir
@@ -585,17 +675,151 @@ cmd_suite() {
   #
   # ResultsRoot is THIS session's own directory on the guest, so the pull
   # below carries this run's results and not sessions 1..N (runbook 4.1).
-  remote="pwsh -NoProfile -File $GUEST_ROOT\\scripts\\windows-validation\\run-all.ps1 -ResultsRoot $GUEST_ROOT\\results\\$stamp"
+  SUITE_REMOTE="pwsh -NoProfile -File $GUEST_ROOT\\scripts\\windows-validation\\run-all.ps1 -ResultsRoot $GUEST_ROOT\\results\\$stamp"
   for a in "$@"; do
     case "$a" in
-      *\'*)             die "refusing an argument containing a single quote, which this quoting cannot survive: $a" ;;
-      ''|*[[:space:]]*) remote="$remote '$a'" ;;
-      *)                remote="$remote $a" ;;
+      ''|*[[:space:]]*) SUITE_REMOTE="$SUITE_REMOTE '$a'" ;;
+      *)                SUITE_REMOTE="$SUITE_REMOTE $a" ;;
     esac
   done
-  ssh_ "$remote"
+}
+
+cmd_suite() {
+  local stamp out
+  stamp="$(session_stamp)"
+  out="$EVIDENCE_ROOT/$stamp"
+  suite_build_remote "$stamp" "$@"
+  run mkdir -p "$out"
+  cmd_stage
+  ssh_ "$SUITE_REMOTE"
   scp_ -r "$SSH_HOST:$GUEST_ROOT\\results\\$stamp" "$out/results"
   info "$out/results"
+}
+
+# ---------------------------------------------------------------------------
+# selftest -- the guard's own regression suite. Host-only: every case runs this
+# script under --dry-run into a throwaway evidence root, so nothing is copied,
+# started, powered or connected. It needs no VM, no Fusion and no ssh.
+#
+# Case list: the eleven smuggle variants a reviewer found bypassing the
+# earlier literal guard, plus the four the fix brief added, plus the legitimate
+# parameters, which must still go through untouched.
+# ---------------------------------------------------------------------------
+cmd_selftest() {
+  local self tmp out rc total=0 failures=0
+  self="$SCRIPT_DIR/$(basename "${BASH_SOURCE[0]}")"
+  tmp="$(mktemp -d "${TMPDIR:-/tmp}/w17-host-vm-selftest.XXXXXX")"
+
+  _st_run() {
+    set +e
+    out="$("$self" --dry-run --session SELFTEST --evidence "$tmp" suite "$@" 2>&1)"
+    rc=$?
+    set -e
+  }
+
+  # Must exit 2, must not print the banner, and must not reach the ssh call.
+  _st_refuse() {
+    local label="$*"
+    total=$((total + 1)); _st_run "$@"
+    if [ "$rc" != 2 ]; then
+      failures=$((failures + 1)); printf 'FAIL    not refused (exit %s): suite %s\n' "$rc" "$label"; return 0
+    fi
+    case "$out" in
+      *'Running run-all.ps1 WITHOUT'*)
+        failures=$((failures + 1)); printf 'FAIL    banner printed for a refused argument: suite %s\n' "$label"; return 0 ;;
+    esac
+    # die() runs inside suite_build_remote, i.e. before mkdir, before stage and
+    # before the run-all.ps1 call -- so a refusal must emit no DRY-RUN line at
+    # all. (The refusal MESSAGE names run-all.ps1, so grepping for that string
+    # would test nothing.)
+    case "$out" in
+      *'DRY-RUN: '*)
+        failures=$((failures + 1)); printf 'FAIL    a command was still emitted: suite %s\n' "$label"; return 0 ;;
+    esac
+    printf 'PASS    refused (exit 2): suite %s\n' "$label"
+  }
+
+  # Must exit 0, must build the command, must contain $1, and must not smuggle
+  # either step-7 switch into the built command line.
+  _st_accept() {
+    local expect="$1"; shift
+    local label="$*" sshline
+    total=$((total + 1)); _st_run "$@"
+    if [ "$rc" != 0 ]; then
+      failures=$((failures + 1)); printf 'FAIL    legitimate call refused (exit %s): suite %s\n' "$rc" "$label"; return 0
+    fi
+    # The BUILT run-all.ps1 command only -- not the banner (which names the
+    # switch in prose) and not stage's own ssh/scp lines, which come first.
+    sshline="$(printf '%s\n' "$out" | grep -m1 'DRY-RUN: ssh .*run-all\.ps1' || true)"
+    if [ -z "$sshline" ]; then
+      failures=$((failures + 1)); printf 'FAIL    no ssh command built: suite %s\n' "$label"; return 0
+    fi
+    if [ -n "$expect" ]; then
+      case "$sshline" in
+        *"$expect"*) ;;
+        *) failures=$((failures + 1)); printf 'FAIL    built command lacks %s: suite %s\n' "$expect" "$label"; return 0 ;;
+      esac
+    fi
+    case "$sshline" in
+      *-Inc*|*-inc*|*-INC*|*-Hid*|*-hid*|*-HID*)
+        failures=$((failures + 1)); printf 'FAIL    a step-7 switch reached the command: suite %s\n' "$label"; return 0 ;;
+    esac
+    printf 'PASS    forwarded: suite %s\n' "$label"
+  }
+
+  echo '=== host-vm.sh selftest: the suite step-7 allow-list ==='
+  echo
+
+  echo '-- the two switches, verbatim and in :value form'
+  _st_refuse -IncludeHidTransition
+  _st_refuse -HidTransitionNonInteractive
+  _st_refuse '-IncludeHidTransition:$true'
+  _st_refuse '-HidTransitionNonInteractive:$true'
+
+  echo '-- case folding (PowerShell binding is case-insensitive)'
+  _st_refuse -includehidtransition
+  _st_refuse -INCLUDEHIDTRANSITION
+  _st_refuse '-includehidtransition:$true'
+  _st_refuse -hid
+
+  echo '-- prefix abbreviation (PowerShell binds any unambiguous prefix)'
+  _st_refuse -Inc
+  _st_refuse -IncludeHid
+  _st_refuse -Hid
+  _st_refuse -I
+  _st_refuse -Inc -Hid
+
+  echo '-- other spellings'
+  _st_refuse --IncludeHidTransition
+  _st_refuse -IncludeHidTransition=1
+  _st_refuse -IncludeHid=1
+  _st_refuse -MapperExeForHidTransition 'C:\w17\mapper\w17-mapper.exe'
+
+  echo '-- everything else off the allow-list'
+  _st_refuse -Verbose
+  _st_refuse -ResultsRoot 'C:\w17\results\somewhere-else'
+  _st_refuse -NotAParameter
+  _st_refuse 'C:\stray\positional.exe'
+  _st_refuse -Ssid W17-GRID stray-positional
+
+  echo
+  echo '-- the legitimate parameters still pass'
+  _st_accept ''                             # no arguments at all
+  _st_accept "-Ssid W17-GRID" -Ssid W17-GRID
+  _st_accept "-Ssid:W17-GRID" -Ssid:W17-GRID
+  _st_accept "'C:\\Program Files\\W17 Ground Station'" -InstallDir 'C:\Program Files\W17 Ground Station'
+  _st_accept "'my secret pw'" -Password 'my secret pw'
+  _st_accept "-MdnsTimeoutMs 8000" -MdnsTimeoutMs 8000
+  _st_accept "-Shell pwsh" -Shell pwsh
+  _st_accept "-MapperWaitMs 12000" -InstallerPath 'C:\w17\dist\gs.exe' -MapperExe 'C:\w17\mapper\m.exe' -Profile w17 -MapperWaitMs 12000
+  _st_accept "-UserDataDir" -UserDataDir 'C:\Users\w17\AppData\Roaming\w17'
+
+  rmdir "$tmp" 2>/dev/null || true
+  echo
+  if [ "$failures" = 0 ]; then
+    printf 'RESULT: %s/%s PASS\n' "$total" "$total"; return 0
+  fi
+  printf 'RESULT: %s of %s FAILED\n' "$failures" "$total"; return 1
 }
 
 # ---------------------------------------------------------------------------
@@ -641,5 +865,6 @@ case "$VERB" in
   bootstrap)  cmd_bootstrap "$@" ;;
   check)      cmd_check "$@" ;;
   suite)      cmd_suite "$@" ;;
+  selftest)   cmd_selftest "$@" ;;
   *)          die "unknown verb '$VERB' (try --help)" ;;
 esac
