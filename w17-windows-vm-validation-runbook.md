@@ -396,12 +396,23 @@ firmware's radio-loss failsafe still does not fire"*, with switch channels latch
 downstream (RESIDUAL A). Pulling the pad on a live transmitter with a powered car is
 exactly the situation that residual describes.
 
-**One related note on the MAP-8 window (step 6).** While `50-race-day.ps1` runs, the
-mapper's gRPC `:10000` is up, unauthenticated, on all interfaces with reflection on, and
-`StartLink` — the one RPC that opens the COM port and transmits — is among the RPCs it
-exposes. Nothing in the suite calls it and the ground station has no client that could,
-so the suite's no-serial-port claim holds by construction; but run step 6 on the **NAT'd
-VM**, with the car unpowered, rather than on a shared network.
+**One related note on the MAP-8 window (step 6), superseded by OD-8.** This used to say
+that while `50-race-day.ps1` runs, the mapper's gRPC `:10000` was up, unauthenticated, on
+**all interfaces** with reflection on, and that `StartLink` — the one RPC that opens the
+COM port and transmits — was among the RPCs it exposed, with "the ground station has no
+client that could [call it]" as the mitigating fact. Both premises are now stale: mapper
+`5d4e12d` (MAP-8, owner decision OD-8a) made **`127.0.0.1` the default bind** for both the
+gRPC and HTTP listeners — the wildcard only comes back if someone explicitly passes
+`-bind-all`, which neither this runbook nor race day's argv whitelist ever does — and the
+ground station is no longer client-less: it now runs **two read-only gRPC consumers**
+against the mapper (`getTelemetryStream` via
+`w17-ground-station/main/mapperTelemetryGrpcConnect.js:20`, and the link-state stream via
+`main/MapperLinkStateClient.js`; the mutating RPC surface, including `StartLink`, is not in
+either client's vocabulary — `main/mapperStreamsProto.js:8`). The safety conclusion is
+**stronger** than the old paragraph claimed (loopback-only by default, not merely
+unreached), but the stated premise (all-interfaces, no client) was false at this trunk. As
+before, run step 6 on the **NAT'd VM**, with the car unpowered, rather than on a shared
+network — that discipline does not depend on which premise is current.
 
 ---
 
