@@ -615,15 +615,15 @@ cmd_check() {
 #
 # Three facts about PowerShell binding this guard depends on, each VERIFIED the
 # same way:
-#   * `-Name:value` binds; `-Name=value` does NOT -- but it does not error
-#     either. `pwsh -File` (the only mode this wrapper uses) silently ignores
-#     the whole token and runs with that parameter left unset (V-A3 V3-4:
-#     verified on macOS pwsh 7.7.0-preview.4; `-File` argument handling is
-#     shared cross-platform, so Windows is INFERRED identical). That makes
-#     refusing it here MORE valuable than a bind error would be -- a
-#     `-Ssid=W17-GRID` typo would otherwise run the whole suite against the
-#     default SSID with nothing on stderr. The name is therefore everything
-#     before the first ':' or '='.
+#   * `-Name:value` binds; `-Name=value` does NOT. Under `pwsh -File` (the
+#     only mode this wrapper uses) the token HARD-ERRORS (exit 1) before the
+#     script runs -- V-A4 2026-09-05 rebuilt run-all.ps1's param block and
+#     measured it on macOS pwsh 7.7.0-preview.4; V-A3's earlier "silently
+#     ignored" reading matched the `&` call operator, not `-File`. Windows
+#     `-File` handling is INFERRED identical. Refusing it here still earns
+#     its place: the operator gets a message naming the fix instead of a
+#     bare binder error. The name is therefore everything before the first
+#     ':' or '='.
 #   * A token starting with '-' is ALWAYS read as a parameter name, never as
 #     the preceding parameter's value: `-Password -Inc` does not set the
 #     password to "-Inc" -- it errors on the missing argument AND sets the
