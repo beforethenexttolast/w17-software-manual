@@ -2,7 +2,7 @@
 
 **27 items, deduplicated across both bench-gate card sets** (`INDEX.md` / `BG-*` and
 `G-INDEX.md` / `G-*`). This is the single list; the cards each carry their own
-**THRESHOLD MISSING** notes, and `tools/first_power_current_limits.md` carries the car-side
+**THRESHOLD MISSING** notes, and `bench-gates/tools/first_power_current_limits.md` carries the car-side
 current rows in full. Nothing is copied here that would go stale — every row points at its
 source.
 
@@ -35,7 +35,7 @@ Phase B, FIRST_ACTIVE, or by anything being assembled.
 | **O-3** | Acceptable **spread** across cold runs | not recorded anywhere. G-04 criterion 3 **proposes 2000 ms**, same footing | **G-04** |
 | **O-4** | How many cold runs constitute a **characterisation** | not recorded anywhere. G-04 **chose five**, and says so | **G-04** |
 | **O-5** | Acceptable **STOP-button lag** | `w17-ground-station/docs/setup_flow_bench_checklist.md`:239 says *"record any lag you still see"* and sets no number | **G-04** (criterion 10) |
-| **O-6** | **Bench-PSU current-limit policy** (`T11`): *how* to choose the limit, given T1–T9 will not exist until the first power-on. A staircase policy — "start at X, raise only when a step trips for a reason you understand" — is a **ruling**, not a measurement, and it can be written before anything is powered | `tools/first_power_current_limits.md`:91 defers T11 to "derived from T1–T9 once they exist", which makes it unresolvable at the moment it is first needed | **BG-03** |
+| **O-6** | **Bench-PSU current-limit policy** (`T11`): *how* to choose the limit, given T1–T9 will not exist until the first power-on. A staircase policy — "start at X, raise only when a step trips for a reason you understand" — is a **ruling**, not a measurement, and it can be written before anything is powered | `bench-gates/tools/first_power_current_limits.md`:91 defers T11 to "derived from T1–T9 once they exist", which makes it unresolvable at the moment it is first needed | **BG-03** |
 | **O-7** | **Maximum acceptable `maxBrightness`** | `learning-manual/open_questions.md` #55 leaves it open; the *acceptable* value is a look, not a number in any document | **BG-08** |
 
 > **O-7 is bounded from above without a bench.** **DERIVED: `maxBrightness` ≤ 227.**
@@ -57,7 +57,7 @@ the only one that needs real thought, and it is the one that unblocks first powe
 
 ## 2. A bench measurement sets these; the owner then ratifies (20)
 
-### 2a. Car-side current — 12 rows, all of `tools/first_power_current_limits.md` §T except T11
+### 2a. Car-side current — 12 rows, all of `bench-gates/tools/first_power_current_limits.md` §T except T11
 
 No per-load current figure for the car's rails exists anywhere: not in
 `HARDWARE_INVENTORY.md`, not in `w17-control-fw/docs/bill_of_materials_v2.md`, not in
@@ -68,20 +68,20 @@ threshold.
 
 | # | Row | Card it blocks | Source |
 |---|---|---|---|
-| **T1** | Rail-A quiescent, boards idle, nothing else connected | BG-03 | `tools/first_power_current_limits.md`:81 |
-| **T2** | Rail-A with the camera + Wi-Fi module streaming | BG-03 | `tools/first_power_current_limits.md`:82 |
-| **T3** | Rail-B with the steering servo holding centre, unloaded | BG-03 | `tools/first_power_current_limits.md`:83 |
-| **T4** | Rail-B peak during a full-lock steering sweep (the reason cap C1 exists) | BG-03 | `tools/first_power_current_limits.md`:84 |
-| **T5** | Per-MG90S, idle and moving | BG-03 | `tools/first_power_current_limits.md`:85 |
-| **T6** | Blower (always-on, rail B) | BG-03 | `tools/first_power_current_limits.md`:86 |
-| **T7** | MAX98357A + speaker at the shipped `sound.volume` | BG-03 / BG-04 Phase 9 | `tools/first_power_current_limits.md`:87 |
-| **T8** | RP1 receiver | BG-03 | `tools/first_power_current_limits.md`:88 |
-| **T9** | ESP32 module, Wi-Fi off, both boards | BG-03 | `tools/first_power_current_limits.md`:89 |
-| **T10** | ESP32 #1 with **Bluetooth active** (BT show-off build). **≡ MT-19** — one number, listed once | BG-07 (`BT1_BENCH_GATE.md`:66 lists it as an unmeasured bench item) | `tools/first_power_current_limits.md`:90 |
-| **T12** | ESC standby (logic only) on batt+, motor leads off | BG-03 | `tools/first_power_current_limits.md`:92 |
-| **T13** | Inrush allowance at pack connection — the XT90-S anti-spark exists *because* it is large, and no number is stated | BG-01 §S7 / BG-03 | `tools/first_power_current_limits.md`:93 |
+| **T1** | Rail-A quiescent, boards idle, nothing else connected | BG-03 | `bench-gates/tools/first_power_current_limits.md`:81 |
+| **T2** | Rail-A with the camera + Wi-Fi module streaming | BG-03 | `bench-gates/tools/first_power_current_limits.md`:82 |
+| **T3** | Rail-B with the steering servo holding centre, unloaded | BG-03 | `bench-gates/tools/first_power_current_limits.md`:83 |
+| **T4** | Rail-B peak during a full-lock steering sweep (the reason cap C1 exists) | BG-03 | `bench-gates/tools/first_power_current_limits.md`:84 |
+| **T5** | Per-MG90S, idle and moving | BG-03 | `bench-gates/tools/first_power_current_limits.md`:85 |
+| **T6** | Blower (always-on, rail B) | BG-03 | `bench-gates/tools/first_power_current_limits.md`:86 |
+| **T7** | MAX98357A + speaker at the shipped `sound.volume` | BG-03 / BG-04 Phase 9 | `bench-gates/tools/first_power_current_limits.md`:87 |
+| **T8** | RP1 receiver | BG-03 | `bench-gates/tools/first_power_current_limits.md`:88 |
+| **T9** | ESP32 module, Wi-Fi off, both boards | BG-03 | `bench-gates/tools/first_power_current_limits.md`:89 |
+| **T10** | ESP32 #1 with **Bluetooth active** (BT show-off build). **≡ MT-19** — one number, listed once | BG-07 (`BT1_BENCH_GATE.md`:66 lists it as an unmeasured bench item) | `bench-gates/tools/first_power_current_limits.md`:90 |
+| **T12** | ESC standby (logic only) on batt+, motor leads off | BG-03 | `bench-gates/tools/first_power_current_limits.md`:92 |
+| **T13** | Inrush allowance at pack connection — the XT90-S anti-spark exists *because* it is large, and no number is stated | BG-01 §S7 / BG-03 | `bench-gates/tools/first_power_current_limits.md`:93 |
 
-Full row text and the derivation procedure: `tools/first_power_current_limits.md`:81-93.
+Full row text and the derivation procedure: `bench-gates/tools/first_power_current_limits.md`:81-93.
 
 ### 2b. CRSF on the wire — 2
 
@@ -120,8 +120,8 @@ ruled in advance and it cannot be measured by a script.
 
 | # | The number | Source of the gap | Card |
 |---|---|---|---|
-| **C2-1** | Phone-vs-laptop glass-to-glass **delta** | `iPhone_rc/README.md`:480 and `FPVHUDApp/Video/README.md`:33 both say `[bench-TBD]`; every latency figure in the repos is a simulator or loopback figure | **G-02** |
-| **C2-2** | Cold **`spawn → port OPEN`** latency on real Windows | `main/raceDayOrchestrator.js`:89-96 says `LINK_UP_WAIT_MS = 5000` is unvalidated — *"nothing in this chain has run on any machine"* | **G-04** |
+| **C2-1** | Phone-vs-laptop glass-to-glass **delta** | `iPhone_rc/README.md`:480 and `iPhone_rc/FPVHUDApp/Video/README.md`:33 both say `[bench-TBD]`; every latency figure in the repos is a simulator or loopback figure | **G-02** |
+| **C2-2** | Cold **`spawn → port OPEN`** latency on real Windows | `w17-ground-station/main/raceDayOrchestrator.js`:89-96 says `LINK_UP_WAIT_MS = 5000` is unvalidated — *"nothing in this chain has run on any machine"* | **G-04** |
 
 ---
 

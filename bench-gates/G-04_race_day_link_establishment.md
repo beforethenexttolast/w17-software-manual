@@ -4,8 +4,8 @@
 > the truth about the **radio**, not just about a process
 > (`w17-ground-station/README.md:247-258`). The wait before that decision,
 > `LINK_UP_WAIT_MS = 5000`, is **not validated** — *"nothing in this chain has run on any
-> machine"* (`main/raceDayOrchestrator.js:89-96`, `README.md:260-264`,
-> `docs/GIFTEE_FIRST_LAUNCH.md:134-143`).
+> machine"* (`w17-ground-station/main/raceDayOrchestrator.js:89-96`, `w17-ground-station/README.md:260-264`,
+> `w17-ground-station/docs/GIFTEE_FIRST_LAUNCH.md:134-143`).
 >
 > **The purpose of this gate is to SETTLE that constant.** A FAIL here is a datum about
 > the number as much as a verdict about the rig.
@@ -89,9 +89,9 @@
 >   (`w17-mapper/pkg/link/port.go:47-49`, `pkg/client/grpc_client.go:298`);
 > * under RACE DAY the mapper's stdout is piped **only** into a bounded 200-line ×
 >   400-char in-memory ring, never echoed and never written to a file
->   (`main/mapperRunner.js:39-40,144-151,167`);
-> * **nothing logs the button press at all** — `appWiring.js:338` calls `raceDay.start()`
->   and `start()` (`raceDayOrchestrator.js:273-301`) logs nothing on entry.
+>   (`w17-ground-station/main/mapperRunner.js:39-40,144-151,167`);
+> * **nothing logs the button press at all** — `w17-ground-station/main/appWiring.js:338` calls `raceDay.start()`
+>   and `start()` (`w17-ground-station/main/raceDayOrchestrator.js:273-301`) logs nothing on entry.
 >
 > **Partly closed on a branch, not on `main`.** `offline/raceday-timing-logs` @ `2f2690a`
 > adds five self-stamped `W17T` lines (the press included) and stamps the WS3 probe's
@@ -109,11 +109,11 @@
 
 1. Reboot Windows. This is a *cold* measurement: the question is how long a cold Go
    binary takes to enumerate SDL and open the FTDI port **behind an AV scan**
-   (`raceDayOrchestrator.js:89-92`). A second run on a warm machine is a different number
+   (`w17-ground-station/main/raceDayOrchestrator.js:89-92`). A second run on a warm machine is a different number
    and must be labelled as one.
 2. Confirm the exact argv race day would use, from race day's own pure builder — never
    re-derived by hand. `mapperArgv()` emits `-config-file-path <trimmed absolute path>`
-   and has no branch that appends anything else (`raceDayOrchestrator.js:44-71`).
+   and has no branch that appends anything else (`w17-ground-station/main/raceDayOrchestrator.js:44-71`).
 3. Emit the `W17-RACEDAY-T0` marker and launch the mapper with that argv, through the
    timestamping pipe (Exact commands). The marker and the launch are one command, so the
    press-to-spawn leg is machine-measured, not hand-timed.
@@ -129,7 +129,7 @@
 8. Start the GS from a timestamping capture too (Exact commands), so the `[mapper]
    started managed (pid …)` line is stamped and the two halves can be laid side by side.
 9. Press **RACE DAY ▸ BRING EVERYTHING UP**. Record, in order: CAR WI-FI, DRIVE PROGRAM,
-   PHONE LINK — the checklist at `docs/setup_flow_bench_checklist.md:210-233`.
+   PHONE LINK — the checklist at `w17-ground-station/docs/setup_flow_bench_checklist.md:210-233`.
 10. Record which DRIVE PROGRAM kind appeared, verbatim, and whether the sequence
     continued or halted:
 
@@ -142,20 +142,20 @@
     | `link-not-yet` | `running — the radio is not on yet, give it a moment` | `:86` | **no** (OD-5: a first bring-up never accuses a cable) |
     | `link-down` | `started, but the radio is not transmitting — check the cable to the little radio box, then press RACE DAY again` | `:100` | **yes** |
 
-11. **The unplugged-serial variant** (`setup_flow_bench_checklist.md:220-230`): with the
+11. **The unplugged-serial variant** (`w17-ground-station/docs/setup_flow_bench_checklist.md:220-230`): with the
     GCS box's serial link deliberately unplugged, confirm the line is **not** plain
     `running`. On a **first** bring-up expect `link-not-yet` (green, sequence carries on);
     after a run in which the radio HAS come up this session, expect `link-down` and the
     sequence halting.
 12. Confirm the `link-not-yet` line **upgrades itself** to `running` the moment the radio
-    answers, without a second press (`raceDayOrchestrator.js:451-453`).
+    answers, without a second press (`w17-ground-station/main/raceDayOrchestrator.js:451-453`).
 13. Press RACE DAY again while everything is up: idempotent re-run, nothing restarted
-    (`setup_flow_bench_checklist.md:231-233`).
+    (`w17-ground-station/docs/setup_flow_bench_checklist.md:231-233`).
 14. Press **STOP RACE DAY**: the button must disappear **on the press**, not on the
-    child's exit, and the process must actually go (`README.md:209-218`).
+    child's exit, and the process must actually go (`w17-ground-station/README.md:209-218`).
 15. Kill the managed process externally (Task Manager). The card must mirror the death
     honestly — *"stopped on its own — press RACE DAY to bring it back"* — with no press
-    (`setup_flow_bench_checklist.md:248-250`).
+    (`w17-ground-station/docs/setup_flow_bench_checklist.md:248-250`).
 
 ## Exact commands
 
@@ -205,7 +205,7 @@ $stamp = { process { '{0} {1}' -f (Get-Date).ToUniversalTime().ToString('o'), $_
 Confirm the argv against race day's **own** builder rather than trusting the line above.
 Do not re-derive it by hand and do not read it out of this card: run the existing WS3
 step, which captures `mapperArgv()` / `MAPPER_ARG_WHITELIST` directly from the function
-under test (`lib/race-day-probe.js:182-187`, result fields `mapperArgWhitelist` and
+under test (`w17-ground-station/scripts/windows-validation/lib/race-day-probe.js:182-187`, result fields `mapperArgWhitelist` and
 `argvCheck` at `:239-240`):
 
 ```powershell
@@ -232,7 +232,7 @@ $env:ELECTRON_ENABLE_LOGGING = '1'
 > If the packaged GUI build writes nothing to the parent console on this Windows build,
 > **that is itself the finding** — record it, and fall back to the WS3 probe path
 > (`50-race-day.ps1`, which drives the real orchestrator under `ELECTRON_RUN_AS_NODE=1`
-> and prints `RACEDAY_PROBE_RESULT: {...}` — `lib/race-day-probe.js:252`). Note that the
+> and prints `RACEDAY_PROBE_RESULT: {...}` — `w17-ground-station/scripts/windows-validation/lib/race-day-probe.js:252`). Note that the
 > probe's result object carries **no timing fields at all** (`:232-251`), so it answers
 > the *outcome* question and not the *timing* one. Part A remains the measurement.
 
@@ -287,13 +287,13 @@ Markers the parser keys on, each with the line that prints it:
 | `[mapper] started managed (pid N): <exe> <argv>` | `w17-ground-station/main/mapperRunner.js:225` |
 | `(bring-up) starting the radio link on COMn at 921600 baud, from the saved profile` | `w17-mapper/pkg/client/grpc_client.go:298` |
 | `(port-loop)(initial) opening port COMn` | `w17-mapper/pkg/link/port.go:47` |
-| `(port-loop)(initial) port COMn opened` | `port.go:49` — **the radio claim** |
-| `(port-loop)(initial) error opening port COMn` | `port.go:54` |
-| `(port-loop)(backoff) port COMn re-opened` | `port.go:91` |
+| `(port-loop)(initial) port COMn opened` | `w17-mapper/pkg/link/port.go:49` — **the radio claim** |
+| `(port-loop)(initial) error opening port COMn` | `w17-mapper/pkg/link/port.go:54` |
+| `(port-loop)(backoff) port COMn re-opened` | `w17-mapper/pkg/link/port.go:91` |
 | `(send-loop) starting, refresh rate …` | `w17-mapper/pkg/link/send.go:218` |
-| `[raceday] the drive program has not raised the radio yet — reporting "not yet", not a fault` | `main/raceDayOrchestrator.js:481` |
-| `[mapper] exited (N)` | `main/mapperRunner.js:222` |
-| `(bring-up) the saved profile declares no transmitter …` / `… tx.port … is empty …` | `grpc_client.go:279-290` |
+| `[raceday] the drive program has not raised the radio yet — reporting "not yet", not a fault` | `w17-ground-station/main/raceDayOrchestrator.js:481` |
+| `[mapper] exited (N)` | `w17-ground-station/main/mapperRunner.js:222` |
+| `(bring-up) the saved profile declares no transmitter …` / `… tx.port … is empty …` | `w17-mapper/pkg/client/grpc_client.go:279-290` |
 
 **The app's own structured lines** (branch `offline/raceday-timing-logs` @ `2f2690a`; not
 yet on GS `main`). Each is one JSON object on one line, tagged `W17T`, carrying its own
@@ -311,11 +311,11 @@ ISO `t` **and** a monotonic `m` (`Math.round(performance.now())`):
 
 1. **The app's stdout**, but only when something captures it — the Part B command below.
 2. **`RACEDAY_PROBE_RESULT.probeLog[]`** in the WS3 result JSON, where each entry is
-   stamped `[t=<ISO> m=<ms>] ` by `scripts/windows-validation/lib/race-day-probe.js:126`.
+   stamped `[t=<ISO> m=<ms>] ` by `w17-ground-station/scripts/windows-validation/lib/race-day-probe.js:126`.
    This sink needs **no** console capture at all and is the more reliable of the two.
    Do **not** rely on the probe's stderr copy: `50-race-day.ps1:326` truncates it to the
    last 40 lines (`$data.probeStderrTail = … Select-Object -Last 40`; `probeLog[]` itself
-   is written whole at `race-day-probe.js:250`, then printed at `:252`).
+   is written whole at `w17-ground-station/scripts/windows-validation/lib/race-day-probe.js:250`, then printed at `:252`).
 
 `raceday_timing.py` reads a `W17T` line's own payload `t` in preference to any wrapper
 stamp — the payload stamp is the *event* time, a wrapper stamp is the *read* time — so an
@@ -329,7 +329,7 @@ halted.
 ## PASS / FAIL criteria
 
 **The gate measurement is `t(port OPEN) − t(mapper spawn)`, against
-`LINK_UP_WAIT_MS = 5000` (`main/raceDayOrchestrator.js:97`).**
+`LINK_UP_WAIT_MS = 5000` (`w17-ground-station/main/raceDayOrchestrator.js:97`).**
 
 | # | Criterion | PASS | FAIL |
 |---|---|---|---|
@@ -350,7 +350,7 @@ halted.
 > `LINK_UP_WAIT_MS` stays 5000, grows, or the first-bring-up asymmetry is kept as the
 > permanent design, is the owner's call on this data. `50-race-day.ps1` is named as the
 > place the real port-open latency gets recorded
-> (`raceDayOrchestrator.js:94-96`, `README.md:263-264`), and this card is how a human
+> (`w17-ground-station/main/raceDayOrchestrator.js:94-96`, `w17-ground-station/README.md:263-264`), and this card is how a human
 > reads the same latency in a form that can be argued about.
 
 ### THRESHOLD MISSING — owner/bench decides
@@ -360,10 +360,10 @@ top-level heading.)*
 
 | Missing number | Where the gap is | What this card does instead |
 |---|---|---|
-| The **acceptable** cold link latency (as distinct from the current 5000 ms *window*) | nothing states what is acceptable to a giftee; 5000 is explicitly unvalidated (`raceDayOrchestrator.js:89-96`) | measures against 5000, reports headroom and spread, and recommends nothing |
+| The **acceptable** cold link latency (as distinct from the current 5000 ms *window*) | nothing states what is acceptable to a giftee; 5000 is explicitly unvalidated (`w17-ground-station/main/raceDayOrchestrator.js:89-96`) | measures against 5000, reports headroom and spread, and recommends nothing |
 | Minimum headroom | not recorded anywhere | criterion 2 proposes **1000 ms** as a *review* trigger, not as a standard; it is this card's suggestion and must be ratified or replaced |
 | Acceptable spread across cold runs | not recorded anywhere | criterion 3 proposes **2000 ms** on the same footing |
-| Acceptable STOP-button lag | `setup_flow_bench_checklist.md:239` says "record any lag", no number | recorded, not judged |
+| Acceptable STOP-button lag | `w17-ground-station/docs/setup_flow_bench_checklist.md:239` says "record any lag", no number | recorded, not judged |
 | How many cold runs constitute a characterisation | not recorded anywhere | five, chosen by this card; say so when reporting |
 
 ## Stop conditions
@@ -375,7 +375,7 @@ Stop immediately if:
   is the one claim the giftee acts on, and a false one is a stop-the-line finding, not a
   note;
 - STOP RACE DAY leaves a live process behind an idle-looking card
-  (`README.md:216-218`: *"A stopped-looking card over a live process is the one thing
+  (`w17-ground-station/README.md:216-218`: *"A stopped-looking card over a live process is the one thing
   race day must never draw"*);
 - the mapper panics or exits on its own during bring-up — capture the stdout tail and
   stop; that is MAP-1-shaped and belongs in a report, not in a retry loop;
@@ -394,12 +394,12 @@ Stop immediately if:
 - Ctrl-C the Part-A mapper; confirm no `elrs-joystick-control` process survives and no
   COM port is held.
 - STOP RACE DAY, then quit the GS (teardown disposes the managed child —
-  `main/main.js:421`).
+  `w17-ground-station/main/main.js:421`).
 - The hotspot is **not** race day's to wind back: it stays with PIT WALL / the quit
-  policy (`README.md:205-207`). Leave it as the owner had it.
+  policy (`w17-ground-station/README.md:205-207`). Leave it as the owner had it.
 - Race day may have written **one** settings key, `telemetry.source`, once per app
   session, through the narrow `patchTelemetrySource()` — never any other key and never
-  the encrypted Wi-Fi credential (`README.md:233-238`, OD-19). If the pre-existing value
+  the encrypted Wi-Fi credential (`w17-ground-station/README.md:233-238`, OD-19). If the pre-existing value
   matters, record it before the run and restore it after.
 - On the WS3 VM, `vmrun revertToSnapshot clean-giftee-pc` returns everything.
 
@@ -433,11 +433,11 @@ bench-gates/evidence/G-04/
 
 ## Downstream unlocked by PASS
 
-- **Settles `LINK_UP_WAIT_MS`** — the `[bench-TBD]` at `raceDayOrchestrator.js:89-96`,
-  `README.md:260-264` and `docs/GIFTEE_FIRST_LAUNCH.md:134-143` can be replaced by a
+- **Settles `LINK_UP_WAIT_MS`** — the `[bench-TBD]` at `w17-ground-station/main/raceDayOrchestrator.js:89-96`,
+  `w17-ground-station/README.md:260-264` and `w17-ground-station/docs/GIFTEE_FIRST_LAUNCH.md:134-143` can be replaced by a
   measured number, and the first-bring-up asymmetry can be kept on purpose rather than
   as insurance against an unknown.
-- Discharges the RACE DAY block of `docs/setup_flow_bench_checklist.md:204-250`, and the
+- Discharges the RACE DAY block of `w17-ground-station/docs/setup_flow_bench_checklist.md:204-250`, and the
   bring-up half of WS3 (`w17-windows-vm-validation-runbook.md:459-464`).
 - Confirms on real Windows that MAP-1 and MAP-2/SYN-2 are actually closed at the shipped
   artefacts (they are recorded as LANDED at mapper `6e99d51`,
@@ -458,7 +458,7 @@ bench-gates/evidence/G-04/
   own bring-up and still proves only that the port opened and the send loop started.
   On-the-wire proof stays bench (`W17_CURRENT_STATE.md:61`) and is C1's CRSF card.
 - **The hotspot step.** `50-race-day.ps1` stubs it out and `30-hotspot.ps1` drives
-  `hotspot.js`/`hotspotVerify.js` directly, so `main/hotspotLifecycle.js` — the module
+  `w17-ground-station/main/hotspot.js`/`w17-ground-station/main/hotspotVerify.js` directly, so `w17-ground-station/main/hotspotLifecycle.js` — the module
   race day actually calls — is exercised by **nothing**; `[win-TBD]`
   (`w17-windows-vm-validation-runbook.md:448-453`). If the saved network plan is the
   hotspot, step (a) of this sequence is measured here for the first time, and the
@@ -466,10 +466,10 @@ bench-gates/evidence/G-04/
 - **The giftee's actual x64 PC.** An ARM64 VM under x64 emulation is a software stand-in;
   the real machine gets its own pass at handover (`:454-455`).
 - **AV interference**, which is explicitly the reason the constant is unknown
-  (`raceDayOrchestrator.js:90-92`) and which varies by machine: five runs on one PC
+  (`w17-ground-station/main/raceDayOrchestrator.js:90-92`) and which varies by machine: five runs on one PC
   characterise that PC.
 - **A lag on STOP** (criterion 10) is asked to be *recorded* by the checklist
-  (`setup_flow_bench_checklist.md:239`) with no threshold attached.
+  (`w17-ground-station/docs/setup_flow_bench_checklist.md:239`) with no threshold attached.
 
 ## Evidence label
 

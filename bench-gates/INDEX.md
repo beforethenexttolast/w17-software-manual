@@ -78,7 +78,7 @@ it and the drawing differ, the table wins.
 | **BG-03** | [Phase B first power](BG-03_phase_b_first_power.md) | `w17-control-fw/docs/PHASE_B_FIRST_POWER.md` | B1…B4 | **Yes**, logic only |
 | **BG-04** | [D8 bench bring-up](BG-04_d8_bench_bringup.md) | `w17-control-fw/docs/D8_BENCH_BRINGUP.md` | D8-P0…P11a | **Yes** |
 | **BG-05** | [Coordinated two-board flash](BG-05_coordinated_flash.md) | `w17-control-fw/docs/COORDINATED_FLASH.md` | `COORD-FLASH` | **Yes** |
-| **BG-06** | [CRSF on the wire](BG-06_crsf_on_the_wire.md) | *(new — no prior runbook)*; `CrsfFrame.hpp`, `configs/README.md` | — | **T1 TX module only · T2 the car** |
+| **BG-06** | [CRSF on the wire](BG-06_crsf_on_the_wire.md) | *(new — no prior runbook)*; `CrsfFrame.hpp`, `w17-mapper/configs/README.md` | — | **T1 TX module only · T2 the car** |
 | **BG-07** | [BT1 show-off bench gate](BG-07_bt1_show_off.md) | `w17-control-fw/docs/BT1_BENCH_GATE.md` | `BT1` | **Yes** + owner opens BT1 |
 | **BG-08** | [Dim-light halo judgement](BG-08_dim_light_halo.md) | `learning-manual/open_questions.md` #55; `w17-soundlight-fw/lib/lights` | — | **Yes** (board #2 + strip) |
 
@@ -138,22 +138,22 @@ calls `bench-gates/tools/…`. That path exists only **after** this branch is me
 
 | Tool | What it does | Hardware needed to *write* it | Hardware needed to *run* it |
 |---|---|---|---|
-| [`tools/crsf_sniff.py`](tools/crsf_sniff.py) | passive CRSF decoder; live tap or offline replay; **no transmit path** | none | none for `--file`; a serial adapter for `--port` |
-| [`tools/test_crsf_sniff.py`](tools/test_crsf_sniff.py) | 21 synthetic-frame tests | none | none |
-| [`tools/crsf_xcheck_cpp.sh`](tools/crsf_xcheck_cpp.sh) | 300 random vectors vs the firmware's `CrsfParser.cpp` | none | none (a C++ compiler) |
-| [`tools/bench_capture.sh`](tools/bench_capture.sh) | evidence folder + env/HEAD stamp + read-only timestamped serial capture + sha256 manifest | none | `--no-serial` needs none; the serial half is **Phase B** |
-| [`tools/pdb_continuity_sheet.md`](tools/pdb_continuity_sheet.md) | no-power multimeter worksheet using A2's own row IDs | none | a multimeter |
-| [`tools/first_power_current_limits.md`](tools/first_power_current_limits.md) | what the documents fix, and the **13 thresholds that are missing** | none | — |
+| [`bench-gates/tools/crsf_sniff.py`](bench-gates/tools/crsf_sniff.py) | passive CRSF decoder; live tap or offline replay; **no transmit path** | none | none for `--file`; a serial adapter for `--port` |
+| [`bench-gates/tools/test_crsf_sniff.py`](bench-gates/tools/test_crsf_sniff.py) | 21 synthetic-frame tests | none | none |
+| [`bench-gates/tools/crsf_xcheck_cpp.sh`](bench-gates/tools/crsf_xcheck_cpp.sh) | 300 random vectors vs the firmware's `CrsfParser.cpp` | none | none (a C++ compiler) |
+| [`bench-gates/tools/bench_capture.sh`](bench-gates/tools/bench_capture.sh) | evidence folder + env/HEAD stamp + read-only timestamped serial capture + sha256 manifest | none | `--no-serial` needs none; the serial half is **Phase B** |
+| [`bench-gates/tools/pdb_continuity_sheet.md`](bench-gates/tools/pdb_continuity_sheet.md) | no-power multimeter worksheet using A2's own row IDs | none | a multimeter |
+| [`bench-gates/tools/first_power_current_limits.md`](bench-gates/tools/first_power_current_limits.md) | what the documents fix, and the **13 thresholds that are missing** | none | — |
 | [`MISSING_THRESHOLDS.md`](MISSING_THRESHOLDS.md) | the **single deduplicated list** of all **27** missing numbers across both card sets: **7** the owner can rule today, **20** a bench must measure | none | — |
 
 The `G-*` cards bring four more tools into the same directory — `latency_rig.html`,
 `latency_from_frames.py`, `raceday_timing.py` and `tests/run_tests.py` (81 checks, exit 0).
-All four are host-only. [`tools/README.md`](tools/README.md) lists both sets.
+All four are host-only. [`bench-gates/tools/README.md`](bench-gates/tools/README.md) lists both sets.
 
 ## Evidence
 
 All evidence lands under `bench-gates/evidence/<GATE-ID>/<UTC-stamp>/`, created by
-`bench_capture.sh`. See [`evidence/README.md`](evidence/README.md) for the convention and for what
+`bench_capture.sh`. See [`bench-gates/evidence/README.md`](bench-gates/evidence/README.md) for the convention and for what
 makes a capture citable.
 
 ## The rules that outrank every card here

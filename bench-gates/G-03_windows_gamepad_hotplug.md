@@ -4,11 +4,11 @@
 > (`w17-mapper/pkg/devices/hotplug.go:22-23`). Before MAP-6 was fixed, that sentence
 > could not work: the SDL registry was built once at boot and every add/remove event
 > body was thrown away, so a pad that dropped never resolved again and nothing short of
-> restarting the drive program brought it back (`hotplug.go:9-21`).
+> restarting the drive program brought it back (`w17-mapper/pkg/devices/hotplug.go:9-21`).
 >
-> The fix is on the trunk (`w17-mapper` `w17-headtrack` @ `b859af1`, `pkg/devices/hotplug.go`).
+> The fix is on the trunk (`w17-mapper` `w17-headtrack` @ `b859af1`, `w17-mapper/pkg/devices/hotplug.go`).
 > **Its tests inject a fake SDL event pump on purpose** — *"no unattended session may plug
-> a gamepad in and out on demand"* (`hotplug.go:50-52`). This gate is the one thing those
+> a gamepad in and out on demand"* (`w17-mapper/pkg/devices/hotplug.go:50-52`). This gate is the one thing those
 > tests deliberately cannot be: a real hand, on a real cable, on real Windows, against the
 > real SDL/OS device-removal path.
 >
@@ -36,7 +36,7 @@
   the giftee's actual PC (`w17-windows-vm-validation-runbook.md:454-455`).
 - A human physically present. *"nothing in this suite can automate a hand pulling a USB
   cable"* (`60-hid-transition.ps1:7-11`).
-- A filled controller profile — `configs/w17-ds4.json` ships
+- A filled controller profile — `w17-mapper/configs/w17-ds4.json` ships
   `REPLACE-WITH-DS4-ID` / `REPLACE-WITH-COM-PORT` placeholders and the load path now
   refuses an unfilled profile outright (`w17-mapper/pkg/devices/inventory.go:8-10`).
 - **This gate is not R15 and discharges nothing on the FIRST_ACTIVE ladder.** R15 is
@@ -90,7 +90,7 @@ RUN B — process-continuity half (60-hid-transition.ps1's question)
    **The derived id is expected to be different**: SDL packs the bus into the GUID's
    first two bytes, so the same pad reads `0300…` on USB and `0500…` on Bluetooth, and
    `DeriveGamepadId` is an md5 of `guid + name`
-   (`pkg/devices/inventory.go:84-88`, `pkg/devices/util.go:32-37`). Record both ids.
+   (`w17-mapper/pkg/devices/inventory.go:84-88`, `w17-mapper/pkg/devices/util.go:32-37`). Record both ids.
    This is the trap the profile placeholder warns about, and it decides which id the
    saved profile must carry.
 3. Confirm which id the shipped profile actually names, and that it matches the transport
@@ -105,14 +105,14 @@ RUN B — process-continuity half (60-hid-transition.ps1's question)
 6. Wait 5 s. **Replug the DS4.** Expect exactly one
    `(devices): gamepad connected: … (id …)`, with the **same** id again — the id was
    freed on removal, so the first holder's id is available to the pad when it returns
-   (`hotplug.go:125-137`).
+   (`w17-mapper/pkg/devices/hotplug.go:125-137`).
 7. Repeat steps 5–6 **five times**, at varying intervals (immediate replug, 1 s, 5 s,
    30 s), and once with the pad replugged into a **different USB port**.
 8. Start the pad **absent** and plug it in only after the mapper is up. Expect a
    `connected` line — a pad switched on after start-up never appeared at all before the
-   fix (`hotplug.go:12`).
+   fix (`w17-mapper/pkg/devices/hotplug.go:12`).
 9. Watch for `(devices): a gamepad was plugged in at index N but could not be opened`
-   (`hotplug.go:102`). It is a real outcome, not an error to be ignored, and it means
+   (`w17-mapper/pkg/devices/hotplug.go:102`). It is a real outcome, not an error to be ignored, and it means
    the pad is present to Windows but not openable by SDL.
 
 **Phase 2 — control resumes, and the two-step really is needed.**
@@ -123,7 +123,7 @@ RUN B — process-continuity half (60-hid-transition.ps1's question)
     device page or the `GetGamepads` / `GetGamepadStream` RPC on loopback.
 11. Confirm the arm chain did **not** silently re-arm across the gap: `reset_on_nan`
     requires a fresh TRIANGLE press after the dropout, and hot-plug does not weaken that
-    (`hotplug.go:19-21`, `:40-42`). Verify a fresh press is required.
+    (`w17-mapper/pkg/devices/hotplug.go:19-21`, `:40-42`). Verify a fresh press is required.
 12. Record whether the **booklet's sentence is now true**: reconnect the controller, do
     the two-step, and control is back without restarting the drive program.
 
@@ -173,7 +173,7 @@ pwsh -File .\scripts\windows-validation\60-hid-transition.ps1 `
 
 **Commands that must NOT be run:** anything that powers the car; anything that binds the
 mapper's ports to all interfaces (`-bind-all` prints its own warning at
-`cmd/elrs-joystick-control/main.go:141-143` and this card never needs it); and any
+`w17-mapper/cmd/elrs-joystick-control/main.go:141-143` and this card never needs it); and any
 attempt to reach FIRST_ACTIVE build tags or the `-first-active-arm` flag, which do not
 exist in a default build and are not this gate's business.
 
@@ -182,16 +182,16 @@ exist in a default build and are not this gate's business.
 | Marker | Where it comes from | When |
 |---|---|---|
 | `(devices): gamepad connected: <name> (id <id>)` | `w17-mapper/pkg/devices/hotplug.go:145` | boot enumeration and every plug-in |
-| `(devices): gamepad disconnected: <name> (id <id>)` | `hotplug.go:182` | every unplug |
-| `(devices): a gamepad was plugged in at index N but could not be opened` | `hotplug.go:102` | a plug-in SDL refused |
-| `-list-devices` JSON: `id`, `name`, `guid`, `bus`, `axes`, `buttons`, `hats` | `pkg/devices/inventory.go:35-49` | phase 0 |
+| `(devices): gamepad disconnected: <name> (id <id>)` | `w17-mapper/pkg/devices/hotplug.go:182` | every unplug |
+| `(devices): a gamepad was plugged in at index N but could not be opened` | `w17-mapper/pkg/devices/hotplug.go:102` | a plug-in SDL refused |
+| `-list-devices` JSON: `id`, `name`, `guid`, `bus`, `axes`, `buttons`, `hats` | `w17-mapper/pkg/devices/inventory.go:35-49` | phase 0 |
 
 > ### Stale-doc finding to correct as part of this gate
 > `w17-ground-station/scripts/windows-validation/60-hid-transition.ps1:69-84` (at GS
 > `main` `379cf29`) says MAP-6 is present, that *"there is no add/remove log line to
 > grep for today"*, and that `-MapperLogPath`'s tail is *"expected to show nothing
 > related to the pad transition"*. **All three are now false** at mapper `b859af1`:
-> `pkg/devices/hotplug.go` handles both events and prints the three lines above.
+> `w17-mapper/pkg/devices/hotplug.go` handles both events and prints the three lines above.
 > The script's OS-level measurement is unaffected; only its narration is stale. Record
 > the correction as an owner-facing doc fix — it is a `w17-ground-station` change and
 > therefore a different repo and a different session.
@@ -202,7 +202,7 @@ exist in a default build and are not this gate's business.
 |---|---|---|---|
 | 1 | Unplug is seen | exactly **one** `disconnected` line per unplug, id matching | zero lines (the OS event never reached SDL), or more than one |
 | 2 | Replug is seen | exactly **one** `connected` line per replug | zero lines |
-| 3 | **The id is stable across the cycle** | the `connected` id after a replug is **byte-identical** to the id before the unplug | any different id, and in particular any `<id>_<n>` suffixed form — the suffix means the bare id was still taken, which is the two-identical-pads limit at `hotplug.go:130-137` and must not appear on a single-pad rig |
+| 3 | **The id is stable across the cycle** | the `connected` id after a replug is **byte-identical** to the id before the unplug | any different id, and in particular any `<id>_<n>` suffixed form — the suffix means the bare id was still taken, which is the two-identical-pads limit at `w17-mapper/pkg/devices/hotplug.go:130-137` and must not appear on a single-pad rig |
 | 4 | Repeatable | **5 of 5** unplug/replug cycles satisfy 1–3, including a different USB port | any cycle that does not |
 | 5 | Cold-absent start works | a pad plugged in **after** the mapper started produces a `connected` line and resolves | no line, or a line whose id does not match the profile |
 | 6 | No re-arm across the gap | a fresh TRIANGLE press is **required** before the arm chain is live again | the toggle re-arms itself after a dropout |
@@ -212,7 +212,7 @@ exist in a default build and are not this gate's business.
 
 Criterion 3 is the one that actually decides whether MAP-6 is fixed on real hardware —
 the fix's whole mechanism is "the id was freed when the pad was removed, so the first
-holder's id is available again" (`hotplug.go:125-137`).
+holder's id is available again" (`w17-mapper/pkg/devices/hotplug.go:125-137`).
 
 ## Stop conditions
 
@@ -221,7 +221,7 @@ Stop immediately if:
 - the car is or becomes powered, or the RX is bound, during run B;
 - an unplug produces **no** `disconnected` line but the pad's values keep changing — that
   would mean a detached handle is still being read, which the retire-don't-close design
-  exists to prevent (`hotplug.go:148-170`), and it is a serious finding;
+  exists to prevent (`w17-mapper/pkg/devices/hotplug.go:148-170`), and it is a serious finding;
 - the mapper crashes on unplug or replug (record the stdout tail; it is the evidence);
 - the arm chain re-arms itself without a fresh press (criterion 6) — that is a safety
   finding, not a nuisance;
@@ -233,7 +233,7 @@ Stop immediately if:
 Nothing persistent is changed. Stop the mapper (Ctrl-C in its window, or STOP RACE DAY /
 Task Manager for a managed child). Retired SDL handles are released at `Quit`, by design
 — the cost is *"one SDL_Joystick object … per unplug, held until Quit"*, a bounded leak
-(`hotplug.go:161-166`), so a long run with many cycles should end with a restart rather
+(`w17-mapper/pkg/devices/hotplug.go:161-166`), so a long run with many cycles should end with a restart rather
 than being left running.
 
 If run B was performed, confirm no mapper process survives, and confirm no serial port is
@@ -257,9 +257,9 @@ bench-gates/evidence/G-03/
 ## Downstream unlocked by PASS
 
 - Establishes on real hardware that **MAP-6 is fixed**, which the fake-pump unit tests
-  deliberately cannot (`hotplug.go:50-52`).
+  deliberately cannot (`w17-mapper/pkg/devices/hotplug.go:50-52`).
 - Makes the booklet's recovery sentence — *"reconnect the controller, then do the
-  two-step"* — a verified claim rather than an intention (`hotplug.go:22-24`).
+  two-step"* — a verified claim rather than an intention (`w17-mapper/pkg/devices/hotplug.go:22-24`).
 - Settles the USB-vs-Bluetooth derived-id question for the gift-kit profile, which the
   install step depends on.
 - Supplies the correction owed to `60-hid-transition.ps1`'s header.
@@ -272,7 +272,7 @@ anything about CRSF reaching the receiver over RF.
 - **Which Windows joystick backend SDL binds the DS4 through** (HIDAPI vs
   XInput/RawInput/DirectInput). `DecodeGUIDBus` is explicitly *"a HINT, not an
   authority… it has not been checked on Windows/HIDAPI against a real DualShock 4 —
-  `[bench-TBD]`"* (`pkg/devices/inventory.go:90-94`). The backend determines the GUID,
+  `[bench-TBD]`"* (`w17-mapper/pkg/devices/inventory.go:90-94`). The backend determines the GUID,
   the GUID determines the derived id, and the profile names an id — so this is not
   trivia. **Record the raw GUID, never only the decoded bus hint.**
 - **Whether control resumes** after a replug was, before this gate, explicitly
@@ -284,12 +284,12 @@ anything about CRSF reaching the receiver over RF.
 - **RESIDUAL A** is untouched by this gate and stays open: pad loss ⇒ fail-to-neutral at
   full rate, switch channels latch downstream, firmware radio-loss failsafe does not fire
   (`CURRENT_STATUS.md:1380-1385`).
-- **Two identical pads.** `hotplug.go:130-137` records a real limit: with two identical
+- **Two identical pads.** `w17-mapper/pkg/devices/hotplug.go:130-137` records a real limit: with two identical
   pads, "first holder keeps the id" holds only while that holder is attached. The W17 rig
   is single-pad, so this cannot arise on race day — but a rig that ever gains a second
   identical pad must not rely on which one a bare id lands on.
 - **Bluetooth dropout under battery dip**, which is the failure the fix was written for
-  (`hotplug.go:14-16`), is not reproducible on demand and is not tested by this card.
+  (`w17-mapper/pkg/devices/hotplug.go:14-16`), is not reproducible on demand and is not tested by this card.
 
 ## Evidence label
 

@@ -54,7 +54,7 @@ right one.
 ## Standing rules that bind every card here
 
 1. **FIRST_ACTIVE is NO-GO / BLOCKED.** No card runs, prepares or rehearses it
-   (`head_tracking_unlock_plan.md:1366-1385`, `W17_CURRENT_STATE.md:61`).
+   (`w17-control-fw/project-review/head_tracking_unlock_plan.md:1366-1385`, `W17_CURRENT_STATE.md:61`).
 2. **A2 is NOT-EXECUTED ⇒ Phase B is BLOCKED.** G-02 waits (`W17_CURRENT_STATE.md:61`).
 3. **Anything that can put CRSF on a wire — G-03 run B, all of G-04, and BG-06 T1 on the
    firmware side (`INDEX.md` rule 1b) — is un-gated by A2/Phase B, but is a live-TX bench
