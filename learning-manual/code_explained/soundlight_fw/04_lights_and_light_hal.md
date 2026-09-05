@@ -34,9 +34,11 @@ pure renderer's `Rgb[30]` output array *is* the seam, so none is needed).
 > accurate either way.
 
 **And one measured bench flag (#55):** after the 43 % brightness cap *and* gamma 2.2,
-the dim layers render astonishingly low — the disarmed halo and the idle tail light come
-out at **1/255 PWM duty**, the NeverConnected breathe peaks at **{1,3,3}** — possibly
-invisible in daylight. Numbers below; ears-and-eyes verdict is the bench's.
+the dim layers still render low — the disarmed halo and the idle tail light come out at
+**6/255 PWM duty on their brightest channel**, the NeverConnected breathe peaks at
+**{1,6,6}** — raised 2026-09-03 (`kMinVisibleDuty`, `LightRenderer.hpp:127`) from the
+pre-raise 1/255 / {1,3,3} this chapter originally measured; still possibly marginal in
+daylight. Numbers below; ears-and-eyes verdict is the bench's.
 
 ## Scope (files explained here)
 
@@ -350,8 +352,8 @@ private:
 ```cpp
 // Petronas teal, F1 palette.
 constexpr Rgb kTeal{0, 130, 120};
-constexpr Rgb kDimWhite{40, 40, 46};
-constexpr Rgb kDimRed{40, 0, 0};
+constexpr Rgb kDimWhite{91, 91, 105};
+constexpr Rgb kDimRed{105, 0, 0};
 constexpr Rgb kBrightRed{255, 0, 0};
 constexpr Rgb kAmber{255, 90, 0};
 constexpr Rgb kWhite{255, 255, 255};
@@ -361,25 +363,32 @@ constexpr Rgb kOff{0, 0, 0};
 - Seven named colors in an anonymous namespace (file-private, C4). "Petronas teal" is
   the Mercedes F1 livery color — the halo ring glows team-colored when armed. `kAmber`
   {255, 90, 0} is the universal hazard/indicator orange (pure red + a minority of
-  green). `kDimWhite` has a whisper of extra blue (46 vs 40) — a cool white. These are
+  green). `kDimWhite` has a whisper of extra blue (105 vs 91) — a cool white. These are
   *design-space* values: what actually reaches the LEDs is transformed by cap + gamma
-  (§3.3), and the transformation is dramatic:
+  (§3.3), and the transformation is dramatic — and, since 2026-09-03, deliberately
+  floored (below):
 
 | Palette constant | Designed | **Rendered at cap 110** (computed) |
 |---|---|---|
 | kTeal | {0, 130, 120} | **{0, 9, 7}** |
-| kDimWhite | {40, 40, 46} | **{1, 1, 1}** |
-| kDimRed | {40, 0, 0} | **{1, 0, 0}** |
+| kDimWhite | {91, 91, 105} | **{4, 4, 6}** |
+| kDimRed | {105, 0, 0} | **{6, 0, 0}** |
 | kBrightRed | {255, 0, 0} | **{40, 0, 0}** |
 | kAmber | {255, 90, 0} | **{40, 4, 0}** |
 | kWhite | {255, 255, 255} | **{40, 40, 40}** |
-| breathe peak (§3.4) | {42, 85, 85} | **{1, 3, 3}** |
+| breathe peak (`kGraceBreathePeak`, §3.4) | {55, 110, 110} | **{1, 6, 6}** |
 
-  The right-hand column is the actual PWM duty commanded per channel. Note how the "dim"
-  design values land at **1/255 duty** — flag **#55**: whether a 0.4 %-duty tail light
-  and a {1,3,3} breathe are *visible* on the car is strictly a bench question (WS2812s
-  are bright devices, and 1/255 in a dim room is perceptible, but daylight is another
-  matter). **VERIFIED (computation)** for the numbers; visibility is bench.
+  The right-hand column is the actual PWM duty commanded per channel — recomputed here
+  with the exact integer cap-then-gamma pipeline (`LightRenderer.hpp:105-112`, cap
+  `maxBrightness = 110` at `LightRenderer.hpp:152`). The "dim" design values were raised
+  2026-09-03 (`kMinVisibleDuty = 6`, `LightRenderer.hpp:127`; constants at
+  `LightRenderer.cpp:18-19,88`) from an earlier 1/255 duty this chapter originally
+  measured — flag **#55**: whether the now-**6/255**-duty tail light and the
+  **{1,6,6}** breathe (brightest channel 6/255, same as the tail — each state's
+  brightest channel now clears the `kMinVisibleDuty` floor) are *visible* on the car is
+  still strictly a bench question (WS2812s are bright devices, and 6/255 in a dim room
+  is perceptible, but daylight is another matter). **VERIFIED (computation)** for the
+  numbers; visibility is bench.
 
 ### 3.2 Lines 16–27: the gamma LUT
 
@@ -443,15 +452,20 @@ Rgb applyBrightnessAndGamma(Rgb c, uint8_t maxBrightness) {
   layer composes in design-space colors, and the cap+gamma transform is applied
   uniformly on the way out (you'll see the loop at each of the three exits, §3.4–3.9).
 
-> **In-flight fix note (2026-09-03) — `fix/lights-truth-wdt-and-clamp`, `[fix-wave:
-> sl:safety-1]`:** the cap-then-gamma order and worked example above are correct and
-> unaffected by this branch — what changes is the *floor*, not the order. Today, the
-> dim layers this doc's own bench flag (#55, below) worries about really do render at
-> 1/255 PWM duty; the branch raises every designed-visible state to a named minimum
-> duty (`kMinVisibleDuty`) so those states can no longer render invisible, and corrects
-> the HAL header's own citation (`LightRenderer.hpp:35-37`), which currently claims the
+> **Landed fix note (raised 2026-09-03, `[fix-wave: sl:safety-1]`; merged to soundlight
+> `main` by `7220c08`):** the cap-then-gamma order and worked example above are correct
+> and were unaffected by this fix — what changed is the *floor*, not the order. Before
+> 2026-09-03, the dim layers this doc's own bench flag (#55, below) worried about really
+> did render at 1/255 PWM duty; the fix raised every designed-visible state to a named
+> minimum duty (`kMinVisibleDuty = 6`, `LightRenderer.hpp:127`) so those states can no
+> longer render invisible — `kDimWhite`/`kDimRed`/the grace-breathe peak now render at
+> 6/255 on their brightest channel instead of 1/255 (table above) — and corrected the
+> header's own cap-order comment (`LightRenderer.hpp:105-109`), which used to claim the
 > cap applies *after* gamma — the opposite of the code both here and in the worked
-> example above.
+> example above. This chapter's numbers in §3.1, §3.4, §7, and §8.1/§8.4 have been
+> updated to the landed (post-2026-09-03) values; the *sibling* fix note in the intro
+> above (indicator minimum-on / low-battery layer order, `sl:correctness-1` /
+> `sl:correctness-4`) is a separate, unrelated finding and is untouched by this pass.
 
 ### 3.4 Lines 40–54 + 56–81: constructor, `fill`, `blinkOn`, and the NeverConnected breathe
 
@@ -534,8 +548,10 @@ Now `render` itself. It opens by clearing a *working frame* and classifying the 
 - **THE batch finding.** `NeverConnected` — no valid frame has *ever* arrived (S1's
   `everReceived_` gate) — renders a **calm 2-second "breathe"** on the halo: a triangle
   wave (0→1000→0 over 2000 ms, scaled to 0…255) coloring the halo a dim teal-ish
-  {lvl/6, lvl/3, lvl/3} (green/blue dominant, max {42, 85, 85}), everything else dark.
-  Early return — no hazard, no brake, nothing.
+  {lvl/6, lvl/3, lvl/3} ratio (green/blue dominant, max **{55, 110, 110}** — raised
+  2026-09-03 from {42, 85, 85}, same 1:2:2 ratio, now the named `kGraceBreathePeak`
+  constant, `LightRenderer.cpp:88`), everything else dark. Early return — no hazard, no
+  brake, nothing.
 - This **contradicts chapter 07 §5** ("hazard … also shown for `NeverConnected`") and
   the S1 doc's relay of it. The code comment explains the intent: a *genuine* cut wire
   on a powered link reads as `Lost` → hazard (because board #1 spoke at least once);
@@ -549,8 +565,8 @@ Now `render` itself. It opens by clearing a *working frame* and classifying the 
   breathes forever — there is no escalation timer; that's a deliberate design reading
   (**[I]** from the comment "escalating to hazard is handled by the caller/monitor
   status"), acceptable because a working install will always progress to Up or Lost.
-  (2) The breathe's rendered peak is **{1, 3, 3}** after cap+gamma — the #55 visibility
-  flag applies here most of all.
+  (2) The breathe's rendered peak is **{1, 6, 6}** after cap+gamma (raised 2026-09-03
+  from {1, 3, 3}) — the #55 visibility flag still applies here, at a higher floor.
 
 ### 3.5 Lines 83–90: the failsafe hazard — all amber, overrides everything
 
@@ -600,9 +616,10 @@ Now `render` itself. It opens by clearing a *working frame* and classifying the 
 ```
 
 - **Base:** the tail (brake segment) always glows dim red — a running light, so the car
-  reads as "on" from behind even off-brake (rendered {1, 0, 0} — #55). The halo shows
-  the arm state: **Petronas teal armed** ({0,9,7} rendered), **dim white disarmed**
-  ({1,1,1}). This is the only *armed/disarmed indication* in the whole system, and note
+  reads as "on" from behind even off-brake (rendered {6, 0, 0} — raised 2026-09-03 from
+  {1, 0, 0}, #55). The halo shows the arm state: **Petronas teal armed** ({0,9,7}
+  rendered), **dim white disarmed** ({4,4,6} — raised from {1,1,1}). This is the only
+  *armed/disarmed indication* in the whole system, and note
   what drives it: the **effective** `armed` — so a link loss (which clears armed via
   S1's projection) never even reaches this line (the hazard returned early), and a
   *deliberate* disarm with a healthy link shows dim-white-not-black (§5.9's second
@@ -630,8 +647,9 @@ Now `render` itself. It opens by clearing a *working frame* and classifying the 
     }
 ```
 
-- **The brake light**: the tail segment jumps dim→bright red ({1,0,0} → {40,0,0} — a
-  40× duty step, unambiguous) whenever the frame's `braking` flag is set. The renderer
+- **The brake light**: the tail segment jumps dim→bright red ({6,0,0} → {40,0,0} — a
+  ~6.7× duty step, still unambiguous; raised 2026-09-03 from a {1,0,0} → {40,0,0}, 40×
+  step) whenever the frame's `braking` flag is set. The renderer
   adds **no hysteresis or filtering of its own** — deliberately, because the flag
   arrives *pre-filtered*: C8's `Link2Sender` computes it with −40 on / −20 off
   hysteresis on board #1, precisely so every consumer sees one coherent, non-flickery
@@ -939,8 +957,10 @@ VehicleState upState() {
   the branch order checks `neverConnected` first) rendered at t=500 with
   `NeverConnected`. The scan hunts for any "amber-like" pixel (`r > 0 && g > 0 &&
   b == 0 && r > 20`) and asserts there is none. At t=500 the breathe renders {0, 1, 1}
-  (computed §3.1): r = 0 fails the very first clause. Even at the breathe's peak
-  {1, 3, 3}, `b == 0` fails — the breathe always carries blue; amber never does. The
+  (computed §3.1; unchanged by the 2026-09-03 raise — the mid-ramp level still
+  gamma-crushes to this value): r = 0 fails the very first clause. Even at the
+  breathe's peak {1, 6, 6} (raised from {1, 3, 3}), `b == 0` fails — the breathe always
+  carries blue; amber never does. The
   `r > 20` clause adds margin (a rendered amber has r = 40). This is the test that
   pins finding #54a's correct behavior. **VERIFIED (ran).**
 
@@ -951,7 +971,8 @@ VehicleState upState() {
   passes trivially. Note the assertion style: not "equals {40,0,0}" but a *relation* —
   robust to gamma-LUT ±1 differences and to retuned brightness (the §3.2 portability
   point in action). What's not asserted: the dim-vs-bright distinction (an off-brake
-  render showing {1,0,0} would also pass `r > g && r > b`.) The *step* is untested;
+  render showing {6,0,0} — raised 2026-09-03 from {1,0,0} — would also pass
+  `r > g && r > b`.) The *step* is untested;
   the *presence* is tested. **VERIFIED (ran).**
 
 ### 5.6 `test_indicator_hysteresis_and_selfcancel` (lines 98–117)
@@ -999,8 +1020,9 @@ VehicleState upState() {
 - Disarmed half: a `VehicleState` with `armed = false` **and `failsafe`
   explicitly cleared** (the default would hazard — same subtlety as `upState()`), link
   Up ("board #1 can send disarmed-idle frames" — true to life: disarmed ≠ dead link).
-  Assert `anyNonBlack(px)` — the frame shows *something* (halo dim-white {1,1,1} and
-  tail {1,0,0} qualify). The weakest assertion in the suite: it proves disarmed-idle
+  Assert `anyNonBlack(px)` — the frame shows *something* (halo dim-white {4,4,6} and
+  tail {6,0,0} qualify — both raised 2026-09-03 from {1,1,1}/{1,0,0}). The weakest
+  assertion in the suite: it proves disarmed-idle
   isn't blackout, but not that the halo specifically is white-ish (the dim tail alone
   would satisfy it). **VERIFIED (ran)**, weakness noted in §8.2.
 
@@ -1058,11 +1080,14 @@ until S5**.)
    outage, the first recovered frame can trigger a ≤400 ms rain flash. Cosmetic;
    contrast S2's unconditional `lastGear_` tracking, which guarded the analogous case
    for shift blips.
-6. **#55 — post-cap-post-gamma dimness (bench).** Measured rendered values: disarmed
-   halo {1,1,1}, running tail {1,0,0}, breathe peak {1,3,3}, armed teal {0,9,7} — the
-   quiet layers sit at 0.4–3.5 % duty. Possibly perfect at night, possibly invisible in
-   daylight. Also noted there: the power budget is ~5× conservative post-gamma
-   (headroom, not error).
+6. **#55 — post-cap-post-gamma dimness (bench).** Measured rendered values (raised
+   2026-09-03, `kMinVisibleDuty = 6`, `LightRenderer.hpp:127`; pre-raise values in
+   parens): disarmed halo {4,4,6} (was {1,1,1}), running tail {6,0,0} (was {1,0,0}),
+   breathe peak {1,6,6} (was {1,3,3}), armed teal {0,9,7} (unchanged) — each quiet
+   layer's brightest channel now sits at 6–9/255 duty (2.4–3.5 %), up from 1–9/255
+   (0.4–3.5 %). Possibly fine at night, possibly still marginal in daylight — the raise
+   fixed the floor, not the open bench question. Also noted there: the power budget is
+   ~5× conservative post-gamma (headroom, not error).
 
 ---
 
@@ -1079,7 +1104,8 @@ until S5**.)
   free-running phase-locked blinks at 2 / ~1.5 / 4 Hz + the 1.6 s battery triangle —
   9/9 tests.
 - The gamma-2.2 LUT and cap-then-gamma pipeline, with every quoted output value
-  independently recomputed (amber → {40,4,0}, teal → {0,9,7}, dims → 1s).
+  independently recomputed (amber → {40,4,0}, teal → {0,9,7}, dims → 6s post the
+  2026-09-03 `kMinVisibleDuty` raise — previously 1s).
 - The power-budget arithmetic (default 510 ≤ 900 mA passes; cap 255 → 1200 fails) and
   its two safe-direction conservatisms.
 - Memory safety of `fill` for arbitrary segments; determinism given (state, link,
@@ -1117,8 +1143,9 @@ question and the `audio_hal_esp32` library.json).
 - Strip electrical reality: the 330 Ω / 1000 µF / 1N5819 fixes, GRB order, RMT timing
   under WiFi/load, actual current draw vs the 20 mA/channel nominal (and thus the real
   margin under the budget).
-- **#55**: visibility of the 1-duty dim layers and the breathe; overall brightness
-  balance; whether 43 % cap is right; color rendition (does {0,9,7} *read* as teal?).
+- **#55**: visibility of the now-6-to-9-duty dim layers and the breathe (raised
+  2026-09-03 from 1-duty); overall brightness balance; whether 43 % cap is right; color
+  rendition (does {0,9,7} *read* as teal?).
 - Physical layout: whether segments 0–5 etc. land on sensible car locations
   (bench-tune the `Segment` values), strip direction, hazard visibility in daylight.
 - Human factors: blink frequencies, the rain light reading as "harvesting" to an
