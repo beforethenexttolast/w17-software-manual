@@ -505,7 +505,8 @@ or two before board #1 boots), which would train the user to ignore the hazard �
 signal that matters when the wire *actually* cuts.
 
 **7. Hardware-only remainder.** Whether the teal breathe is *visible* at its computed
-dim level (peak {1,3,3} PWM) in daylight — bench (#55).
+dim level (peak {1,6,6} PWM, raised 2026-09-03 from {1,3,3} by `kMinVisibleDuty`) in
+daylight — bench (#55).
 
 ---
 

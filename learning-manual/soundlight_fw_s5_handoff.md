@@ -66,9 +66,11 @@ end-to-end integration test, and the build configs.
 - **#54 observation — phantom rain flash on failsafe recovery:** the harvest tracker freezes
   during hazard/breathe early-returns, so ERS rising during an outage can fire a ≤400 ms rain
   flash at recovery (cosmetic; contrast S2's unconditional `lastGear_`).
-- **#55 (bench) — dim layers render very dim:** after 43% cap + gamma-2.2, disarmed halo {1,1,1},
-  tail {1,0,0}, breathe peak {1,3,3}, teal {0,9,7} (1–3/255 duty). Daylight visibility unknown;
-  power budget ~5× conservative post-gamma (safe direction).
+- **#55 (bench) — dim layers render low:** after 43% cap + gamma-2.2, disarmed halo {4,4,6},
+  tail {6,0,0}, breathe peak {1,6,6}, teal {0,9,7} (6–9/255 duty on the brightest channel,
+  raised 2026-09-03 from a pre-raise 1–3/255 by `kMinVisibleDuty` —
+  `LightRenderer.hpp:127`, constants at `LightRenderer.cpp:18-19,88`). Daylight visibility
+  still unknown; power budget ~5× conservative post-gamma (safe direction).
 - **No DRS light and no ERS-deploy light exist.** The lights read **exactly 7** `VehicleState`
   fields (failsafe, armed, lowBattery, braking, driveMode, ersPercent, steeringPercent). **NOT
   read:** throttlePercent, reverse, **drsOpen**, **ersDeploying**, gear, rpm, batteryMv. Deploy is

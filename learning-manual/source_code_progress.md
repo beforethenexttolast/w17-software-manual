@@ -596,8 +596,10 @@ Batch log:
   CLAUDE.md/README/library.json but exists nowhere — the Rgb[30] array is the seam; plus
   observation: harvest tracker freezes during hazard → possible ≤400 ms phantom rain flash
   on recovery, contrast S2's unconditional `lastGear_`). **NEW question #55** (bench:
-  rendered dim layers = 1–3/255 duty — disarmed halo {1,1,1}, tail {1,0,0}, breathe peak
-  {1,3,3}, teal {0,9,7} — daylight visibility unknown). Suite coverage gaps logged (§8.2:
+  rendered dim layers = 6–9/255 duty on the brightest channel, raised 2026-09-03 from a
+  pre-raise 1–3/255 by `kMinVisibleDuty` (`LightRenderer.hpp:127`) — disarmed halo
+  {4,4,6}, tail {6,0,0}, breathe peak {1,6,6}, teal {0,9,7} — daylight visibility
+  unknown). Suite coverage gaps logged (§8.2:
   low-battery pulse, breathe shape, left indicator, dim-vs-bright brake step). PROVISIONAL
   → S5: render cadence, millis() as nowMs, monitor→renderer→HAL plumbing, begin() at boot,
   static_assert site, GPIO4 injection, core-1 placement.
