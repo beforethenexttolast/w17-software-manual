@@ -21,7 +21,7 @@
   link) is powered. That is Phase-B class on its own.
 - The ground station installed and able to serve its WHEP endpoint
   (`w17-ground-station/main/main.js:65` — `http://127.0.0.1:8889/cam/whep`;
-  `mediamtx/mediamtx.yml:21` — `webrtcAddress: :8889`).
+  `w17-ground-station/mediamtx/mediamtx.yml:21` — `webrtcAddress: :8889`).
 - The phone app pointed at the ground station (Settings → *Windows ground station* Host
   IP; *Video (camera picture)* → WHEP port **8889**, path **cam** —
   `iPhone_rc/docs/SIMULATOR_TESTING.md:244-246`).
@@ -61,7 +61,7 @@
 
 Both viewers pull the **same** stream from the laptop — the phone's picture is
 structurally *behind* the laptop's because it travels camera → laptop → phone
-(`iPhone_rc/README.md:480`, `docs/PHONE_LIVE_VIDEO_DESIGN.md:196-200`). That is why the
+(`iPhone_rc/README.md:480`, `iPhone_rc/docs/PHONE_LIVE_VIDEO_DESIGN.md:196-200`). That is why the
 delta, not the absolute, is the number this gate exists to produce.
 
 ## Exact procedure
@@ -80,7 +80,7 @@ delta, not the absolute, is the number this gate exists to produce.
    `frames src=rvfc total=… dropped=0 advanced=true`
    (`iPhone_rc/docs/SIMULATOR_TESTING.md:259-277`). `getVideoPlaybackQuality()
    .totalVideoFrames` returns **0 forever** against a `MediaStream` in `WKWebView`, so a
-   harness reading that API measures nothing (`SIMULATOR_TESTING.md:272-277`).
+   harness reading that API measures nothing (`iPhone_rc/docs/SIMULATOR_TESTING.md:272-277`).
 5. **Frame the shot.** Position the 240 fps camera so the source monitor and the display
    under test are both sharp in one frame. Lock focus and exposure — autofocus hunting
    mid-run invalidates frame indices.
@@ -101,7 +101,7 @@ delta, not the absolute, is the number this gate exists to produce.
     of hotspot range. Label each run.
 11. **Record thermal and battery** on the phone at the end of a ≥ 5-minute soak, and the
     laptop's CPU with two WebRTC peers — both are named CB5 questions
-    (`PHONE_LIVE_VIDEO_DESIGN.md:681-687`).
+    (`iPhone_rc/docs/PHONE_LIVE_VIDEO_DESIGN.md:681-687`).
 
 ## Exact commands
 
@@ -192,7 +192,7 @@ What *does* exist, and what it is worth:
 | Number | Source | Standing |
 |---|---|---|
 | median ≤ **150 ms**, p95 ≤ **200 ms** glass-to-glass | `iPhone_rc/docs/VR_FPV_IMPLEMENTATION_PLAN.md:541` | An *"initial engineering target, not a promise"*, written for the **direct APFPV RTP** design that OD-16 replaced. Usable as a talking point for the **laptop** path; it was never a target for a relayed second peer |
-| "300–500 ms" | brief-illustrative only | Explicitly refused as a measurement by `PHONE_LIVE_VIDEO_DESIGN.md:198-200` — *"must not be laundered into this document"*. **Do not use it** |
+| "300–500 ms" | brief-illustrative only | Explicitly refused as a measurement by `iPhone_rc/docs/PHONE_LIVE_VIDEO_DESIGN.md:198-200` — *"must not be laundered into this document"*. **Do not use it** |
 | 98–136 ms | `iPhone_rc/docs/SIMULATOR_TESTING.md:317` | Simulator, loopback, `testsrc`. `:319` — *"This is not a bench number and must not be quoted as one."* |
 
 **Objective criteria this card can assert without inventing anything:**
@@ -256,10 +256,10 @@ bench-gates/evidence/G-02/
 ## Downstream unlocked by PASS
 
 - Answers the CB5 line item *"glass-to-glass latency on the phone and on the laptop,
-  same event, same run"* (`PHONE_LIVE_VIDEO_DESIGN.md:679-680`) and lets
+  same event, same run"* (`iPhone_rc/docs/PHONE_LIVE_VIDEO_DESIGN.md:679-680`) and lets
   `iPhone_rc/README.md:480`'s `[bench-TBD]` be replaced by a real figure.
 - Gives the owner the input to Q3 — whether DRIVE, SHOWPIECE, or a third phone-specific
-  tuning is right for the phone (`PHONE_LIVE_VIDEO_DESIGN.md:686-687`).
+  tuning is right for the phone (`iPhone_rc/docs/PHONE_LIVE_VIDEO_DESIGN.md:686-687`).
 - Settles whether the recorded fallbacks (b)/(c) stay on the shelf.
 
 **It unlocks nothing on the control side.** In particular it does **not** touch
@@ -269,7 +269,7 @@ run under them.
 ## BENCH-TBD residue
 
 - **Simultaneous stability**: whether the second WebRTC peer degrades the laptop's own
-  picture over a ≥ 5-minute soak (`PHONE_LIVE_VIDEO_DESIGN.md:681-683`) — measure it in
+  picture over a ≥ 5-minute soak (`iPhone_rc/docs/PHONE_LIVE_VIDEO_DESIGN.md:681-683`) — measure it in
   the same session, but it is a separate claim from latency.
 - **Range**: behaviour at the edge of hotspot range and recovery after a Wi-Fi drop.
 - **The camera's own encoder settings** (bitrate, GOP, resolution, codec) live on the IP
@@ -287,4 +287,4 @@ run under them.
 
 **NOT-EXECUTED.** Nothing on this card has been run. Every latency figure in the repos
 today is a simulator/loopback figure and stays `[bench-TBD]`
-(`iPhone_rc/README.md:480`, `docs/SIMULATOR_TESTING.md:319-323`).
+(`iPhone_rc/README.md:480`, `iPhone_rc/docs/SIMULATOR_TESTING.md:319-323`).

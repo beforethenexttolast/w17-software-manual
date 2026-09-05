@@ -29,12 +29,12 @@ Where the two disagree, this document gates movement
 
 | # | Required before first physical movement | Cited | Status today |
 |---|---|---|---|
-| L1 | Real iPhone bench test passed (`docs/REAL_IPHONE_BENCH_TEST_PLAN.md`) | :28 | **BENCH-TBD** — needs iPhone + bench network (`CURRENT_STATUS.md` CB6 `BLOCKED_HARDWARE`, :1342) |
+| L1 | Real iPhone bench test passed (`iPhone_rc/docs/REAL_IPHONE_BENCH_TEST_PLAN.md`) | :28 | **BENCH-TBD** — needs iPhone + bench network (`CURRENT_STATUS.md` CB6 `BLOCKED_HARDWARE`, :1342) |
 | L2 | Core Motion yaw/pitch/roll axes documented on the real iPhone | :29 | **BENCH-TBD** (= R8 / U5, Codex Batch 5) |
 | L3 | Phone mount orientation documented for the intended holder/VR setup | :30 | **BENCH-TBD** |
 | L4 | Center/calibrate behaviour validated on the real iPhone | :31 | **BENCH-TBD** |
 | L5 | Send gating validated: tracking off ⇒ no packets; enabled-not-centered ⇒ no packets; reset calibration ⇒ packets stop | :32-35 | **BENCH-TBD** (automated only) |
-| L6 | Windows log-only bridge validated (`docs/WINDOWS_BRIDGE_INTEGRATION_PLAN.md`) | :36 | **BENCH-TBD** (= R9 / U1 / CB6) |
+| L6 | Windows log-only bridge validated (`iPhone_rc/docs/WINDOWS_BRIDGE_INTEGRATION_PLAN.md`) | :36 | **BENCH-TBD** (= R9 / U1 / CB6) |
 | L7 | Packet schema validation implemented and tested in Windows | :37 | **INFERRED PASS** — `w17-mapper/pkg/headintent/packet.go`, ported 1:1 from `w17-ground-station/shared/headTracking.js` (`head_tracking_unlock_plan.md:267-272`) |
 | L8 | Malformed packet rejection validated | :38 | **INFERRED PASS** — same, invalid never replaces last-valid (`:273-275`) |
 | L9 | Packet stale behaviour validated at the Windows bridge | :39 | **INFERRED PASS** for the 299/300/301 boundary, test-proven (`:274-276`); **BENCH-TBD** against a real device |

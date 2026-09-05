@@ -29,7 +29,7 @@ overlapping a filename.
 
 ## The consolidated gap list
 
-[`../MISSING_THRESHOLDS.md`](../MISSING_THRESHOLDS.md) is the single deduplicated list of every
+[`bench-gates/MISSING_THRESHOLDS.md`](bench-gates/MISSING_THRESHOLDS.md) is the single deduplicated list of every
 number these cards need and no document supplies — 27 items, split into the 7 the owner can rule
 today with no hardware and the 20 a bench measurement has to set. `first_power_current_limits.md`
 holds the car-side current rows in full; the consolidated file points at it rather than copying it.

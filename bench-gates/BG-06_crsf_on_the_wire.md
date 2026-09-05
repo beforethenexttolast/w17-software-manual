@@ -128,7 +128,7 @@ every other gate.**
    common, adapter **TX unconnected**.
 4. **T1 — start the mapper** on its profile and let the link come up on the profile's own `tx.port`
    (`selfStartLink`, `w17-mapper/pkg/client/grpc_client.go`; owner decision OD-5(a),
-   `configs/README.md`:14-19).
+   `w17-mapper/configs/README.md`:14-19).
 5. **T1 — capture 30 s** with the sniffer at **921600**, saving the raw bytes. Move a gamepad axis
    during the capture so channel values are *seen to change*, not merely to exist.
 6. **T1 — read the summary**: frames decoded, CRC failures, types seen, and whether channel values
