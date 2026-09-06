@@ -103,8 +103,9 @@ supply.
 **Two facts that block every absolute value, and are not lookups:**
 1. **No document names the bench PSU** (`13_phase_a_a2_no_power_checklist.md`:116 says only
    "have them, do not connect them"), so its minimum settable constant-current value — the
-   literal first number step 1 asks for — is unknown, and it is not established that it has a
-   settable limit at all.
+   literal first number the staircase's step 1 asks for
+   (`bench-gates/tools/first_power_current_limits.md`:112-114) — is unknown, and it is not
+   established that it has a settable limit at all.
 2. **The supply is on the pack side (7.4 V) and every derived load figure is a 5 V rail
    current** (this card's own *Topology (ASCII)* section). Converting between them needs the
    UBEC's efficiency, and **no document names the UBEC's make or model** — only "UBEC 5 A
@@ -117,7 +118,7 @@ documented band is **5–6 V** (`D8_BENCH_BRINGUP.md`:55; this card's sibling
 
 | Substep | Added-load allowance P(N) — **5 V side** | Absolute limit L(N) — **pack side** | Never-exceed — **5 V side, NOT a PSU setting** | Status |
 |---|---|---|---|---|
-| S0 PDB alone | divider 37 kΩ → **0.20 mA @7.4 V** derived; UBEC quiescent and ESC standby absent | — | PSU's own limits (unknown) — this row is genuinely pack-side | **BLOCKED** — needs the PSU's minimum settable limit |
+| S0 PDB alone | divider 37 kΩ → **0.20 mA at 7.4 V** (0.23 mA at 8.4 V) — **this one row is genuinely pack-side**; UBEC quiescent and ESC standby absent | — | PSU's own limits (unknown) | **BLOCKED** — needs the PSU's minimum settable limit |
 | S1 + ESP32 #1/#2 idle | — | — | Rail A output **5 A** — and the rail's rating is **not** a ramp ceiling for two D1-mini boards | **BLOCKED** — MH-ET LIVE publishes no datasheet; the WROOM-32 module datasheet is not the board. A ramp needs the ceiling Q4 asks for |
 | S2 + RP1 | — | — | Rail A output **5 A** — same objection as S1 | **BLOCKED** — RadioMaster's own page gives 5 V and no current figure. A ramp needs the ceiling Q4 asks for |
 | S3 + WS2812 strip @ cap **180** | **560 mA** — **emitter-model** upper bound (code's integer form 540 mA); **excludes each pixel's controller quiescent draw, which Worldsemi does not publish** — carry it as an unquantified adder | — | compile budget **900 mA**; Rail A output **5 A** | **P(N) DERIVED (emitter model)**, L(N) **BLOCKED** |
@@ -128,7 +129,7 @@ documented band is **5–6 V** (`D8_BENCH_BRINGUP.md`:55; this card's sibling
 | S7 + one MG90S | — | — | Rail B output **5 A** — not a ramp ceiling for one micro servo | **BLOCKED** — generic part; TowerPro's own page publishes no current figure and quotes 4.8 V operating, below Rail B's band. A ramp needs the ceiling Q8 asks for |
 | S8 + remaining MG90S | — | — | Rail B output **5 A** | **BLOCKED** — as S7 |
 | S9 DS3235SG holding centre (T3) | **5 mA** (datasheet idle-at-stopped; identical in all three voltage columns) | — | servo **stall 2.1 A at 6 V** (1.9 A at 5 V, 2.3 A at 7.4 V — select from the recorded BEC#2 voltage); Rail B output **5 A** | **P(N) DERIVED**, L(N) **BLOCKED** |
-| S9 DS3235SG full-lock sweep, linkage OFF (T4) | — (no running-current figure exists; the datasheet gives only idle and stall) | — | **2.1 A at 6 V** — this is the number C1 exists for | **ceiling DERIVED**, expected draw **BLOCKED** |
+| S9 DS3235SG full-lock sweep, linkage OFF (T4) | — (no running-current figure exists; the datasheet gives only idle and stall) | — | **2.1 A at 6 V** (1.9 A at 5 V, 2.3 A at 7.4 V — select from the recorded BEC#2 voltage) — this is the number C1 exists for | **ceiling DERIVED**, expected draw **BLOCKED** |
 | **B3.1** full L/R sweep **with the linkage fitted** | — (a loaded sweep is neither idle nor stall) | — | **inherits the S9 sweep ceiling at the rail's set voltage** — a bind drives the servo toward stall under real mechanical load | **ceiling INHERITED**, expected draw **BLOCKED** |
 
 **Cited figures used above, with sources (all retrieved 2026-09-06):**
