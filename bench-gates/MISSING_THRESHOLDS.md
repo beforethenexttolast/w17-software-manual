@@ -35,7 +35,9 @@ list.
 | O-6 | STAIRCASE POLICY RATIFIED; initial amperage NOT invented — derive the starting limit per powered substep from component/rail limits before first power; trip = STOP AND DIAGNOSE; raise only when understood and justified; never exceed rail/component limits; if not derivable offline → BLOCKED + smallest owner decision (BG-03 / tools/first_power_current_limits.md T11) |
 | O-7 | RULED: initial maxBrightness cap = 180 (operating target); may be reduced at the halo gate; no raise above 180 without halo/current/rail evidence + new ruling; 227 stays the compile ceiling only (BG-08) |
 
-The card criteria below still carry the pre-ruling proposals in places; applying the rulings into each card's PASS/FAIL text is the next autonomous action (then verify the changed portion before landing, per D-6).
+Applied into the cards on 2026-09-06 (branch `offline/d4-thresholds`): G-02 (O-1), G-04
+(O-2..O-5), BG-08 (O-7), BG-03 + `tools/first_power_current_limits.md` T11 (O-6 policy;
+starting values pending derivation).
 
 
 Every one of these is a *decision*, not an observation. None of them is blocked by A2,
@@ -151,6 +153,9 @@ ruled in advance and it cannot be measured by a script.
 
 ## 4. Evidence label
 
-**BENCH-TBD** for §2, **BLOCKED on an owner ruling** for §1, **DERIVED** for the
-`maxBrightness ≤ 227` ceiling only. Nothing on this page has been measured, ruled, or
-executed. Recording a gap is not closing it.
+**BENCH-TBD** for §2. §1 is now **RULED 2026-09-05 (Decision Round 1, D-4)** — no longer
+"BLOCKED on an owner ruling" — **except O-6's per-substep starting amperage, which stays
+BLOCKED pending the O-6 derivation** (a separate task). **DERIVED** for the
+`maxBrightness ≤ 227` ceiling only. Nothing on this page has been *measured*; §1's rulings
+have been applied into the cards (see §1 above), and §2 remains untouched by a bench.
+Recording a gap is not closing it.
