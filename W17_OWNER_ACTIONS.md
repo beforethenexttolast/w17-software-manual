@@ -70,7 +70,7 @@ Three items, all cheap, none of them a measurement. Opened by the O-6 addendum v
 R-ADD). **No powered, flashing, live-TX or FIRST_ACTIVE step is authorized by anything in this round.**
 
 - **DR3-1 — rule the Wi-Fi streaming-soak duration for BG-03 S5.** The thermal check at S5 records evidence but has **no defined duration**: a
-  workspace-wide grep for `soak` returns (apart from a synthesizer "soak" test at `learning-manual/03_sound_synthesis.md`:1203, not thermal) only `bench-gates/G-02_phone_video_glass_to_glass_latency.md`:87 (*"Soak first, measure second"* —
+  workspace-wide grep for `soak` returns (apart from a synthesizer "soak" test at `learning-manual/code_explained/soundlight_fw/03_sound_synthesis.md`:1203, not thermal) only `bench-gates/G-02_phone_video_glass_to_glass_latency.md`:87 (*"Soak first, measure second"* —
   ≥ 60 s before the first sample), :102 and :274 (a ≥ 5-minute soak) — **all three belong to the phone glass-to-glass latency gate**, which
   measures the phone's own thermal and battery, not the first-power staircase — and `w17-gcs-box-guide.md`:291's *"sustained-bitrate soak"*,
   which is marked **`[bench-TBD]`** with no number. **Longer is more informative** (a small finned block's time constant is minutes, so a short
