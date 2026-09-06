@@ -108,6 +108,27 @@ new **L16** records the datasheet §4 TX-power ceiling — a **dBm
 configuration** never-exceed for the camera's Wi-Fi driver, **not a current** and not part of
 the four-parts current grouping. Speaker impedance remains packet item 6.
 
+**Update 2026-09-06 night (DR3-2 desk derivation, after adversarial review R-DR3-2):** **still no
+T-row moved and none gained a number.** What changed on T7 and on BG-03 S4 is labelling and one
+new manufacturer maximum: **3.2 W is a typ/guidance value, not a guaranteed limit**, so the
+`≥ 640 mA` derived from it is **REFERENCE ONLY, not M-PEAK-clean, and not a rail-sizing term**;
+**ILIM 2.8 A is a *typ*** and is an **output** limit; **IDD 3.35 mA max is valid at `TA = +25 °C`
+only**; and **standby `ISTNDBY` 400 µA max** (`SD_MODE` high, no BCLK, `TA = +25 °C`) is added as
+the only other M-PEAK-clean current maximum the part publishes — it bounds the **un-clocked state
+only** and is never a bound on the driven amp. The datasheet's **±1.6 A** absolute maximum on
+continuous current in/out of VDD is recorded on BG-03 S4's **never-exceed** column as a **damage
+threshold — not an allowance, not a PSU setting, not a prediction of draw; nothing may be set or
+permitted up to it**, and it is never a `P(N)`, a `Σ P(k)` term or a sizing-sum term. The gain
+table (Table 8 + the Electrical Characteristics gain rows) is **DERIVED to agree exactly** with
+`PinMap.hpp`:20-24, and **9 dB is a typ whose guaranteed band is 8.4 … 9.6 dB**. **9 dB does not
+tighten anything:** the full-scale output is **supply-limited at all three gain band edges**, the
+same 5 V rail ceiling the part has at 12 dB. **T7 stays THRESHOLD MISSING and BG-03 S4's `P(4)`
+stays BLOCKED**, now on two named data — no published **minimum** efficiency (a datasheet gap no
+photograph can close) and the speaker impedance (packet item 6) — with the reading additionally
+requiring the **engine state** (`Ignition` + throttle percentage), not only `get sound.volume`.
+Full working: `_handoff/2026-09-06_DR3-2_9dB_derivation.md`; review:
+`_handoff/2026-09-06_R-DR3-2_review.md`.
+
 | # | Row | Card it blocks | Source |
 |---|---|---|---|
 | **T1** | Rail-A quiescent, boards idle, nothing else connected | BG-03 | `bench-gates/tools/first_power_current_limits.md`:96 |
