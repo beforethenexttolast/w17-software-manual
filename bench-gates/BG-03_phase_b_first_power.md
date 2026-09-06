@@ -45,9 +45,12 @@ with the checkbox detail in `w17-control-fw/docs/D8_BENCH_BRINGUP.md` (cited as 
   lowest defensible limit for the substep being powered; a current-limit trip means **STOP
   AND DIAGNOSE**, never simply increase the limit until it works; raise the limit only after
   the trip is understood and the next setting is justified; never exceed applicable
-  rail/component safety limits. **Starting limit per substep: derived offline 2026-09-06 —
-  see the subsection below; still BLOCKED on owner Decision Round 2 (PSU identity, UBEC
-  identity).** No amperage is stated on this card.
+  rail/component safety limits. **Starting limit per substep: derived offline 2026-09-06
+  (v2, after review R-O6) — see the subsection below; still BLOCKED on owner Decision
+  Round 2 (bench PSU identity and minimum settable limit; UBEC make/model and BEC#2's set
+  voltage; the S1/S2 and S7/S8 ramp ceilings; the constant-current duration criterion for a
+  connect).** No amperage is stated on this card, and **no figure in the subsection below is
+  a bench-PSU setting** — they are 5 V rail-side allowances.
 
 ### Starting current limits (O-6 derivation, 2026-09-06)
 
@@ -60,42 +63,71 @@ the offline derivation that ruling required, and it ends in BLOCKED rows on purp
 is understood and the next setting is justified · never exceed the applicable rail/component
 limit.
 
+> **DOMAIN WARNING — read before using any number here.** Every figure in the P(N) and
+> NEVER-EXCEED columns below is a **5 V rail-side** current. **None of them is a bench-PSU
+> setting.** The supply sits on the **pack side (7.4 V)**; the pack-side never-exceed that
+> corresponds to a 5 A rail is `I_pack <= 5 A * V_rail / (V_pack * eta)`, where `eta` is the
+> UBEC's conversion efficiency — **unknown, because no document names the UBEC**. Dialling a
+> 5 A rail figure into a pack-side supply would permit roughly 7 A of rail current at a high
+> efficiency: 40 % above the rating it is meant to protect.
+
 **The margin, named:** *M-PEAK* — take each load's manufacturer **Max/peak** figure (never
 Typ) and the LED model's **stated upper bound** (never its actual draw); add no percentage.
 A percentage would be an invented number; the typ→max gap is the manufacturer's own worst
-case and it carries a citation. **M-PEAK does not cover inrush**: C1 and C2 will momentarily
-pull the supply into constant-current at each connect, and the stop condition is deliberately
-worded "the supply **sits** in constant-current" — momentarily entering and then leaving is
-the healthy signature, not the fault.
+case and it carries a citation. **Direction:** a limit is a fuse, so *lower* is more
+protective; M-PEAK exists so the limit is not set below a healthy draw, and a datasheet
+figure that is a **requirement on the supply** (the Wi-Fi module's "Peak current ≥1800mA")
+belongs in never-exceed, never in P(N).
+
+**Inrush is NOT covered by M-PEAK, and the criterion is BLOCKED.** Every connect pulls the
+supply into constant current briefly. On the **7.4 V** side that is the **UBEC's input
+capacitance and soft-start** — **C1 (Rail B) and C2 (strip input) are 5 V-side capacitors,
+downstream of the UBECs, and are not what the supply sees**. "Momentarily" is not a
+criterion: at a low starting limit the supply can hold the rail down so the UBEC never
+completes soft-start, which presents exactly as the "the supply **sits** in constant-current"
+fault. **The duration criterion is an owner ruling (Q9), in the shape "constant current
+persisting longer than N after a connect, or constant current that has not cleared by the
+time the rail reaches nominal, is a STOP."** Until it is ruled, treat any constant-current
+event you cannot explain as a STOP.
 
 **The chaining rule:** the limit applies to everything present, so
-`L(N) = R(N-1) + P(N)`, where `R(N-1)` is the settled total recorded minutes earlier in this
-same session and `P(N)` is the cited peak of the load being added. Only L(0) and L(1) need a
-number no measurement can supply.
+`L(N) = max( R(N-1), SUM of P(k) for k < N ) + P(N)`, where `R(N-1)` is the settled total
+recorded minutes earlier in this same session and `P(k)` is the cited peak of the load added
+at substep k. **A settled reading is never a bound on a bursty load** — a settled reading may
+stand in for a load only where no cited peak exists for it (the Wi-Fi module alone spans
+113 mA unassociated to 1510 mA peak). Only L(0) and L(1) need a number no measurement can
+supply.
 
 **Two facts that block every absolute value, and are not lookups:**
-1. **No document names the bench PSU** (A2:116 says only "have them, do not connect them"),
-   so its minimum settable constant-current value — the literal first number step 1 asks for
-   — is unknown, and it is not established that it has a settable limit at all.
+1. **No document names the bench PSU** (`13_phase_a_a2_no_power_checklist.md`:116 says only
+   "have them, do not connect them"), so its minimum settable constant-current value — the
+   literal first number step 1 asks for — is unknown, and it is not established that it has a
+   settable limit at all.
 2. **The supply is on the pack side (7.4 V) and every derived load figure is a 5 V rail
-   current** (this card's own topology, :55). Converting between them needs the UBEC's
-   efficiency, and **no document names the UBEC's make or model** — only "UBEC 5 A (2 pcs)"
-   (`HARDWARE_INVENTORY.md`:113).
+   current** (this card's own *Topology (ASCII)* section). Converting between them needs the
+   UBEC's efficiency, and **no document names the UBEC's make or model** — only "UBEC 5 A
+   (2 pcs)" (`HARDWARE_INVENTORY.md`:113).
 
-| Substep | Added-load allowance P(N) | Absolute limit L(N) | Never-exceed | Status |
+**Bench pre-step for every Rail-B row:** at D8 Phase 1, **record BEC#2's actual output
+voltage** before S6–S9 and B3.1, and select the servo stall column from it. Rail B's
+documented band is **5–6 V** (`D8_BENCH_BRINGUP.md`:55; this card's sibling
+`BG-04_d8_bench_bringup.md` PASS row for Phase 1), not 5 V.
+
+| Substep | Added-load allowance P(N) — **5 V side** | Absolute limit L(N) — **pack side** | Never-exceed — **5 V side, NOT a PSU setting** | Status |
 |---|---|---|---|---|
-| S0 PDB alone | divider 37 kΩ → **0.20 mA @7.4 V** derived; UBEC quiescent and ESC standby absent | — | PSU's own limits (unknown) | **BLOCKED** — needs the PSU's minimum settable limit |
-| S1 + ESP32 #1/#2 idle | — | — | Rail A **5 A** | **BLOCKED** — MH-ET LIVE publishes no datasheet; the WROOM-32 module datasheet is not the board |
-| S2 + RP1 | — | — | Rail A **5 A** | **BLOCKED** — RadioMaster's own page gives 5 V and no current figure |
-| S3 + WS2812 strip @ cap **180** | **560 mA** (model upper bound; code's integer form 540 mA) | — | budget **900 mA**; Rail A **5 A** | **P(N) DERIVED**, L(N) **BLOCKED** |
-| S3 + WS2812 strip @ shipped **110** | **188 mA** (code's integer form 180 mA) | — | as above | **P(N) DERIVED**, L(N) **BLOCKED** |
-| S4 + MAX98357A + speaker | quiescent **3.35 mA max** derived; output-driven term absent | — | amp **ILIM 2.8 A**; Rail A **5 A** | **BLOCKED** — shipped `sound.volume` unrecorded; the only cited efficiency is at 8 Ω, not the 4 Ω speaker |
-| S5 + camera / Wi-Fi | Wi-Fi **1800 mA max** derived; camera term absent | — | Rail A **5 A** | **BLOCKED** — no figure for the OpenIPC SSC338Q at 5 V |
-| S6 + blower | — | — | Rail B **5 A** | **BLOCKED** — the BOM names an "ACP2006-class" part, not a part number |
-| S7 + one MG90S | — | — | Rail B **5 A** | **BLOCKED** — generic part, and TowerPro's own page publishes no current figure |
-| S8 + remaining MG90S | — | — | Rail B **5 A** | **BLOCKED** — as S7 |
-| S9 DS3235SG holding centre (T3) | **5 mA @5 V** (datasheet idle-at-stopped) | — | servo **stall 1.9 A @5 V**; Rail B **5 A** | **P(N) DERIVED**, L(N) **BLOCKED** |
-| S9 DS3235SG full-lock sweep (T4) | — (no running-current figure exists; the datasheet gives only idle and stall) | — | **1.9 A @5 V** — the number C1 exists for | **ceiling DERIVED**, expected draw **BLOCKED** |
+| S0 PDB alone | divider 37 kΩ → **0.20 mA @7.4 V** derived; UBEC quiescent and ESC standby absent | — | PSU's own limits (unknown) — this row is genuinely pack-side | **BLOCKED** — needs the PSU's minimum settable limit |
+| S1 + ESP32 #1/#2 idle | — | — | Rail A output **5 A** — and the rail's rating is **not** a ramp ceiling for two D1-mini boards | **BLOCKED** — MH-ET LIVE publishes no datasheet; the WROOM-32 module datasheet is not the board. A ramp needs the ceiling Q4 asks for |
+| S2 + RP1 | — | — | Rail A output **5 A** — same objection as S1 | **BLOCKED** — RadioMaster's own page gives 5 V and no current figure. A ramp needs the ceiling Q4 asks for |
+| S3 + WS2812 strip @ cap **180** | **560 mA** — **emitter-model** upper bound (code's integer form 540 mA); **excludes each pixel's controller quiescent draw, which Worldsemi does not publish** — carry it as an unquantified adder | — | compile budget **900 mA**; Rail A output **5 A** | **P(N) DERIVED (emitter model)**, L(N) **BLOCKED** |
+| S3 + WS2812 strip @ shipped **110** | **188 mA** — same emitter-model caveat (code's integer form 180 mA) | — | as above | **P(N) DERIVED (emitter model)**, L(N) **BLOCKED** |
+| S4 + MAX98357A + speaker | quiescent **3.35 mA max**; **≥ 640 mA whenever driven** (energy conservation on 3.2 W into 4 Ω at 5 V — no efficiency figure needed) | — | amp **ILIM 2.8 A**; Rail A output **5 A** | **BLOCKED** for a settable point value — shipped `sound.volume` unrecorded; the only cited efficiency is at 8 Ω, not the 4 Ω speaker. **Both bounds DERIVED** |
+| S5 + camera / Wi-Fi | Wi-Fi **1510 mA** — peak of the worst applicable cited row; camera term absent | — | module requires the rail to **deliver ≥ 1800 mA peak** (its §6.2.1) — a supply-capability requirement, not a limit to set; Rail A output **5 A** | **BLOCKED** — no figure for the OpenIPC SSC338Q at 5 V |
+| S6 + blower | — | — | Rail B output **5 A** | **BLOCKED** — the BOM names an "ACP2006-class" part, not a part number |
+| S7 + one MG90S | — | — | Rail B output **5 A** — not a ramp ceiling for one micro servo | **BLOCKED** — generic part; TowerPro's own page publishes no current figure and quotes 4.8 V operating, below Rail B's band. A ramp needs the ceiling Q8 asks for |
+| S8 + remaining MG90S | — | — | Rail B output **5 A** | **BLOCKED** — as S7 |
+| S9 DS3235SG holding centre (T3) | **5 mA** (datasheet idle-at-stopped; identical in all three voltage columns) | — | servo **stall 2.1 A at 6 V** (1.9 A at 5 V, 2.3 A at 7.4 V — select from the recorded BEC#2 voltage); Rail B output **5 A** | **P(N) DERIVED**, L(N) **BLOCKED** |
+| S9 DS3235SG full-lock sweep, linkage OFF (T4) | — (no running-current figure exists; the datasheet gives only idle and stall) | — | **2.1 A at 6 V** — this is the number C1 exists for | **ceiling DERIVED**, expected draw **BLOCKED** |
+| **B3.1** full L/R sweep **with the linkage fitted** | — (a loaded sweep is neither idle nor stall) | — | **inherits the S9 sweep ceiling at the rail's set voltage** — a bind drives the servo toward stall under real mechanical load | **ceiling INHERITED**, expected draw **BLOCKED** |
 
 **Cited figures used above, with sources (all retrieved 2026-09-06):**
 
@@ -103,31 +135,46 @@ number no measurement can supply.
   = 30), :110-111 (`renderedDuty`), :152 (shipped `maxBrightness` = 110), :209
   (`kBudgetMilliamps` = 900), :226 (`perLedMa`), :242 (the check). At cap 180,
   `renderedDuty(255,180)` = 119 and the model gives 540 mA (integer) / 560 mA (un-truncated).
+  **The model's 20 mA/channel is an uncited code comment** (`:205`), not a manufacturer
+  figure; Worldsemi's **Mar-2017** *LED Characteristics* table gives **16 mA/channel**, which
+  bounds the code model from below (448 mA at cap 180). The **Jan-2016 V1.0** revision has no
+  current column. **Neither revision publishes the per-pixel controller's quiescent supply
+  current**, so the strip figures bound emitter current only.
 - MAX98357A: Maxim Integrated *MAX98357A/MAX98357B* datasheet, Electrical Characteristics —
   "Quiescent Current IDD … 2.75 [typ] 3.35 [max] mA", "Current Limit ILIM 2.8 A", "Output
   Power … ZSPK = 4Ω + 33µH … THD+N 10%, gain = 12dB … 3.2 W", "Efficiency ε … ZSPK = 8Ω +
-  68µH … 92 %".
-- BL-M8812EU2: B-link *BL-M8812EU2 datasheet V1.0.1.0* (official release 2023-10-27), §1.3
-  "Power Supply DC 5.0V±0.25V @1800mA (Max)"; §3.3 "WLAN Unassociated 113/123 mA", "WLAN TX/RX
-  TCP throughput 300Mbps 732/928 mA", "HT20 MCS8 TX @ 27.5 dBm (2TX RF test) 927/1510 mA".
-- DS3235SG: DS SERVO datasheet, model line "DS3235 / DS3235-180 / DS3235-270", §4 Electrical
-  Specification — "Idle current (at stopped) 5mA" and "Stall current (at locked) 1.9A" at
-  5 V; "Operating Voltage Range 5-7.4V". **Caveat:** DS Servo's own download index lists no
-  DS3235 file, and this document does not carry the "SG" suffix the BOM uses.
-- Rail ratings: `HARDWARE_INVENTORY.md`:113 ("UBEC 5 A (2 pcs)").
+  68µH … 92 %". The ≥ 640 mA driven bound is 3.2 W / 5 V — conservation of energy, which
+  needs no efficiency figure.
+- BL-M8812EU2: B-link *BL-M8812EU2 datasheet*, document revision **V1.0** (official release
+  2023-10-27), §1.3 "Power Supply DC 5.0V±0.25V @1800mA (Max)"; §6.2.1 "Peak current
+  ≥1800mA"; §3.3 "WLAN Unassociated 113/123 mA", "WLAN TX/RX TCP throughput 300Mbps
+  732/928 mA", "HT20 MCS8 TX @ 27.5 dBm (2TX RF test) 927/1510 mA". Its §6.4 recommends a
+  heat sink "≧ 32*32mm" against the project's fitted 28×28×3 mm — an open owner question,
+  not an O-6 figure.
+- DS3235SG: DS SERVO datasheet, model line "DS3235 / DS3235-180 / DS3235-270" (page 1's
+  product photo shows a case marked "DS3235SG"), §4 Electrical Specification — "Idle current
+  (at stopped) 5mA" in all three columns, and "Stall current (at locked) 1.9A / 2.1 A / 2.3A"
+  at 5 V / 6 V / 7.4 V; "Operating Voltage Range 5-7.4V". **Caveat:** DS Servo's own download
+  index lists no DS3235 file; confirm the case marking at build week.
+- Rail ratings: `HARDWARE_INVENTORY.md`:113 ("UBEC 5 A (2 pcs)"). Rail B's voltage band:
+  `D8_BENCH_BRINGUP.md`:55.
 - The ESC's BEC is **not** a rail source and imposes no rail limit — its red +5 V wire is cut
   (`w17-pdb-build-and-connector-guide.md`:80; `bill_of_materials_v2.md`:195;
   `00_BUILD_SHEET.md`:32).
 
 **Explicitly NOT used, and why:** a general-knowledge "typical ESP32 draws ~X"; a third-party
 "80 mA" figure for the MH-ET board; a third-party "MG90S stall 400 mA"; a search result
-claiming the DS3235SG stalls at 3.9 A — the manufacturer's own datasheet says **1.9 A at 5 V**,
-which is why family figures are refused rather than merely discounted.
+claiming the DS3235SG stalls at 3.9 A — that figure is **uncited and states no test voltage**,
+while the manufacturer's own datasheet gives 1.9 / 2.1 / 2.3 A at 5 / 6 / 7.4 V. Family
+figures are refused, not discounted.
 
 **Owner decisions this subsection is waiting on:** the bench PSU's identity and minimum
-settable limit; the UBEC's make/model; whether the first energisation uses the PSU rather
-than the pack and whether the ESC feed can be separated for S0–S9. See
-`bench-gates/tools/first_power_current_limits.md` row T11.
+settable limit; the UBEC's make/model **and BEC#2's set output voltage**; whether the first
+energisation uses the PSU rather than the pack and whether the ESC feed can be separated for
+S0–S9 (an A2 gate S6 topology change — re-run A2 rows P2/P4/P5 before and after); the S1/S2
+and S7/S8 ramp ceilings; and the constant-current duration criterion for a connect. See
+`bench-gates/tools/first_power_current_limits.md` row T11 and
+`_handoff/2026-09-06_O6_derivation_report.md` §5.
 
 - Car on a stand. Battery pullable. Observer.
 
@@ -385,14 +432,18 @@ bench-gates/evidence/BG-03/<UTC-stamp>/
   frame around `saved` is expected, a failsafe blip is the *safe* direction. **Nothing has measured
   this** — D8:89-97 is the only place the observation gets made.
 - **The full-throttle Hall/EMI half of OD-11 is D8 Phase 8**, `[bench-TBD]`, and needs motor power.
-- **No current figure exists for any car-side 5 V load in this project** — see
-  `bench-gates/tools/first_power_current_limits.md`, rows T1–T13, all **THRESHOLD MISSING**.
-  (Ground-side 5 V loads are documented — `w17-gcs-box-guide.md:135-139`; firmware-side loads
-  still are not.) **The staircase POLICY itself is RULED (2026-09-05, D-4 O-6)** — see
-  Required equipment, above. The per-substep starting amperage has now been **derived
-  offline (2026-09-06)** — see "Starting current limits (O-6 derivation, 2026-09-06)" above
-  and `_handoff/2026-09-06_O6_derivation_report.md` — and every row remains **BLOCKED** on
-  owner Decision Round 2 (bench PSU identity and minimum settable limit; UBEC make/model).
+- **Car-side 5 V current figures now exist for four parts, and for no more than that** — see
+  `bench-gates/tools/first_power_current_limits.md`, rows **L11–L15** (Wi-Fi module,
+  steering servo, amplifier, LED strip) and the **13 T-rows, none of which has a settable
+  number**: T1–T10 are **THRESHOLD MISSING** and T11–T13 are **BLOCKED with reasons**.
+  (Ground-side 5 V loads are documented — `w17-gcs-box-guide.md:135-139`.) **The staircase
+  POLICY itself is RULED (2026-09-05, D-4 O-6)** — see Required equipment, above. The
+  per-substep starting amperage was **derived offline (2026-09-06, v2 after review R-O6)** —
+  see "Starting current limits (O-6 derivation, 2026-09-06)" above and
+  `_handoff/2026-09-06_O6_derivation_report.md` — and **every substep remains BLOCKED** on
+  owner Decision Round 2 (bench PSU identity and minimum settable limit; UBEC make/model and
+  BEC#2's set voltage; the S1/S2 and S7/S8 ramp ceilings; the constant-current duration
+  criterion for a connect).
 - The **ESC's own neutral/range calibration** is its manual's business, not the firmware's
   (D8:215-216).
 
