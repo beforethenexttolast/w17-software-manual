@@ -21,8 +21,9 @@ pushed through the pre-push hook; release run 34025673144 green (build-windows-a
 ingest/coupons; render 17/0; 26 ingest tests). **PUSH GRANT CLOSED — D-6 and DR2-1 were each one-time and are both CONSUMED; any new branch needs a FRESH grant.** Landed under DR2-1 (was the afternoon's work on **`program/offline-readiness-r2`**, now on main): D-4 thresholds applied into
 the gate cards (`offline/d4-thresholds` c428196, one fix loop, VERIFIED) and the O-6 starting-current-limit derivation (`offline/o6-derivation`
 56a563e, two fix loops, VERIFIED): **all 15 first-power substeps BLOCKED** on two facts no document holds — the bench PSU's identity/minimum
-limit and the UBEC's make/model — plus manufacturer figures now cited (Wi-Fi module 1800 mA max, servo stall 2.1 A at 6 V, amp ≥ 640 mA driven,
-Rail A floor ≥ 3000 mA of 5 A). **Decision Round 2 is OPEN** in `W17_OWNER_ACTIONS.md` (DR2-1 grant for r2 … DR2-14 Wi-Fi heatsink 28×28 vs ≥ 32×32). **No hardware; nothing
+limit and the UBEC's make/model — plus manufacturer figures now cited (Wi-Fi module 1800 mA max, servo stall 2.1 A at 6 V, amp ≥ 640 mA at the
+datasheet's 12 dB spec point, Rail A **sizing sum** — not a "floor" — of 2628 mA ≈ 53 % of 5 A at the shipped cap 110 and 3000 mA = 60 % at the
+180 ceiling, relabelled 2026-09-06 evening by the O-6 addendum v2). **Decision Round 2 is OPEN** in `W17_OWNER_ACTIONS.md` (DR2-1 grant for r2 … DR2-14 Wi-Fi heatsink 28×28 vs ≥ 32×32). **No hardware; nothing
 flashed or powered; A2 stays NOT-EXECUTED, Phase B stays BLOCKED, FIRST_ACTIVE NO-GO; `u4-arbiter` `4e445c9` never pushed.**
 Prior pass, **2026-09-04 (readiness program CLOSED — software ready except assembly and bench)** —
 compact state: **`W17_CURRENT_STATE.md`**; evidence: `closeout/baseline-2026-09-04.md` and
