@@ -7,9 +7,12 @@ explicit **THRESHOLD MISSING**. Nothing here is a measured draw.
 > **Read this first.** A current limit on a bench supply is a *fuse you chose*, and the only
 > honest way to choose it is: know the expected draw, set the limit a little above it, and stop
 > the moment it trips. **This project's documents do not state an expected draw for any car-side
-> 5 V load.** No datasheet current figure for the ESP32 modules, the camera, the Wi-Fi module, the
-> RP1, the amplifier, the DS3235SG or the MG90S appears anywhere in the workspace, the firmware
-> repos, or `HARDWARE_INVENTORY.md`. So this table cannot end in a number — it ends in a
+> 5 V load.** No datasheet current figure for the ESP32 modules, the camera, the RP1 or the MG90S
+> appears anywhere in the workspace, the firmware repos, or `HARDWARE_INVENTORY.md`. **Update
+> 2026-09-06 (O-6 derivation, `_handoff/2026-09-06_O6_derivation_report.md`):** the Wi-Fi module
+> (BL-M8812EU2), the amplifier (MAX98357A) and the steering servo (DS3235SG) now have cited
+> manufacturer figures — see L11–L13 below and BG-03's "Starting current limits" subsection; the
+> ESP32 boards, camera, RP1, MG90S and blower still have none. So this table cannot end in a
 > **procedure that derives the number at the bench, one subsystem at a time**, and in a list of
 > the thresholds that are missing. Inventing them would be worse than leaving them blank.
 >
@@ -66,6 +69,10 @@ Source: `w17-pdb-build-and-connector-guide.md`:35-58; UBEC rating
 | L8 | Firmware's battery plausibility band | **4000–9000 mV** (`BatteryConfig::implausibleBelowMv/AboveMv`) | `PHASE_B_FIRST_POWER.md`:114 | firmware constant |
 | L9 | ESC | **Hobbywing QuicRun 10BL120** (120 A class, sensored) | `HARDWARE_INVENTORY.md`:90; `00_BUILD_SHEET.md`:38 | part identity |
 | L10 | Pack C-rating spec used when sourcing | **≥ 25 C** (1500 mAh × 25 C ≈ 37 A burst) | `HARDWARE_INVENTORY.md`:277 | sourcing spec, not a bench limit |
+| L11 | BL-M8812EU2 Wi-Fi module rated max supply current | **1800 mA max** | B-link *BL-M8812EU2 datasheet V1.0.1.0*, §1.3 (retrieved 2026-09-06) | manufacturer datasheet |
+| L12 | DS3235SG steering servo idle / stall current, at 5 V | **5 mA idle / 1.9 A stall** | DS SERVO datasheet, §4 (retrieved 2026-09-06; the document's model line carries no "SG" suffix — caveat, see BG-03) | manufacturer datasheet |
+| L13 | MAX98357A quiescent current max / internal current limit | **3.35 mA max IDD / 2.8 A ILIM** | Maxim Integrated *MAX98357A/MAX98357B* datasheet (retrieved 2026-09-06) | manufacturer datasheet |
+| L14 | WS2812 strip modelled draw at the O-7 operating cap 180 | **540 mA** (code's integer form) / **560 mA** (un-truncated) | `LightRenderer.hpp`:11, :110-111, :152, :209, :226 | code |
 
 **L5 and L6 are the only per-subsystem current figures that exist anywhere in this project**, and
 they exist only because the LED renderer computes them itself.
@@ -88,9 +95,9 @@ it at the bench and record it here as the first evidence.**
 | T8 | RP1 receiver draw | **THRESHOLD MISSING — owner/bench decides** |
 | T9 | ESP32 module draw, Wi-Fi off (both boards) | **THRESHOLD MISSING — owner/bench decides** |
 | T10 | ESP32 #1 draw with Bluetooth active (BT show-off build) — BT1 lists "3.3 V rail draw with BT active" as an unmeasured bench item | **THRESHOLD MISSING — BT1 measures it** (`BT1_BENCH_GATE.md`:66) |
-| T11 | The bench-PSU current limit to set at each step below | **STAIRCASE POLICY RULED 2026-09-05 (D-4 O-6):** lowest defensible limit for the substep being powered; a trip = STOP AND DIAGNOSE; never simply increase until it works; raise only after the trip is understood and the next setting is justified; never exceed applicable rail/component safety limits. **Starting limit per substep: pending the O-6 derivation (separate task) — BLOCKED until recorded here.** |
-| T12 | ESC standby (logic-only) draw on batt+ with motor leads off | **THRESHOLD MISSING — owner/bench decides** |
-| T13 | Inrush allowance at the moment the pack is connected (the XT90-S anti-spark exists because it is large, but no number is stated) | **THRESHOLD MISSING — owner/bench decides** |
+| T11 | The bench-PSU current limit to set at each step below | **BLOCKED — O-6 derivation done 2026-09-06; two owner decisions outstanding.** Policy ratified (O-6, 2026-09-05): lowest defensible limit per substep, trip = STOP AND DIAGNOSE, never raise to make a trip go away, never exceed the rail/component limit. Per-substep derivation is on **BG-03 § "Starting current limits (O-6 derivation, 2026-09-06)"**, with named margin **M-PEAK** and the chaining rule `L(N) = R(N-1) + P(N)`. **DERIVED added-load allowances:** WS2812 strip **560 mA** at the O-7 cap 180 / **188 mA** at the shipped cap 110 `[code LightRenderer.hpp:11,:110-111,:152,:209,:226]`; BL-M8812EU2 **1800 mA max** `[datasheet, B-link V1.0.1.0]`; MAX98357A quiescent **3.35 mA max**, ILIM **2.8 A** `[datasheet, Maxim]`; DS3235SG idle **5 mA** / stall **1.9 A** at 5 V `[datasheet, DS SERVO]`. **STILL BLOCKED, and no absolute limit is settable until both are answered:** (1) **no document names the bench PSU**, so its minimum settable CC value is unknown and a settable limit is not even established (`13_phase_a_a2_no_power_checklist.md`:116); (2) **the supply is on the pack side (7.4 V) and every derived figure is a 5 V rail current** (`BG-03`:55), and the conversion needs the UBEC's efficiency, which cannot be known because **no document names the UBEC's make or model** (`HARDWARE_INVENTORY.md`:113 gives only "UBEC 5 A (2 pcs)"). Do **not** fill this row from a family figure — a search-engine "DS3235SG stall 3.9 A" was checked against the manufacturer's own datasheet and is wrong by 2×. |
+| T12 | ESC standby (logic-only) draw on batt+ with motor leads off | **BLOCKED — manufacturer publishes no standby figure.** Hobbywing's own QuicRun 10BL120 page (fetched 2026-09-06) gives "120A/Peak Current 760A", "2-3S Lipo" and "BEC Output: Switch Mode 6V/7.4V @4A" and no standby current. Note the 4 A BEC is **irrelevant to every rail** — its red wire is cut (`w17-pdb-build-and-connector-guide.md`:80). Cheapest resolution: separate the ESC's 12 AWG feed for the whole staircase so this term is absent until D8 Phase 1. |
+| T13 | Inrush allowance at the moment the pack is connected | **BLOCKED — bounded by nothing citable, in either direction.** The XT90-S anti-spark exists because the inrush is large; no Amass specification giving its pre-charge resistor was located, no document states the ESC's input capacitance, and the bench pack (ZEEE 5200, `HARDWARE_INVENTORY.md`:208) has no C-rating in any document — the `≥25 C` at `:277` is the sourcing spec for the *unbought car pack*. A battery has **no** settable limit, so nothing in this path limits this event. Mitigation is procedural, not numeric: mate the XT90-S deliberately and fully, observe, and treat any spark, heat or tick as a stop. |
 
 ## How to derive T1–T12 safely — the staircase
 
