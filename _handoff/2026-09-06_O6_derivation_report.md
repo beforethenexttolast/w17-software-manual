@@ -8,13 +8,26 @@
 **This is v2. It supersedes v1 in full**, after the adversarial review `R-O6` returned
 `FIX_REQUIRED` (7 BLOCKING, 11 NON-BLOCKING, 6 notes — every one accepted by the Director and
 applied here). §0 maps each finding to what changed. The review is persisted alongside this
-file as `_handoff/2026-09-06_R-O6_review.md`.
+file as `_handoff/2026-09-06_R-O6_review.md`. The v2 text was then **independently re-verified
+as `V-O6-2`**, which returned `FIX_REQUIRED` (1 BLOCKING, 8 NON-BLOCKING, 3 observations —
+again every one accepted by the Director and applied here); **§0a** maps those to what changed.
 
 **Evidence label: NOT-EXECUTED.** Nothing was powered, flashed or measured. Every row below
 is a citation or a BLOCKED row; none is a reading.
 
 **Serves:** owner ruling D-4 / **O-6** (2026-09-05), recorded verbatim at
 `2026-09-05_offline_decision_round_1.md`:25-28 and `bench-gates/MISSING_THRESHOLDS.md`:35.
+
+**Non-canonical dated snapshot**, per the `_handoff/` convention (`_handoff/README.md`:8-10:
+snapshots are not canonical, and every snapshot must name its canonical source).
+**Canonical source — the bench-gates cards this report was transcribed into:**
+`bench-gates/BG-03_phase_b_first_power.md` § *"Starting current limits (O-6 derivation,
+2026-09-06)"* (transcribed from §6.1 below, byte-identical modulo heading level) and
+`bench-gates/tools/first_power_current_limits.md` rows **T11–T13** and **L11–L15**
+(transcribed from §6.2 below, byte-identical). Those cards are the live version; if this file
+and a card disagree, the card wins. **Origin:** written as the session-scratch report
+`O6_derivation_v2.md`, in the session scratchpad's `reports/` directory (not a repo path, and
+not resolvable from any checkout), which is kept byte-identical to this file.
 
 ---
 
