@@ -97,7 +97,7 @@ evidence/source (`path:line`) · exact model necessary? · status.
 | # | Item | Why | Status |
 |---|---|---|---|
 | 1 | External SSD ≥256 GB | VM disk if internal Mac space can't be freed for the Windows-VM validation session | owner's call — not a W17 hardware item |
-| 2 | A second in-envelope 2S pack | "Carry 2 — runtime insurance" (`learning-manual/05_control_firmware_documentation_explained.md:409`) — **one** pack makes the car drivable; the second only removes charge-downtime and single-point-of-failure. `HARDWARE_INVENTORY.md:182,295-297` explicitly frames buying two *at once* as the practical call **once a fitting pack is found at all**, not a separate purchase decision | tied to BUY NOW #2 — buy together if/when a fitting SKU turns up |
+| 2 | A second in-envelope 2S pack | "Carry 2 — runtime insurance" (`learning-manual/05_control_firmware_documentation_explained.md:413`) — **one** pack makes the car drivable; the second only removes charge-downtime and single-point-of-failure. `HARDWARE_INVENTORY.md:182,295-297` explicitly frames buying two *at once* as the practical call **once a fitting pack is found at all**, not a separate purchase decision | tied to BUY NOW #2 — buy together if/when a fitting SKU turns up |
 | 3 | Spare XT90 loop key half | *"plus a spare if one is decided"* — whether a spare ships is `[TBD-at-bench]` | `w17-handover-checklist.md:184`; one loop key is already on hand (`HARDWARE_INVENTORY.md:203`, the mated XT90-S/XT90H-M pigtail pair) | **WAIT (owner decision) whether a spare ships at all** — not omitted, just not decided; one is already on hand either way |
 
 Note: **"ELRS TX label (printed)" from the seed's OPTIONAL bucket does not exist as a purchasable

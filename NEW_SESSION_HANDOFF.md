@@ -1,67 +1,66 @@
-# NEW_SESSION_HANDOFF — W17 OFFLINE READINESS / BENCH PREPARATION (r2, written 2026-09-06 ~16:30 Kiev by the Fable Director session 8d5a99ff)
+# NEW_SESSION_HANDOFF — W17 OFFLINE READINESS / BENCH PREPARATION (r3, written 2026-09-06 late evening by the Fable Director session 719f19ec)
 
 Boot without chat history. Read in this order: (1) workspace `CLAUDE.md` (safety 1–7, one session per tree); (2) this file; (3) `W17_OFFLINE_READINESS.md`
-(§1a = the D-6 landing table, §3 = workstream rows, §6 = change log); (4) `2026-09-05_offline_decision_round_1.md` (D-1…D-6, verbatim);
-(5) `W17_OWNER_ACTIONS.md` — **DECISION ROUND 2 is OPEN** (DR2-1…DR2-14) — and `W17_PROCUREMENT_AND_PHYSICAL_ACTIONS.md`; (6) `bench-gates/INDEX.md`,
-`G-INDEX.md`, `MISSING_THRESHOLDS.md`; (7) `_handoff/2026-09-06_O6_derivation_report.md` (v2 after review) + `_handoff/2026-09-06_R-O6_review.md`.
-The previous handoff (pre-grant) is preserved verbatim as `_handoff/2026-09-06_NEW_SESSION_HANDOFF_r1_pre-grant.md`.
-Everything in (3)–(7) at its CURRENT state lives on workspace branch **program/offline-readiness-r2** — main carries the post-grant state up to f1028ba only.
-Session scratchpad (worktrees + reports): `SP2 = /private/tmp/claude-501/-Users-vitaliykhomenko-Documents-projects/8d5a99ff-1ad4-47ef-bff4-7ad4920c9bce/scratchpad`
-(`SP2/reports/`: BG07_item9_build_evidence.md, O6_derivation.md (v1, REJECTED), O6_derivation_v2.md, R-O6.md, V-O6-2.md, V-O6-3.md). If SP2 is gone, every deliverable is in the branches below.
+(§1a/§1b = the two consumed grants' landing tables, §3 = workstream rows, §4a = rulings summary, §6 = change log); (4) `2026-09-05_offline_decision_round_1.md`
+and **`2026-09-06_offline_decision_round_2.md`** (verbatim owner rulings); (5) `W17_OWNER_ACTIONS.md` — **Decision Round 2 is RULED; five items are BLOCKED on the
+photo/label packet; Decision Round 3 (three small items) is OPEN** — `W17_OWNER_PHOTO_LABEL_INTAKE.md` (the ONE packet) and `W17_PROCUREMENT_AND_PHYSICAL_ACTIONS.md`;
+(6) `bench-gates/INDEX.md`, `G-INDEX.md`, `MISSING_THRESHOLDS.md`, `BG-03_phase_b_first_power.md` § Starting current limits; (7) `_handoff/2026-09-06_O6_derivation_report.md`
++ `_handoff/2026-09-06_R-O6_review.md` (v2) and `_handoff/2026-09-06_O6_addendum_report.md` + `_handoff/2026-09-06_R-ADD_review.md` (the photo-independent addendum).
+Everything in (3)–(7) at its CURRENT state lives on workspace branch **program/offline-readiness-r3** — main carries the state up to ca84c91 only (DR2-1 landing + its record).
+Session scratchpad: `SP3 = /private/tmp/claude-501/-Users-vitaliykhomenko-Documents-projects/719f19ec-91ce-4075-b6dc-10a895535bc5/scratchpad` (worktrees `wt-ws-r3`, `wt-cf-docnits`;
+`reports/`: DR2-7_wifi_mode, DR2-8_sound, DR2-14_heatsink, DR2-APPLY-1, R-DR2, V-DR2, O6_addendum_v1/v2, R-ADD, ADD-FIX-APPLY, V-ADD, CF-DOCNITS, V-CF-DOCNITS). If SP3 is gone, every deliverable is in the branches below.
 
 ## 0. First commands (read-only)
 ```
 for r in . w17-control-fw w17-soundlight-fw w17-ground-station iPhone_rc w17-mapper w17-3d-codex; do git -C /Users/vitaliykhomenko/Documents/projects/$r worktree list; git -C /Users/vitaliykhomenko/Documents/projects/$r status --short | head -3; done
 ```
-Expected (2026-09-06 16:30): trunks clean, local == origin, at workspace main **f1028ba** · cf **1d17c6b** · sl 7220c08 · GS **809976c** · iPhone 7aaf2cf · mapper w17-headtrack **aa7fb7d** · 3d **8889323**
-(these are the post-D-6 trunks; the landing table with CI run ids is `W17_OFFLINE_READINESS.md` §1a). Worktrees under SP2: `wt-ws-r2` (program/offline-readiness-r2),
-`wt-ws-d4` (offline/d4-thresholds c428196, merged into r2), `wt-ws-o6` (offline/o6-derivation, merged into r2). Elsewhere: `u4-arbiter` 4e445c9 parked in another
-session's scratchpad — read with `git show` only, never checkout/merge/push. The prior session's fifteen merged worktrees were removed 2026-09-06 (branches kept).
+Expected: trunks clean, local == origin, at workspace main **ca84c91** · cf **1d17c6b** · sl 7220c08 · GS 809976c · iPhone 7aaf2cf · mapper w17-headtrack aa7fb7d · 3d 8889323.
+Worktrees: SP3/wt-ws-r3 (program/offline-readiness-r3 `git rev-parse --short program/offline-readiness-r3` (authoritative; the tip after the closing state commit of 2026-09-06 late evening)), SP3/wt-cf-docnits (cf offline/docfix-ci-count-and-wifi-topology 631dee2); the prior session's SP2 worktrees
+(wt-ws-r2 4ae3536 = now main's ancestor, wt-ws-d4, wt-ws-o6 — all merged) may still exist and are safe to `git worktree remove`. `u4-arbiter` 4e445c9 parked elsewhere — `git show` only.
 If a trunk moved, another session landed something: re-read `CURRENT_STATUS.md` and `W17_OFFLINE_READINESS.md` before anything else.
 
-## 1. Branch state — **UPDATE 2026-09-06 evening: DR2-1 was granted, executed and CONSUMED; r2 (4ae3536) is now workspace main** (`W17_OFFLINE_READINESS.md` §1b). PUSH GRANT CLOSED again. The table below describes r2 as it was before landing
+## 1. Branch state — PUSH GRANT CLOSED (D-6 and DR2-1 both one-time, both CONSUMED); nothing below is pushed
 | repo | branch | tip | worktree | chain | content |
 |---|---|---|---|---|---|
-| workspace | **program/offline-readiness-r2** | `git rev-parse --short program/offline-readiness-r2` is authoritative | SP2/wt-ws-r2 | integrates the two rows below + this session's state commits | state files (readiness §1a/§3/§6, owner queue with DR2, procurement DR2 note), this handoff, the two `_handoff` snapshots |
-| workspace | offline/d4-thresholds | c428196 | SP2/wt-ws-d4 | D4-APPLY (Sonnet) → V-D4 FIX_REQUIRED (1: G-02's command wired the 150 ms *desired* figure as a FAIL bound) → FIX (Director, exit codes proven on synthetic captures) → V-D4-2 PASS | D-4 rulings applied: G-02 (O-1), G-04 (O-2…O-5), BG-08 (O-7, shipped 110 stated), BG-03 + tools T11 (O-6 policy), MISSING_THRESHOLDS §1/§4 |
-| workspace | offline/o6-derivation | 56a563e | SP2/wt-ws-o6 | O6 (Opus) → apply (Sonnet) → V-O6 transcription (4 staleness) + **R-O6 adversarial (Opus) FIX_REQUIRED 7 BLOCKING / 11 NON-BLOCKING** → FIX (Opus, v2) → V-O6-2 (Opus) FIX_REQUIRED 1 BLOCKING (P(5) must be the rated 1800 mA, not the 1510 mA RF-test peak) + 8 → FIX-2 (Opus) → V-O6-3 (Opus) FIX_REQUIRED 0 BLOCKING / 2 NON-BLOCKING (two `_handoff` snapshot-note slips) → FIX-3 (Director, 2 lines) → **V-O6-4 (Sonnet, scoped) PASS — final tip 56a563e, merged into r2** | BG-03 `### Starting current limits (O-6 derivation)` inside *Required equipment*; tools T11–T13 replaced, L11–L15 added; MISSING_THRESHOLDS/INDEX/BG-04 notes; `_handoff/` report v2 + review. **All 15 substeps BLOCKED** on DR2-3/DR2-4; no amperage invented |
+| workspace | **program/offline-readiness-r3** | `git rev-parse --short program/offline-readiness-r3` (authoritative; the tip after the closing state commit of 2026-09-06 late evening) | SP3/wt-ws-r3 | DR2-APPLY-1 (Sonnet) → R-DR2 (Opus) FIX_REQUIRED 3B/9N → FIX (Director) → V-DR2 (Sonnet) PASS · research ×3 (Sonnet) → O-6 addendum v1 (Opus) → R-ADD (Opus) FIX_REQUIRED 3B/10N → FIX+APPLY v2 (Opus) → V-ADD (Opus) FIX_REQUIRED 1B (a learning-manual cite shifted by the manual edit) + 6N → FIX (Director) → V-FINAL (Sonnet, scoped) — see readiness §3 for the verdict | DR2 rulings verbatim; DR2 applied into BG-03/BG-04/BG-08/tools/MISSING_THRESHOLDS/INDEX; `W17_OWNER_PHOTO_LABEL_INTAKE.md`; addendum applied (S4/S5 load states, thermal check at S5, capture list, T7/L13/L16, Rail-A sizing sum); Decision Round 3; procurement rows (≥ 32×32 heatsink BUY, temperature probe CHECK); `_handoff/` addendum + review; state files |
+| w17-control-fw | offline/docfix-ci-count-and-wifi-topology | **631dee2** | SP3/wt-cf-docnits | CF-DOCNITS (Sonnet) → V-CF-DOCNITS (Sonnet, fresh) PASS | `ci.yml` comment 356 → 360 (native 360/360 re-run); BOM:22 car module = 5 GHz STATION (was "provides the WiFi AP") |
 
-## 2. The grant that was requested (DR2-1) — **EXECUTED and CONSUMED 2026-09-06 evening exactly as written below** (do not execute again)
-Scope = **program/offline-readiness-r2 → workspace main**, at the tip named in the grant request, nothing else; no nested-repo push. Landing rule: in the MAIN checkout only,
-after `git worktree list` + `git branch --show-current` + a HEAD re-check: `git merge --ff-only program/offline-readiness-r2` (or `--no-ff` if main moved) →
-`scripts/check_readiness_runbook_links.sh` exit 0 AND `--workspace-root /Users/vitaliykhomenko/Documents/projects` exit 0 → push → record in `CURRENT_STATUS.md` top entry +
-`W17_OFFLINE_READINESS.md` §6 → say the grant is CONSUMED. If the branch content changes materially after the request, independently verify the changed portion first (owner rule, D-6).
+## 2. The grant to request next (exact scope, one-time) — NOT granted yet
+(a) workspace `program/offline-readiness-r3` at `git rev-parse --short program/offline-readiness-r3` (authoritative; the tip after the closing state commit of 2026-09-06 late evening) → main (ff); (b) cf `offline/docfix-ci-count-and-wifi-topology` 631dee2 → cf main (ff; docs-only; CI must be observed green).
+Landing rule per repo as in `W17_OFFLINE_READINESS.md` §1a/§1b: MAIN checkout only, `git worktree list` + `git branch --show-current` + HEAD re-check, `--ff-only`, workspace link checks exit 0
+both modes (cf: CI run observed to completion), push, local == origin, record in `CURRENT_STATUS.md` + readiness §1c, say CONSUMED. If content changes materially first, independently verify the changed portion.
 
 ## 3. Rulings in force
-D-1…D-5 as in `2026-09-05_offline_decision_round_1.md` (summary: readiness §4a). **D-6 EXECUTED and CONSUMED 2026-09-06** (readiness §1a). **Decision Round 2 — OPEN**
-(`W17_OWNER_ACTIONS.md`): DR2-1 fresh grant (above) · DR2-2 ratify margin policy M-PEAK (manufacturer Max/peak, LED model upper bound, no percentage) · DR2-3 bench PSU
-identity + minimum settable current limit · DR2-4 UBEC make/model + BEC#2 output voltage (5 or 6 V) · DR2-5 PSU-first energisation + ESC feed separation (A2-S6 re-run if so) ·
-DR2-6 S1/S2 ramp ceilings (read the MH-ET regulator marking; else rule numbers) · DR2-7 Wi-Fi RF mode (allowance = rated 1800 mA until named) · DR2-8 `sound.volume` + 4 Ω ·
-DR2-9 blower label · DR2-10 MG90S branding / rule S7–S8 ceiling · DR2-11 rule the constant-current duration criterion at a connect · DR2-12 withdrawn (DS3235SG identity is on
-the datasheet photo) · DR2-13 O-7 shipping question (Director recommends keeping shipped 110 until BG-08) · DR2-14 Wi-Fi heatsink 28×28 fitted vs ≥ 32×32 recommended.
-Plus five no-power label checks (owner file, AT THE CAR — NO POWER).
+D-1…D-6 (`2026-09-05_offline_decision_round_1.md`; D-6 consumed). **Decision Round 2 (`2026-09-06_offline_decision_round_2.md`):** DR2-1 CONSUMED · DR2-2 M-PEAK RATIFIED ·
+DR2-3 PSU / DR2-4 UBEC / DR2-6 MH-ET regulator / DR2-9 blower / DR2-10 MG90S **BLOCKED on the photo packet items 1/2/3/4/5** (no numbers may be ruled or inferred for them) ·
+DR2-5 PSU-first + ESC feed separated for S0–S9 RATIFIED (A2 S6 topology-change rule: re-run P2/P4/P5 before and after) · DR2-7 shipped Wi-Fi = 5 GHz station, P(5) stays 1800 mA
+until the camera config is captured at bring-up (stress row on paper only) · DR2-8 volume default 80 / acceptance = NVS value at D8 Phase 11a / ceiling 100; speaker → packet item 6 ·
+DR2-11 **CC > 500 ms after connect = STOP** (a STOP, never a permission; unexplained CC = STOP regardless; record the duration) · DR2-13 shipped `maxBrightness` 110 KEPT, 180 = ceiling only,
+no firmware branch · DR2-14 ≥ 32×32 mm heatsink BUY if it fits (envelope from packet item 7; Z-clearance is the binding constraint: 3 mm to a PROVISIONAL keepout).
+**Decision Round 3 (OPEN, small):** DR3-1 streaming-soak duration for S5 · DR3-2 confirm the 9 dB GAIN strap before soldering · DR3-3 temperature probe / K-type input on hand?
 
 ## 4. Next autonomous actions (in order; none powered)
-1. ~~When DR2-1 is granted: land r2 per §2.~~ **DONE 2026-09-06 evening (§1b of the readiness file).** Decision Round 2 rulings DR2-2…DR2-14 were received in the same owner message; they are persisted and applied on the successor branch named in `CURRENT_STATUS.md`'s top entry, which needs a FRESH grant.
-2. **When DR2-3 + DR2-4 are answered:** O-6 v3 on a new branch — S0 gets the PSU's minimum settable limit; the pack-side form `I_pack ≤ 5 A × V_rail / (V_pack × η)` gets η from the UBEC datasheet; S9 selects the servo column from BEC#2's set voltage; every remaining BLOCKED row is re-examined against the other DR2 answers. Mandatory chain: Opus derive → Opus adversarial review → fix → fresh re-verify (this session needed two fix loops on a safety artifact; assume the third version will still fail its first review).
-3. **When DR2-13 is ruled 180-now:** soundlight branch changing `LightRenderer.hpp:152` 110 → 180 (build must still pass `valid()`: 540 ≤ 900), native tests, review, fresh grant. If ruled keep-110: nothing to do until BG-08.
-4. **Queued doc nits (one small branch, fresh grant):** cf `.github/workflows/ci.yml` comment "356/356" → 360; tools file :107 "How to derive T1–T12" → T13; `HARDWARE_INVENTORY.md`:96 USB-C vs `bill_of_materials_v2.md`:66 micro-USB (needs the owner's look); BG-03:40 "PSU or battery" vs `D8_BENCH_BRINGUP.md`:55 battery-only (resolves with DR2-5); `bench-gates/INDEX.md` "run the tools from the branch's own worktree" sentence is stale now that bench-gates/ is on main.
-5. VM track when the owner reports disk/Fusion/ISO ready: runbook §1.0 → `scripts/vm/host-vm.sh doctor` → bootstrap → snapshot → stage → suite (hardware gates off) → evidence.
-6. Measurement track when the owner returns the CSV: `w17-3d-codex/11_cad/tools/ingest_measurements.py --dry-run <csv>` → review → `--apply` → render → C-2/C-3 → fit ladder.
-7. Windows x64 session when the owner provides the PC + FT232RL + DS4: `run-all.ps1 -HardwareExpected -ElrsVidPid 0403:6001`, 31 under Windows PowerShell 5.1, `netsh wlan show hostednetwork`; G-03; G-04 Part A only after the owner's explicit go per D-3. The DS4 macOS pre-check is on the mapper trunk now: `w17-mapper/tools/host-precheck/ds4_precheck.sh`.
+1. **When the next grant is given:** land (a) then (b) per §2; record; say CONSUMED.
+2. **When the photo/label packet arrives** (`W17_OWNER_PHOTO_LABEL_INTAKE.md`, 7 items): extract every defensible fact → update component identities → **O-6 v3** on a new branch
+   (S0 = PSU minimum settable limit; η from the UBEC datasheet for the pack-side form `I_pack ≤ 5 A × V_rail / (V_pack × η)`; S9 column from BEC#2's set voltage; S1 ceiling from the
+   regulator's datasheet; S6/S7/S8 from labels or stay BLOCKED; S4 from the speaker label; heatsink envelope from item 7) → Opus derive → Opus adversarial review → fix → fresh
+   verify (every safety artifact this program produced failed its first review: v1 7B, v2 1B, DR2 application 3B, addendum 3B — assume v3 will too).
+3. **When DR3-1/2/3 are answered:** apply into BG-03 S5 thermal check / BG-04 Phase 9 / procurement; small branch, fresh grant.
+4. VM track when the owner reports disk/Fusion/ISO ready (host re-observed this evening: 17 GB free, no Fusion, no ISO, no pwsh): runbook §1.0 → `scripts/vm/host-vm.sh doctor` → bootstrap → snapshot → stage → suite → evidence.
+5. Measurement track when the owner returns the CSV: `w17-3d-codex/11_cad/tools/ingest_measurements.py --dry-run <csv>` → review → `--apply` → render → C-2/C-3 → fit ladder. Proposed new row M-31 (Wi-Fi bay free volume) is described in `reports/DR2-14_heatsink.md` §3 and in intake item 7 — add it to the pack only on a reviewed 3d-codex branch (the delivered sheet must not silently change under the owner).
+6. Windows x64 session when the owner provides the PC + FT232RL + DS4 (unchanged from r2 §4 item 7).
+7. Queued doc nits (fresh grant each): `docs/w17_wiring_assembly_atlas.html`:170 (cf, still says the car module hosts the AP); learning-manual 03:220-221 / 05:361 — FIXED on r3 (fdca9f7, station role, guide cited; V-ADD confirmed it obeys `learning-manual/CLAUDE.md`); `HARDWARE_INVENTORY.md`:96 vs BOM:66 USB port type (resolves with packet item 3); 3d-codex placement-doc wording (AA §4.1 U.FL at X+1 vs `J_component_placement_matrix.md`:26 "U.FL aft").
 8. Keep `W17_OWNER_ACTIONS.md` current; surface the queue only when something becomes newly actionable.
 
-## 5. Dependency graph (delta from r1: first power now also needs Decision Round 2)
-DR2-3 (PSU) + DR2-4 (UBEC, BEC#2 volts) → O-6 v3 (S0/S1 limits, pack-side conversion) → with DR2-2/5/6/10/11 ruled and DR2-14 decided → BG-03 becomes *runnable once A2 closes and Phase B opens*.
-Everything else unchanged: disk → Fusion → ISO → VM suite (never physical for hotspot); adapter + x64 PC → hotspot + giftee PC re-check (D-1); DS4 → ds4_precheck (now) → x64 PC → G-03;
-FT232RL + x64 PC + owner go (D-3) → BG-06 T1 + G-04 Part A; coupon C-1 → measurement sitting → CSV → ingest → coupons → fit prints; shopping + OP-49 evidence (D-2) → BG-01 → BG-02 → BG-03 → BG-04 → …; FIRST_ACTIVE NO-GO.
+## 5. Dependency graph (delta from r2)
+Photo packet items 1+2 (PSU, UBEC) → O-6 v3 S0/S1–S9 absolute limits · item 3 → S1 ceiling · items 4/5 → S6/S7/S8 or BLOCKED · item 6 → S4 · item 7 → heatsink BUY envelope → "heatsink fitted before first power-on" → BG-03 S5.
+DR3-1 → S5 soak PASS/INCONCLUSIVE bookkeeping · DR3-2 → BG-04 Phase 9 (amp gain) · DR3-3 → the thermal evidence rows. Everything else unchanged: disk → Fusion → ISO → VM suite; adapter + x64 PC → hotspot;
+DS4 → ds4_precheck; FT232RL + x64 PC + owner go (D-3) → BG-06 T1 + G-04 Part A; coupon C-1 → sitting → CSV → ingest; shopping + OP-49 evidence (D-2) → BG-01 → BG-02 → BG-03 → BG-04 → …; FIRST_ACTIVE NO-GO.
 
 ## 6. Physical gates — all NOT-EXECUTED; each needs the owner's explicit go
-BG-01 A2 staged (no power) · BG-02 A2 closure · BG-03 Phase B first power (BLOCKED: A2 + Decision Round 2) · BG-04 D8 · BG-05 coordinated flash · BG-06 CRSF on the wire (live-TX gated, D-3) ·
-BG-07 BT1 (item 9 build-only evidence collected 2026-09-06: both builds ok, delivery ELF clean, 360/360 native) · BG-08 halo (cap 180) · G-01 FIRST_ACTIVE (NO-GO) · G-02 phone latency (150 desired / 200 max, exit code asserts 200) ·
-G-03 Windows hot-plug (x64 PC + DS4) · G-04 race-day link (x64 PC + FT232RL; D-3; 1000 ms headroom, 2000 ms spread, five runs, STOP lag ≤ 250 ms).
+Unchanged from r2 §6. BG-03 remains BLOCKED on A2 + packet items 1–2 (and the heatsink decision's execution). Nothing was powered, flashed or connected this session.
 
 ## 7. Model policy and the rule that keeps proving itself
-Fable = Director/adjudication only. Opus = adversarial review, safety-bearing verification and fixes, difficult derivation. Sonnet = workforce. Every agent names its model.
-This session: the D-4 application failed its first verify (1 defect found only by running the tool); the O-6 derivation failed its first adversarial review on safety direction
-(7 BLOCKING) and its fix failed the re-verify on one residual (the Wi-Fi allowance). Keep review + independent re-verify mandatory; prefer BLOCKED over a plausible number.
+Fable = Director/adjudication only. Opus = adversarial review, safety-bearing derivation and fixes. Sonnet = workforce, research, ordinary verification. Every agent names its model;
+reviewer ≠ implementer ≠ fresh verifier. This session: the DR2 application failed its first review (3B — two of them in the Director's own intake prose), the addendum failed its first
+review (3B — sourcing, an unread datasheet section, an S4/S5 asymmetry). Keep the chain mandatory; prefer BLOCKED over a plausible number.

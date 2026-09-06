@@ -70,7 +70,7 @@ Three items, all cheap, none of them a measurement. Opened by the O-6 addendum v
 R-ADD). **No powered, flashing, live-TX or FIRST_ACTIVE step is authorized by anything in this round.**
 
 - **DR3-1 — rule the Wi-Fi streaming-soak duration for BG-03 S5.** The thermal check at S5 records evidence but has **no defined duration**: a
-  workspace-wide grep for `soak` returns only `bench-gates/G-02_phone_video_glass_to_glass_latency.md`:87 (*"Soak first, measure second"* —
+  workspace-wide grep for `soak` returns (apart from a synthesizer "soak" test at `learning-manual/03_sound_synthesis.md`:1203, not thermal) only `bench-gates/G-02_phone_video_glass_to_glass_latency.md`:87 (*"Soak first, measure second"* —
   ≥ 60 s before the first sample), :102 and :274 (a ≥ 5-minute soak) — **all three belong to the phone glass-to-glass latency gate**, which
   measures the phone's own thermal and battery, not the first-power staircase — and `w17-gcs-box-guide.md`:291's *"sustained-bitrate soak"*,
   which is marked **`[bench-TBD]`** with no number. **Longer is more informative** (a small finned block's time constant is minutes, so a short
@@ -83,7 +83,7 @@ R-ADD). **No powered, flashing, live-TX or FIRST_ACTIVE step is authorized by an
   12 dB**: at 9 dB there is no characterised figure at all, so every amp bound on the cards is a statement about a condition the car does not
   ship. **A free build decision, not a photo and not a purchase** — confirm 9 dB, or rule otherwise, before the strap is soldered.
 - **DR3-3 (equipment, check-first) — do you own a temperature probe, or does your multimeter have a K-type input?** The DR2-14 thermal check
-  needs one and **no such instrument exists anywhere in the workspace** (a grep for `thermometer|infrared|thermocouple|IR gun|thermal cam`
+  needs one and **no such instrument is recorded anywhere in the workspace** (a grep for `thermometer|infrared|thermocouple|IR gun|thermal cam` before this round's procurement row 14 was added
   returns nothing in `HARDWARE_INVENTORY.md`, in the procurement doc's CHECK-IF-I-ALREADY-HAVE rows, or in any gate card's equipment list); the
   owner already needs a multimeter (procurement row 4), and many include a temperature function. **An IR gun reads surfaces, not air** — it is
   acceptable **only** for the one-directional surface proof-of-violation reading (≥ 125 °C), never for the ambient criterion, which needs a

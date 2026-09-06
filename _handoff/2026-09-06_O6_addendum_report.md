@@ -236,7 +236,7 @@ is raising it.
 O-6 **§3.2's S4 cell** quotes the full condition including *"gain = 12dB"* and is correct. **The card is not:**
 `bench-gates/BG-03_phase_b_first_power.md`:**150** reads *"**≥ 640 mA whenever driven** (energy conservation on 3.2 W into 4 Ω at 5 V — no
 efficiency figure needed)"* — **no gain condition, and an unconditional "whenever driven"**. The same omission sits in
-`bench-gates/tools/first_power_current_limits.md` row **L13** (:76) and inside row **T11** (:103); all three are corrected here.
+`bench-gates/tools/first_power_current_limits.md` row **L13** (:76) and inside row **T11** (:106); all three are corrected here.
 
 ---
 
