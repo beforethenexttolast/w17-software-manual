@@ -147,7 +147,7 @@ documented band is **5–6 V** (`D8_BENCH_BRINGUP.md`:55; this card's sibling
 | S2 + RP1 | — | — | Rail A output **5 A** — same objection as S1 | **BLOCKED — DR2-6, photo packet item 3** — RadioMaster's own page gives 5 V and no current figure; no regulator to read on RP1 itself. Derivation after item 3's MH-ET identification will say what, if anything, bounds S2 — no number is ruled |
 | S3 + WS2812 strip @ ceiling **180** — **DR2-13 RULED 2026-09-06: 180 is the owner-approved upper operating *ceiling* only — it bounds this allowance row; it is NOT the shipped value and nothing here authorizes running at it. Raising the shipped cap requires physical halo/visibility/current/rail evidence from BG-08 that 110 is inadequate, plus a reviewed `w17-soundlight-fw` firmware change on its own branch and a fresh push grant (`maxBrightness` is compile-time, `LightRenderer.hpp`:152)** | **560 mA** — **emitter-model** upper bound (code's integer form 540 mA); **excludes each pixel's controller quiescent draw, which Worldsemi does not publish** — carry it as an unquantified adder | — | compile budget **900 mA**; Rail A output **5 A** | **P(N) DERIVED (emitter model)**, L(N) **BLOCKED** |
 | S3 + WS2812 strip @ shipped **110** — **DR2-13 RULED 2026-09-06: this is the operating row — KEEP shipped `maxBrightness = 110`; no firmware-change branch now** | **188 mA** — same emitter-model caveat (code's integer form 180 mA) | — | as above | **P(N) DERIVED (emitter model)**, L(N) **BLOCKED** |
-| S4 + MAX98357A + speaker | quiescent **3.35 mA max**. **Driven: BLOCKED for the shipped configuration.** The part draws **≥ 640 mA at the datasheet's own 3.2 W condition** — `ZSPK = 4Ω + 33µH`, `THD+N 10%`, **`gain = 12dB`**, `VDD = 5V` (energy conservation, 3.2 W / 5 V; no efficiency figure needed). **The car is planned at a different gain and an unverified load:** `GAIN` floating = **9 dB** (`w17-soundlight-fw/lib/config/include/config/PinMap.hpp`:20-24, "documented, not driven"; `bench-gates/BG-04_d8_bench_bringup.md`:143; Phase 9 has not run), and the speaker's 4 Ω traces to one BOM line the inventory itself calls "a bench spec-check" (`HARDWARE_INVENTORY.md`:98). At 9 dB the manufacturer publishes no output-power figure, so the shipped driven draw is **not** bounded below by 640 mA | — | amp **ILIM 2.8 A** (the part's own **output** current limit, not a supply-current maximum); Rail A output **5 A** | **BLOCKED.** No **upper** bound on supply current is derivable at any gain: it needs a **minimum** efficiency, and the only cited efficiency is a **typ at 8 Ω** (92 %), which DR2-2 forbids substituting. **This row must state its load state.** Record whether the engine sound was **silent** (`Ignition::Off` ⇒ `synthVolume 0`, `w17-soundlight-fw/lib/audiodecision/include/audiodecision/AudioDecision.hpp`:33 — bit-exact silence) or actually rendering, and at what `sound.volume`. **A silent-amp reading is not a bound on the amp and must not be chained as one** — if the amp was silent, T7 stays THRESHOLD MISSING and the amp keeps no cited peak in `Σ P(k)`. Acceptance load = the `sound.volume` **recorded at D8 Phase 11a** (compiled default **80**, `Link2Frame.hpp`:93, applies only if the NVS blob was never saved or fails validation); **ceiling = 100** (`kVolumeMax`), at which Running + full throttle gives unity gain (`AudioDecision.hpp`:32-36,:78-82; `EngineSynth.cpp`:155). **Record `get sound.volume` with the reading, or the reading cannot be interpreted.** If the speaker proves **8 Ω**, every figure here is slack, not tight (P ∝ V²/Z) |
+| S4 + MAX98357A + speaker | quiescent **3.35 mA max**. **Driven: BLOCKED for the shipped configuration.** The part draws **≥ 640 mA at the datasheet's own 3.2 W condition** — `ZSPK = 4Ω + 33µH`, `THD+N 10%`, **`gain = 12dB`**, `VDD = 5V` (energy conservation, 3.2 W / 5 V; no efficiency figure needed). **The car ships at a different gain:** `GAIN` floating = **9 dB is CONFIRMED (DR3-2)** as the intended shipped configuration (`w17-soundlight-fw/lib/config/include/config/PinMap.hpp`:20-24; `bench-gates/BG-04_d8_bench_bringup.md`:143; Phase 9 has not run) — **before permanent soldering, the actual board's GAIN implementation/pad mapping must be verified against the exact article and the manufacturer datasheet** (the fitted part is a generic AliExpress "MAX98357A I2S amplifier 1PCS" — `HARDWARE_INVENTORY.md`:97, `w17-control-fw/docs/bill_of_materials_v2.md`:69 — do not assume the Adafruit pinout), and the speaker's 4 Ω traces to one BOM line the inventory itself calls "a bench spec-check" (`HARDWARE_INVENTORY.md`:98). **The datasheet's 12 dB specification point is NOT the shipped configuration** and must not be presented as it: at 9 dB the manufacturer publishes no output-power figure, so the shipped driven draw is **not** bounded below by 640 mA | — | amp **ILIM 2.8 A** (the part's own **output** current limit, not a supply-current maximum); Rail A output **5 A** | **BLOCKED.** No **upper** bound on supply current is derivable at any gain: it needs a **minimum** efficiency, and the only cited efficiency is a **typ at 8 Ω** (92 %), which DR2-2 forbids substituting. **This row must state its load state.** Record whether the engine sound was **silent** (`Ignition::Off` ⇒ `synthVolume 0`, `w17-soundlight-fw/lib/audiodecision/include/audiodecision/AudioDecision.hpp`:33 — bit-exact silence) or actually rendering, and at what `sound.volume`. **A silent-amp reading is not a bound on the amp and must not be chained as one** — if the amp was silent, T7 stays THRESHOLD MISSING and the amp keeps no cited peak in `Σ P(k)`. Acceptance load = the `sound.volume` **recorded at D8 Phase 11a** (compiled default **80**, `Link2Frame.hpp`:93, applies only if the NVS blob was never saved or fails validation); **ceiling = 100** (`kVolumeMax`), at which Running + full throttle gives unity gain (`AudioDecision.hpp`:32-36,:78-82; `EngineSynth.cpp`:155). **Record `get sound.volume` with the reading, or the reading cannot be interpreted.** If the speaker proves **8 Ω**, every figure here is slack, not tight (P ∝ V²/Z) |
 | S5 + camera / Wi-Fi | Wi-Fi **1800 mA** — the module's own §1.3 rated maximum supply current ("Power Supply DC 5.0V±0.25V @1800mA (Max)"). **DR2-7 resolved the shipped RF mode and it does NOT move this number:** the shipped role is **5 GHz STATION**, joining the laptop's hosted hotspot (`w17-gcs-box-guide.md`:195-197, a 2026-09-03 correction that supersedes the AP wording still standing in `w17-control-fw/docs/w17_wiring_assembly_atlas.html`:170), with **both** U.FL ports populated (`w17-pdb-build-and-connector-guide.md`:89). **No §3.3 row may be assigned to it:** TX power, channel width and encoder bitrate are NOT FOUND in any canonical config; no camera-side config is checked in anywhere (capturing it is an open bring-up task, `w17-ground-station/docs/video_topology_baseline.md`:45-49); the manufacturer states TX power is **customer-set in the Linux driver's configuration file** (§4) and that file is uncaptured; and every §3.3 row is a manufacturer bench condition at `VDD5.0 = 5.0 V`, `Ta 25 °C` — four Linux-driver rows (unassociated 113/123 mA; TCP-throughput up to 732/928 mA) and fifteen fixed-MCS, fixed-dBm `(RF test)` rows. **STRESS / WORST CASE, on paper only:** `HT20 MCS8 TX @ 27.5 dBm (2TX RF test) — 927 mA IRMS / 1510 mA IPeak`, the largest IPeak in the table. **No bench step may deliberately enter it** — it needs a vendor RF test mode, it is a live-TX action, DR2-7 forbids redefining shipped behaviour around stress mode, and the datasheet already publishes the number. Camera term absent | — | module requires the rail to **deliver ≥ 1800 mA peak** (§6.2.1) — a supply-capability requirement, not a limit to set; Rail A output **5 A**. **Camera-side CONFIGURATION never-exceed, in dBm and NOT a current:** §4 — *"Customers must define the TX power same or lower than recommended Target TX Power"* — 802.11a 6 Mbps **29 dBm**, HT20 MCS0 **28 dBm**, HT40 MCS0 **28 dBm**, VHT80 MCS0 **27 dBm** (± 2 dBm). It constrains the camera's driver config, never a rail limit (see `bench-gates/tools/first_power_current_limits.md` **L16**) | **BLOCKED** — no figure for the OpenIPC SSC338Q at 5 V, and the RF operating point is unresolved, so under DR2-2 it **stays** unresolved. **This row must also state its load state** (powered-but-unassociated ≠ streaming): a settled reading taken unassociated cannot stand in for T2, "Rail-A draw with the camera + Wi-Fi module **streaming**" — **if the module was not streaming, T2 stays THRESHOLD MISSING** (streaming is CB5-gated, `w17-ground-station/docs/video_profiles.md`:102) |
 | S6 + blower | — | — | Rail B output **5 A** | **BLOCKED — DR2-9, photo packet item 4** — the BOM names an "ACP2006-class" part, not a part number |
 | S7 + one MG90S | — | — | Rail B output **5 A** — not a ramp ceiling for one micro servo | **BLOCKED — DR2-10, photo packet item 5** — generic part; TowerPro's own page publishes no current figure and quotes 4.8 V operating, below Rail B's band. Do not use a generic internet MG90S value as if it describes the fitted servo — the smallest specific question is the branding/label on the fitted servos' cases and, if kept, the listing/packaging they came from |
@@ -184,14 +184,22 @@ temperature reads as safety evidence while proving nothing. What IS derivable:
 `Tj < 125 ℃` is already violated. **No other numeric thermal STOP is derivable**, and "still rising" is an inconclusive
 result, not a fault.
 
-**Record, at the module's defined load state:** the instrument (IR or contact probe) and where on the part it was read;
-**ambient** at each sample; heatsink surface temperature at each sample; and the module's actual state (powered /
-associated / streaming, and at what bitrate if known). **Sampling cadence is an operator choice, not a derived interval —
-write down the cadence used.** **Duration is BLOCKED (DR3-1):** no card defines a soak duration for this module
-(`w17-gcs-box-guide.md`:290-291's *"sustained-bitrate soak"* is marked `[bench-TBD]`; G-02's ≥ 60 s / ≥ 5-minute soaks at
-`bench-gates/G-02_phone_video_glass_to_glass_latency.md`:87, :102, :274 belong to the phone latency gate, not to first
-power). Longer is more informative — a small finned block's time constant is minutes — but **until a duration is ruled,
-take the reading at the S5 step's own natural length; do not extend a powered run to chase a plateau.**
+**Duration and sample cadence — RULED 2026-09-06 night (DR3-1):** **30 minutes continuous streaming in the actual
+shipped/production Wi-Fi mode** — 5 GHz STATION joining the GCS-box hosted hotspot, streaming, the load state this
+card already requires for S5 (`bench-gates/G-02_phone_video_glass_to_glass_latency.md`:87, :102, :274's soaks belong
+to the phone latency gate and are not this window). Sample at exactly **0 · 5 · 10 · 15 · 20 · 30 min** — there is no
+25-minute sample; this is the owner's own list, copied verbatim (`2026-09-06_offline_decision_round_3.md` DR3-1).
+**This is NOT a claim that 30 minutes proves thermal equilibrium** (owner's words). The existing sensory STOP
+(DR2-11: abnormal smell / abnormal heat / smoke / unexpected sound / visible anomaly / any other abnormal behaviour
+→ IMMEDIATE STOP) stays active throughout the window, and the PSU limit set for S5 stays unchanged for the whole
+30 minutes. **This is a characterisation window inside an already-open, owner-authorised Phase B S5 substep — DR3-1
+authorises no powered execution** (owner's words); it does not itself open S5. **Record, at each of the six sample
+times:** the load state (must be **streaming** in the shipped mode to satisfy DR3-1 — a soak that was not streaming
+does not satisfy it; record what it actually was instead, e.g. powered-but-unassociated / associated); **and, only
+if a suitable contact temperature instrument exists (DR3-3):** ambient and heatsink surface temperature, with the
+instrument and where on the part it was read. **If no suitable instrument exists, temperature is NOT estimated from
+touch** — each sample row then carries the load state, the time, and the sensory observation only, and the
+quantitative heatsink-temperature evidence stays BLOCKED (DR3-3).
 
 **If the temperature is still rising when the observation ends, that is NOT a stop** — it means steady state was not
 demonstrated, so the recorded value is a **lower bound** on the eventual temperature. Write it down as a lower bound and
@@ -309,11 +317,15 @@ figure):
    console's **`get sound.volume`** (`w17-control-fw/lib/console/src/Console.cpp`:123 help
    line, :277-285 handler) — a limit derived at 80 is uninterpretable without that reading.
    **Ceiling = 100** = `kVolumeMax` (`Link2Frame.hpp`:92), where Running + full throttle gives
-   unity gain. **Amplifier gain: 9 dB planned and UNVERIFIED** — `GAIN` floating,
-   *"documented, not driven"*
-   (`w17-soundlight-fw/lib/config/include/config/PinMap.hpp`:20-24); the datasheet's 3.2 W
-   figure is published at **12 dB**, so it is a spec-point figure and not a prediction for this
-   car. **Speaker impedance stays BLOCKED on photo/label packet item 6** (speaker label), per
+   unity gain. **Amplifier gain: 9 dB is CONFIRMED (DR3-2)** as the intended shipped
+   configuration — `GAIN` floating
+   (`w17-soundlight-fw/lib/config/include/config/PinMap.hpp`:20-24); before permanent soldering,
+   verify the fitted board's actual pad mapping against the exact article and the manufacturer
+   datasheet (the fitted part is a generic AliExpress "MAX98357A I2S amplifier 1PCS" —
+   `HARDWARE_INVENTORY.md`:97, `w17-control-fw/docs/bill_of_materials_v2.md`:69 — do not assume
+   the Adafruit pinout). The datasheet's 3.2 W figure is published at **12 dB**, which is **NOT**
+   the shipped configuration, so it is a spec-point figure and not a prediction for this car.
+   **Speaker impedance stays BLOCKED on photo/label packet item 6** (speaker label), per
    DR2-8's own fallback; if it proves 8 Ω every current figure here is slacker, never tighter.
 7. **Q7 — DR2-9 BLOCKED, photo/label packet item 4.** The blower's actual part number (the
    BOM names a class, not a part).
@@ -501,10 +513,14 @@ bench-gates/tools/crsf_sniff.py --port /dev/tty.usbserial-YYYY --baud 420000 \
   S5, whether the module was powered-but-unassociated, associated, or streaming. **A reading
   whose load state is not recorded is not evidence for T2 or T7** — a silent-amp or
   unassociated reading is not a bound on a bursty load and must not be chained as one.
-- **DR2-14 thermal (S5):** instrument used and where on the part it was read, ambient at each
-  sample, heatsink surface temperature at each sample, the cadence chosen, and whether the
-  temperature had stopped rising. A still-rising final reading is recorded as a **lower bound**
-  and the result called inconclusive — it is not a fault.
+- **DR2-14 / DR3-1 thermal (S5):** the six DR3-1 sample times (**0 · 5 · 10 · 15 · 20 · 30 min**,
+  no 25-min sample) and the load state at each (must be **streaming** in the shipped mode to
+  satisfy DR3-1); **if a suitable instrument exists (DR3-3):** the instrument used, where on the
+  part it was read, ambient at each sample, heatsink surface temperature at each sample, and
+  whether the temperature had stopped rising — a still-rising final reading is recorded as a
+  **lower bound** and the result called inconclusive, not a fault; **if no instrument exists:**
+  each sample row carries load state + time + sensory observation only, and quantitative
+  heatsink-temperature evidence stays BLOCKED (DR3-3).
 
 ## PASS/FAIL criteria (objective numbers)
 
@@ -546,9 +562,11 @@ bench-gates/tools/crsf_sniff.py --port /dev/tty.usbserial-YYYY --baud 420000 \
 - **Any time:** the supply sits in constant-current, anything is warm to the touch, or a UBEC
   ticks — power off first, diagnose second
   (`bench-gates/tools/first_power_current_limits.md`).
-- **Thermal at S5 — DR2-14 (O-6 addendum v2):** DR2-11's sensory rule governs (smell / abnormal
-  heat / smoke / unexpected sound / visual anomaly = IMMEDIATE STOP) — **or** a heatsink surface
-  reading **≥ 125 °C**, which proves the module datasheet's `Tj < 125 ℃` is already violated.
+- **Thermal at S5 — DR2-14 (O-6 addendum v2) / DR3-1 (2026-09-06 night):** DR2-11's sensory rule
+  governs (smell / abnormal heat / smoke / unexpected sound / visual anomaly = IMMEDIATE STOP) —
+  **or** a heatsink surface reading **≥ 125 °C**, which proves the module datasheet's
+  `Tj < 125 ℃` is already violated. **This governs throughout DR3-1's 30-minute streaming
+  characterisation window at S5, during which the PSU limit set for S5 stays unchanged.**
   **No other numeric thermal STOP is derivable**, and no surface PASS temperature exists: the
   datasheet publishes no thermal resistance, no case-temperature limit and no dissipation
   figure, so one must not be invented. **Ambient above +70 °C** is outside the module's rated
@@ -596,8 +614,10 @@ bench-gates/evidence/BG-03/<UTC-stamp>/
   B4.4_hall_rates.md             # entries/100 ms plain and pull-up-lifted, guardFaults()
   cc_duration_log.md             # DR2-11: observed CC duration at every connect, vs the 500 ms STOP
   S4_S5_load_states.md           # what the amp and the Wi-Fi module were actually doing at each reading
-  S5_wifi_thermal.md             # DR2-14: instrument + spot, ambient and surface per sample, cadence,
-                                 # and whether the reading had stopped rising (lower bound if not)
+  S5_wifi_thermal.md             # DR2-14/DR3-1: load state + time at 0/5/10/15/20/30 min (must be
+                                 # streaming); if an instrument exists (DR3-3): instrument + spot,
+                                 # ambient/surface per sample, and whether it had stopped rising
+                                 # (lower bound if not); if none, sensory observation only
   deviations.md
 ```
 

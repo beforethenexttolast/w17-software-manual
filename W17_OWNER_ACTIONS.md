@@ -64,34 +64,36 @@ Only genuinely human-required actions appear here. Each: action · reason · pre
 - **DR2-13 RULED 2026-09-06: KEEP shipped soundlight `maxBrightness = 110`.** 180 is only the owner-approved upper operating ceiling — the value a future reviewed firmware change may raise the shipped cap to, under evidence (`maxBrightness` is compile-time) — **not** the shipped default. **Do NOT create a firmware-change branch now.** Revisit only after physical halo/visibility/current/rail evidence (from BG-08) demonstrates 110 is inadequate; any increase remains a reviewed firmware change requiring a fresh push grant. Cost of 180 on Rail A, for reference: **+360 mA** modelled worst case (180 → 540 mA), **+205 mA** on the real all-amber state (103.5 → 308.2 mA); Rail A's admissible-only figure is a **mixed-direction sizing sum, not a "floor"** (relabelled 2026-09-06 evening, O-6 addendum v2 §1.4 / review R-ADD N6): **at the shipped cap 110 it is 1800 + 188 + 640 = 2628 mA ≈ 53 % of UBEC A's 5 A**, and **at the 180 ceiling 1800 + 560 + 640 = 3000 mA = 60 %** — Wi-Fi 1800 mA rated max (an **upper** bound), strip emitter-model bound (an **upper** bound excluding an unquantified per-pixel controller adder), amp ≥ 640 mA at the datasheet's 12 dB spec point (a **lower** bound at a condition the car does not ship), with the two boards, RP1, the camera and the Hall sensor still unquantified. Both figures must be quoted together, each labelled with its cap: 2628 mA alone would overstate headroom for the cap decision, and 3000 mA alone would present the 180 ceiling as the shipped case, which this ruling forbids.
 - **Doc conflicts surfaced by the derivation:** BG-03:40 "bench PSU *or* battery" vs `D8_BENCH_BRINGUP.md`:55 battery-only — **RESOLVED by DR2-5 RATIFIED 2026-09-06**: D8 Phase 1's battery connection is the first battery connection and follows the DR2-5 PSU staircase, it does not contradict it; `HARDWARE_INVENTORY.md`:96 says the MH-ET boards are USB-C, `bill_of_materials_v2.md`:66 says micro-USB (resolves with the look below, folded into photo/label packet item 3); cf `ci.yml` comment still says 356 native tests, current count 360; `W17_PROCUREMENT_AND_PHYSICAL_ACTIONS.md`:82 cited A2 `:114` for the "have them, do not connect them" line — it is `:116` (corrected on r2); **stale car-side Wi-Fi AP role (found by the DR2-7 derivation, 2026-09-06 evening)** — the canonical topology is `w17-gcs-box-guide.md` §5 (:190-199) and its 2026-08-17 Addendum (:281-291): the car module is a **5 GHz station** joining the box's hosted hotspot. `w17-control-fw/docs/bill_of_materials_v2.md`:22 is **already fixed** on that repo's branch `offline/docfix-ci-count-and-wifi-topology` at **631dee2** (unpushed, needs its own grant); `learning-manual/03_hardware_and_electronics_basics.md`:220-221 and `learning-manual/05_control_firmware_documentation_explained.md`:361 are **corrected in this pass**; `w17-control-fw/docs/w17_wiring_assembly_atlas.html`:170 stays **QUEUED** for a reviewed pass in `w17-control-fw`.
 
-## DECISION ROUND 3 — OPEN (2026-09-06 evening)
+## DECISION ROUND 3 — RULED 2026-09-06 night (verbatim record: `2026-09-06_offline_decision_round_3.md`)
 
 Three items, all cheap, none of them a measurement. Opened by the O-6 addendum v2 (DR2-7 / DR2-8 / DR2-14 derivation, after adversarial review
-R-ADD). **No powered, flashing, live-TX or FIRST_ACTIVE step is authorized by anything in this round.**
+R-ADD). **No powered, flashing, live-TX or FIRST_ACTIVE step is authorized by anything in this round** (owner's own words, verbatim in the
+record file).
 
-- **DR3-1 — rule the Wi-Fi streaming-soak duration for BG-03 S5.** The thermal check at S5 records evidence but has **no defined duration**: a
-  workspace-wide grep for `soak` returns (apart from a synthesizer "soak" test at `learning-manual/code_explained/soundlight_fw/03_sound_synthesis.md`:1203, not thermal) only `bench-gates/G-02_phone_video_glass_to_glass_latency.md`:87 (*"Soak first, measure second"* —
-  ≥ 60 s before the first sample), :102 and :274 (a ≥ 5-minute soak) — **all three belong to the phone glass-to-glass latency gate**, which
-  measures the phone's own thermal and battery, not the first-power staircase — and `w17-gcs-box-guide.md`:291's *"sustained-bitrate soak"*,
-  which is marked **`[bench-TBD]`** with no number. **Longer is more informative** (a small finned block's time constant is minutes, so a short
-  window can end mid-rise), but **no number is proposed here** — it is the owner's. Until it is ruled, BG-03 takes the reading at the S5 step's
-  own natural length and does not extend a powered run to chase a plateau.
-- **DR3-2 — confirm the MAX98357A GAIN strap before anyone solders.** `w17-soundlight-fw/lib/config/include/config/PinMap.hpp`:20-24 records
-  *"MAX98357A straps (**documented, not driven**): GAIN floating = 9dB (start there; GND = 12dB, VDD = 6dB)"* — so **9 dB is planned and
-  unverified**, and three docs plan it (`SIMULATION.md`:40, `bench-gates/BG-04_d8_bench_bringup.md`:143,
-  `learning-manual/open_questions.md`:389). It matters because the manufacturer publishes the part's 3.2 W output-power figure **only at
-  12 dB**: at 9 dB there is no characterised figure at all, so every amp bound on the cards is a statement about a condition the car does not
-  ship. **A free build decision, not a photo and not a purchase** — confirm 9 dB, or rule otherwise, before the strap is soldered.
-- **DR3-3 (equipment, check-first) — do you own a temperature probe, or does your multimeter have a K-type input?** The DR2-14 thermal check
-  needs one and **no such instrument is recorded anywhere in the workspace** (a grep for `thermometer|infrared|thermocouple|IR gun|thermal cam` before this round's procurement row 14 was added
-  returns nothing in `HARDWARE_INVENTORY.md`, in the procurement doc's CHECK-IF-I-ALREADY-HAVE rows, or in any gate card's equipment list); the
-  owner already needs a multimeter (procurement row 4), and many include a temperature function. **An IR gun reads surfaces, not air** — it is
-  acceptable **only** for the one-directional surface proof-of-violation reading (≥ 125 °C), never for the ambient criterion, which needs a
-  probe. Buy only if neither exists. Added as a CHECK IF I ALREADY HAVE row, not a purchase.
+- **DR3-1 RULED and APPLIED to BG-03.** Adopt **30 minutes continuous streaming in the actual shipped/production Wi-Fi mode** (5 GHz STATION
+  joining the GCS-box hosted hotspot, streaming) as the S5 thermal-soak **CHARACTERIZATION** duration; sample at **0 · 5 · 10 · 15 · 20 · 30 min**
+  (no 25-min sample — the owner's own list, copied verbatim). **This is NOT a claim that 30 minutes proves thermal equilibrium.** The existing
+  sensory STOP (DR2-11: abnormal smell / abnormal heat / smoke / unexpected sound / visible anomaly / any other abnormal behaviour → IMMEDIATE
+  STOP) stays active throughout; temperature is recorded at those intervals only if a suitable contact instrument exists (DR3-3) — if none
+  exists, temperature is NOT estimated from touch and quantitative heatsink-temperature evidence stays BLOCKED. **No powered execution is
+  authorized by this decision.** Applied: `bench-gates/BG-03_phase_b_first_power.md` (thermal-check paragraph, evidence list, STOP section,
+  evidence-tree entry).
+- **DR3-2 RULED and APPLIED.** Confirm **9 dB GAIN** as the intended shipped MAX98357A hardware configuration before soldering; use the 9 dB
+  shipped configuration for power/current reasoning where defensible; do NOT treat the datasheet's 12 dB specification point as the shipped
+  configuration; before permanent soldering, verify the actual board's GAIN implementation/pad mapping against the exact article/datasheet (the
+  fitted part is a generic AliExpress "MAX98357A I2S amplifier 1PCS" — `HARDWARE_INVENTORY.md`:97, `w17-control-fw/docs/bill_of_materials_v2.md`:69
+  — do not assume the Adafruit pinout). Applied: `bench-gates/tools/first_power_current_limits.md` (L13, T7, T11), `bench-gates/BG-03_phase_b_first_power.md`
+  (S4 row, Q6), `bench-gates/BG-04_d8_bench_bringup.md`:143, `bench-gates/MISSING_THRESHOLDS.md` §4. Pre-solder pad-mapping check queued as a
+  no-power physical action: `W17_PROCUREMENT_AND_PHYSICAL_ACTIONS.md` "Physical actions that need no purchase", item 11.
+- **DR3-3 RULED as an owner CHECK — answer OPEN, the single open owner question of this round.** Determine whether the owner owns (a) a contact
+  temperature probe, or (b) a multimeter with a K-type thermocouple input + probe. If yes: record the exact instrument and incorporate it into S5
+  evidence capture. If no: add suitable contact temperature measurement to CHECK/BUY and keep quantitative heatsink temperature evidence
+  **BLOCKED**. Do not invent surface temperature. Applied (status only; the answer itself is still pending):
+  `W17_PROCUREMENT_AND_PHYSICAL_ACTIONS.md` row 14.
 
 ## MUST-NOT-LOSE QUEUE (owner instruction 2026-09-05)
 5 GHz AP-capable USB Wi-Fi adapter (gift kit, one unit — BUY NOW) · in-envelope 2S car battery (BUY NOW) · GCS-box USB 3.x hub (BUY NOW) · boot-mode selector (BUY NOW) ·
-OP-49/IP2326 closure + charge-path parts (WAIT→WORK: evidence list before any powered charge test) · TX16S internal-RF check → backup-handset decision · coupon C-1 (print) · **bench PSU + UBEC identification (DR2-3/DR2-4 — the two answers that unblock the whole first-power staircase)** ·
+OP-49/IP2326 closure + charge-path parts (WAIT→WORK: evidence list before any powered charge test) · TX16S internal-RF check → backup-handset decision · temperature-measurement capability check (DR3-3 — owner CHECK, answer OPEN) · coupon C-1 (print) · **bench PSU + UBEC identification (DR2-3/DR2-4 — the two answers that unblock the whole first-power staircase)** ·
 Windows ARM VM (disk → Fusion → ISO → bootstrap) · no-power measurement sitting (pack delivered).
 
 ## LATER / POLISH
