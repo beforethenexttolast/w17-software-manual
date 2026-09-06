@@ -606,12 +606,28 @@ claiming the DS3235SG stalls at 3.9 A — that figure is **uncited and states no
 while the manufacturer's own datasheet gives 1.9 / 2.1 / 2.3 A at 5 / 6 / 7.4 V. Family
 figures are refused, not discounted.
 
-**Owner decisions this subsection is waiting on:** the bench PSU's identity and minimum
-settable limit; the UBEC's make/model **and BEC#2's set output voltage**; whether the first
-energisation uses the PSU rather than the pack and whether the ESC feed can be separated for
-S0–S9 (an A2 gate S6 topology change — re-run A2 rows P2/P4/P5 before and after); the S1/S2
-and S7/S8 ramp ceilings; and the constant-current duration criterion for a connect. See
-`bench-gates/tools/first_power_current_limits.md` row T11 and
+**Owner decisions this subsection is waiting on — all ten of them** (Q1–Q9 and Q10′ of the
+derivation report's §5; none is answered, and none may be filled in from a family figure):
+
+1. **Q1** — the bench PSU's identity and its minimum settable current limit.
+2. **Q2** — the UBEC's make/model **and BEC#2's set output voltage** (5 V or 6 V).
+3. **Q3** — whether the first energisation uses the PSU rather than the pack, and whether the
+   ESC feed can be separated for S0–S9 (an A2 gate S6 topology change — re-run A2 rows
+   P2/P4/P5 before and after, and record it).
+4. **Q4** — the S1/S2 ramp ceiling (after the no-power look at the MH-ET regulator marking).
+5. **Q5** — the RF power/mode the BL-M8812EU2 will actually run at. Until it is named, S5
+   carries the module's own §1.3 rated maximum, 1800 mA.
+6. **Q6** — the shipped `sound.volume`, and whether the speaker is confirmed 4 Ω.
+7. **Q7** — the blower's actual part number (the BOM names a class, not a part).
+8. **Q8** — the S7/S8 ramp ceiling.
+9. **Q9** — the constant-current duration criterion for a connect.
+10. **Q10′ — the Wi-Fi heatsink decision**, which gates **this very card**: the fitted heatsink
+    is 28×28×3 mm against the module datasheet's *"≧ 32*32mm"* recommendation, and the
+    project's own rule is *"heatsink **fitted before first power-on**"*
+    (`learning-manual/05_control_firmware_documentation_explained.md`:362), which is what this
+    card is.
+
+See `bench-gates/tools/first_power_current_limits.md` row T11 and
 `_handoff/2026-09-06_O6_derivation_report.md` §5.
 ```
 
