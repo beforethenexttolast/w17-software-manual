@@ -71,9 +71,14 @@ limit.
 > 5 A rail figure into a pack-side supply would permit roughly 7 A of rail current at a high
 > efficiency: 40 % above the rating it is meant to protect.
 
-**The margin, named:** *M-PEAK* — take each load's manufacturer **Max/peak** figure (never
-Typ) and the LED model's **stated upper bound** (never its actual draw); add no percentage.
-A percentage would be an invented number; the typ→max gap is the manufacturer's own worst
+**The margin, named:** *M-PEAK* — **RATIFIED 2026-09-06 (DR2-2).** Owner ruling, verbatim: "for
+each load take the manufacturer's **Max/peak** figure (never Typ) and the LED model's **stated
+upper bound** (never its actual draw); add no percentage" — i.e. use explicitly
+manufacturer-specified **MAXIMUM / PEAK** values; add **0 % invented percentage margin**; never
+substitute typical/nominal/search-snippet values for peak; an **unresolved max remains
+unresolved** (it is not filled in from a family figure); the manufacturer max is **design
+evidence, NOT measured actual current** — real bench measurements remain authoritative once
+taken. A percentage would be an invented number; the typ→max gap is the manufacturer's own worst
 case and it carries a citation. **Direction:** a limit is a fuse, so *lower* is more
 protective; M-PEAK exists so the limit is not set below a healthy draw, and a datasheet
 figure that is a **requirement on the supply** (the Wi-Fi module's "Peak current ≥1800mA",
