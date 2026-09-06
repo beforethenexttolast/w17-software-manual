@@ -170,7 +170,12 @@ ruled in advance and it cannot be measured by a script.
 **BENCH-TBD** for §2. §1 is now **RULED 2026-09-05 (Decision Round 1, D-4)** — no longer
 "BLOCKED on an owner ruling" — **except O-6's per-substep starting amperage: the derivation it
 called for was done on 2026-09-06 (v2, after review R-O6) and every substep came back BLOCKED**,
-now on named Decision Round 2 questions rather than on the derivation. **DERIVED** for the
+now on named Decision Round 2 questions. **Decision Round 2 (2026-09-06 evening) progress:**
+the margin policy (DR2-2), the PSU-first/ESC-separation topology (DR2-5) and the
+constant-current duration criterion (DR2-11) are now RATIFIED/RULED rather than open — **every
+substep still ends BLOCKED**, because no absolute limit is settable without the bench PSU's and
+the UBEC's identities (DR2-3/DR2-4), now consolidated onto the owner's photo/label packet
+(`W17_OWNER_PHOTO_LABEL_INTAKE.md`) alongside DR2-6/DR2-9/DR2-10. **DERIVED** for the
 `maxBrightness ≤ 227` ceiling, and for the four parts' figures at
 `bench-gates/tools/first_power_current_limits.md` L11–L15. Nothing on this page has been *measured*; §1's
 rulings have been applied into the cards (see §1 above), and §2 remains untouched by a bench.
