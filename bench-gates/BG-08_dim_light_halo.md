@@ -237,9 +237,17 @@ The *numbers* are compile-time facts; the *verdict* is a human judgement. Both b
 >
 > **This card does not change firmware.** The SHIPPED default remains `maxBrightness = 110`
 > (`w17-soundlight-fw/lib/lights/include/lights/LightRenderer.hpp`:152, verified this session).
-> Moving the shipped value from 110 to (up to) 180 is a queued `w17-soundlight-fw` change that
-> needs its own reviewed branch and a fresh grant to land; it is not authorised by this card or by
-> the D-4 ruling, which sets the *acceptable operating cap*, not a directive to ship it today.
+>
+> **RULED 2026-09-06 (DR2-13): KEEP shipped `maxBrightness = 110`.** 180 is only the
+> owner-approved **upper operating ceiling** — the value the bench *may* raise to under the
+> conditions above, not the shipped default. There is **no firmware-change branch now**; moving
+> the shipped value from 110 toward 180 is not queued, and is not authorised by this card or by
+> the D-4/DR2-13 rulings, which set the *acceptable operating cap*, not a directive to ship it.
+> Revisit only after physical halo/visibility/current/rail evidence from **this gate**
+> demonstrates 110 is inadequate. Any increase, if later justified, remains a reviewed
+> `w17-soundlight-fw` firmware change on its own branch, requiring a **fresh push grant** to
+> land — the same requirement the earlier wording already carried, restated as a ruling rather
+> than an open question.
 
 ## Stop conditions
 
