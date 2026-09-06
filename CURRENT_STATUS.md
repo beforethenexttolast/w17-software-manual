@@ -18,9 +18,11 @@ queued firmware change, shipped `maxBrightness` still 110, needs its own reviewe
 (Windows-validation harness a80236e + race-day `W17T` timing lines 2f2690a; 1693 tests; CI 34025390463 green); iPhone_rc main `7aaf2cf`
 (unchanged); mapper `w17-headtrack` `aa7fb7d` (`tools/host-precheck` DS4 pre-check behind the `hostprecheck` tag + FORK-NOTICE §5(a) row;
 pushed through the pre-push hook; release run 34025673144 green (build-windows-amd64 success; artifact w17-mapper-windows-amd64 17.9 MB uploaded)); 3d-codex main `8889323` (measurement-sitting pack + cad-prep
-ingest/coupons; render 17/0; 26 ingest tests). **PUSH GRANT CLOSED — D-6 was one-time and is CONSUMED.** In flight without a grant:
-D-4 thresholds applied into the gate cards on `offline/d4-thresholds` (Sonnet, independent verify pending) and the O-6
-starting-current-limit derivation (Opus report; non-derivable substeps become owner questions, never numbers). **No hardware; nothing
+ingest/coupons; render 17/0; 26 ingest tests). **PUSH GRANT CLOSED — D-6 was one-time and is CONSUMED.** Since then (afternoon, on workspace branch **`program/offline-readiness-r2`**, NOT pushed — grant closed): D-4 thresholds applied into
+the gate cards (`offline/d4-thresholds` c428196, one fix loop, VERIFIED) and the O-6 starting-current-limit derivation (`offline/o6-derivation`
+56a563e, two fix loops, VERIFIED): **all 15 first-power substeps BLOCKED** on two facts no document holds — the bench PSU's identity/minimum
+limit and the UBEC's make/model — plus manufacturer figures now cited (Wi-Fi module 1800 mA max, servo stall 2.1 A at 6 V, amp ≥ 640 mA driven,
+Rail A floor ≥ 3000 mA of 5 A). **Decision Round 2 is OPEN** in `W17_OWNER_ACTIONS.md` (DR2-1 grant for r2 … DR2-14 Wi-Fi heatsink 28×28 vs ≥ 32×32). **No hardware; nothing
 flashed or powered; A2 stays NOT-EXECUTED, Phase B stays BLOCKED, FIRST_ACTIVE NO-GO; `u4-arbiter` `4e445c9` never pushed.**
 Prior pass, **2026-09-04 (readiness program CLOSED — software ready except assembly and bench)** —
 compact state: **`W17_CURRENT_STATE.md`**; evidence: `closeout/baseline-2026-09-04.md` and
