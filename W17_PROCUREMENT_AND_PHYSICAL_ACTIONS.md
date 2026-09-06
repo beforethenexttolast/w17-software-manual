@@ -200,7 +200,7 @@ scope for an unattended or no-power session).
     VDD = **6 dB**, 100 kΩ to GND = **15 dB**, 100 kΩ to VDD = **3 dB** (Maxim Integrated
     *MAX98357A/MAX98357B* datasheet, Gain Selection table, retrieved 2026-09-06). Confirm the
     fitted board — a generic AliExpress "MAX98357A I2S amplifier 1PCS" (`HARDWARE_INVENTORY.md`:97,
-    `w17-control-fw/docs/bill_of_materials_v2.md`:69) — actually implements this pad mapping before
+    `w17-control-fw/docs/bill_of_materials_v2.md`:69-70) — actually implements this pad mapping before
     assuming the Adafruit pinout; 9 dB (floating) is CONFIRMED (DR3-2) as the intended shipped
     configuration, but the pad mapping itself is unverified against this exact article. No power.
     Source: `2026-09-06_offline_decision_round_3.md` **DR3-2**.

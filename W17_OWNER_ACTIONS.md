@@ -81,7 +81,7 @@ record file).
 - **DR3-2 RULED and APPLIED.** Confirm **9 dB GAIN** as the intended shipped MAX98357A hardware configuration before soldering; use the 9 dB
   shipped configuration for power/current reasoning where defensible; do NOT treat the datasheet's 12 dB specification point as the shipped
   configuration; before permanent soldering, verify the actual board's GAIN implementation/pad mapping against the exact article/datasheet (the
-  fitted part is a generic AliExpress "MAX98357A I2S amplifier 1PCS" — `HARDWARE_INVENTORY.md`:97, `w17-control-fw/docs/bill_of_materials_v2.md`:69
+  fitted part is a generic AliExpress "MAX98357A I2S amplifier 1PCS" — `HARDWARE_INVENTORY.md`:97, `w17-control-fw/docs/bill_of_materials_v2.md`:69-70
   — do not assume the Adafruit pinout). Applied: `bench-gates/tools/first_power_current_limits.md` (L13, T7, T11), `bench-gates/BG-03_phase_b_first_power.md`
   (S4 row, Q6), `bench-gates/BG-04_d8_bench_bringup.md`:143, `bench-gates/MISSING_THRESHOLDS.md` §4. Pre-solder pad-mapping check queued as a
   no-power physical action: `W17_PROCUREMENT_AND_PHYSICAL_ACTIONS.md` "Physical actions that need no purchase", item 11.
