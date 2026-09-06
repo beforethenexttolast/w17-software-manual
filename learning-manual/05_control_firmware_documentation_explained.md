@@ -358,8 +358,12 @@ printed yet*. All-in ≈ $500.
 
 **[C]** items; concept explanations **[I]** where marked:
 
-- **Video:** the camera "has no radio" — the **BL-M8812EU2 USB WiFi module** provides
-  the 5.8 GHz AP; it "runs hot" → dedicated heatsink *fitted before first power-on*.
+- **Video:** the camera "has no radio" — the **BL-M8812EU2 USB WiFi module** carries the
+  5 GHz video link, **joining the ground-station box's hosted Mobile Hotspot as a station**
+  (the box's dual-band adapter is the AP, not the car — `w17-gcs-box-guide.md` §5, :190-199,
+  and its 2026-08-17 Addendum, :281-291; corrected 2026-09-06, this line previously said the
+  module *provides* the AP); it "runs hot" → dedicated heatsink *fitted before first
+  power-on*.
   The **FT232RL USB-UART** is dual-purpose: camera console/flash *and* the PC↔ELRS-TX
   CRSF link (set its 3.3 V jumper — FT232 boards can output 5 V or 3.3 V logic;
   everything here is 3.3 V).

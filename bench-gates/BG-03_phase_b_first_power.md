@@ -160,7 +160,7 @@ documented band is **5–6 V** (`D8_BENCH_BRINGUP.md`:55; this card's sibling
 customer-added cooling — §3.1: *"This module built-in high-power FEMs will generate more heat … additional heat dissipation
 devices must be added by customers. Ensure that the junction temperature of module chipset is within rated value:
 Tj<125℃"* — and §6.4 recommends a heat sink *"≧ 32*32mm"* against the fitted 28×28×3 mm. The project rule *"heatsink fitted
-before first power-on"* (`learning-manual/05_control_firmware_documentation_explained.md`:362) is unchanged and is a
+before first power-on"* (`learning-manual/05_control_firmware_documentation_explained.md`:365-366) is unchanged and is a
 **precondition of this card**, not this step. **Nothing in this paragraph authorises powering anything**; it says what to
 record if and when the S5 substep is reached under an already-open Phase B.
 
@@ -328,7 +328,7 @@ figure):
 10. **Q10′ — DR2-14 RULED 2026-09-06 — the Wi-Fi heatsink decision**, which gates **this very card**: the fitted heatsink
     is 28×28×3 mm against the module datasheet's *"≧ 32*32mm"* recommendation, and the
     project's own rule is *"heatsink **fitted before first power-on**"*
-    (`learning-manual/05_control_firmware_documentation_explained.md`:362), which is what this
+    (`learning-manual/05_control_firmware_documentation_explained.md`:365-366), which is what this
     card is. Owner ruling, verbatim: "do not deliberately ship below the module manufacturer's
     recommendation. Plan to source a ≥ 32×32 mm heatsink if mechanical clearance permits. A
     somewhat larger part is acceptable/preferred if it fits without creating mechanical, RF or

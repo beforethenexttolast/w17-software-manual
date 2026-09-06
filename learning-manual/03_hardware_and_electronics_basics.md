@@ -218,10 +218,14 @@ whole project treats every input as potentially lying.
 
 The OpenIPC camera is a tiny Linux computer with an image sensor; it has **no radio**.
 A separate USB WiFi module (BL-M8812EU2) is soldered to it by four joints (USB D+, D−,
-GND, and 5 V from clean Rail A) and creates the 5.8 GHz access point the laptop joins.
+GND, and 5 V from clean Rail A) and **joins, as a client (a "station"), the 5 GHz Mobile
+Hotspot that the ground-station box hosts** — the box's own dual-band USB adapter is the
+access point, not the car. (Corrected 2026-09-06: this paragraph used to say the car
+module *creates* the AP, which the 2026-08-17 topology decision reversed.)
 Rules that protect it: antennas connected **before** power (a transmitter with no
 antenna can burn its output stage), heatsink fitted before first power-on. **[C]** atlas
-ELEC-06; BOM §A.1. The camera runs hot enough to need a small blower fan + printed duct
+ELEC-06; BOM §A.1; topology per `w17-gcs-box-guide.md` §5 (:190-199) and its
+2026-08-17 Addendum (:281-291). The camera runs hot enough to need a small blower fan + printed duct
 (BOM §13, `print_spec_v2.md`).
 
 ## Confirmed vs inferred
