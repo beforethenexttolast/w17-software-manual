@@ -145,6 +145,7 @@ the main checkout; no branch or worktree detour is needed to reach them.
 | [`bench-gates/tools/bench_capture.sh`](bench-gates/tools/bench_capture.sh) | evidence folder + env/HEAD stamp + read-only timestamped serial capture + sha256 manifest | none | `--no-serial` needs none; the serial half is **Phase B** |
 | [`bench-gates/tools/pdb_continuity_sheet.md`](bench-gates/tools/pdb_continuity_sheet.md) | no-power multimeter worksheet using A2's own row IDs | none | a multimeter |
 | [`bench-gates/tools/first_power_current_limits.md`](bench-gates/tools/first_power_current_limits.md) | what the documents fix, and the **13 rows that still have no settable number** — T1–T10 THRESHOLD MISSING, T11–T13 re-stated BLOCKED-with-reasons by the O-6 derivation (2026-09-06), which also added five figure rows (L11–L15) covering four parts, all of them **5 V rail-side, never a PSU setting** | none | — |
+| [`bench-gates/tools/O6_V3_PACKET_BRIEF.md`](bench-gates/tools/O6_V3_PACKET_BRIEF.md) | the ready-to-run worker brief for the O-6 v3 derivation once the owner's photo/label packet arrives — intake ledger template, cell map, worker chain, adversarial pre-checks | none | — |
 | [`MISSING_THRESHOLDS.md`](MISSING_THRESHOLDS.md) | the **single deduplicated list** of all **27** missing numbers across both card sets: **7** the owner can rule today, **20** a bench must measure | none | — |
 
 The `G-*` cards bring four more tools into the same directory — `latency_rig.html`,
