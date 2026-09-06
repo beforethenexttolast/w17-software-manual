@@ -194,15 +194,86 @@ scope for an unattended or no-power session).
 10. **Confirm on-hand JST-XH / XT30 connector counts against the harness build's needs** (CHECK
     IF I ALREADY HAVE #1) before the stage-2 harness-build session starts, so a mid-build supply
     gap doesn't stall a soldering sitting. Source: `w17-parts-arrival-build-prompt.md:24`.
-11. **Pre-solder MAX98357A GAIN pad-mapping check (no power) — DR3-2.** Before permanently
-    soldering the amp board, visually/continuity-check the `GAIN_SLOT` strap pad against the
-    manufacturer's own Gain Selection table: `GAIN_SLOT` unconnected = **9 dB**, GND = **12 dB**,
-    VDD = **6 dB**, 100 kΩ to GND = **15 dB**, 100 kΩ to VDD = **3 dB** (Maxim Integrated
-    *MAX98357A/MAX98357B* datasheet, Gain Selection table, retrieved 2026-09-06). Confirm the
-    fitted board — a generic AliExpress "MAX98357A I2S amplifier 1PCS" (`HARDWARE_INVENTORY.md`:97,
-    `w17-control-fw/docs/bill_of_materials_v2.md`:69-70) — actually implements this pad mapping before
-    assuming the Adafruit pinout; 9 dB (floating) is CONFIRMED (DR3-2) as the intended shipped
-    configuration, but the pad mapping itself is unverified against this exact article. No power.
+11. **Pre-solder MAX98357A GAIN check (no power) — DR3-2.** Before the amp board is permanently
+    soldered, establish what gain the **fitted** board actually implements. **Every step below is
+    unpowered:** the board is out of circuit, the car is unpowered and the battery is disconnected
+    throughout. Nothing here authorises power, and nothing here authorises soldering.
+
+    **The manufacturer's own Gain Selection table** — Maxim Integrated *MAX98357A/MAX98357B*,
+    document 19-6779 Rev 7 (2/16), **Table 8**, corroborated by the Electrical Characteristics
+    *"Gain (Relative to a 2.1dBV Reference Level)"* rows: `GAIN_SLOT` **unconnected = 9 dB**
+    (guaranteed band **8.4 / 9 / 9.6 dB** min/typ/max), **GND = 12 dB**, **VDD = 6 dB**, **100 kΩ
+    to GND = 15 dB**, **100 kΩ to VDD = 3 dB**. `GAIN_SLOT` is **WLP ball B2 / TQFN pin 2**.
+    The pin is **not** a logic input: it is read by a five-window comparator against fractions of
+    VDD — datasheet *"GAIN_SLOT COMPARATOR TRIP POINTS"*, verbatim: *"AV = 3dB gain 0.65 x VDD …
+    0.85 x VDD · AV = 6dB gain 0.9 x VDD … VDD · AV = 9dB gain 0.4 x VDD … 0.6 x VDD · AV = 12dB
+    gain 0 … 0.1 x VDD · AV = 15dB gain 0.15 x VDD … 0.35 x VDD"*. **So any resistor on the GAIN
+    net shifts the pin's own internal bias and changes the setting: "floating at the header" does
+    NOT mean "unconnected at the IC pin", and a board carrying its own 100 kΩ pulldown ships at
+    15 dB — 6 dB hot, four times the output power.** (Every datasheet line quoted here is
+    reproduced with its extract line number in `_handoff/2026-09-06_DR3-2_9dB_derivation.md` §1.)
+
+    **A continuity beeper cannot do this check.** It typically closes below ~50 Ω and reads a
+    100 kΩ resistor as **open**, so it cannot tell **unconnected (9 dB)** from **100 kΩ to GND
+    (15 dB)** — the exact confusion DR3-2 exists to prevent.
+
+    **(a) Look — magnified, both sides.** Photograph the IC top marking under magnification and
+    both sides of the board at full resolution, including the header silkscreen (record the
+    package too: 1.345 × 1.435 mm WLP vs 3 × 3 mm TQFN). Trace the GAIN pad/pin net: is there any
+    chip resistor, zero-ohm link or solder-jumper pad pair on it, and is any jumper **bridged as
+    shipped**? Read and record any resistor's printed code (`104` = 100 kΩ, `103` = 10 kΩ, `000`
+    or `0` = a zero-ohm link). Some generic boards do not bring GAIN out at all — then the header
+    is irrelevant and only the PCB decides. **Unreadable or absent marking is valid evidence** and
+    leaves the part identity BLOCKED.
+
+    **(b) Measure resistance — meter in ohms, highest range, board out of circuit and unpowered.**
+    Measure **GAIN ↔ GND** and **GAIN ↔ VDD/5 V pad**, and repeat **both with the probes reversed**
+    (both polarities — the pin's protection structures are not symmetric, so a single-polarity
+    reading can mislead). Record **all four numbers**, the meter model and the range. Compare:
+    - **both readings high (order 10⁵ Ω) and roughly equal, in both polarities ⇒ consistent with
+      unconnected = 9 dB**;
+    - **≈ 0 Ω to GND ⇒ 12 dB**; **≈ 0 Ω to VDD ⇒ 6 dB**;
+    - **≈ 100 kΩ to GND *and clearly lower than the reading to the other rail* ⇒ 15 dB**;
+    - **≈ 100 kΩ to VDD *and clearly lower than the reading to the other rail* ⇒ 3 dB**.
+    The *"clearly lower than the other rail"* qualifier is load-bearing: the IC's own internal bias
+    network also reads in the 10⁵ Ω decade, so a genuine 9 dB board and a 15 dB board are separated
+    by the **asymmetry between the two rails**, not by the decade.
+
+    **(c) Diode mode — OPTIONAL, and only with a meter whose diode-test source is current-limited
+    (≈ 1 mA).** GND(−)→GAIN(+), then GAIN(−)→VDD(+); record both. It separates a hard short
+    (0.000 both ways **and** ≈ 0 Ω in (b)) from a normal ESD-protected pin. **Caveat:** with the
+    board unpowered this momentarily places the pin outside the datasheet's Absolute Maximum
+    *"All Other Pins to GND … -0.3V to (VDD + 0.3V)"*, though well inside its *"Continuous Input
+    Current (all other pins) … ±20mA"* rating; and on a board with bulk capacitance the VDD-side
+    reading may rise slowly rather than settle, which is not a fault. **If either condition is not
+    met, skip (c)** — (a) and (b) are the check.
+
+    **(d) Agreement rule.** An in-circuit resistance reading is the parallel combination of
+    everything on the net plus the IC's own protection structures, so it is corroboration, not
+    proof. **The visual result (a) and the electrical result (b) must agree.** If they disagree, or
+    if any step cannot be answered, the gain configuration stays **BLOCKED**.
+
+    **Outcome rule — what to do with what is found. Any resistor, jumper, solder bridge or trace
+    on the GAIN net other than an open header pad means the board does NOT ship at 9 dB as fitted:
+    DO NOT SOLDER.** Record what was found — the measured value and **to which rail** — and the
+    datasheet row it selects. **9 dB is the *intended* shipped configuration (DR3-2); making the
+    board implement it is a build action, not an assumption.** The shipped 9 dB then requires
+    either the GAIN net brought to *"unconnected at the pin"* as a documented change, or an owner
+    decision to ship at the gain the board actually implements — which would require re-deriving
+    every amplifier figure on `bench-gates/BG-03_phase_b_first_power.md` S4 and
+    `bench-gates/tools/first_power_current_limits.md` L13/T7 at that gain. **Smallest specific
+    question to return if it is not an open pad:** *"On the fitted MAX98357A board, what sits on
+    the GAIN net — component code and to which rail — and what are the four GAIN↔GND / GAIN↔VDD
+    resistance readings?"*
+
+    The fitted board is a generic AliExpress "MAX98357A I2S amplifier 1PCS"
+    (`HARDWARE_INVENTORY.md`:97, `w17-control-fw/docs/bill_of_materials_v2.md`:69-70) with **no
+    published schematic in any project document** — so do not assume the Adafruit pinout; 9 dB
+    (`GAIN_SLOT` unconnected) is CONFIRMED (DR3-2) as the *intended* shipped configuration, but the
+    pad mapping itself is unverified against this exact article. **No power at any step.**
+    *(While the board is out, photograph the `SD_MODE` net too —
+    `w17-soundlight-fw/lib/config/include/config/PinMap.hpp`:20-22 assumes it is strapped high for
+    the (L+R)/2 output. That is outside DR3-2, but it is the same trip.)*
     Source: `2026-09-06_offline_decision_round_3.md` **DR3-2**.
 
 ---
