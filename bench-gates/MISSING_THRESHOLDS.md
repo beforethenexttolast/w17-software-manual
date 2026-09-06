@@ -36,8 +36,9 @@ list.
 | O-7 | RULED: initial maxBrightness cap = 180 (operating target); may be reduced at the halo gate; no raise above 180 without halo/current/rail evidence + new ruling; 227 stays the compile ceiling only (BG-08) |
 
 Applied into the cards on 2026-09-06 (branch `offline/d4-thresholds`): G-02 (O-1), G-04
-(O-2..O-5), BG-08 (O-7), BG-03 + `tools/first_power_current_limits.md` T11 (O-6 policy). The
-O-6 **starting values were then derived** on branch `offline/o6-derivation` (same day, v2 after
+(O-2..O-5), BG-08 (O-7), BG-03 + `bench-gates/tools/first_power_current_limits.md` T11
+(O-6 policy). The O-6 **starting values were then derived** on branch
+`offline/o6-derivation` (same day, v2 after
 review R-O6) and transcribed into BG-03's "Starting current limits" subsection and into T11–T13
 / L11–L15: **no substep gained a settable starting amperage**, and what each one is blocked on
 is now named. See `_handoff/2026-09-06_O6_derivation_report.md` §5 for the owner questions.
@@ -77,8 +78,8 @@ the only one that needs real thought, and it is the one that unblocks first powe
 
 ### 2a. Car-side current — 12 rows, all of `bench-gates/tools/first_power_current_limits.md` §T except T11
 
-No per-load current figure for the car's rails exists anywhere: not in
-`HARDWARE_INVENTORY.md`, not in `w17-control-fw/docs/bill_of_materials_v2.md`, not in
+No per-load current figure for the car's rails existed anywhere when these rows were written:
+not in `HARDWARE_INVENTORY.md`, not in `w17-control-fw/docs/bill_of_materials_v2.md`, not in
 `00_BUILD_SHEET.md`, not in any workspace `*.md`. The only per-device 5 V figures in the
 project are **ground-side** (`w17-gcs-box-guide.md`:135-139), and they are the template these
 rows should follow: a cited figure, an `[A]`/`[I]` evidence tag, and a stated decision
@@ -87,8 +88,9 @@ threshold.
 **Update 2026-09-06 (O-6 derivation v2, after review R-O6):** the derivation
 (`_handoff/2026-09-06_O6_derivation_report.md`) has since cited figures for **four parts** — the
 Wi-Fi module (BL-M8812EU2), the amplifier (MAX98357A), the steering servo (DS3235SG) and the LED
-strip — at `tools/first_power_current_limits.md` rows **L11–L15** and in T11. **Every one of
-them is a 5 V rail-side allowance, not a bench-PSU setting**, and **not one of the 12 rows below
+strip — at `bench-gates/tools/first_power_current_limits.md` rows **L11–L15** and in T11.
+**Every one of them is a 5 V rail-side allowance, not a bench-PSU setting**, and **not one of
+the 12 rows below
 gained a settable number**: T1–T10 stay THRESHOLD MISSING and T12/T13 are now BLOCKED with their
 reasons named. The parts behind T1, T5, T6, T8 and T9 (ESP32 boards, MG90S, blower, RP1) still
 have **no manufacturer or code figure at all**.
@@ -170,6 +172,6 @@ ruled in advance and it cannot be measured by a script.
 called for was done on 2026-09-06 (v2, after review R-O6) and every substep came back BLOCKED**,
 now on named Decision Round 2 questions rather than on the derivation. **DERIVED** for the
 `maxBrightness ≤ 227` ceiling, and for the four parts' figures at
-`tools/first_power_current_limits.md` L11–L15. Nothing on this page has been *measured*; §1's
+`bench-gates/tools/first_power_current_limits.md` L11–L15. Nothing on this page has been *measured*; §1's
 rulings have been applied into the cards (see §1 above), and §2 remains untouched by a bench.
 Recording a gap is not closing it.
