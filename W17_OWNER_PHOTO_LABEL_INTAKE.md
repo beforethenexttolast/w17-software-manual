@@ -13,7 +13,8 @@ where they are; also paste the readable text of every label into the reply so it
 
 **What happens when the packet arrives.** A worker extracts every defensible fact (exact part identities, manufacturer figures), updates the
 component identities in `HARDWARE_INVENTORY.md`-adjacent state, and re-runs the O-6 starting-current-limit derivation (v3) on a new branch:
-Opus derive → Opus adversarial review → fix → fresh verify. Numbers that still cannot be derived from what you send stay BLOCKED and come
+Opus derive → Opus adversarial review → fix → fresh verify. The worker brief is
+`bench-gates/tools/O6_V3_PACKET_BRIEF.md`. Numbers that still cannot be derived from what you send stay BLOCKED and come
 back to you as the smallest specific question. Nothing is powered as a result of this packet.
 
 ## The seven items
