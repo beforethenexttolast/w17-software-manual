@@ -67,7 +67,11 @@ including the phases BG-03 deliberately does not cover: Phase 0, Phase 3b, Phase
 2. **Phase 1 — power-rail smoke.** **Re-confirm the Phase -1 gate first — this is the first battery
    connection of the bring-up** (D8:51-53). Battery → XT60 Y-split → ESC + BEC#1 + BEC#2. Confirm
    **BEC#1 ≈ 5 V** and **BEC#2 ≈ 5–6 V under a light load, before connecting the ESP32s**. Confirm
-   no rail sag/brownout when a servo moves.
+   no rail sag/brownout when a servo moves. **Note (O-6 derivation, 2026-09-06):** see BG-03's
+   "Starting current limits" subsection — a battery has no settable current limit
+   (`_handoff/2026-09-06_O6_derivation_report.md` §3.3), and BG-03:40 (bench PSU permitted) vs
+   this line, D8:55 (battery-only), is an open doc conflict awaiting owner Q3; no gate state
+   here changes.
 3. **Phase 2 — ELRS link, no actuators.** Bind RP1 + ES24TX Pro (+ TX16S backup) at the **same
    major.minor and the same bind phrase**. **Set RP1 failsafe mode to "No Pulses"** — "Set Position"
    defeats the frame-timeout failsafe (D8:63-64). Serial-dump the CRSF output: **420000 8N1, not
