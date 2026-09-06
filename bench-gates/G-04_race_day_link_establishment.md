@@ -105,7 +105,7 @@
 > outcome kinds the giftee is shown. Part A is where the constant is settled; Part B is
 > where the wording is checked.
 
-**Part A — cold-start link latency, five runs.**
+**Part A — cold-start link latency, five runs (RULED 2026-09-05, D-4 O-4: five cold runs, accepted).**
 
 1. Reboot Windows. This is a *cold* measurement: the question is how long a cold Go
    binary takes to enumerate SDL and open the FTDI port **behind an AV scan**
@@ -334,15 +334,15 @@ halted.
 | # | Criterion | PASS | FAIL |
 |---|---|---|---|
 | 1 | Cold link latency | **all five** cold runs `≤ 5000 ms` | any cold run `> 5000 ms` — the constant is too small for this machine; report the max and the spread |
-| 2 | Margin | worst cold run leaves **≥ 1000 ms** headroom (i.e. `≤ 4000 ms`) | headroom under 1000 ms ⇒ the constant is technically met but marginal; recommend a value, do not choose one |
-| 3 | Spread | max − min across the five cold runs `≤ 2000 ms` | a wider spread means one number cannot characterise this machine; report the distribution |
+| 2 | Margin (RULED 2026-09-05, D-4 O-2: 1000 ms minimum headroom, accepted) | worst cold run leaves **≥ 1000 ms** headroom (i.e. `≤ 4000 ms`) | headroom under 1000 ms ⇒ FAIL — 1000 ms is the ratified minimum; report the max and the spread |
+| 3 | Spread (RULED 2026-09-05, D-4 O-3: 2000 ms maximum, accepted) | max − min across the five cold runs `≤ 2000 ms` | a wider spread ⇒ FAIL — one number cannot characterise this machine; report the distribution |
 | 4 | Warm run | recorded and labelled separately | quoted as if it were the cold number |
 | 5 | Truthful wording, radio up | DRIVE PROGRAM reads plain `running` (`raceDayView.mjs:71`) only when `up == true` | plain `running` while the port is shut |
 | 6 | Truthful wording, first bring-up with the serial unplugged | `link-not-yet` — *"running — the radio is not on yet, give it a moment"*, green, **sequence carries on** | `link-down` on a first bring-up (accuses a cable that is fine), or plain `running` |
 | 7 | Truthful wording, after the radio has been up this session | `link-down` — *"started, but the radio is not transmitting — check the cable …"*, and the **sequence halts** (OD-5) | anything softer |
 | 8 | Self-upgrade | a `link-not-yet` line becomes `running` when the radio answers, with **no second press** | it stays `link-not-yet` |
 | 9 | Idempotent re-press | each step re-verifies / no-ops; nothing is restarted | anything restarts |
-| 10 | STOP | button disappears **on the press**; the process is gone (Task Manager) | the button lags the child's exit, or an idle-looking card sits over a live process |
+| 10 | STOP lag (RULED 2026-09-05, D-4 O-5: ≤ 250 ms maximum; record the measured value alongside PASS/FAIL) | button disappears **on the press**, process gone (Task Manager), and the measured press→gone lag is **≤ 250 ms** — record the actual measured value regardless of outcome | measured lag **> 250 ms**, or the button lags the child's exit, or an idle-looking card sits over a live process |
 | 11 | External kill | the card mirrors the death with no press | it keeps claiming the drive program is up |
 | 12 | Argv | exactly `-config-file-path <profile>`, from race day's own builder | any additional flag, ever |
 
@@ -358,13 +358,15 @@ halted.
 *(Folded under PASS / FAIL, as on every other card, rather than standing as a fourteenth
 top-level heading.)*
 
+**O-2 (headroom, 1000 ms), O-3 (spread, 2000 ms), O-4 (five cold runs) and O-5 (STOP lag,
+250 ms) were RULED 2026-09-05 (Decision Round 1, D-4) and are no longer missing — they are
+now the PASS/FAIL numbers in criteria 2, 3 and 10 above, and the run count fixed in *Exact
+procedure*, Part A.** One item remains genuinely open, because it is a bench measurement
+and not a ruling:
+
 | Missing number | Where the gap is | What this card does instead |
 |---|---|---|
-| The **acceptable** cold link latency (as distinct from the current 5000 ms *window*) | nothing states what is acceptable to a giftee; 5000 is explicitly unvalidated (`w17-ground-station/main/raceDayOrchestrator.js:89-96`) | measures against 5000, reports headroom and spread, and recommends nothing |
-| Minimum headroom | not recorded anywhere | criterion 2 proposes **1000 ms** as a *review* trigger, not as a standard; it is this card's suggestion and must be ratified or replaced |
-| Acceptable spread across cold runs | not recorded anywhere | criterion 3 proposes **2000 ms** on the same footing |
-| Acceptable STOP-button lag | `w17-ground-station/docs/setup_flow_bench_checklist.md:239` says "record any lag", no number | recorded, not judged |
-| How many cold runs constitute a characterisation | not recorded anywhere | five, chosen by this card; say so when reporting |
+| The **acceptable** cold link latency itself (as distinct from the current 5000 ms *window*, and distinct from the RULED headroom/spread criteria above) — **C2-2** | nothing states what is acceptable to a giftee; 5000 is explicitly unvalidated (`w17-ground-station/main/raceDayOrchestrator.js:89-96`) | measures against 5000, reports headroom and spread against the RULED O-2/O-3 numbers, and recommends nothing about `LINK_UP_WAIT_MS` itself |
 
 ## Stop conditions
 
