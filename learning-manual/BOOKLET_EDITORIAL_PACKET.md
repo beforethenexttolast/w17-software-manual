@@ -43,7 +43,7 @@ Commit: `2dae39b` on `offline/booklet-editorial` — `docs(booklet): retire stal
 
 ---
 
-## 2. Lines that could use the owner's ear (voice/tone, not facts)
+## 2. Lines that could use the owner's ear (voice/tone, not facts) — **RULED by the owner 2026-09-05 (Decision Round 1, D-5) and APPLIED in the booklet:** §4 → Alternative B (promise kept as one sentence; weekly-refresh caveat moved to a new section-9 row); §6 → Alternative B; §9 → Alternative B; §1 → Alternative A ("ping Vitaliy — happy to help"); §3 → left as-is. Verified technical facts remain authoritative.
 
 All five lines below are printed as *correct facts already* — nothing here is a
 correctness issue. These are the handful of spots in the booklet's later, orchestrator-

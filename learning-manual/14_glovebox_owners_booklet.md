@@ -78,7 +78,7 @@ You don't drive her from the outside like a toy car. You drive her **from the in
 - **The key.** A small plug with a loop — her ignition key. More on the key ritual in a moment.
 - **This booklet.** Lives wherever your glovebox is.
 
-**One note:** her companion app runs on your own computer — and her helmet view runs on your phone (section 4). Both were installed and set up when she was handed over, so they're ready to go. If you ever change computers or phones, ping Vitaliy — it's a five-minute job.
+**One note:** her companion app runs on your own computer — and her helmet view runs on your phone (section 4). Both were installed and set up when she was handed over, so they're ready to go. If you ever change computers or phones, ping Vitaliy — happy to help.
 
 ---
 
@@ -154,7 +154,7 @@ It's made for passengers, too: you drive from the computer while a friend holds 
 
 **The comforting part:** the phone is a window, never a steering wheel. It only ever *shows* things — it cannot steer her, rev her, or stop her, no matter what gets tapped. If the phone rings mid-drive or the app closes, nothing happens to her: you're driving with the controller, same as always.
 
-**One honest thing about the phone app:** think of it as a fun extra, not the main event. The computer screen is always there and always current — the pit crew keeps the phone app itself fresh behind the scenes (a little chore, done about once a week), so if it ever looks out of date or won't open, that's a known quirk of a phone app made just for her, not something you did. Drive from the computer screen in the meantime and ping the pit crew.
+**One honest thing about the phone app:** she's a fun extra, not the main event — the computer's always there and always right.
 
 ---
 
@@ -182,7 +182,7 @@ She talks to you with her lights. Here's the dictionary.
 | **Red bar at the back, dim** | Her tail light. Always on when she's awake. |
 | **Red bar at the back, bright** | Braking. |
 | **Amber blinkers, left or right** | Turn signals. They follow your steering — even while she's parked. |
-| **Green, right at the outer edges of the tail light** | Her rear wing is open. If she's braking or has stopped herself at the same moment, that always shows first. [TBD-at-bench: how bright and visible this actually reads on the finished car] |
+| **Green, right at the outer edges of the tail light** | Her rear wing is open. (Braking always shows first if both happen together.) [TBD-at-bench: how bright and visible this actually reads on the finished car] |
 | **Rapid white flashes at the back** | Her rain light, flashing while she recovers energy as she slows — exactly like the real cars do. A race-trim trick (section 3): if you're seeing it, you've graduated. |
 | **Slow red heartbeat on the halo** | Battery getting low. **Head home now, calmly.** She won't stop on her own — bringing her in is your job. The screen warns you too: first a calm low-battery note, then a serious one if you keep going. |
 | **The whole car blinking amber** | **She stopped herself on purpose.** Nothing is broken — see section 7 for the 30-second fix. |
@@ -254,7 +254,8 @@ If she stops by herself often in the same spot, that's a clue worth sharing — 
 | Key is in, but she won't wake up | Push the key fully home. If nothing, her battery is probably empty — key out, charge her. | Ping the pit crew |
 | Plugged in, but no charge light | Is the key **out**? Key out is the charging rule. Try another USB-C charger and check the plug is fully seated. | Ping the pit crew |
 | The app can't find her / no picture | Check the station box cable is plugged into the computer — that little box is her radio, and the picture rides on it. Close the app, open it, press RACE DAY again. | Ping the pit crew |
-| Controller does nothing | Reconnect the controller — she picks it right back up, so there's no need to close the app or start over. She always plays it safe though: a dropped controller switches her engine off, so wake it again with a fresh triangle press, same two-step as section 3. | Ping the pit crew |
+| Controller does nothing | A dropped controller switches her engine off, on purpose — just reconnect and give her a fresh triangle press (section 3's two-step). She picks the pad right back up; no need to close the app. | Ping the pit crew |
+| The phone app looks out of date or won't open | The pit crew keeps the phone app fresh behind the scenes (a little chore, done about once a week) — so that's a known quirk of a phone app made just for her, not something you did. Drive from the computer screen in the meantime. | Ping the pit crew |
 | Whole car blinking amber, won't drive | That's her safe-stop — section 7. Get a little closer, wait for the picture, restart the engine. | Ping the pit crew |
 | The halo breathes gently and never settles, and she's just sitting there | If the pit crew has ever turned on the shelf-show trick from section 5, that's it working exactly as built — not a fault. Ping the pit crew to switch her back to her everyday self. | Ping the pit crew |
 | Engine won't start (the two-step doesn't take) | Let go of **everything** — the trigger must be fully at rest first. Count to three, try again. | Ping the pit crew |
