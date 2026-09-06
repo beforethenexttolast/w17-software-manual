@@ -350,7 +350,7 @@ figure):
    datasheet (the fitted part is a generic AliExpress "MAX98357A I2S amplifier 1PCS" —
    `HARDWARE_INVENTORY.md`:97, `w17-control-fw/docs/bill_of_materials_v2.md`:69-70 — do not assume
    the Adafruit pinout). **Table 8 and the Electrical Characteristics gain rows agree exactly with
-   `PinMap.hpp`:20-24, and 9 dB is a typ whose guaranteed band is 8.4 … 9.6 dB** (DERIVED, DR3-2);
+   `PinMap.hpp`:20-24 on the three legs that header documents (unconnected 9 dB · GND 12 dB · VDD 6 dB); Table 8 adds the two 100 kΩ legs (to GND 15 dB · to VDD 3 dB) the header does not mention — and 9 dB is a typ whose guaranteed band is 8.4 … 9.6 dB** (DERIVED, DR3-2);
    an onboard 100 kΩ pulldown would ship the part at **15 dB**, which is what the pre-solder check
    (`W17_PROCUREMENT_AND_PHYSICAL_ACTIONS.md` item 11) exists to exclude. The datasheet's 3.2 W
    figure is published at **12 dB**, which is **NOT** the shipped configuration, so it is a
