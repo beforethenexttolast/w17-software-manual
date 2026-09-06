@@ -23,7 +23,7 @@ launching EXTRACT.
 - **No product-family assumptions.** An identified article's own datasheet, or nothing. A
   board-family datasheet, a marketplace listing's generic spec, or a "the same part probably
   behaves like X" inference are all refused, exactly as the v2 derivation refused them
-  (`_handoff/2026-09-06_O6_derivation_report.md` §7, four refused figures).
+  (`_handoff/2026-09-06_O6_derivation_report.md` §7, five refused figures).
 - **No search-snippet number may override a contradictory datasheet.** If a fetched
   manufacturer PDF and a search-result summary disagree, the PDF wins; if no PDF exists, the
   snippet still does not fill the row.
@@ -66,7 +66,7 @@ identity that the formula needs.
 |---|---|---|
 | **S0** | 1 | S0 = the bench PSU's minimum reliably settable current-limit value (item 1's photo (a)/(c)). No other term is added at S0 under DR2-5 (ESC feed separated). |
 | **Every S1–S9 pack-side limit `L(N)`** | 2 | `L(N) = max( R(N-1), Σ_{k<N} P(k) ) + P(N)` (chaining rule, `BG-03`:119-121). The pack-side never-exceed is `I_pack ≤ 5 A × V_rail / (V_pack × η)`, where **η is the UBEC's conversion efficiency, read from its datasheet at the load level of the relevant substep** once item 2 names the make/model. Until item 2 is answered every `L(N)` stays BLOCKED exactly as it is today. |
-| **S9a/S9b/B3.1 voltage column** | 2 | Select **1.9 A (5 V) / 2.1 A (6 V) / 2.3 A (7.4 V)** from the DS3235SG datasheet by **BEC#2's fitted jumper position**, as photographed in item 2(c) — not from a bench reading (Rail B's documented band is 5–6 V, `w17-control-fw/docs/D8_BENCH_BRINGUP.md`:55). |
+| **S9a/S9b/B3.1 voltage column** | 2 | **The bench reading governs.** `BG-03`:138-141 is the rule, verbatim: *"**Bench pre-step for every Rail-B row:** at D8 Phase 1, **record BEC#2's actual output voltage** before S6–S9 and B3.1, and select the servo stall column from it"* — and the v2 derivation says the same (`_handoff/2026-09-06_O6_derivation_report.md`:281, *"**2.1 A** is the applicable column **until BEC#2's actual output is recorded**"*; :282, *"Ceiling DERIVED = 2.1 A at 6 V, **selected from the recorded BEC#2 voltage**"*). Item 2(c) supplies BEC#2's **fitted jumper/label**, i.e. its **expected** (nominal) setting — 5 V or 6 V. That is what the packet buys: it tells the planner which of the DS3235SG columns (**1.9 A at 5 V / 2.1 A at 6 V / 2.3 A at 7.4 V**) to prepare, and it lets the S9a/S9b/B3.1 rows be **pre-filled** ahead of the bench. **It does not replace the reading**, and a photograph never selects the column (Rail B's documented band is 5–6 V, `w17-control-fw/docs/D8_BENCH_BRINGUP.md`:55). If the recorded output disagrees with the jumper, the recorded output wins and the pre-filled column is corrected. |
 | **S1 ceiling** | 3 | S1's ramp ceiling = the MH-ET board's onboard regulator's **datasheet rated output current**, once item 3(c)'s marking is read and the part identified. If the marking is unreadable or absent, S1 stays BLOCKED and the smallest question is the marking itself, not a number. |
 | **S2** | — | **No change from the v2 derivation.** The RP1 has no onboard regulator to read; item 3 does not touch S2. State this explicitly in the v3 report so a later reader does not assume item 3 closes both rows. |
 | **S6** | 4 | S6 = the blower's manufacturer max/rated current, once item 4's label identifies the actual article (the BOM names only an "ACP2006-class" part, not a part number, `_handoff/2026-09-06_O6_derivation_report.md` §2). If the label is generic or absent, S6 stays BLOCKED. |
@@ -121,7 +121,7 @@ Forbidden: fixing anything itself; weakening a BLOCKED row to make the review sh
 Done when: every checklist item in §4 has been attempted against every changed cell, not just
 skimmed.
 
-**FIX — Opus (or the Director, for prose-only findings).**
+**FIX — Opus.** (The owner's routing reserves implementation to Opus; Fable is Director / major adjudication only, `2026-09-06_offline_decision_round_3.md` "Model routing and review discipline".)
 Inputs: R-O6-3's findings.
 Outputs: a v3.1 (or v3-fixed) report and card edits, with a §0-style change table mapping every
 finding to what changed, exactly as v2 and the addendum did.
@@ -129,7 +129,7 @@ Forbidden: accepting a finding without applying it or recording why it was not a
 a ruling that already has an owner DR/D ruling behind it.
 Done when: every BLOCKING and NON-BLOCKING finding has a row in the change table.
 
-**V-O6-3 — Sonnet or Opus, fresh (not DERIVE v3's or FIX's author).**
+**V-O6-3 — Opus, fresh (not DERIVE v3's or FIX's author).** Named, not a choice: this round is safety-bearing (rail limits, never-exceed cells), and the owner's routing puts difficult electrical/safety reasoning on Opus. A round that turns out to be ordinary bookkeeping may be re-scoped to Sonnet by the Director in writing before it starts — never by the worker.
 Inputs: the fixed v3 report, the review, the change table.
 Outputs: a verdict (`_handoff/<date>_V-O6-3_review.md`): PASS, or FIX_REQUIRED with its own
 findings (assume it will find something — every prior artifact in this program did, v1 7B, v2
@@ -138,12 +138,20 @@ Forbidden: re-deriving numbers from scratch instead of checking the applied ones
 citations it did not personally choose.
 Done when: it returns PASS, or another FIX/V-O6-3 round closes its findings.
 
-**State-file pass — Sonnet.**
+**State-file pass — Sonnet, and it is only half the set.**
 Inputs: the PASSed v3 chain.
-Outputs: `CURRENT_STATUS.md`, `W17_OFFLINE_READINESS.md`, `W17_OWNER_ACTIONS.md`, and
-`NEW_SESSION_HANDOFF.md` updated to reflect v3 as the live derivation, and any newly-BLOCKED
-smallest questions surfaced per §5 below.
-Forbidden: pushing; touching any file outside the state-file set and the branch already in use.
+Outputs: `W17_OFFLINE_READINESS.md` and `W17_OWNER_ACTIONS.md` updated to reflect v3 as the live
+derivation, plus any newly-BLOCKED smallest questions surfaced per §5 below.
+Forbidden: pushing; touching any file outside those two and the branch already in use; **editing
+`CURRENT_STATUS.md` or `NEW_SESSION_HANDOFF.md`** — this program treats both as **Director-owned**
+and no worker branch touches them. The worker returns the exact replacement sentences for those two
+files in its report instead.
+Done when: those two files are consistent with v3, and the Director's own pass has landed the
+`CURRENT_STATUS.md` / `NEW_SESSION_HANDOFF.md` half.
+
+**Director state-file half — Director.**
+Inputs: the state-file pass's returned replacement sentences.
+Outputs: `CURRENT_STATUS.md` and `NEW_SESSION_HANDOFF.md`.
 Done when: a fresh boot from `NEW_SESSION_HANDOFF.md` alone finds v3, not v2, as current.
 
 **Fresh push grant request — Director only.**
@@ -163,9 +171,9 @@ R-O6/R-ADD's coverage.
 | 1 | Voltage/column mixing: does a Rail-B figure select its column (5/6/7.4 V) from the recorded BEC#2 setting, not a bare single number? | `R-O6_review.md` B1 |
 | 2 | Domain mixing: is every P(N)/never-exceed cell labelled 5 V rail-side, and every L(N) labelled pack-side, with the η conversion stated or BLOCKED — never dialled in directly? | `R-O6_review.md` B2 |
 | 3 | Settled-reading-as-bound: does any row let a quiescent/silent/unassociated reading stand in for a load that has a cited peak? (The chaining rule forbids it; a load's *state* — silent vs driven, unassociated vs streaming — must be recorded with every reading.) | `R-O6_review.md` B3; `R-ADD_review.md` B2 |
-| 4 | Spec-condition mismatch: does a figure taken from one datasheet condition (a different gain, a different Z, a different revision) get used as if it described the shipped configuration? | `R-O6_review.md` B7 (uncited 20 mA/channel); addendum §1.2 (12 dB datasheet condition vs shipped 9 dB) |
+| 4 | Spec-condition mismatch: does a figure taken from one datasheet condition (a different gain, a different Z, a different revision) get used as if it described the shipped configuration? | `R-O6_review.md` B7 (uncited 20 mA/channel); addendum §2.2 / §2.6 (12 dB datasheet condition vs shipped 9 dB) |
 | 5 | Unread sections/revisions: was the datasheet read in full, including sections not obviously relevant (a §4 configuration section, a later document revision with a table the earlier one lacks)? | `R-O6_review.md` B6 (Worldsemi Mar-2017 vs Jan-2016); `R-ADD_review.md` B3 (BL-M8812EU2 §4 unread in v1) |
-| 6 | Family/generic substitution: does every figure trace to the *identified* article's own datasheet, never a board-family, reseller, or "same part probably" figure? | `_handoff/2026-09-06_O6_derivation_report.md` §7 (four refused figures) |
+| 6 | Family/generic substitution: does every figure trace to the *identified* article's own datasheet, never a board-family, reseller, or "same part probably" figure? | `_handoff/2026-09-06_O6_derivation_report.md` §7 (five refused figures) |
 | 7 | Cite drift: does every `path:line` actually contain the quoted text, re-opened by this reviewer, not copied from the prior report? | `R-ADD_review.md` B1, N4 |
 | 8 | Uncited numbers: does every mA/A/V/Ω figure carry a source tag (`[datasheet]`/`[code]`/`[doc]`), with no bare number introduced by this pass? | `R-O6_review.md` B7 |
 | 9 | Margin-direction inversion: is a "requirement on the supply" (a datasheet's minimum-capability spec) kept out of P(N), and is the part's own rated maximum draw kept in P(N) even when it looks large? | `R-O6_review.md` N4; addendum §1.2 item 3 (V-O6-2 B1) |
@@ -202,6 +210,7 @@ number derivable.
 - Does not authorise sourcing or fitting the replacement Wi-Fi heatsink; item 7 only fixes the
   size envelope. Fitting it is a procurement + build action, tracked separately
   (`W17_PROCUREMENT_AND_PHYSICAL_ACTIONS.md` row 6).
-- Does not answer Decision Round 3 (soak duration, 9 dB gain confirmation, temperature
-  instrument) — those are separate, non-photo owner items.
+- Does not touch Decision Round 3: **DR3-1 and DR3-2 are RULED and applied**
+  (`2026-09-06_offline_decision_round_3.md`); **DR3-3 (temperature instrument) is the one open
+  owner CHECK** of that round and is not a photo item. Do not re-ask DR3-1 or DR3-2.
 - Does not by itself authorise a fresh push grant — see the last row of §3.
