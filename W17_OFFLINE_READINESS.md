@@ -44,6 +44,16 @@ Scope granted by the owner: `program/offline-readiness-r2` at **4ae3536** → wo
 
 **The grant is CONSUMED.** Nothing else was pushed; `u4-arbiter` untouched; nothing flashed, powered or connected. **PUSH GRANT CLOSED** again — every further branch (DR2 rulings application, O-6 v3, any firmware change) needs a FRESH grant.
 
+### 1c. DR3 one-time grant — EXECUTED 2026-09-06 night (Director: Claude Fable 5.1, fresh session 82158128) — **CONSUMED**
+Scope granted by the owner (Decision Round 3 message): (a) workspace `program/offline-readiness-r3` at **86da42c** → workspace main; (b) w17-control-fw `offline/docfix-ci-count-and-wifi-topology` at **631dee2** → control-fw main. Nothing else. Boot check first (read-only): all seven trunks equalled origin at the r3 handoff's expected SHAs (ws ca84c91 · cf 1d17c6b · sl 7220c08 · GS 809976c · iPhone 7aaf2cf · mapper aa7fb7d · 3d 8889323); r3's tip was exactly the granted 86da42c and V-FINAL-2 (Sonnet, fresh) had PASSed on that exact tip (diff dd584ee..86da42c = 2 files / 2 lines, both cite fixes); cf's tip was exactly 631dee2 (2 commits, 2 files, 2 lines, docs-only: `ci.yml` comment 356 → 360, BOM:22 AP → station; V-CF-DOCNITS PASS). Nothing changed after the verifies, so no re-verification was owed. Every prior-session worktree was clean.
+| repo | trunk | was | now | what landed | check / CI |
+|---|---|---|---|---|---|
+| workspace | main | ca84c91 | **86da42c** | program/offline-readiness-r3 (ff; 17 files, +1331/−163): Decision Round 2 verbatim + applied into BG-03/BG-04/BG-08/tools/MISSING_THRESHOLDS/INDEX; `W17_OWNER_PHOTO_LABEL_INTAKE.md`; O-6 addendum v2 + review R-ADD under `_handoff/`; learning-manual 03/05 AP → station; procurement rows 6 + 14; Decision Round 3 opened; state files | `scripts/check_readiness_runbook_links.sh` exit 0 default mode and exit 0 `--workspace-root` on the granted tree (0 MISSING; the 3 MISSING-NESTED of worktree mode resolve OK from the workspace root); landing in the MAIN checkout after `git worktree list` + `git branch --show-current` + HEAD re-check (ca84c91 == origin/main, clean) → `--ff-only` → push → local == origin at 86da42c |
+| w17-control-fw | main | 1d17c6b | **631dee2** | offline/docfix-ci-count-and-wifi-topology (ff; docs-only) | landing in the MAIN checkout after the same three checks (1d17c6b == origin/main, clean; diff limited to the two named files) → `--ff-only` → push → local == origin at 631dee2 → **run 34054956474 observed to completion: success (build-and-test success, link2-drift success)** |
+| the other five nested repos | — | unchanged | unchanged | nothing (not in scope) | — |
+
+**The grant is CONSUMED.** Nothing else was pushed; `u4-arbiter` untouched; nothing flashed, powered or connected. **PUSH GRANT CLOSED** again — the Decision Round 3 application (branch `program/offline-readiness-r4`) and every other new branch need a FRESH grant.
+
 ## 2. Host facts (OBSERVED 2026-09-05)
 macOS 26.3, Apple M4, 16 GB RAM, **~20–22 GB free on a 228 GiB disk** (9.6 GiB at 23:57 included purgeable; 20 GiB at 01:30). No VMware Fusion installed, no Windows ISO on disk,
 no `pwsh` on PATH (a 7.7.0-preview.4 binary is staged in the session scratchpad for host-side script checks only).
