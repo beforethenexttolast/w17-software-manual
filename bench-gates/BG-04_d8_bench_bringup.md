@@ -67,7 +67,17 @@ including the phases BG-03 deliberately does not cover: Phase 0, Phase 3b, Phase
 2. **Phase 1 — power-rail smoke.** **Re-confirm the Phase -1 gate first — this is the first battery
    connection of the bring-up** (D8:51-53). Battery → XT60 Y-split → ESC + BEC#1 + BEC#2. Confirm
    **BEC#1 ≈ 5 V** and **BEC#2 ≈ 5–6 V under a light load, before connecting the ESP32s**. Confirm
-   no rail sag/brownout when a servo moves.
+   no rail sag/brownout when a servo moves. **Note (O-6 derivation v2, 2026-09-06 — see BG-03's
+   "Starting current limits" subsection and `_handoff/2026-09-06_O6_derivation_report.md`):**
+   (a) a battery has **no settable current limit**, so this phase has no current-limit
+   protection at all (§3.3); BG-03's *Required equipment* permits a bench PSU instead, this
+   line and D8:55 say battery — an open doc conflict awaiting owner **Q3**. (b) **Record
+   BEC#2's measured output voltage here**, not just its pass/fail: it selects the DS3235SG
+   stall column used as the never-exceed for BG-03's Rail-B substeps — **2.1 A at 6 V** vs
+   **1.9 A at 5 V** (owner **Q2** can supply it from the label beforehand). (c) The
+   constant-current criterion for the pack connect is **unruled** (owner **Q9**); note that
+   C1 and C2 are **5 V-side** capacitors, so what a pack-side supply would see here is the
+   UBECs' input capacitance and soft-start, not C1/C2. **No gate state here changes.**
 3. **Phase 2 — ELRS link, no actuators.** Bind RP1 + ES24TX Pro (+ TX16S backup) at the **same
    major.minor and the same bind phrase**. **Set RP1 failsafe mode to "No Pulses"** — "Set Position"
    defeats the frame-timeout failsafe (D8:63-64). Serial-dump the CRSF output: **420000 8N1, not

@@ -32,12 +32,16 @@ list.
 | O-3 | ACCEPTED: 2000 ms maximum spread across cold runs (G-04 criterion 3) |
 | O-4 | ACCEPTED: five cold runs (G-04) |
 | O-5 | RULED: STOP-button lag ≤ 250 ms; record the measured value AND PASS/FAIL (G-04 criterion 10) |
-| O-6 | STAIRCASE POLICY RATIFIED; initial amperage NOT invented — derive the starting limit per powered substep from component/rail limits before first power; trip = STOP AND DIAGNOSE; raise only when understood and justified; never exceed rail/component limits; if not derivable offline → BLOCKED + smallest owner decision (BG-03 / tools/first_power_current_limits.md T11) |
+| O-6 | STAIRCASE POLICY RATIFIED; initial amperage NOT invented — derive the starting limit per powered substep from component/rail limits before first power; trip = STOP AND DIAGNOSE; raise only when understood and justified; never exceed rail/component limits; if not derivable offline → BLOCKED + smallest owner decision (BG-03 / tools/first_power_current_limits.md T11) — **derivation done 2026-09-06, v2 after adversarial review R-O6** (`_handoff/2026-09-06_O6_derivation_report.md`, review at `_handoff/2026-09-06_R-O6_review.md`): **all 15 powered substeps BLOCKED**, on owner Decision Round 2 — bench PSU identity + minimum settable limit; UBEC make/model **and BEC#2's set output voltage**; the **S1/S2 and S7/S8 ramp ceilings**; the **constant-current duration criterion for a connect**. Figures for **four parts** are now cited on BG-03 and in T11 / L11–L15, all of them **5 V rail-side allowances, never bench-PSU settings** |
 | O-7 | RULED: initial maxBrightness cap = 180 (operating target); may be reduced at the halo gate; no raise above 180 without halo/current/rail evidence + new ruling; 227 stays the compile ceiling only (BG-08) |
 
 Applied into the cards on 2026-09-06 (branch `offline/d4-thresholds`): G-02 (O-1), G-04
-(O-2..O-5), BG-08 (O-7), BG-03 + `tools/first_power_current_limits.md` T11 (O-6 policy;
-starting values pending derivation).
+(O-2..O-5), BG-08 (O-7), BG-03 + `bench-gates/tools/first_power_current_limits.md` T11
+(O-6 policy). The O-6 **starting values were then derived** on branch
+`offline/o6-derivation` (same day, v2 after
+review R-O6) and transcribed into BG-03's "Starting current limits" subsection and into T11–T13
+/ L11–L15: **no substep gained a settable starting amperage**, and what each one is blocked on
+is now named. See `_handoff/2026-09-06_O6_derivation_report.md` §5 for the owner questions.
 
 
 Every one of these is a *decision*, not an observation. None of them is blocked by A2,
@@ -50,7 +54,7 @@ Phase B, FIRST_ACTIVE, or by anything being assembled.
 | **O-3** | Acceptable **spread** across cold runs | not recorded anywhere. G-04 criterion 3 **proposes 2000 ms**, same footing | **G-04** |
 | **O-4** | How many cold runs constitute a **characterisation** | not recorded anywhere. G-04 **chose five**, and says so | **G-04** |
 | **O-5** | Acceptable **STOP-button lag** | `w17-ground-station/docs/setup_flow_bench_checklist.md`:239 says *"record any lag you still see"* and sets no number | **G-04** (criterion 10) |
-| **O-6** | **Bench-PSU current-limit policy** (`T11`): *how* to choose the limit, given T1–T9 will not exist until the first power-on. A staircase policy — "start at X, raise only when a step trips for a reason you understand" — is a **ruling**, not a measurement, and it can be written before anything is powered | `bench-gates/tools/first_power_current_limits.md`:91 defers T11 to "derived from T1–T9 once they exist", which makes it unresolvable at the moment it is first needed | **BG-03** |
+| **O-6** | **Bench-PSU current-limit policy** (`T11`): *how* to choose the limit, given T1–T9 will not exist until the first power-on. A staircase policy — "start at X, raise only when a step trips for a reason you understand" — is a **ruling**, not a measurement, and it can be written before anything is powered | **As originally posed:** T11 deferred itself to "derived from T1–T9 once they exist", which made it unresolvable at the moment it is first needed. **Now** (`bench-gates/tools/first_power_current_limits.md`:103) T11 carries the ruled policy plus the 2026-09-06 derivation, and is BLOCKED on named owner decisions instead | **BG-03** |
 | **O-7** | **Maximum acceptable `maxBrightness`** | `learning-manual/open_questions.md` #55 leaves it open; the *acceptable* value is a look, not a number in any document | **BG-08** |
 
 > **O-7 is bounded from above without a bench.** **DERIVED: `maxBrightness` ≤ 227.**
@@ -74,29 +78,39 @@ the only one that needs real thought, and it is the one that unblocks first powe
 
 ### 2a. Car-side current — 12 rows, all of `bench-gates/tools/first_power_current_limits.md` §T except T11
 
-No per-load current figure for the car's rails exists anywhere: not in
-`HARDWARE_INVENTORY.md`, not in `w17-control-fw/docs/bill_of_materials_v2.md`, not in
+No per-load current figure for the car's rails existed anywhere when these rows were written:
+not in `HARDWARE_INVENTORY.md`, not in `w17-control-fw/docs/bill_of_materials_v2.md`, not in
 `00_BUILD_SHEET.md`, not in any workspace `*.md`. The only per-device 5 V figures in the
 project are **ground-side** (`w17-gcs-box-guide.md`:135-139), and they are the template these
 rows should follow: a cited figure, an `[A]`/`[I]` evidence tag, and a stated decision
 threshold.
 
+**Update 2026-09-06 (O-6 derivation v2, after review R-O6):** the derivation
+(`_handoff/2026-09-06_O6_derivation_report.md`) has since cited figures for **four parts** — the
+Wi-Fi module (BL-M8812EU2), the amplifier (MAX98357A), the steering servo (DS3235SG) and the LED
+strip — at `bench-gates/tools/first_power_current_limits.md` rows **L11–L15** and in T11.
+**Every one of them is a 5 V rail-side allowance, not a bench-PSU setting**, and **not one of
+the 12 rows below
+gained a settable number**: T1–T10 stay THRESHOLD MISSING and T12/T13 are now BLOCKED with their
+reasons named. The parts behind T1, T5, T6, T8 and T9 (ESP32 boards, MG90S, blower, RP1) still
+have **no manufacturer or code figure at all**.
+
 | # | Row | Card it blocks | Source |
 |---|---|---|---|
-| **T1** | Rail-A quiescent, boards idle, nothing else connected | BG-03 | `bench-gates/tools/first_power_current_limits.md`:81 |
-| **T2** | Rail-A with the camera + Wi-Fi module streaming | BG-03 | `bench-gates/tools/first_power_current_limits.md`:82 |
-| **T3** | Rail-B with the steering servo holding centre, unloaded | BG-03 | `bench-gates/tools/first_power_current_limits.md`:83 |
-| **T4** | Rail-B peak during a full-lock steering sweep (the reason cap C1 exists) | BG-03 | `bench-gates/tools/first_power_current_limits.md`:84 |
-| **T5** | Per-MG90S, idle and moving | BG-03 | `bench-gates/tools/first_power_current_limits.md`:85 |
-| **T6** | Blower (always-on, rail B) | BG-03 | `bench-gates/tools/first_power_current_limits.md`:86 |
-| **T7** | MAX98357A + speaker at the shipped `sound.volume` | BG-03 / BG-04 Phase 9 | `bench-gates/tools/first_power_current_limits.md`:87 |
-| **T8** | RP1 receiver | BG-03 | `bench-gates/tools/first_power_current_limits.md`:88 |
-| **T9** | ESP32 module, Wi-Fi off, both boards | BG-03 | `bench-gates/tools/first_power_current_limits.md`:89 |
-| **T10** | ESP32 #1 with **Bluetooth active** (BT show-off build). **≡ MT-19** — one number, listed once | BG-07 (`BT1_BENCH_GATE.md`:66 lists it as an unmeasured bench item) | `bench-gates/tools/first_power_current_limits.md`:90 |
-| **T12** | ESC standby (logic only) on batt+, motor leads off | BG-03 | `bench-gates/tools/first_power_current_limits.md`:92 |
-| **T13** | Inrush allowance at pack connection — the XT90-S anti-spark exists *because* it is large, and no number is stated | BG-01 §S7 / BG-03 | `bench-gates/tools/first_power_current_limits.md`:93 |
+| **T1** | Rail-A quiescent, boards idle, nothing else connected | BG-03 | `bench-gates/tools/first_power_current_limits.md`:93 |
+| **T2** | Rail-A with the camera + Wi-Fi module streaming | BG-03 | `bench-gates/tools/first_power_current_limits.md`:94 |
+| **T3** | Rail-B with the steering servo holding centre, unloaded | BG-03 | `bench-gates/tools/first_power_current_limits.md`:95 |
+| **T4** | Rail-B peak during a full-lock steering sweep (the reason cap C1 exists) | BG-03 | `bench-gates/tools/first_power_current_limits.md`:96 |
+| **T5** | Per-MG90S, idle and moving | BG-03 | `bench-gates/tools/first_power_current_limits.md`:97 |
+| **T6** | Blower (always-on, rail B) | BG-03 | `bench-gates/tools/first_power_current_limits.md`:98 |
+| **T7** | MAX98357A + speaker at the shipped `sound.volume` | BG-03 / BG-04 Phase 9 | `bench-gates/tools/first_power_current_limits.md`:99 |
+| **T8** | RP1 receiver | BG-03 | `bench-gates/tools/first_power_current_limits.md`:100 |
+| **T9** | ESP32 module, Wi-Fi off, both boards | BG-03 | `bench-gates/tools/first_power_current_limits.md`:101 |
+| **T10** | ESP32 #1 with **Bluetooth active** (BT show-off build). **≡ MT-19** — one number, listed once | BG-07 (`BT1_BENCH_GATE.md`:66 lists it as an unmeasured bench item) | `bench-gates/tools/first_power_current_limits.md`:102 |
+| **T12** | ESC standby (logic only) on batt+, motor leads off | BG-03 | `bench-gates/tools/first_power_current_limits.md`:104 |
+| **T13** | Inrush allowance at pack connection — the XT90-S anti-spark exists *because* it is large, and no number is stated | BG-01 §S7 / BG-03 | `bench-gates/tools/first_power_current_limits.md`:105 |
 
-Full row text and the derivation procedure: `bench-gates/tools/first_power_current_limits.md`:81-93.
+Full row text and the derivation procedure: `bench-gates/tools/first_power_current_limits.md`:93-105.
 
 ### 2b. CRSF on the wire — 2
 
@@ -154,8 +168,10 @@ ruled in advance and it cannot be measured by a script.
 ## 4. Evidence label
 
 **BENCH-TBD** for §2. §1 is now **RULED 2026-09-05 (Decision Round 1, D-4)** — no longer
-"BLOCKED on an owner ruling" — **except O-6's per-substep starting amperage, which stays
-BLOCKED pending the O-6 derivation** (a separate task). **DERIVED** for the
-`maxBrightness ≤ 227` ceiling only. Nothing on this page has been *measured*; §1's rulings
-have been applied into the cards (see §1 above), and §2 remains untouched by a bench.
+"BLOCKED on an owner ruling" — **except O-6's per-substep starting amperage: the derivation it
+called for was done on 2026-09-06 (v2, after review R-O6) and every substep came back BLOCKED**,
+now on named Decision Round 2 questions rather than on the derivation. **DERIVED** for the
+`maxBrightness ≤ 227` ceiling, and for the four parts' figures at
+`bench-gates/tools/first_power_current_limits.md` L11–L15. Nothing on this page has been *measured*; §1's
+rulings have been applied into the cards (see §1 above), and §2 remains untouched by a bench.
 Recording a gap is not closing it.
