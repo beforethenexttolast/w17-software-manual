@@ -88,7 +88,7 @@ it at the bench and record it here as the first evidence.**
 | T8 | RP1 receiver draw | **THRESHOLD MISSING — owner/bench decides** |
 | T9 | ESP32 module draw, Wi-Fi off (both boards) | **THRESHOLD MISSING — owner/bench decides** |
 | T10 | ESP32 #1 draw with Bluetooth active (BT show-off build) — BT1 lists "3.3 V rail draw with BT active" as an unmeasured bench item | **THRESHOLD MISSING — BT1 measures it** (`BT1_BENCH_GATE.md`:66) |
-| T11 | The bench-PSU current limit to set at each step below | **THRESHOLD MISSING — derived from T1–T9 once they exist** |
+| T11 | The bench-PSU current limit to set at each step below | **STAIRCASE POLICY RULED 2026-09-05 (D-4 O-6):** lowest defensible limit for the substep being powered; a trip = STOP AND DIAGNOSE; never simply increase until it works; raise only after the trip is understood and the next setting is justified; never exceed applicable rail/component safety limits. **Starting limit per substep: pending the O-6 derivation (separate task) — BLOCKED until recorded here.** |
 | T12 | ESC standby (logic-only) draw on batt+ with motor leads off | **THRESHOLD MISSING — owner/bench decides** |
 | T13 | Inrush allowance at the moment the pack is connected (the XT90-S anti-spark exists because it is large, but no number is stated) | **THRESHOLD MISSING — owner/bench decides** |
 
@@ -108,8 +108,13 @@ Phase B, with an observer, wheels off the ground, ESC motor leads disconnected.
    After each: record the settled draw; that reading *becomes* the T-row above.
 4. **Set the working limit** at the recorded total plus a stated margin, and **write the margin
    down** — the margin is a decision, not a fact, so it belongs in the evidence with a name on it.
+   **RULED 2026-09-05 (D-4 O-6):** the limit for each substep is the **lowest defensible limit**
+   for that substep — never a round-number guess.
 5. **Never raise a limit to make a trip go away.** A trip during this staircase is the tool
    working. Pull power, find the fault, re-run A2's relevant rows (`13_phase_a_a2_no_power_checklist.md`).
+   **RULED 2026-09-05 (D-4 O-6):** a current-limit trip means **STOP AND DIAGNOSE** — never simply
+   increase the limit until it works; raise it only after the trip is understood and the next
+   setting is justified; never exceed the applicable rail/component safety limits.
 6. **Rail-B peak (T4) is measured last and deliberately**: the DS3235SG stall spike is what C1 is
    for (`00_BUILD_SHEET.md`:36, guide:119). Sweep it slowly, with the linkage **off**, and expect
    the reading to be the largest single number in this table.
