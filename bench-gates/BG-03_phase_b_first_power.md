@@ -76,8 +76,10 @@ Typ) and the LED model's **stated upper bound** (never its actual draw); add no 
 A percentage would be an invented number; the typ→max gap is the manufacturer's own worst
 case and it carries a citation. **Direction:** a limit is a fuse, so *lower* is more
 protective; M-PEAK exists so the limit is not set below a healthy draw, and a datasheet
-figure that is a **requirement on the supply** (the Wi-Fi module's "Peak current ≥1800mA")
-belongs in never-exceed, never in P(N).
+figure that is a **requirement on the supply** (the Wi-Fi module's "Peak current ≥1800mA",
+its §6.2.1) belongs in never-exceed, never in P(N) — while a figure that **is** the part's own
+rated maximum draw (the same module's §1.3 "Power Supply DC 5.0V±0.25V @1800mA (Max)") belongs
+in P(N), however large it looks.
 
 **Inrush is NOT covered by M-PEAK, and the criterion is BLOCKED.** Every connect pulls the
 supply into constant current briefly. On the **7.4 V** side that is the **UBEC's input
@@ -121,7 +123,7 @@ documented band is **5–6 V** (`D8_BENCH_BRINGUP.md`:55; this card's sibling
 | S3 + WS2812 strip @ cap **180** | **560 mA** — **emitter-model** upper bound (code's integer form 540 mA); **excludes each pixel's controller quiescent draw, which Worldsemi does not publish** — carry it as an unquantified adder | — | compile budget **900 mA**; Rail A output **5 A** | **P(N) DERIVED (emitter model)**, L(N) **BLOCKED** |
 | S3 + WS2812 strip @ shipped **110** | **188 mA** — same emitter-model caveat (code's integer form 180 mA) | — | as above | **P(N) DERIVED (emitter model)**, L(N) **BLOCKED** |
 | S4 + MAX98357A + speaker | quiescent **3.35 mA max**; **≥ 640 mA whenever driven** (energy conservation on 3.2 W into 4 Ω at 5 V — no efficiency figure needed) | — | amp **ILIM 2.8 A**; Rail A output **5 A** | **BLOCKED** for a settable point value — shipped `sound.volume` unrecorded; the only cited efficiency is at 8 Ω, not the 4 Ω speaker. **Both bounds DERIVED** |
-| S5 + camera / Wi-Fi | Wi-Fi **1510 mA** — peak of the worst applicable cited row; camera term absent | — | module requires the rail to **deliver ≥ 1800 mA peak** (its §6.2.1) — a supply-capability requirement, not a limit to set; Rail A output **5 A** | **BLOCKED** — no figure for the OpenIPC SSC338Q at 5 V |
+| S5 + camera / Wi-Fi | Wi-Fi **1800 mA** — the module's own §1.3 rated maximum supply current, which stands until the RF mode is named (Q5); §3.3's largest per-use-case peak, 1510 mA, is one RF-test case and not an envelope. Camera term absent | — | module requires the rail to **deliver ≥ 1800 mA peak** (its §6.2.1) — a supply-capability requirement, not a limit to set; Rail A output **5 A** | **BLOCKED** — no figure for the OpenIPC SSC338Q at 5 V |
 | S6 + blower | — | — | Rail B output **5 A** | **BLOCKED** — the BOM names an "ACP2006-class" part, not a part number |
 | S7 + one MG90S | — | — | Rail B output **5 A** — not a ramp ceiling for one micro servo | **BLOCKED** — generic part; TowerPro's own page publishes no current figure and quotes 4.8 V operating, below Rail B's band. A ramp needs the ceiling Q8 asks for |
 | S8 + remaining MG90S | — | — | Rail B output **5 A** | **BLOCKED** — as S7 |
