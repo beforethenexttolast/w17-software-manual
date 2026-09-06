@@ -23,7 +23,20 @@ list.
 
 ---
 
-## 1. The owner can rule these today — no hardware, no gate (7)
+## 1. The owner can rule these today — no hardware, no gate (7) — **RULED 2026-09-05 (Decision Round 1, D-4; record: `2026-09-05_offline_decision_round_1.md`)**
+
+| # | Ruling |
+|---|---|
+| O-1 | RETAINED: 150 ms desired / 200 ms maximum (G-02 criterion 6 now has a target) |
+| O-2 | ACCEPTED: 1000 ms minimum headroom vs LINK_UP_WAIT_MS = 5000 (G-04 criterion 2) |
+| O-3 | ACCEPTED: 2000 ms maximum spread across cold runs (G-04 criterion 3) |
+| O-4 | ACCEPTED: five cold runs (G-04) |
+| O-5 | RULED: STOP-button lag ≤ 250 ms; record the measured value AND PASS/FAIL (G-04 criterion 10) |
+| O-6 | STAIRCASE POLICY RATIFIED; initial amperage NOT invented — derive the starting limit per powered substep from component/rail limits before first power; trip = STOP AND DIAGNOSE; raise only when understood and justified; never exceed rail/component limits; if not derivable offline → BLOCKED + smallest owner decision (BG-03 / tools/first_power_current_limits.md T11) |
+| O-7 | RULED: initial maxBrightness cap = 180 (operating target); may be reduced at the halo gate; no raise above 180 without halo/current/rail evidence + new ruling; 227 stays the compile ceiling only (BG-08) |
+
+The card criteria below still carry the pre-ruling proposals in places; applying the rulings into each card's PASS/FAIL text is the next autonomous action (then verify the changed portion before landing, per D-6).
+
 
 Every one of these is a *decision*, not an observation. None of them is blocked by A2,
 Phase B, FIRST_ACTIVE, or by anything being assembled.

@@ -56,6 +56,13 @@ Every single deliverable failed its first adversarial review; none of the defect
 - Owner shopping (car pack, magnets, tyres in transit; OP-49 module decision) → A2 no-power checklist → A2 closure → Phase B (first power) → D8 bring-up → BT1 / coordinated flash → on-car.
 - FIRST_ACTIVE stays NO-GO (separate reviewed safety milestone).
 
+## 4a. Owner rulings in force (Decision Round 1, 2026-09-05 — verbatim record: `2026-09-05_offline_decision_round_1.md`)
+D-1 hotspot: validate on a real x64 Win11 PC when available AND re-check on the giftee PC at handover; the 5 GHz AP adapter is GIFT-KIT/production equipment, one unit.
+D-2 OP-49: IP2326 ×2 adopted as the candidate; all remaining OP-49 evidence/safety work still required before any powered charge test; no-power board-marking inspection kept.
+D-3 BG-06 T1: live-TX gated bench procedure (car unpowered OR RP1 unbound; no bound RX powered in range; attended; explicit owner go); discharges no gate.
+D-4 thresholds: O-1 150/200 ms; O-2 1000 ms headroom; O-3 2000 ms spread; O-4 five runs; O-5 STOP lag ≤ 250 ms (+record value); O-6 staircase policy ratified, initial amperage must be derived per substep or stay BLOCKED; O-7 maxBrightness cap 180 (227 = compile ceiling only).
+D-5 booklet voice: applied (f03066f). D-6: ONE-TIME exact-scope merge/push grant for the enumerated verified branches (see NEW_SESSION_HANDOFF.md §2); not general.
+
 ## 5. Evidence conventions for this phase
 Every physical or VM session writes to `evidence/<date>_<gate>/` (log, JSON, screenshot, photo) with a `RESULT.md` carrying the
 label (OBSERVED/VERIFIED/BENCH-TBD/…), the exact command, and PASS/FAIL against the gate card's criteria.
@@ -71,3 +78,4 @@ label (OBSERVED/VERIFIED/BENCH-TBD/…), the exact command, and PASS/FAIL agains
 - 2026-09-05 05:35 — Mechanical pack FINAL (V-B PASS, FIX-B2, V-B2 PASS): 3d-codex offline/measurement-sitting 98e27a7 + offline/cad-prep 988cf17; delivered to owner. GS offline/raceday-timing-logs 2f2690a VERIFIED (V-G PASS). VM branch: V-A FAIL (guard bypass via PowerShell prefix binding) → FIX-A3 running. GS harness: R-A2 FIX_REQUIRED → FIX-A2 running. Gate cards: FIX-C done → V-C running. Program branch carries: state files, procurement (reviewed), booklet packet (reviewed), workspace doc fixes (verified).
 - 2026-09-05 09:00 — WAVE CLOSED. Program branch program/offline-readiness carries 51 commits / 55 files / +10.6k lines over main f1fc46e: state files, procurement, booklet packet, workspace doc fixes, all 12 gate cards + tools, VM runbook + scripts/vm. Trunk-bound branches awaiting a fresh owner grant: GS offline/windows-validation-harness a80236e, GS offline/raceday-timing-logs 2f2690a, mapper offline/host-prechecks 1f20de5, 3d offline/measurement-sitting 98e27a7 + offline/cad-prep 988cf17, cf offline/docfix-gate-citations 1d17c6b, plus workspace program/offline-readiness → main. Nothing pushed, nothing merged into any trunk, nothing powered/flashed/connected.
 - 2026-09-05 ~10:00 — follow-ups landed: DOCFIX-2 (manual palette across 5 files, V-DOC2 PASS; #55 resolved to the self-consistent wording) and CITEFIX (~100 gate-card citations workspace-relative). No agents in flight. Program branch e244098. Awaiting: owner Decision Round 1 (D-1…D-6) and the merge/push grant; owner physical queue unchanged.
+- 2026-09-06 — Decision Round 1 RULED by the owner (D-1…D-6) and persisted; D-5 applied to the booklet (f03066f); D-6 one-time grant recorded, NOT yet executed (successor action). NEW_SESSION_HANDOFF.md written. No agents in flight; no wave launched (owner instruction: stop before the next large wave).

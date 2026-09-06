@@ -1,5 +1,8 @@
 # W17 PROCUREMENT AND PHYSICAL ACTIONS
 
+> **Owner rulings applied 2026-09-06 (Decision Round 1):** D-1 — the 5 GHz AP-capable USB Wi-Fi adapter is GIFT-KIT / production GCS equipment (one unit, no ARM-VM duplicate): **BUY NOW**, x64-only driver reality unchanged; validate on a real x64 Win11 PC when available AND re-check on the giftee PC at handover. D-2 — OP-49: the two on-hand IP2326 boards are the **adopted candidate**; remaining identification / envelope / interface / interlock / isolation / thermal / fault / charge-safety evidence is still required before any powered charge test; the no-power board-marking inspection stays. Must-not-lose list: adapter · 2S car battery · GCS-box USB 3.x hub · boot-mode selector · OP-49 closure + charge-path parts · TX16S internal-RF check → backup-handset decision · coupon C-1 · Windows ARM VM · measurement sitting.
+
+
 **Date:** 2026-09-05 · **Worker:** D1 (Sonnet 5), readiness program `offline/procurement`. Replaces
 the v0.1 director seed. **Docs only — no hardware touched, powered, or ordered to write this
 file.** Every claim below cites a path; status marks follow the workspace legend (`HARDWARE_INVENTORY.md`
