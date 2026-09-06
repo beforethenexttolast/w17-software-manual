@@ -120,6 +120,11 @@ DR2-13 LED maxBrightness: RULED — KEEP shipped 110; 180 stays the upper operat
 DR2-14 Wi-Fi heatsink: RULED — plan to source ≥ 32×32 mm if clearance permits; procurement state update in derivation (Director).
 The consolidated owner photo/label packet (`W17_OWNER_PHOTO_LABEL_INTAKE.md`) closes DR2-3/4/6/9/10 and the DR2-8 / DR2-14 residuals — seven items, one sitting, car fully unpowered.
 
+### Decision Round 3 (2026-09-06 night — verbatim record: `2026-09-06_offline_decision_round_3.md`)
+DR3-1 Wi-Fi streaming-soak duration: RULED and APPLIED — 30 min continuous streaming in the shipped 5 GHz STATION mode, samples at 0/5/10/15/20/30 min (no 25-min sample); NOT a claim of thermal equilibrium; DR2-11 sensory STOP stays active throughout; temperature recorded only if a suitable instrument exists (DR3-3), otherwise load state + time + sensory observation only.
+DR3-2 MAX98357A GAIN: RULED and APPLIED — 9 dB CONFIRMED as the intended shipped configuration; before permanent soldering, verify the fitted board's actual pad mapping against the exact article and manufacturer datasheet; the datasheet's 12 dB specification point is NOT the shipped configuration.
+DR3-3 temperature instrument: RULED as an owner CHECK — answer OPEN, the single open owner question of this round; if none exists, procurement row 14 becomes BUY and quantitative heatsink-temperature evidence stays BLOCKED.
+
 ## 5. Evidence conventions for this phase
 Every physical or VM session writes to `evidence/<date>_<gate>/` (log, JSON, screenshot, photo) with a `RESULT.md` carrying the
 label (OBSERVED/VERIFIED/BENCH-TBD/…), the exact command, and PASS/FAIL against the gate card's criteria.
