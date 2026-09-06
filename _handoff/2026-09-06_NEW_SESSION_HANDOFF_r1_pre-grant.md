@@ -1,3 +1,8 @@
+> **Transfer snapshot — NON-CANONICAL.** This is the pre-grant successor handoff (r1, written 2026-09-06 00:30 Kiev, last edited by the D-6 step-6 commit f1028ba on
+> workspace main), preserved verbatim when it was superseded on 2026-09-06 ~16:30 Kiev. **Canonical source now:** `NEW_SESSION_HANDOFF.md` on workspace branch
+> `program/offline-readiness-r2` (r2). Its §0–§2 describe trunks and a grant that have since landed/been consumed; where it and the r2 handoff or
+> `W17_OFFLINE_READINESS.md` disagree, those win.
+
 # NEW_SESSION_HANDOFF — W17 OFFLINE READINESS / BENCH PREPARATION (written 2026-09-06 00:30 Kiev; **updated 2026-09-06 ~13:10 after the D-6 grant was executed and CONSUMED** — §0–§2 below are now historical record; current trunks are in `W17_OFFLINE_READINESS.md` §1a and `CURRENT_STATUS.md`)
 
 Boot without chat history. Read in this order: (1) workspace `CLAUDE.md` (safety 1–7, one session per tree); (2) this file; (3) `W17_OFFLINE_READINESS.md`;
