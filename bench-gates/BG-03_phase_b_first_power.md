@@ -37,6 +37,10 @@ with the checkbox detail in `w17-control-fw/docs/D8_BENCH_BRINGUP.md` (cited as 
 - `elrs-joystick-control` on the PC (PB:36), and the RP1 + TX bound at the same ELRS
   major.minor + bind phrase (D8:61-62).
 - A way to spin the rear axle by hand (PB:36).
+- **A contact temperature probe, or a multimeter with a K-type thermocouple input — only if one
+  exists (DR3-3; `W17_PROCUREMENT_AND_PHYSICAL_ACTIONS.md` row 14, still an OPEN owner CHECK).**
+  If none exists, temperature is not recorded and is **never** estimated from touch, and the
+  quantitative heatsink-temperature evidence stays BLOCKED.
 - **A bench PSU for the S0–S9 staircase — RATIFIED 2026-09-06 (DR2-5, PSU-first / ESC
   separation).** The earlier "bench PSU or the battery" wording is superseded: initial
   logic/rail characterization uses **bench-PSU-first** operation, with the propulsion/ESC
@@ -184,22 +188,44 @@ temperature reads as safety evidence while proving nothing. What IS derivable:
 `Tj < 125 ℃` is already violated. **No other numeric thermal STOP is derivable**, and "still rising" is an inconclusive
 result, not a fault.
 
-**Duration and sample cadence — RULED 2026-09-06 night (DR3-1):** **30 minutes continuous streaming in the actual
-shipped/production Wi-Fi mode** — 5 GHz STATION joining the GCS-box hosted hotspot, streaming, the load state this
-card already requires for S5 (`bench-gates/G-02_phone_video_glass_to_glass_latency.md`:87, :102, :274's soaks belong
-to the phone latency gate and are not this window). Sample at exactly **0 · 5 · 10 · 15 · 20 · 30 min** — there is no
-25-minute sample; this is the owner's own list, copied verbatim (`2026-09-06_offline_decision_round_3.md` DR3-1).
-**This is NOT a claim that 30 minutes proves thermal equilibrium** (owner's words). The existing sensory STOP
-(DR2-11: abnormal smell / abnormal heat / smoke / unexpected sound / visible anomaly / any other abnormal behaviour
-→ IMMEDIATE STOP) stays active throughout the window, and the PSU limit set for S5 stays unchanged for the whole
-30 minutes. **This is a characterisation window inside an already-open, owner-authorised Phase B S5 substep — DR3-1
-authorises no powered execution** (owner's words); it does not itself open S5. **Record, at each of the six sample
-times:** the load state (must be **streaming** in the shipped mode to satisfy DR3-1 — a soak that was not streaming
-does not satisfy it; record what it actually was instead, e.g. powered-but-unassociated / associated); **and, only
-if a suitable contact temperature instrument exists (DR3-3):** ambient and heatsink surface temperature, with the
-instrument and where on the part it was read. **If no suitable instrument exists, temperature is NOT estimated from
-touch** — each sample row then carries the load state, the time, and the sensory observation only, and the
-quantitative heatsink-temperature evidence stays BLOCKED (DR3-3).
+**Duration and sample cadence — RULED 2026-09-06 night (DR3-1).** The owner's ruled step is **the S5 thermal-soak
+characterisation**: **30 minutes continuous streaming in the actual shipped/production Wi-Fi mode** — 5 GHz STATION
+joining the GCS-box hosted hotspot, **streaming**. That is a load state this card previously only required to be
+**recorded** (S5 row, :151 — *"powered-but-unassociated ≠ streaming"*), and which DR3-1 now makes a **condition of
+the characterisation**. (The soaks at `bench-gates/G-02_phone_video_glass_to_glass_latency.md`:87, :102 and :274
+belong to the phone glass-to-glass latency gate and are not this window; they are cited here only to keep the two
+apart.) Sample at exactly **0 · 5 · 10 · 15 · 20 · 30 min** — there is no 25-minute sample; this is the owner's own
+list, copied verbatim (`2026-09-06_offline_decision_round_3.md` DR3-1). **This is NOT a claim that 30 minutes proves
+thermal equilibrium** (owner's words). The existing sensory STOP (DR2-11: abnormal smell / abnormal heat / smoke /
+unexpected sound / visible anomaly / any other abnormal behaviour → IMMEDIATE STOP) stays active throughout the
+window, and **the PSU limit set for S5 stays unchanged for the whole 30 minutes**. **DR3-1 authorises no powered
+execution** (owner's words).
+
+**Where this window runs — NOT inside the S0–S9 staircase.** No step of this card brings the camera up: this card's
+numbered procedure is **B1.1–B4.4** (links/signals, safety chain, actuators + board #2, sensors), the camera-config
+capture block below is explicitly *"at the first camera bring-up"* and *"authorises nothing"*, and streaming itself
+is **CB5-gated** (`w17-ground-station/docs/video_profiles.md`:102 — *"the camera hardware is CB5-gated — there is
+nothing to configure or verify yet"*; `CURRENT_STATUS.md`:1358 lists CB5 as `BLOCKED_HARDWARE`). The **S5 thermal-soak
+characterisation** therefore runs at the **first camera bring-up session** — the first session in which streaming in
+the shipped mode is actually reachable — carrying the **S5 load definition and the S5 PSU limit unchanged** for the
+whole window, exactly as ruled. **Nothing in this paragraph opens that session, opens S5, or authorises any power**;
+camera bring-up stays CB5-gated and needs its own explicit fresh owner authorisation.
+
+**What the staircase's own S5 substep records — and what it does not settle.** When S5 is reached inside an
+already-open Phase B, record what is actually reachable there: the **load state as actually reached**
+(powered-but-unassociated / associated / streaming), the **time**, the **sensory observation**, and — **only if a
+suitable contact temperature instrument exists (DR3-3)** — temperature, with the instrument named and the spot on
+the part where it was read. **That substep does not satisfy DR3-1.** Until the streaming session runs the window,
+**the S5 thermal-soak characterisation row stays INCOMPLETE — never PASS, and never a fault.** A non-streaming S5
+reading is evidence of what the module was doing, not evidence for the characterisation.
+
+**Recording rule at each of the six sample times, wherever the window runs:** the load state at that sample; **and,
+only if a suitable contact temperature instrument exists (DR3-3):** ambient and heatsink surface temperature, with
+the instrument and where on the part it was read. **If no suitable instrument exists, temperature is NOT estimated
+from touch** — each sample row then carries the load state, the time, and the sensory observation only, and the
+quantitative heatsink-temperature evidence stays BLOCKED (DR3-3). **With no suitable instrument the +70 °C ambient
+criterion above cannot be evaluated at all — it is not thereby satisfied**; the window then yields load-state, time
+and sensory evidence only.
 
 **If the temperature is still rising when the observation ends, that is NOT a stop** — it means steady state was not
 demonstrated, so the recorded value is a **lower bound** on the eventual temperature. Write it down as a lower bound and
@@ -513,14 +539,21 @@ bench-gates/tools/crsf_sniff.py --port /dev/tty.usbserial-YYYY --baud 420000 \
   S5, whether the module was powered-but-unassociated, associated, or streaming. **A reading
   whose load state is not recorded is not evidence for T2 or T7** — a silent-amp or
   unassociated reading is not a bound on a bursty load and must not be chained as one.
-- **DR2-14 / DR3-1 thermal (S5):** the six DR3-1 sample times (**0 · 5 · 10 · 15 · 20 · 30 min**,
-  no 25-min sample) and the load state at each (must be **streaming** in the shipped mode to
-  satisfy DR3-1); **if a suitable instrument exists (DR3-3):** the instrument used, where on the
-  part it was read, ambient at each sample, heatsink surface temperature at each sample, and
-  whether the temperature had stopped rising — a still-rising final reading is recorded as a
-  **lower bound** and the result called inconclusive, not a fault; **if no instrument exists:**
-  each sample row carries load state + time + sensory observation only, and quantitative
-  heatsink-temperature evidence stays BLOCKED (DR3-3).
+- **DR2-14 / DR3-1 thermal (S5) — the S5 thermal-soak characterisation:** the six DR3-1 sample
+  times (**0 · 5 · 10 · 15 · 20 · 30 min**, no 25-min sample) and the load state at each
+  (**streaming** in the shipped mode is the ruled condition of the characterisation). **This
+  window does not run inside the S0–S9 staircase** — no step of this card brings the camera up and
+  streaming is CB5-gated, so it runs at the **first camera bring-up session**, with the S5 load
+  definition and the S5 PSU limit unchanged (see § "Thermal check at S5"). **Until that session
+  runs it the characterisation stays INCOMPLETE — never PASS, never a fault.** From the staircase's
+  own S5 substep, record instead: the load state as actually reached, the time, and the sensory
+  observation. **If a suitable instrument exists (DR3-3):** the instrument used, where on the part
+  it was read, ambient at each sample, heatsink surface temperature at each sample, and whether the
+  temperature had stopped rising — a still-rising final reading is recorded as a **lower bound** and
+  the result called inconclusive, not a fault; **if no instrument exists:** each sample row carries
+  load state + time + sensory observation only, quantitative heatsink-temperature evidence stays
+  BLOCKED (DR3-3), and the +70 °C ambient criterion cannot be evaluated at all — it is not thereby
+  satisfied.
 
 ## PASS/FAIL criteria (objective numbers)
 
@@ -566,7 +599,13 @@ bench-gates/tools/crsf_sniff.py --port /dev/tty.usbserial-YYYY --baud 420000 \
   governs (smell / abnormal heat / smoke / unexpected sound / visual anomaly = IMMEDIATE STOP) —
   **or** a heatsink surface reading **≥ 125 °C**, which proves the module datasheet's
   `Tj < 125 ℃` is already violated. **This governs throughout DR3-1's 30-minute streaming
-  characterisation window at S5, during which the PSU limit set for S5 stays unchanged.**
+  S5 thermal-soak characterisation window, during which the S5 PSU limit stays unchanged — and
+  that window does NOT run inside the S0–S9 staircase:** streaming is CB5-gated and no step of
+  this card brings the camera up, so it runs at the first camera bring-up session (see
+  § "Thermal check at S5"). It stays **INCOMPLETE — never PASS, never a fault** until that session
+  runs it, and nothing here authorises that session or any power. The same sensory rule governs
+  the staircase's own S5 substep, which records the load state as actually reached, the time and
+  the sensory observation.
   **No other numeric thermal STOP is derivable**, and no surface PASS temperature exists: the
   datasheet publishes no thermal resistance, no case-temperature limit and no dissipation
   figure, so one must not be invented. **Ambient above +70 °C** is outside the module's rated
@@ -614,10 +653,16 @@ bench-gates/evidence/BG-03/<UTC-stamp>/
   B4.4_hall_rates.md             # entries/100 ms plain and pull-up-lifted, guardFaults()
   cc_duration_log.md             # DR2-11: observed CC duration at every connect, vs the 500 ms STOP
   S4_S5_load_states.md           # what the amp and the Wi-Fi module were actually doing at each reading
-  S5_wifi_thermal.md             # DR2-14/DR3-1: load state + time at 0/5/10/15/20/30 min (must be
-                                 # streaming); if an instrument exists (DR3-3): instrument + spot,
-                                 # ambient/surface per sample, and whether it had stopped rising
-                                 # (lower bound if not); if none, sensory observation only
+  S5_wifi_thermal.md             # DR2-14/DR3-1 S5 thermal-soak characterisation: load state + time
+                                 # at 0/5/10/15/20/30 min, streaming in the shipped mode. NOT run
+                                 # inside the S0-S9 staircase (streaming is CB5-gated) - it runs at
+                                 # the first camera bring-up session, S5 load state and S5 PSU limit
+                                 # unchanged; INCOMPLETE until then, never PASS, never a fault. From
+                                 # the staircase's own S5 substep record instead: load state as
+                                 # actually reached, time, sensory observation. If an instrument
+                                 # exists (DR3-3): instrument + spot, ambient/surface per sample, and
+                                 # whether it had stopped rising (lower bound if not); if none,
+                                 # sensory observation only
   deviations.md
 ```
 
