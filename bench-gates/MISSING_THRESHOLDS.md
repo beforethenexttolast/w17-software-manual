@@ -32,7 +32,7 @@ list.
 | O-3 | ACCEPTED: 2000 ms maximum spread across cold runs (G-04 criterion 3) |
 | O-4 | ACCEPTED: five cold runs (G-04) |
 | O-5 | RULED: STOP-button lag ≤ 250 ms; record the measured value AND PASS/FAIL (G-04 criterion 10) |
-| O-6 | STAIRCASE POLICY RATIFIED; initial amperage NOT invented — derive the starting limit per powered substep from component/rail limits before first power; trip = STOP AND DIAGNOSE; raise only when understood and justified; never exceed rail/component limits; if not derivable offline → BLOCKED + smallest owner decision (BG-03 / tools/first_power_current_limits.md T11) |
+| O-6 | STAIRCASE POLICY RATIFIED; initial amperage NOT invented — derive the starting limit per powered substep from component/rail limits before first power; trip = STOP AND DIAGNOSE; raise only when understood and justified; never exceed rail/component limits; if not derivable offline → BLOCKED + smallest owner decision (BG-03 / tools/first_power_current_limits.md T11) — derivation done 2026-09-06 (`_handoff/2026-09-06_O6_derivation_report.md`): all 14 substeps BLOCKED on owner Decision Round 2 (bench PSU identity + minimum settable limit; UBEC make/model); four manufacturer figures now cited on BG-03/T11 |
 | O-7 | RULED: initial maxBrightness cap = 180 (operating target); may be reduced at the halo gate; no raise above 180 without halo/current/rail evidence + new ruling; 227 stays the compile ceiling only (BG-08) |
 
 Applied into the cards on 2026-09-06 (branch `offline/d4-thresholds`): G-02 (O-1), G-04
@@ -80,6 +80,11 @@ No per-load current figure for the car's rails exists anywhere: not in
 project are **ground-side** (`w17-gcs-box-guide.md`:135-139), and they are the template these
 rows should follow: a cited figure, an `[A]`/`[I]` evidence tag, and a stated decision
 threshold.
+
+**Update 2026-09-06:** the O-6 derivation (`_handoff/2026-09-06_O6_derivation_report.md`) has
+since cited manufacturer figures for the Wi-Fi module (BL-M8812EU2), the amplifier (MAX98357A)
+and the steering servo (DS3235SG) — see `tools/first_power_current_limits.md` rows L11–L13 and
+T11; **T1–T9 still remain bench measurements**, with no manufacturer or code figure available.
 
 | # | Row | Card it blocks | Source |
 |---|---|---|---|
