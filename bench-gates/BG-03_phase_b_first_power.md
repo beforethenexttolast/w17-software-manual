@@ -45,8 +45,90 @@ with the checkbox detail in `w17-control-fw/docs/D8_BENCH_BRINGUP.md` (cited as 
   lowest defensible limit for the substep being powered; a current-limit trip means **STOP
   AND DIAGNOSE**, never simply increase the limit until it works; raise the limit only after
   the trip is understood and the next setting is justified; never exceed applicable
-  rail/component safety limits. **Starting limit per substep: pending the O-6 derivation
-  (separate task) — BLOCKED until recorded here.** No amperage is stated on this card.
+  rail/component safety limits. **Starting limit per substep: derived offline 2026-09-06 —
+  see the subsection below; still BLOCKED on owner Decision Round 2 (PSU identity, UBEC
+  identity).** No amperage is stated on this card.
+
+### Starting current limits (O-6 derivation, 2026-09-06)
+
+**Evidence label: NOT-EXECUTED.** Nothing below has been measured. O-6 (owner, 2026-09-05)
+ratified the staircase policy and forbade inventing an initial amperage; this subsection is
+the offline derivation that ruling required, and it ends in BLOCKED rows on purpose.
+
+**The policy, in force:** lowest defensible limit for the substep · a current-limit trip is
+**STOP AND DIAGNOSE** · never simply increase until it works · increase only after the trip
+is understood and the next setting is justified · never exceed the applicable rail/component
+limit.
+
+**The margin, named:** *M-PEAK* — take each load's manufacturer **Max/peak** figure (never
+Typ) and the LED model's **stated upper bound** (never its actual draw); add no percentage.
+A percentage would be an invented number; the typ→max gap is the manufacturer's own worst
+case and it carries a citation. **M-PEAK does not cover inrush**: C1 and C2 will momentarily
+pull the supply into constant-current at each connect, and the stop condition is deliberately
+worded "the supply **sits** in constant-current" — momentarily entering and then leaving is
+the healthy signature, not the fault.
+
+**The chaining rule:** the limit applies to everything present, so
+`L(N) = R(N-1) + P(N)`, where `R(N-1)` is the settled total recorded minutes earlier in this
+same session and `P(N)` is the cited peak of the load being added. Only L(0) and L(1) need a
+number no measurement can supply.
+
+**Two facts that block every absolute value, and are not lookups:**
+1. **No document names the bench PSU** (A2:116 says only "have them, do not connect them"),
+   so its minimum settable constant-current value — the literal first number step 1 asks for
+   — is unknown, and it is not established that it has a settable limit at all.
+2. **The supply is on the pack side (7.4 V) and every derived load figure is a 5 V rail
+   current** (this card's own topology, :55). Converting between them needs the UBEC's
+   efficiency, and **no document names the UBEC's make or model** — only "UBEC 5 A (2 pcs)"
+   (`HARDWARE_INVENTORY.md`:113).
+
+| Substep | Added-load allowance P(N) | Absolute limit L(N) | Never-exceed | Status |
+|---|---|---|---|---|
+| S0 PDB alone | divider 37 kΩ → **0.20 mA @7.4 V** derived; UBEC quiescent and ESC standby absent | — | PSU's own limits (unknown) | **BLOCKED** — needs the PSU's minimum settable limit |
+| S1 + ESP32 #1/#2 idle | — | — | Rail A **5 A** | **BLOCKED** — MH-ET LIVE publishes no datasheet; the WROOM-32 module datasheet is not the board |
+| S2 + RP1 | — | — | Rail A **5 A** | **BLOCKED** — RadioMaster's own page gives 5 V and no current figure |
+| S3 + WS2812 strip @ cap **180** | **560 mA** (model upper bound; code's integer form 540 mA) | — | budget **900 mA**; Rail A **5 A** | **P(N) DERIVED**, L(N) **BLOCKED** |
+| S3 + WS2812 strip @ shipped **110** | **188 mA** (code's integer form 180 mA) | — | as above | **P(N) DERIVED**, L(N) **BLOCKED** |
+| S4 + MAX98357A + speaker | quiescent **3.35 mA max** derived; output-driven term absent | — | amp **ILIM 2.8 A**; Rail A **5 A** | **BLOCKED** — shipped `sound.volume` unrecorded; the only cited efficiency is at 8 Ω, not the 4 Ω speaker |
+| S5 + camera / Wi-Fi | Wi-Fi **1800 mA max** derived; camera term absent | — | Rail A **5 A** | **BLOCKED** — no figure for the OpenIPC SSC338Q at 5 V |
+| S6 + blower | — | — | Rail B **5 A** | **BLOCKED** — the BOM names an "ACP2006-class" part, not a part number |
+| S7 + one MG90S | — | — | Rail B **5 A** | **BLOCKED** — generic part, and TowerPro's own page publishes no current figure |
+| S8 + remaining MG90S | — | — | Rail B **5 A** | **BLOCKED** — as S7 |
+| S9 DS3235SG holding centre (T3) | **5 mA @5 V** (datasheet idle-at-stopped) | — | servo **stall 1.9 A @5 V**; Rail B **5 A** | **P(N) DERIVED**, L(N) **BLOCKED** |
+| S9 DS3235SG full-lock sweep (T4) | — (no running-current figure exists; the datasheet gives only idle and stall) | — | **1.9 A @5 V** — the number C1 exists for | **ceiling DERIVED**, expected draw **BLOCKED** |
+
+**Cited figures used above, with sources (all retrieved 2026-09-06):**
+
+- WS2812 strip: `w17-soundlight-fw/lib/lights/include/lights/LightRenderer.hpp`:11 (`kNumPixels`
+  = 30), :110-111 (`renderedDuty`), :152 (shipped `maxBrightness` = 110), :209
+  (`kBudgetMilliamps` = 900), :226 (`perLedMa`), :242 (the check). At cap 180,
+  `renderedDuty(255,180)` = 119 and the model gives 540 mA (integer) / 560 mA (un-truncated).
+- MAX98357A: Maxim Integrated *MAX98357A/MAX98357B* datasheet, Electrical Characteristics —
+  "Quiescent Current IDD … 2.75 [typ] 3.35 [max] mA", "Current Limit ILIM 2.8 A", "Output
+  Power … ZSPK = 4Ω + 33µH … THD+N 10%, gain = 12dB … 3.2 W", "Efficiency ε … ZSPK = 8Ω +
+  68µH … 92 %".
+- BL-M8812EU2: B-link *BL-M8812EU2 datasheet V1.0.1.0* (official release 2023-10-27), §1.3
+  "Power Supply DC 5.0V±0.25V @1800mA (Max)"; §3.3 "WLAN Unassociated 113/123 mA", "WLAN TX/RX
+  TCP throughput 300Mbps 732/928 mA", "HT20 MCS8 TX @ 27.5 dBm (2TX RF test) 927/1510 mA".
+- DS3235SG: DS SERVO datasheet, model line "DS3235 / DS3235-180 / DS3235-270", §4 Electrical
+  Specification — "Idle current (at stopped) 5mA" and "Stall current (at locked) 1.9A" at
+  5 V; "Operating Voltage Range 5-7.4V". **Caveat:** DS Servo's own download index lists no
+  DS3235 file, and this document does not carry the "SG" suffix the BOM uses.
+- Rail ratings: `HARDWARE_INVENTORY.md`:113 ("UBEC 5 A (2 pcs)").
+- The ESC's BEC is **not** a rail source and imposes no rail limit — its red +5 V wire is cut
+  (`w17-pdb-build-and-connector-guide.md`:80; `bill_of_materials_v2.md`:195;
+  `00_BUILD_SHEET.md`:32).
+
+**Explicitly NOT used, and why:** a general-knowledge "typical ESP32 draws ~X"; a third-party
+"80 mA" figure for the MH-ET board; a third-party "MG90S stall 400 mA"; a search result
+claiming the DS3235SG stalls at 3.9 A — the manufacturer's own datasheet says **1.9 A at 5 V**,
+which is why family figures are refused rather than merely discounted.
+
+**Owner decisions this subsection is waiting on:** the bench PSU's identity and minimum
+settable limit; the UBEC's make/model; whether the first energisation uses the PSU rather
+than the pack and whether the ESC feed can be separated for S0–S9. See
+`bench-gates/tools/first_power_current_limits.md` row T11.
+
 - Car on a stand. Battery pullable. Observer.
 
 ## Topology (ASCII)
@@ -307,8 +389,10 @@ bench-gates/evidence/BG-03/<UTC-stamp>/
   `bench-gates/tools/first_power_current_limits.md`, rows T1–T13, all **THRESHOLD MISSING**.
   (Ground-side 5 V loads are documented — `w17-gcs-box-guide.md:135-139`; firmware-side loads
   still are not.) **The staircase POLICY itself is RULED (2026-09-05, D-4 O-6)** — see
-  Required equipment, above. Only the per-substep starting amperage remains **BLOCKED**,
-  pending the O-6 derivation (a separate task running in parallel).
+  Required equipment, above. The per-substep starting amperage has now been **derived
+  offline (2026-09-06)** — see "Starting current limits (O-6 derivation, 2026-09-06)" above
+  and `_handoff/2026-09-06_O6_derivation_report.md` — and every row remains **BLOCKED** on
+  owner Decision Round 2 (bench PSU identity and minimum settable limit; UBEC make/model).
 - The **ESC's own neutral/range calibration** is its manual's business, not the firmware's
   (D8:215-216).
 
