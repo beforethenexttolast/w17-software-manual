@@ -102,8 +102,9 @@ powered-but-unassociated Wi-Fi reading does not fill T2 (which says *"streaming"
 silent-amp reading — `Ignition::Off` ⇒ `synthVolume 0` — does not fill T7. **If the module was
 not streaming, T2 stays THRESHOLD MISSING; if the amp was silent, T7 stays THRESHOLD MISSING**,
 and in neither case does the part gain a cited peak in the chaining rule's `Σ P(k)`. T7's
-`≥ 640 mA` figure is relabelled a **12 dB spec-point** figure (the shipped build plans 9 dB,
-unverified), and a new **L16** records the datasheet §4 TX-power ceiling — a **dBm
+`≥ 640 mA` figure is relabelled a **12 dB spec-point** figure (the shipped build ships at **9 dB,
+CONFIRMED DR3-2**; pad-mapping verification against the datasheet is pending pre-solder), and a
+new **L16** records the datasheet §4 TX-power ceiling — a **dBm
 configuration** never-exceed for the camera's Wi-Fi driver, **not a current** and not part of
 the four-parts current grouping. Speaker impedance remains packet item 6.
 

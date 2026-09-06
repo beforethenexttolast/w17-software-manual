@@ -140,7 +140,8 @@ including the phases BG-03 deliberately does not cover: Phase 0, Phase 3b, Phase
     the ground station to confirm the HUD's warning UI **before** trusting a real low reading, so a
     HUD bug and a hardware defect are never diagnosed as the same thing (D8:238-262).
 12. **Phase 9 — link2 → board #2.** Flash soundlight; wire GPIO25 → GPIO16, **common ground**,
-    115200 8N1. MAX98357A GAIN strap (start 9 dB floating). WS2812 behaviours. **Cut the UART
+    115200 8N1. MAX98357A GAIN strap (9 dB, GAIN floating — CONFIRMED DR3-2; verify the board's
+    pad mapping against the datasheet before soldering). WS2812 behaviours. **Cut the UART
     mid-run → board #2 goes to its own local failsafe within 500 ms** (D8:264-277). Two-board order
     detail is **BG-05**.
 13. **Phase 10 — ground station (Windows).** Out of this card's scope; the ground bench-gate cards
