@@ -32,7 +32,7 @@ Scope = exactly the seven branches in §1 at the tips listed (workspace program/
 verifies; those are docs-only and are the "mechanically necessary" tail — treat anything else added later as out of scope). NOT a general push grant.
 Rule from the owner: if approved content changes materially before landing, independently verify the changed portion before push; merge-resolution trees must be
 independently verified. Post-review edits already on the workspace branch that a successor must have verified before push: the booklet D-5 voice edits (f03066f) and
-the thresholds §1 ruling table (fa66bbb) — a scoped Sonnet verify (V-HANDOFF, brief in SP/briefs) was launched for them on 2026-09-06; check SP/reports/V-HANDOFF.md.
+the thresholds §1 ruling table (fa66bbb) — V-HANDOFF (Sonnet, 2026-09-06, SP/reports/V-HANDOFF.md): boot test PASS on every item; thresholds table PASS; booklet D-5 had ONE defect (§9 row carried a parenthetical from Alternative A) — fixed in the next commit to the verbatim Alternative B text and proven by string equality against the packet; no further post-review edits exist. The grant's verify-before-push condition is therefore met for the workspace branch as of that commit.
 Order (each step: guarded ff/merge in the MAIN checkout only after `git worktree list` + `git branch --show-current` confirm nobody else is in the tree; re-check HEAD right before merging):
 1. control-fw: `git -C w17-control-fw merge --ff-only offline/docfix-gate-citations` → push → observe CI (both jobs incl. link2-drift) green.
 2. GS: merge offline/windows-validation-harness then offline/raceday-timing-logs (disjoint file sets; run `npm test` on the merged tree — expect ≥1693) → push → observe CI (contract-mirror, test, package-smoke).
