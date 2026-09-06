@@ -16,7 +16,7 @@ Worktrees under SP hold the branches in §1. If a trunk moved, another session l
 ## 1. Branch state (all reviewed → fixed → independently re-verified; nothing pushed; no trunk touched)
 | repo | branch | tip | worktree (SP/) | chain (reports in SP/reports) | content |
 |---|---|---|---|---|---|
-| workspace | program/offline-readiness | fa66bbb (+ later handoff commits) | wt-ws-program | integrates all workspace `offline/*` below | 3 state files, rulings record, bench-gates/ (12 cards, tools, thresholds), VM runbook + scripts/vm, procurement, booklet + packet, manual palette fixes, doc fixes |
+| workspace | program/offline-readiness | e7b0017 = content tip (one docs-only state-normalization commit sits on top, 2026-09-06; `git rev-parse --short program/offline-readiness` is authoritative) | wt-ws-program | integrates all workspace `offline/*` below | 3 state files, rulings record, bench-gates/ (12 cards, tools, thresholds), VM runbook + scripts/vm, procurement, booklet + packet, manual palette fixes, doc fixes |
 | GS | offline/windows-validation-harness | a80236e | wt-gs-winval | A2 → R-A2 → FIX-A2 → V-A2 PASS → FIX-A5 → V-A5 PASS | DryRun/mock layer + 9 fixtures, 05-passthrough, 31-adapter-capability, hot-plug timeline, evidence JSON/RESULT.md, hardware gates advisory by default |
 | GS | offline/raceday-timing-logs | 2f2690a | wt-gs-timing | G3 → R-G → FIX-G → V-G PASS | 5 `W17T` structured log lines + stamped WS3 probe log + monotonic `m`; 1693 tests |
 | mapper | offline/host-prechecks | 1f20de5 | wt-mapper-host | A4 (dry-run SKIP clean; no production code) | tools/host-precheck/ds4_precheck.sh + dsdump (build tag) |
@@ -28,11 +28,10 @@ offline/bench-gates-ground 20c8ca6, offline/procurement 87c01f1, offline/booklet
 offline/docfix-manual-lights 96a8f7a, offline/gate-card-citations 6ea24c7.
 
 ## 2. The ONE-TIME grant (owner D-6, 2026-09-05) — exact scope and landing sequence
-Scope = exactly the seven branches in §1 at the tips listed (workspace program/offline-readiness may carry the handoff/ruling commits made 2026-09-06 after the
-verifies; those are docs-only and are the "mechanically necessary" tail — treat anything else added later as out of scope). NOT a general push grant.
+Scope = exactly the seven branches in §1 at the tips listed; the workspace branch's content tip is e7b0017 plus one docs-only state-normalization commit
+(2026-09-06) that is the "mechanically necessary" tail — treat anything else added later as out of scope. NOT a general push grant.
 Rule from the owner: if approved content changes materially before landing, independently verify the changed portion before push; merge-resolution trees must be
-independently verified. Post-review edits already on the workspace branch that a successor must have verified before push: the booklet D-5 voice edits (f03066f) and
-the thresholds §1 ruling table (fa66bbb) — V-HANDOFF (Sonnet, 2026-09-06, SP/reports/V-HANDOFF.md): boot test PASS on every item; thresholds table PASS; booklet D-5 had ONE defect (§9 row carried a parenthetical from Alternative A) — fixed in the next commit to the verbatim Alternative B text and proven by string equality against the packet; no further post-review edits exist. The grant's verify-before-push condition is therefore met for the workspace branch as of that commit.
+independently verified. **Verify-before-push condition: SATISFIED for the workspace branch.** The only post-review edits are the booklet D-5 voice rulings (f03066f, corrected to verbatim Alternative B at e7b0017) and the thresholds §1 ruling table (fa66bbb). V-HANDOFF (Sonnet, 2026-09-06) = **PASS**: boot test passed on every item; thresholds table matches D-4 exactly; the one booklet defect it found (§9 parenthetical from Alternative A) was fixed and proven by string equality against the packet. Persisted report: `_handoff/2026-09-06_V-HANDOFF_boot_test.md` (copy of SP/reports/V-HANDOFF.md). No further post-review edits exist; the state-normalization commit on top is docs-only.
 Order (each step: guarded ff/merge in the MAIN checkout only after `git worktree list` + `git branch --show-current` confirm nobody else is in the tree; re-check HEAD right before merging):
 1. control-fw: `git -C w17-control-fw merge --ff-only offline/docfix-gate-citations` → push → observe CI (both jobs incl. link2-drift) green.
 2. GS: merge offline/windows-validation-harness then offline/raceday-timing-logs (disjoint file sets; run `npm test` on the merged tree — expect ≥1693) → push → observe CI (contract-mirror, test, package-smoke).
@@ -50,7 +49,7 @@ D-4: O-1 150/200 ms · O-2 1000 ms headroom · O-3 2000 ms spread · O-4 five ru
 D-5 booklet voice: applied f03066f. D-6: the grant in §2.
 
 ## 4. Next autonomous actions (in order; none needs the owner; none is powered)
-1. Execute §2 (the grant) — first re-verify the two post-review edits if SP/reports/V-HANDOFF.md is absent or not PASS.
+1. Execute §2 (the grant). The verify-before-push condition is already satisfied (V-HANDOFF PASS, `_handoff/2026-09-06_V-HANDOFF_boot_test.md`); re-verify only if the workspace branch has moved past the normalization commit.
 2. Apply D-4 into the card criteria: G-02 (O-1 target), G-04 (O-2/O-3/O-4/O-5 as accepted, STOP lag ≤ 250 ms + record value), BG-08 (operating cap 180; 227 ceiling note), BG-03 + `bench-gates/tools/first_power_current_limits.md` T11 (staircase policy text; initial value derivation task, see 3). Scoped Sonnet verify, then land under a FRESH grant (this is new content).
 3. O-6 derivation (Opus, offline): for BG-03/BG-04's first powered substeps, derive the lowest defensible starting current limit from cited component/rail limits (UBEC 5 A ×2, LED renderer ≤900 mA at cap 227 / recompute at 180, servo stall, ESC BEC, board datasheets). Any substep with no defensible number → BLOCKED with the smallest owner question. Output: a table on BG-03 + T11 row.
 4. Apply O-7 = 180 as the shipped `maxBrightness` value? NO — that is a firmware change on a trunk (soundlight `LightRenderer.hpp:152` = 110 today); it needs its own reviewed branch + fresh grant. Record it as a queued cf/sl change; do not touch trunks.

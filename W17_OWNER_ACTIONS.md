@@ -9,10 +9,12 @@ Only genuinely human-required actions appear here. Each: action · reason · pre
    all of Workstream A beyond static checks. File: runbook §1.0 checklist (under Opus review R-A before you follow it).
 2. **Install VMware Fusion (free personal licence) and download the Windows 11 ARM64 ISO.** Reason: neither is on the Mac
    (OBSERVED). Prereq: item 1. Unlocks: guest creation → the one-shot bootstrap script the A1 worker is preparing. File: runbook §1.1–1.2.
-3. **Decide OP-49 (2S balancing USB-C charge module): adopt the on-hand IP2326 ×2 or select another.** Reason: `HARDWARE_INVENTORY.md`
-   §"Not on hand yet" item 4 says the inventory and OP-49 disagree on whether a module is chosen; it blocks done-bar 4 and the M-16
-   measurement row. Prereq: none. Unlocks: charge-flap CAD, charge-safety spec, procurement bucket. File:
-   `w17-3d-codex/10_assembly_architecture/OPEN_PROBLEMS_AND_QUESTIONS.md` (OP-49).
+3. **OP-49 — no-power marking/identification inspection of the two IP2326 boards, then OP-49 evidence closure.** D-2 (RULED 2026-09-05):
+   IP2326 ×2 is the ADOPTED candidate; the decision is closed. What remains is work, not a choice: visually identify/mark both boards (no power),
+   then close OP-49's list — exact SKU/datasheet on record, board+connector+heatsink envelope, cell interface, charge/run interlock, charge-state
+   access, reverse/backfeed isolation, thermal/fault evidence, and the separate charge-safety specification — **before any powered charge test**.
+   Prereq: none. Unlocks: charge-flap CAD (M-16), charge-safety spec, procurement of charge-path parts. File:
+   `w17-3d-codex/10_assembly_architecture/OPEN_PROBLEMS_AND_QUESTIONS.md` (OP-49); `2026-09-05_offline_decision_round_1.md` D-2.
 4. **Print fit-check coupon C-1 (peg/hole ladder) — the STL was sent to you (out/C-1.stl, 106×28×12 mm): draft PLA/PETG, 0.20 mm, 4 walls, 40 %, no supports, label TP-001; then note the first peg/hole step that fits and stays put when shaken.** Reason: it calibrates `fit_clearance`, which
    every other CAD model depends on (`w17-3d-codex/11_cad/README.md` "Order of operations" step 1). Prereq: none. Unlocks: coupons
    C-2..C-4 and every fit print. File: `w17-3d-codex/11_cad/fit_check_coupons.scad`, `PRINT_SPEC.md`.
@@ -23,7 +25,7 @@ Only genuinely human-required actions appear here. Each: action · reason · pre
 - **ELRS TX handset via USB (TX16S)** — later; only for serial enumeration, with the car unpowered and no receiver in reach.
 
 ## WHEN EQUIPMENT ARRIVES
-- 5 GHz AP-capable USB Wi-Fi adapter → pass through to the guest → `30-hotspot.ps1` (runbook §1.8, §3).
+- 5 GHz AP-capable USB Wi-Fi adapter (GIFT-KIT unit, D-1; one adapter, no ARM-VM duplicate) → hotspot validation on a **real x64 Windows 11 PC** (`30-hotspot.ps1` + the hotspot half of `40-mdns-udp.ps1`), then the same acceptance check again on the giftee PC at handover. Never into the ARM64 guest: no Windows-on-ARM driver exists for any candidate chipset (VERIFIED).
 - Neodymium 3×1 mm magnets, Tamiya tyres (both ⏳ in transit per `HARDWARE_INVENTORY.md`) → A2 no-power rows that need them.
 - In-envelope 2S car pack (⬜ not sourced; shop to dimensions ≤70×40×22 mm, hard fail 75×45×25) → Phase B on-car power, later.
 
@@ -35,16 +37,13 @@ Only genuinely human-required actions appear here. Each: action · reason · pre
 - A2 closure → Phase B first power → D8 bring-up → BT1 → coordinated flash → race-day link/CRSF on the wire → phone latency → halo.
 - FIRST_ACTIVE: NO-GO until a separate reviewed safety milestone.
 
-## DECISION ROUND 1 — **RULED 2026-09-05** (verbatim: `2026-09-05_offline_decision_round_1.md`; summary in W17_OFFLINE_READINESS.md §4a). The items below are kept for traceability; none is open.
-- **D-1 Hotspot validation host + adapter scope.** No ARM64 Windows driver exists for any USB Wi-Fi adapter (VERIFIED), so the ARM64 VM can run every WS3 step EXCEPT 30-hotspot and 40's hotspot half. Options: (a) borrow/identify an x64 Windows 11 PC for one session; (b) defer hotspot validation to the giftee-PC handover (readiness decision A4: real PC only at handover); (c) both. And: is the adapter part of the GIFT KIT or only a validation tool? The BUY NOW row waits on this.
-- **D-2 OP-49 charge module.** Adopt the on-hand IP2326 ×2 (two canonical lines call it balancing) or select another; then OP-49's list is worked against it. Blocks charge-flap CAD (M-16) and the charge-safety spec.
-- **D-3 Ratify the BG-06 T1 classification.** The CRSF-on-the-wire tap (mapper → FT232RL → module) is INFERRED to be a live-TX bench procedure under the VM runbook §3.1 (car UNPOWERED or RP1 UNBOUND, no bound RX powered in range, attended, discharges nothing) — un-gated by A2/Phase B only, but needing your explicit go like every gate. Ratify or overturn; it is load-bearing and nobody has ruled it.
-- **D-4 Seven owner-rulable thresholds** (`bench-gates/MISSING_THRESHOLDS.md` §1): O-1 does the 150/200 ms phone-video latency target survive OD-16's WHEP relay (yes/no/new number); O-2 headroom vs LINK_UP_WAIT_MS=5000 (G-04 proposes 1000 ms); O-3 spread across cold runs (proposes 2000 ms); O-4 number of cold runs (proposes 5); O-5 acceptable STOP-button lag (no number anywhere); O-6 bench-PSU current-limit staircase policy (start value + raise rule) — the one that unblocks first power; O-7 maxBrightness taste value in 1…227 (227 = compile ceiling, DERIVED and recompiled).
-- **D-5 Booklet tone lines.** `learning-manual/BOOKLET_EDITORIAL_PACKET.md` §2: five lines, two alternatives each, 15-minute review. Facts are already fixed.
-- **D-6 Merge/push grant.** Requested for: workspace program/offline-readiness → main; GS offline/windows-validation-harness a80236e and offline/raceday-timing-logs 2f2690a; mapper offline/host-prechecks 1f20de5 (FORK-NOTICE push-review rule applies); 3d-codex offline/measurement-sitting 98e27a7 + offline/cad-prep 988cf17; control-fw offline/docfix-gate-citations 1d17c6b. All reviewed → fixed → independently re-verified. Until granted, everything stays on branches (and the measurement sitting can be executed from the delivered files).
-
-## DECISIONS QUEUED (superseded — folded into Decision Round 1 above)
-- **Hotspot validation host.** The ARM64 VM cannot drive any USB Wi-Fi adapter (no ARM64 drivers exist, A3 VERIFIED). Options: (a) borrow/identify an x64 Windows 11 PC for one hotspot session; (b) defer the hotspot half to the giftee-PC handover session (readiness decision A4 already says real PC only at handover); (c) both. Also: is the adapter part of the GIFT KIT (giftee PC lacks AP-capable Wi-Fi?) or only a validation tool? The purchase spec depends on this.
+## DECISION ROUND 1 — **RULED 2026-09-05, all six closed** (verbatim: `2026-09-05_offline_decision_round_1.md`; summary in W17_OFFLINE_READINESS.md §4a)
+- **D-1 RULED:** validate hotspot on a real x64 Windows 11 PC when available AND re-check on the giftee PC at handover; the 5 GHz AP adapter is gift-kit/production equipment, one unit, no ARM-VM duplicate.
+- **D-2 RULED:** IP2326 ×2 adopted as the charge-module candidate; all remaining OP-49 evidence/safety work still required before any powered charge test; no-power board-marking inspection kept (DO NOW item 3).
+- **D-3 RULED:** BG-06 T1 (CRSF tap) is a live-TX gated bench procedure — car unpowered OR RP1 unbound; no bound receiver powered in range; attended; explicit owner go — and discharges no A2 / Phase B / FIRST_ACTIVE gate.
+- **D-4 RULED:** O-1 150/200 ms · O-2 1000 ms headroom · O-3 2000 ms spread · O-4 five runs · O-5 STOP lag ≤ 250 ms (record value + PASS/FAIL) · O-6 staircase policy ratified, initial amperage must be derived per powered substep or stay BLOCKED · O-7 maxBrightness operating cap 180 (227 = compile ceiling only). Recorded in `bench-gates/MISSING_THRESHOLDS.md` §1.
+- **D-5 RULED and APPLIED** in the booklet (f03066f, corrected to verbatim Alternative B at e7b0017): §1 A, §4 B (+ section-9 row), §6 B, §9 B, §3 unchanged.
+- **D-6 GRANTED (one-time, exact scope):** the seven branches in `NEW_SESSION_HANDOFF.md` §1, landing order §2. Not yet executed — the successor's first action. Not a general push grant.
 
 ## MUST-NOT-LOSE QUEUE (owner instruction 2026-09-05)
 5 GHz AP-capable USB Wi-Fi adapter (gift kit, one unit — BUY NOW) · in-envelope 2S car battery (BUY NOW) · GCS-box USB 3.x hub (BUY NOW) · boot-mode selector (BUY NOW) ·
@@ -52,5 +51,5 @@ OP-49/IP2326 closure + charge-path parts (WAIT→WORK: evidence list before any 
 Windows ARM VM (disk → Fusion → ISO → bootstrap) · no-power measurement sitting (pack delivered).
 
 ## LATER / POLISH
-- Booklet tone/style lines (the F1 worker will hand you a focused packet; facts are fixed by agents).
-- Push/merge grant for `program/offline-readiness` and the `offline/*` branches once wave 2 review passes (queued, not urgent).
+- (done) Booklet tone lines — ruled D-5 and applied; packet §2 marks the choices.
+- (done) Merge/push grant — D-6 granted one-time, exact scope; execution is the successor's first action (`NEW_SESSION_HANDOFF.md` §2).

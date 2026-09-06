@@ -61,7 +61,7 @@ Phase B, FIRST_ACTIVE, or by anything being assembled.
 > **1 … 227**, and the real constraint (UBEC rail headroom) is lower still. Derivation and
 > the full cap/draw table are on **BG-08**.
 
-**Cheapest order for one owner sitting:** O-2, O-3, O-4 and O-5 are all G-04's own proposals
+**[Historical — all seven were RULED 2026-09-05; see the ruling table at the top of §1.] Cheapest order for one owner sitting:** O-2, O-3, O-4 and O-5 were G-04's own proposals
 awaiting ratification — accept or replace, four decisions. O-1 is a yes/no on whether an old
 target survived a topology change. O-7 needs the 227 ceiling above plus a taste call. O-6 is
 the only one that needs real thought, and it is the one that unblocks first power.
@@ -145,7 +145,7 @@ ruled in advance and it cannot be measured by a script.
   exist and are cited on the cards. A number being *unvalidated* is not the same as a number
   being *missing*, and only the missing ones are here.
 - Anything a card **proposes**. G-04's 1000 ms / 2000 ms / five runs appear above as O-2,
-  O-3 and O-4 — as *questions awaiting a ruling*, not as thresholds. No card's suggestion is
+  O-3 and O-4 — listed at the time as *questions awaiting a ruling*, not as thresholds (since RULED, §1 table). No card's suggestion is
   promoted to a standard by being listed here.
 - Anything that would need the car assembled to even ask.
 
