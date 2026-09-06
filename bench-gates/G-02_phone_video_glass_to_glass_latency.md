@@ -153,12 +153,14 @@ print("DELTA         %.1f ms  (+/- %.1f ms; the systematic bias is common to bot
 PY
 ```
 
-Optional, only if the owner adopts a target (see PASS/FAIL — none is recorded today):
+Assert against the RULED target (2026-09-05, D-4 O-1; see PASS/FAIL criterion 6):
 
 ```sh
 python3 bench-gates/tools/latency_from_frames.py --fps 240 \
   --pairs-file bench-gates/evidence/G-02/phone_drive_pairs.csv \
-  --median-target-ms 150 --p95-target-ms 200      # cited, but see the warning below
+  --median-target-ms 200 --p95-target-ms 200      # both flags = the RULED 200 ms MAXIMUM (D-4 O-1);
+                                                  # the 150 ms DESIRED figure is reported by hand below,
+                                                  # never passed as a flag — a flag is a FAIL bound in this tool
 ```
 
 CSV shape (`n_source,n_display[,label]`; a header row is optional, `#` lines ignored):
@@ -191,7 +193,7 @@ What *does* exist, and what it is worth:
 
 | Number | Source | Standing |
 |---|---|---|
-| median ≤ **150 ms**, p95 ≤ **200 ms** glass-to-glass | `iPhone_rc/docs/VR_FPV_IMPLEMENTATION_PLAN.md:541` | An *"initial engineering target, not a promise"*, written for the **direct APFPV RTP** design that OD-16 replaced. Usable as a talking point for the **laptop** path; it was never a target for a relayed second peer |
+| 150 ms desired / **200 ms** maximum glass-to-glass | `iPhone_rc/docs/VR_FPV_IMPLEMENTATION_PLAN.md:541` | **RULED 2026-09-05 (D-4 O-1):** retained as the acceptance target for the phone's own glass-to-glass latency, despite the OD-16 topology change (laptop-relayed WHEP pull replacing the direct APFPV RTP path this target was originally written against). This is the target for the phone's **absolute** latency, not the phone-vs-laptop delta — the delta (C2-1) stays **BENCH-TBD**, see the THRESHOLD MISSING note above |
 | "300–500 ms" | brief-illustrative only | Explicitly refused as a measurement by `iPhone_rc/docs/PHONE_LIVE_VIDEO_DESIGN.md:198-200` — *"must not be laundered into this document"*. **Do not use it** |
 | 98–136 ms | `iPhone_rc/docs/SIMULATOR_TESTING.md:317` | Simulator, loopback, `testsrc`. `:319` — *"This is not a bench number and must not be quoted as one."* |
 
@@ -204,7 +206,7 @@ What *does* exist, and what it is worth:
 | 3 | The number is repeatable | median of a second capture within **2 capture frames** (8.33 ms at 240 fps) of the first | wider ⇒ the rig, not the pipeline, is the dominant term; fix the rig |
 | 4 | p95 is meaningful | `n ≥ 20` (the script says so explicitly) | fewer samples ⇒ report the median only, and say p95 was not established |
 | 5 | The systematic bias is bounded, not ignored | all three of `--src-refresh-hz`, `--camera-fps`, `--dst-refresh-hz` supplied **from step 1's measurements of this rig** — the tool cannot tell a guess from a measurement, so this criterion is only as good as the honesty of the three numbers | the script prints `systematic bias NOT ACCOUNTED`, and the result is a raw number with an unknown floor |
-| 6 | An owner target, **if and only if one is adopted** | `--median-target-ms` / `--p95-target-ms` met (script exit 0) | script exit 1 |
+| 6 | Phone glass-to-glass latency vs the RULED target (2026-09-05, D-4 O-1: **150 ms desired / 200 ms maximum**) | median ≤ **200 ms** and p95 ≤ **200 ms** (the maximum) — `--median-target-ms 200 --p95-target-ms 200`, script exit 0. Then state, by hand in `RESULT.md`, whether the median also met the **150 ms desired** figure — that is a report line, not an exit-code bound, because every `--*-target-ms` flag in `latency_from_frames.py` is a FAIL bound (`:262-280`) | median or p95 above **200 ms** ⇒ FAIL, script exit 1. A median between 150 and 200 ms PASSES the maximum and is recorded as "short of the 150 ms desired figure" |
 
 The gate's own verdict is **the measured delta plus its uncertainty, handed to the
 owner** — who then decides whether it is acceptable, and whether the recorded fallbacks

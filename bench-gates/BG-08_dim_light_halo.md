@@ -199,7 +199,7 @@ The *numbers* are compile-time facts; the *verdict* is a human judgement. Both b
 | Tail vs brake | brake unmistakably brighter; the tail never reads as a stuck brake light | the tail competes with the brake bar |
 | Disarmed vs armed halo | disarmed reads **dimmer** than armed | they look the same |
 | Colour families | teal / amber / red never confusable across a room | any confusion ⇒ a safety-signal problem, not a taste problem |
-| Power, if the cap is raised | `maxBrightness` **≤ 227** (above that the build fails `valid()`); model stays a true upper bound within **900 mA** for any palette whose pre-gamma channel sum is ≤ 2×255 (`LightRenderer.hpp`:219-225; the 2-pixel rain-light white is the documented exception and scales with the cap); measured strip draw recorded; UBEC headroom checked | raising the cap without the headroom check |
+| Power, if the cap is raised | `maxBrightness` **≤ 227** (above that the build fails `valid()`); model stays a true upper bound within **900 mA** for any palette whose pre-gamma channel sum is ≤ 2×255 (`LightRenderer.hpp`:219-225; the 2-pixel rain-light white is the documented exception and scales with the cap); measured strip draw recorded; UBEC headroom checked; **raising above the RULED 180 operating cap (D-4 O-7) additionally needs halo/current/rail evidence from this gate plus a new owner ruling** | raising the cap without the headroom check, or raising above 180 without new halo/current/rail evidence and a new ruling |
 
 > **THRESHOLD MISSING — owner/bench decides:** *what "visible" means here.* No document sets a lux
 > level, a viewing distance, or a contrast ratio. `kMinVisibleDuty = 6` is a **floor the code
@@ -218,7 +218,7 @@ The *numbers* are compile-time facts; the *verdict* is a human judgement. Both b
 > |---|---|
 > | 110 (shipped) | 180 mA |
 > | 150 | 360 mA |
-> | 180 | 540 mA |
+> | **180 (RULED 2026-09-05, D-4 O-7 — operating cap)** | **540 mA** |
 > | 200 | 690 mA |
 > | 220 | 840 mA |
 > | **227** | **900 mA — exactly the budget, the last value that passes** |
@@ -226,11 +226,20 @@ The *numbers* are compile-time facts; the *verdict* is a human judgement. Both b
 >
 > So 227 is the hard ceiling; the **UBEC rail headroom** is the real one and is lower.
 >
-> **THRESHOLD MISSING — owner/bench decides:** *the maximum acceptable `maxBrightness`,*
-> somewhere in **1 … 227**. The budget arithmetic permits a substantial rise (180 mA modelled vs
-> 900 mA budgeted, ≈104 mA actual), but the real constraint is the **UBEC rail headroom**, and
-> **no current figure exists for any other rail-A load** — see
-> `bench-gates/tools/first_power_current_limits.md`, rows T1–T13.
+> **RULED 2026-09-05 (D-4 O-7): initial owner `maxBrightness` cap = 180** (operating target).
+> This *may be reduced* at this visibility bench gate if the judgement above calls for it, but
+> must **not be raised** above 180 without halo/current/rail evidence from this gate plus a new
+> owner ruling. **227 remains only the compile ceiling** derived above, never an operating
+> target. The modelled strip draw at cap 180 is **540 mA** (table above), well inside the 900 mA
+> budget, but **no current figure exists for any other rail-A load**, so the real constraint (UBEC
+> rail headroom) is still unmeasured — see `bench-gates/tools/first_power_current_limits.md`, rows
+> T1–T13.
+>
+> **This card does not change firmware.** The SHIPPED default remains `maxBrightness = 110`
+> (`w17-soundlight-fw/lib/lights/include/lights/LightRenderer.hpp`:152, verified this session).
+> Moving the shipped value from 110 to (up to) 180 is a queued `w17-soundlight-fw` change that
+> needs its own reviewed branch and a fresh grant to land; it is not authorised by this card or by
+> the D-4 ruling, which sets the *acceptable operating cap*, not a directive to ship it today.
 
 ## Stop conditions
 

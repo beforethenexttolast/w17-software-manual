@@ -41,6 +41,12 @@ with the checkbox detail in `w17-control-fw/docs/D8_BENCH_BRINGUP.md` (cited as 
   `bench-gates/tools/first_power_current_limits.md` before choosing a limit, and read its
   finding: **the project documents no expected current for any car-side 5 V load** (the
   ground-side GCS box loads do have cited figures — `w17-gcs-box-guide.md:135-139`).
+  **Current-limit policy RULED 2026-09-05 (D-4 O-6, staircase policy ratified):** set the
+  lowest defensible limit for the substep being powered; a current-limit trip means **STOP
+  AND DIAGNOSE**, never simply increase the limit until it works; raise the limit only after
+  the trip is understood and the next setting is justified; never exceed applicable
+  rail/component safety limits. **Starting limit per substep: pending the O-6 derivation
+  (separate task) — BLOCKED until recorded here.** No amperage is stated on this card.
 - Car on a stand. Battery pullable. Observer.
 
 ## Topology (ASCII)
@@ -300,7 +306,9 @@ bench-gates/evidence/BG-03/<UTC-stamp>/
 - **No current figure exists for any car-side 5 V load in this project** — see
   `bench-gates/tools/first_power_current_limits.md`, rows T1–T13, all **THRESHOLD MISSING**.
   (Ground-side 5 V loads are documented — `w17-gcs-box-guide.md:135-139`; firmware-side loads
-  still are not.)
+  still are not.) **The staircase POLICY itself is RULED (2026-09-05, D-4 O-6)** — see
+  Required equipment, above. Only the per-substep starting amperage remains **BLOCKED**,
+  pending the O-6 derivation (a separate task running in parallel).
 - The **ESC's own neutral/range calibration** is its manual's business, not the firmware's
   (D8:215-216).
 
