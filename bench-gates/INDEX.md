@@ -119,8 +119,9 @@ laptop/Windows/phone — and the shared rule between them is rule 1b below.
 - **BG-01's OW1 and OW2** — calipers and a silkscreen. Both are OWED and both gate SF.
 
 Every fenced block in these cards begins `cd /Users/vitaliykhomenko/Documents/projects` and then
-calls `bench-gates/tools/…`. That path exists only **after** this branch is merged into workspace
-`main`; until then, run the tools from the branch's own worktree.
+calls `bench-gates/tools/…`. **That path is live on workspace `main` now** — `bench-gates/` has
+been on `main` since e03f10e (the D-6 landing, 2026-09-06) — so these commands run directly from
+the main checkout; no branch or worktree detour is needed to reach them.
 
 ## Gated, but **not** by A2 or Phase B
 
