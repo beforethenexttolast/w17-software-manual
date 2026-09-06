@@ -83,9 +83,9 @@ limit.
 > 5 A rail figure into a pack-side supply would permit roughly 7 A of rail current at a high
 > efficiency: 40 % above the rating it is meant to protect.
 
-**The margin, named:** *M-PEAK* — **RATIFIED 2026-09-06 (DR2-2).** Owner ruling, verbatim: "for
+**The margin, named:** *M-PEAK* — **RATIFIED 2026-09-06 (DR2-2).** As this card defined it: "for
 each load take the manufacturer's **Max/peak** figure (never Typ) and the LED model's **stated
-upper bound** (never its actual draw); add no percentage" — i.e. use explicitly
+upper bound** (never its actual draw); add no percentage" — **owner's clauses, verbatim:** use explicitly
 manufacturer-specified **MAXIMUM / PEAK** values; add **0 % invented percentage margin**; never
 substitute typical/nominal/search-snippet values for peak; an **unresolved max remains
 unresolved** (it is not filled in from a family figure); the manufacturer max is **design
@@ -112,7 +112,9 @@ inrush alone does not authorize raising current; CC trip never automatically adv
 staircase; diagnose and justify before increasing the limit; record actual observed CC
 duration." **Important: 500 ms is a STOP threshold, not a permission — CC shorter than 500 ms
 is NOT thereby "allowed" and does not authorize raising the limit.** Record the actual
-observed CC duration at every connect.
+observed CC duration at every connect. An unexplained constant-current event is a STOP
+regardless of its duration — 500 ms bounds how long an *explained* inrush may last, not how
+much of an unexplained one is tolerable.
 
 **The chaining rule:** the limit applies to everything present, so
 `L(N) = max( R(N-1), SUM of P(k) for k < N ) + P(N)`, where `R(N-1)` is the settled total
@@ -143,7 +145,7 @@ documented band is **5–6 V** (`D8_BENCH_BRINGUP.md`:55; this card's sibling
 | S0 PDB alone | divider 37 kΩ → **0.20 mA at 7.4 V** (0.23 mA at 8.4 V) — **this one row is genuinely pack-side**; UBEC quiescent absent, **ESC standby absent by DR2-5 separation** | — | PSU's own limits (unknown) | **BLOCKED — DR2-3, photo packet item 1** — needs the PSU's minimum settable limit |
 | S1 + ESP32 #1/#2 idle | — | — | Rail A output **5 A** — and the rail's rating is **not** a ramp ceiling for two D1-mini boards | **BLOCKED — DR2-6, photo packet item 3** — MH-ET LIVE publishes no datasheet; the WROOM-32 module datasheet is not the board. Once the onboard regulator marking is read, derive the ceiling from the actual regulator manufacturer's data |
 | S2 + RP1 | — | — | Rail A output **5 A** — same objection as S1 | **BLOCKED — DR2-6, photo packet item 3** — RadioMaster's own page gives 5 V and no current figure; no regulator to read on RP1 itself. Derivation after item 3's MH-ET identification will say what, if anything, bounds S2 — no number is ruled |
-| S3 + WS2812 strip @ ceiling **180** — **DR2-13 RULED 2026-09-06: this is the upper operating ceiling the bench MAY raise to, only under the DR2-13 conditions below; it is NOT the shipped value** | **560 mA** — **emitter-model** upper bound (code's integer form 540 mA); **excludes each pixel's controller quiescent draw, which Worldsemi does not publish** — carry it as an unquantified adder | — | compile budget **900 mA**; Rail A output **5 A** | **P(N) DERIVED (emitter model)**, L(N) **BLOCKED** |
+| S3 + WS2812 strip @ ceiling **180** — **DR2-13 RULED 2026-09-06: 180 is the owner-approved upper operating *ceiling* only — it bounds this allowance row; it is NOT the shipped value and nothing here authorizes running at it. Raising the shipped cap requires physical halo/visibility/current/rail evidence from BG-08 that 110 is inadequate, plus a reviewed `w17-soundlight-fw` firmware change on its own branch and a fresh push grant (`maxBrightness` is compile-time, `LightRenderer.hpp`:152)** | **560 mA** — **emitter-model** upper bound (code's integer form 540 mA); **excludes each pixel's controller quiescent draw, which Worldsemi does not publish** — carry it as an unquantified adder | — | compile budget **900 mA**; Rail A output **5 A** | **P(N) DERIVED (emitter model)**, L(N) **BLOCKED** |
 | S3 + WS2812 strip @ shipped **110** — **DR2-13 RULED 2026-09-06: this is the operating row — KEEP shipped `maxBrightness = 110`; no firmware-change branch now** | **188 mA** — same emitter-model caveat (code's integer form 180 mA) | — | as above | **P(N) DERIVED (emitter model)**, L(N) **BLOCKED** |
 | S4 + MAX98357A + speaker | quiescent **3.35 mA max**; **≥ 640 mA whenever driven** (energy conservation on 3.2 W into 4 Ω at 5 V — no efficiency figure needed) | — | amp **ILIM 2.8 A**; Rail A output **5 A** | **BLOCKED** for a settable point value — shipped `sound.volume` unrecorded; the only cited efficiency is at 8 Ω, not the 4 Ω speaker. **Both bounds DERIVED** |
 | S5 + camera / Wi-Fi | Wi-Fi **1800 mA** — the module's own §1.3 rated maximum supply current, which stands until the RF mode is named (Q5); §3.3's largest per-use-case peak, 1510 mA, is one RF-test case and not an envelope. Camera term absent | — | module requires the rail to **deliver ≥ 1800 mA peak** (its §6.2.1) — a supply-capability requirement, not a limit to set; Rail A output **5 A** | **BLOCKED** — no figure for the OpenIPC SSC338Q at 5 V |
@@ -215,6 +217,8 @@ figure):
    module's own §1.3 rated maximum, 1800 mA.
 6. **Q6 — DR2-8, derivation from canonical config in progress this session (Director).** The
    shipped `sound.volume`, and whether the speaker is confirmed 4 Ω.
+   If the impedance is not conclusively derivable from canonical sources, it stays BLOCKED on
+   photo/label packet item 6 (speaker label), per DR2-8's own fallback.
 7. **Q7 — DR2-9 BLOCKED, photo/label packet item 4.** The blower's actual part number (the
    BOM names a class, not a part).
 8. **Q8 — DR2-10 BLOCKED, photo/label packet item 5.** The S7/S8 ramp ceiling. Do not use a

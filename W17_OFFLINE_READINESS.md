@@ -104,7 +104,7 @@ DR2-11 constant-current duration criterion: RULED — CC > 500 ms after connecti
 DR2-12 DS3235SG identity: WITHDRAWN (already answered by the cited datasheet's own photo).
 DR2-13 LED maxBrightness: RULED — KEEP shipped 110; 180 stays the upper operating ceiling only; no firmware-change branch now.
 DR2-14 Wi-Fi heatsink: RULED — plan to source ≥ 32×32 mm if clearance permits; procurement state update in derivation (Director).
-The consolidated owner photo/label packet (`W17_OWNER_PHOTO_LABEL_INTAKE.md`) closes DR2-3/4/6/9/10 in one sitting, car fully unpowered.
+The consolidated owner photo/label packet (`W17_OWNER_PHOTO_LABEL_INTAKE.md`) closes DR2-3/4/6/9/10 and the DR2-8 / DR2-14 residuals — seven items, one sitting, car fully unpowered.
 
 ## 5. Evidence conventions for this phase
 Every physical or VM session writes to `evidence/<date>_<gate>/` (log, JSON, screenshot, photo) with a `RESULT.md` carrying the
