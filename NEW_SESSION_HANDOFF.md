@@ -1,8 +1,8 @@
-# NEW_SESSION_HANDOFF — W17 OFFLINE READINESS / BENCH PREPARATION (written 2026-09-06 00:30 Kiev)
+# NEW_SESSION_HANDOFF — W17 OFFLINE READINESS / BENCH PREPARATION (written 2026-09-06 00:30 Kiev; **updated 2026-09-06 ~13:10 after the D-6 grant was executed and CONSUMED** — §0–§2 below are now historical record; current trunks are in `W17_OFFLINE_READINESS.md` §1a and `CURRENT_STATUS.md`)
 
 Boot without chat history. Read in this order: (1) workspace `CLAUDE.md` (safety 1–7, one session per tree); (2) this file; (3) `W17_OFFLINE_READINESS.md`;
 (4) `2026-09-05_offline_decision_round_1.md`; (5) `W17_OWNER_ACTIONS.md`, `W17_PROCUREMENT_AND_PHYSICAL_ACTIONS.md`; (6) `bench-gates/INDEX.md` + `G-INDEX.md` +
-`MISSING_THRESHOLDS.md`. Everything above lives on workspace branch **program/offline-readiness** — NOT on main until §2 is executed.
+`MISSING_THRESHOLDS.md`. Everything above is now on workspace **main** (e03f10e, the ff of program/offline-readiness, landed 2026-09-06 under D-6).
 Scratchpad of the authoring session (worktrees, briefs, 40+ review/verify reports): `SP = /private/tmp/claude-501/-Users-vitaliykhomenko-Documents-projects/1eb1e581-426a-4cb0-abab-7295687107d4/scratchpad`
 (`SP/briefs/*.md`, `SP/reports/*.md`, `SP/WAVE1_LEDGER.md`). If SP is gone, every deliverable is in the branches below; the reports are only provenance.
 
@@ -10,7 +10,7 @@ Scratchpad of the authoring session (worktrees, briefs, 40+ review/verify report
 ```
 for r in . w17-control-fw w17-soundlight-fw w17-ground-station iPhone_rc w17-mapper w17-3d-codex; do git -C /Users/vitaliykhomenko/Documents/projects/$r worktree list; git -C /Users/vitaliykhomenko/Documents/projects/$r status --short | head -3; done
 ```
-Expected (2026-09-06): trunks clean at workspace main f1fc46e · cf 39a4f3c · sl 7220c08 · GS 379cf29 · iPhone 7aaf2cf · mapper w17-headtrack b859af1 · 3d 5dddedb.
+Expected AFTER the grant (2026-09-06 13:10): trunks clean at workspace main **e03f10e** · cf **1d17c6b** · sl 7220c08 · GS **809976c** · iPhone 7aaf2cf · mapper w17-headtrack **aa7fb7d** · 3d **8889323** (pre-grant values were f1fc46e · 39a4f3c · 7220c08 · 379cf29 · 7aaf2cf · b859af1 · 5dddedb). Mapper release run 34025673144 green (build-windows-amd64 success; artifact w17-mapper-windows-amd64 17.9 MB uploaded).
 Worktrees under SP hold the branches in §1. If a trunk moved, another session landed something: re-read `W17_CURRENT_STATE.md`/`CURRENT_STATUS.md` before anything else.
 
 ## 1. Branch state (all reviewed → fixed → independently re-verified; nothing pushed; no trunk touched)
@@ -27,7 +27,7 @@ Workspace sub-branches already merged into program/offline-readiness (do not lan
 offline/bench-gates-ground 20c8ca6, offline/procurement 87c01f1, offline/booklet-editorial 63232ae, offline/docfix-sequence-manual 30ce591,
 offline/docfix-manual-lights 96a8f7a, offline/gate-card-citations 6ea24c7.
 
-## 2. The ONE-TIME grant (owner D-6, 2026-09-05) — exact scope and landing sequence
+## 2. The ONE-TIME grant (owner D-6, 2026-09-05) — exact scope and landing sequence — **EXECUTED 2026-09-06, CONSUMED** (record: `W17_OFFLINE_READINESS.md` §1a; the FORK-NOTICE §5(a) row for the mapper is aa7fb7d)
 Scope = exactly the seven branches in §1 at the tips listed; the workspace branch's content tip is e7b0017 plus one docs-only state-normalization commit
 (2026-09-06) that is the "mechanically necessary" tail — treat anything else added later as out of scope. NOT a general push grant.
 Rule from the owner: if approved content changes materially before landing, independently verify the changed portion before push; merge-resolution trees must be
@@ -49,7 +49,7 @@ D-4: O-1 150/200 ms · O-2 1000 ms headroom · O-3 2000 ms spread · O-4 five ru
 D-5 booklet voice: applied f03066f. D-6: the grant in §2.
 
 ## 4. Next autonomous actions (in order; none needs the owner; none is powered)
-1. Execute §2 (the grant). The verify-before-push condition is already satisfied (V-HANDOFF PASS, `_handoff/2026-09-06_V-HANDOFF_boot_test.md`); re-verify only if the workspace branch has moved past the normalization commit.
+1. ~~Execute §2 (the grant).~~ DONE 2026-09-06 (§1a of the readiness file). Grant CONSUMED; nothing further may be pushed without a fresh grant.
 2. Apply D-4 into the card criteria: G-02 (O-1 target), G-04 (O-2/O-3/O-4/O-5 as accepted, STOP lag ≤ 250 ms + record value), BG-08 (operating cap 180; 227 ceiling note), BG-03 + `bench-gates/tools/first_power_current_limits.md` T11 (staircase policy text; initial value derivation task, see 3). Scoped Sonnet verify, then land under a FRESH grant (this is new content).
 3. O-6 derivation (Opus, offline): for BG-03/BG-04's first powered substeps, derive the lowest defensible starting current limit from cited component/rail limits (UBEC 5 A ×2, LED renderer ≤900 mA at cap 227 / recompute at 180, servo stall, ESC BEC, board datasheets). Any substep with no defensible number → BLOCKED with the smallest owner question. Output: a table on BG-03 + T11 row.
 4. Apply O-7 = 180 as the shipped `maxBrightness` value? NO — that is a firmware change on a trunk (soundlight `LightRenderer.hpp:152` = 110 today); it needs its own reviewed branch + fresh grant. Record it as a queued cf/sl change; do not touch trunks.

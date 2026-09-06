@@ -1,4 +1,4 @@
-# W17 OWNER ACTIONS — the human-required queue (maintained by the Director; updated 2026-09-05 09:00, end of wave 1)
+# W17 OWNER ACTIONS — the human-required queue (maintained by the Director; updated 2026-09-06 — D-6 grant executed and consumed)
 
 Only genuinely human-required actions appear here. Each: action · reason · prerequisite · unlocks · runbook/file.
 
@@ -21,7 +21,7 @@ Only genuinely human-required actions appear here. Each: action · reason · pre
 
 ## CONNECT / PROVIDE WHEN ASKED
 - **A real x64 Windows 11 PC** (borrowed or the giftee's at handover) with the GCS box's FT232RL and a USB DualShock 4 — unlocks the first real `run-all.ps1 -HardwareExpected -ElrsVidPid 0403:6001`, the WinRT adapter probe under Windows PowerShell 5.1, a captured `netsh wlan show hostednetwork`, G-03 (gamepad hot-plug) and G-04 Part A (race-day link timing; needs D-3 first). This is the single connection that unlocks the most.
-- **DualShock 4 via USB to the Mac — CONNECT NOW issued 2026-09-05 01:00** (run `wt-mapper-host/tools/host-precheck/ds4_precheck.sh` in your Terminal, ~2 min with the pad in hand). Unlocks: OBSERVED SDL indices 4/6/9/10 + hot-plug id persistence on macOS (Windows stays BENCH-TBD).
+- **DualShock 4 via USB to the Mac — CONNECT NOW issued 2026-09-05 01:00** (now on the trunk: run `/Users/vitaliykhomenko/Documents/projects/w17-mapper/tools/host-precheck/ds4_precheck.sh` in your Terminal, ~2 min with the pad in hand; safe with no pad — it prints SKIP). Unlocks: OBSERVED SDL indices 4/6/9/10 + hot-plug id persistence on macOS (Windows stays BENCH-TBD).
 - **ELRS TX handset via USB (TX16S)** — later; only for serial enumeration, with the car unpowered and no receiver in reach.
 
 ## WHEN EQUIPMENT ARRIVES
@@ -43,7 +43,7 @@ Only genuinely human-required actions appear here. Each: action · reason · pre
 - **D-3 RULED:** BG-06 T1 (CRSF tap) is a live-TX gated bench procedure — car unpowered OR RP1 unbound; no bound receiver powered in range; attended; explicit owner go — and discharges no A2 / Phase B / FIRST_ACTIVE gate.
 - **D-4 RULED:** O-1 150/200 ms · O-2 1000 ms headroom · O-3 2000 ms spread · O-4 five runs · O-5 STOP lag ≤ 250 ms (record value + PASS/FAIL) · O-6 staircase policy ratified, initial amperage must be derived per powered substep or stay BLOCKED · O-7 maxBrightness operating cap 180 (227 = compile ceiling only). Recorded in `bench-gates/MISSING_THRESHOLDS.md` §1.
 - **D-5 RULED and APPLIED** in the booklet (f03066f, corrected to verbatim Alternative B at e7b0017): §1 A, §4 B (+ section-9 row), §6 B, §9 B, §3 unchanged.
-- **D-6 GRANTED (one-time, exact scope):** the seven branches in `NEW_SESSION_HANDOFF.md` §1, landing order §2. Not yet executed — the successor's first action. Not a general push grant.
+- **D-6 EXECUTED and CONSUMED 2026-09-06:** all seven branches landed in the prescribed order, every CI green (landing table: `W17_OFFLINE_READINESS.md` §1a). It was not a general push grant; **a FRESH grant is now required** for (a) the D-4 card application on `offline/d4-thresholds` once its independent verify passes, (b) the O-6 derivation once recorded on BG-03/T11, (c) the O-7 soundlight `maxBrightness` 110 → 180 firmware change (own reviewed branch).
 
 ## MUST-NOT-LOSE QUEUE (owner instruction 2026-09-05)
 5 GHz AP-capable USB Wi-Fi adapter (gift kit, one unit — BUY NOW) · in-envelope 2S car battery (BUY NOW) · GCS-box USB 3.x hub (BUY NOW) · boot-mode selector (BUY NOW) ·
@@ -52,4 +52,4 @@ Windows ARM VM (disk → Fusion → ISO → bootstrap) · no-power measurement s
 
 ## LATER / POLISH
 - (done) Booklet tone lines — ruled D-5 and applied; packet §2 marks the choices.
-- (done) Merge/push grant — D-6 granted one-time, exact scope; execution is the successor's first action (`NEW_SESSION_HANDOFF.md` §2).
+- (done) Merge/push grant — D-6 executed 2026-09-06 and consumed; landings recorded in `W17_OFFLINE_READINESS.md` §1a and `CURRENT_STATUS.md`.
