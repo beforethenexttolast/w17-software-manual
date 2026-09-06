@@ -89,6 +89,23 @@ D-3 BG-06 T1: live-TX gated bench procedure (car unpowered OR RP1 unbound; no bo
 D-4 thresholds: O-1 150/200 ms; O-2 1000 ms headroom; O-3 2000 ms spread; O-4 five runs; O-5 STOP lag ≤ 250 ms (+record value); O-6 staircase policy ratified, initial amperage must be derived per substep or stay BLOCKED; O-7 maxBrightness cap 180 (227 = compile ceiling only).
 D-5 booklet voice: applied (f03066f). D-6: ONE-TIME exact-scope merge/push grant for the enumerated verified branches (see NEW_SESSION_HANDOFF.md §2); not general.
 
+### Decision Round 2 (2026-09-06 evening — verbatim record: `2026-09-06_offline_decision_round_2.md`)
+DR2-1 push grant: GRANTED, EXECUTED, CONSUMED (r2 4ae3536 → main; §1b).
+DR2-2 M-PEAK margin policy: RATIFIED (manufacturer MAXIMUM/PEAK only, 0% invented margin).
+DR2-3 bench PSU identity: BLOCKED → photo/label packet item 1.
+DR2-4 UBEC identity + BEC#2 voltage: BLOCKED → photo/label packet item 2.
+DR2-5 PSU-first / ESC separation: RATIFIED (bench-PSU-first for S0–S9, ESC feed physically separated; A2 batt+ rows P2/P4/P5 re-run before and after).
+DR2-6 S1/S2 ramp ceiling: BLOCKED → photo/label packet item 3 (MH-ET regulator marking); no numeric ceiling ruled for S2.
+DR2-7 Wi-Fi RF mode: RULED — derivation from canonical config in progress this session (Director).
+DR2-8 shipped sound volume / speaker impedance: RULED — derivation from canonical config in progress this session (Director).
+DR2-9 blower part number: BLOCKED → photo/label packet item 4.
+DR2-10 MG90S branding/ramp ceiling: BLOCKED → photo/label packet item 5; no numeric ceiling ruled.
+DR2-11 constant-current duration criterion: RULED — CC > 500 ms after connection = STOP (not itself a permission to raise the limit).
+DR2-12 DS3235SG identity: WITHDRAWN (already answered by the cited datasheet's own photo).
+DR2-13 LED maxBrightness: RULED — KEEP shipped 110; 180 stays the upper operating ceiling only; no firmware-change branch now.
+DR2-14 Wi-Fi heatsink: RULED — plan to source ≥ 32×32 mm if clearance permits; procurement state update in derivation (Director).
+The consolidated owner photo/label packet (`W17_OWNER_PHOTO_LABEL_INTAKE.md`) closes DR2-3/4/6/9/10 in one sitting, car fully unpowered.
+
 ## 5. Evidence conventions for this phase
 Every physical or VM session writes to `evidence/<date>_<gate>/` (log, JSON, screenshot, photo) with a `RESULT.md` carrying the
 label (OBSERVED/VERIFIED/BENCH-TBD/…), the exact command, and PASS/FAIL against the gate card's criteria.
