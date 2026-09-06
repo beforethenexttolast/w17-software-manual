@@ -8,17 +8,17 @@ workspace-level source for all of those and for project execution status.
 Overwrite it in place when state changes; do not append history. Instruction files
 (`CLAUDE.md` / `AGENTS.md`) must not duplicate anything below.
 
-_Last updated: **2026-09-06 (OFFLINE READINESS — D-6 one-time grant EXECUTED and CONSUMED)** — phase authority:
+_Last updated: **2026-09-06 evening (OFFLINE READINESS — DR2-1 one-time grant EXECUTED and CONSUMED: workspace main = 4ae3536; D-6 consumed earlier the same day)** — phase authority:
 **`W17_OFFLINE_READINESS.md`** (state + landing table §1a) > `W17_OWNER_ACTIONS.md` > `W17_PROCUREMENT_AND_PHYSICAL_ACTIONS.md`; successor
 boot: `NEW_SESSION_HANDOFF.md`; owner rulings D-1…D-6: `2026-09-05_offline_decision_round_1.md`. **Trunks now (local == origin, every CI
-green at HEAD):** workspace main `e03f10e` (program/offline-readiness ff: 3 state files, rulings, `bench-gates/` 12 cards + tools +
-MISSING_THRESHOLDS, VM runbook + `scripts/vm`, procurement, booklet D-5, manual palette + doc fixes; link checker exit 0 in both modes);
+green at HEAD):** workspace main **`4ae3536`** (DR2-1: program/offline-readiness-r2 fast-forwarded onto f1028ba — D-4 thresholds applied into the cards, the O-6 derivation + its review persisted under `_handoff/`, Decision Round 2 opened in the owner queue; link checker exit 0 in both modes, 202 OK / 0 MISSING with `--workspace-root`; earlier the same day e03f10e = program/offline-readiness ff: 3 state files, rulings, `bench-gates/` 12 cards + tools +
+MISSING_THRESHOLDS, VM runbook + `scripts/vm`, procurement, booklet D-5, manual palette + doc fixes);
 control-fw main `1d17c6b` (4 citation fixes; CI 34025339129 green incl. link2-drift); soundlight main `7220c08` (unchanged — O-7 cap 180 is a
 queued firmware change, shipped `maxBrightness` still 110, needs its own reviewed branch + fresh grant); ground-station main `809976c`
 (Windows-validation harness a80236e + race-day `W17T` timing lines 2f2690a; 1693 tests; CI 34025390463 green); iPhone_rc main `7aaf2cf`
 (unchanged); mapper `w17-headtrack` `aa7fb7d` (`tools/host-precheck` DS4 pre-check behind the `hostprecheck` tag + FORK-NOTICE §5(a) row;
 pushed through the pre-push hook; release run 34025673144 green (build-windows-amd64 success; artifact w17-mapper-windows-amd64 17.9 MB uploaded)); 3d-codex main `8889323` (measurement-sitting pack + cad-prep
-ingest/coupons; render 17/0; 26 ingest tests). **PUSH GRANT CLOSED — D-6 was one-time and is CONSUMED.** Since then (afternoon, on workspace branch **`program/offline-readiness-r2`**, NOT pushed — grant closed): D-4 thresholds applied into
+ingest/coupons; render 17/0; 26 ingest tests). **PUSH GRANT CLOSED — D-6 and DR2-1 were each one-time and are both CONSUMED; any new branch needs a FRESH grant.** Landed under DR2-1 (was the afternoon's work on **`program/offline-readiness-r2`**, now on main): D-4 thresholds applied into
 the gate cards (`offline/d4-thresholds` c428196, one fix loop, VERIFIED) and the O-6 starting-current-limit derivation (`offline/o6-derivation`
 56a563e, two fix loops, VERIFIED): **all 15 first-power substeps BLOCKED** on two facts no document holds — the bench PSU's identity/minimum
 limit and the UBEC's make/model — plus manufacturer figures now cited (Wi-Fi module 1800 mA max, servo stall 2.1 A at 6 V, amp ≥ 640 mA driven,

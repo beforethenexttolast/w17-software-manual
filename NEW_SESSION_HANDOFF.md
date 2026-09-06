@@ -19,14 +19,14 @@ Expected (2026-09-06 16:30): trunks clean, local == origin, at workspace main **
 session's scratchpad — read with `git show` only, never checkout/merge/push. The prior session's fifteen merged worktrees were removed 2026-09-06 (branches kept).
 If a trunk moved, another session landed something: re-read `CURRENT_STATUS.md` and `W17_OFFLINE_READINESS.md` before anything else.
 
-## 1. Branch state — nothing pushed since the D-6 grant was consumed; PUSH GRANT CLOSED
+## 1. Branch state — **UPDATE 2026-09-06 evening: DR2-1 was granted, executed and CONSUMED; r2 (4ae3536) is now workspace main** (`W17_OFFLINE_READINESS.md` §1b). PUSH GRANT CLOSED again. The table below describes r2 as it was before landing
 | repo | branch | tip | worktree | chain | content |
 |---|---|---|---|---|---|
 | workspace | **program/offline-readiness-r2** | `git rev-parse --short program/offline-readiness-r2` is authoritative | SP2/wt-ws-r2 | integrates the two rows below + this session's state commits | state files (readiness §1a/§3/§6, owner queue with DR2, procurement DR2 note), this handoff, the two `_handoff` snapshots |
 | workspace | offline/d4-thresholds | c428196 | SP2/wt-ws-d4 | D4-APPLY (Sonnet) → V-D4 FIX_REQUIRED (1: G-02's command wired the 150 ms *desired* figure as a FAIL bound) → FIX (Director, exit codes proven on synthetic captures) → V-D4-2 PASS | D-4 rulings applied: G-02 (O-1), G-04 (O-2…O-5), BG-08 (O-7, shipped 110 stated), BG-03 + tools T11 (O-6 policy), MISSING_THRESHOLDS §1/§4 |
 | workspace | offline/o6-derivation | 56a563e | SP2/wt-ws-o6 | O6 (Opus) → apply (Sonnet) → V-O6 transcription (4 staleness) + **R-O6 adversarial (Opus) FIX_REQUIRED 7 BLOCKING / 11 NON-BLOCKING** → FIX (Opus, v2) → V-O6-2 (Opus) FIX_REQUIRED 1 BLOCKING (P(5) must be the rated 1800 mA, not the 1510 mA RF-test peak) + 8 → FIX-2 (Opus) → V-O6-3 (Opus) FIX_REQUIRED 0 BLOCKING / 2 NON-BLOCKING (two `_handoff` snapshot-note slips) → FIX-3 (Director, 2 lines) → **V-O6-4 (Sonnet, scoped) PASS — final tip 56a563e, merged into r2** | BG-03 `### Starting current limits (O-6 derivation)` inside *Required equipment*; tools T11–T13 replaced, L11–L15 added; MISSING_THRESHOLDS/INDEX/BG-04 notes; `_handoff/` report v2 + review. **All 15 substeps BLOCKED** on DR2-3/DR2-4; no amperage invented |
 
-## 2. The grant being requested (DR2-1) — exact scope, when the owner grants it
+## 2. The grant that was requested (DR2-1) — **EXECUTED and CONSUMED 2026-09-06 evening exactly as written below** (do not execute again)
 Scope = **program/offline-readiness-r2 → workspace main**, at the tip named in the grant request, nothing else; no nested-repo push. Landing rule: in the MAIN checkout only,
 after `git worktree list` + `git branch --show-current` + a HEAD re-check: `git merge --ff-only program/offline-readiness-r2` (or `--no-ff` if main moved) →
 `scripts/check_readiness_runbook_links.sh` exit 0 AND `--workspace-root /Users/vitaliykhomenko/Documents/projects` exit 0 → push → record in `CURRENT_STATUS.md` top entry +
@@ -42,7 +42,7 @@ the datasheet photo) · DR2-13 O-7 shipping question (Director recommends keepin
 Plus five no-power label checks (owner file, AT THE CAR — NO POWER).
 
 ## 4. Next autonomous actions (in order; none powered)
-1. **When DR2-1 is granted:** land r2 per §2. Until then, keep committing state to r2; never to main.
+1. ~~When DR2-1 is granted: land r2 per §2.~~ **DONE 2026-09-06 evening (§1b of the readiness file).** Decision Round 2 rulings DR2-2…DR2-14 were received in the same owner message; they are persisted and applied on the successor branch named in `CURRENT_STATUS.md`'s top entry, which needs a FRESH grant.
 2. **When DR2-3 + DR2-4 are answered:** O-6 v3 on a new branch — S0 gets the PSU's minimum settable limit; the pack-side form `I_pack ≤ 5 A × V_rail / (V_pack × η)` gets η from the UBEC datasheet; S9 selects the servo column from BEC#2's set voltage; every remaining BLOCKED row is re-examined against the other DR2 answers. Mandatory chain: Opus derive → Opus adversarial review → fix → fresh re-verify (this session needed two fix loops on a safety artifact; assume the third version will still fail its first review).
 3. **When DR2-13 is ruled 180-now:** soundlight branch changing `LightRenderer.hpp:152` 110 → 180 (build must still pass `valid()`: 540 ≤ 900), native tests, review, fresh grant. If ruled keep-110: nothing to do until BG-08.
 4. **Queued doc nits (one small branch, fresh grant):** cf `.github/workflows/ci.yml` comment "356/356" → 360; tools file :107 "How to derive T1–T12" → T13; `HARDWARE_INVENTORY.md`:96 USB-C vs `bill_of_materials_v2.md`:66 micro-USB (needs the owner's look); BG-03:40 "PSU or battery" vs `D8_BENCH_BRINGUP.md`:55 battery-only (resolves with DR2-5); `bench-gates/INDEX.md` "run the tools from the branch's own worktree" sentence is stale now that bench-gates/ is on main.
