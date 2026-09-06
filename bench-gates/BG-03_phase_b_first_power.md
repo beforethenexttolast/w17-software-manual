@@ -37,7 +37,16 @@ with the checkbox detail in `w17-control-fw/docs/D8_BENCH_BRINGUP.md` (cited as 
 - `elrs-joystick-control` on the PC (PB:36), and the RP1 + TX bound at the same ELRS
   major.minor + bind phrase (D8:61-62).
 - A way to spin the rear axle by hand (PB:36).
-- A bench PSU or the battery via the XT60 split — see
+- **A bench PSU for the S0–S9 staircase — RATIFIED 2026-09-06 (DR2-5, PSU-first / ESC
+  separation).** The earlier "bench PSU or the battery" wording is superseded: initial
+  logic/rail characterization uses **bench-PSU-first** operation, with the propulsion/ESC
+  12 AWG feed **physically separated at the PDB** for the S0–S9 substeps below. Owner ruling,
+  verbatim: "**Do not energize propulsion merely because logic-side first-power work is
+  active. No execution is authorized yet.**" **Consequence (unchanged from the O-6 derivation
+  and T12):** that feed is part of A2 gate S6, so separating it is a topology change —
+  **re-run A2's batt+ rows P2 / P4 / P5 before and after, and record the change.** This does
+  not contradict `D8_BENCH_BRINGUP.md`:55's first battery connection: D8 Phase 1 is the first
+  **battery** connection and **follows** this PSU staircase, it does not replace it. See
   `bench-gates/tools/first_power_current_limits.md` before choosing a limit, and read its
   finding: **the project documents no expected current for any car-side 5 V load** (the
   ground-side GCS box loads do have cited figures — `w17-gcs-box-guide.md:135-139`).
@@ -46,11 +55,14 @@ with the checkbox detail in `w17-control-fw/docs/D8_BENCH_BRINGUP.md` (cited as 
   AND DIAGNOSE**, never simply increase the limit until it works; raise the limit only after
   the trip is understood and the next setting is justified; never exceed applicable
   rail/component safety limits. **Starting limit per substep: derived offline 2026-09-06
-  (v2, after review R-O6) — see the subsection below; still BLOCKED on owner Decision
-  Round 2 (bench PSU identity and minimum settable limit; UBEC make/model and BEC#2's set
-  voltage; the S1/S2 and S7/S8 ramp ceilings; the constant-current duration criterion for a
-  connect).** No amperage is stated on this card, and **no figure in the subsection below is
-  a bench-PSU setting** — they are 5 V rail-side allowances.
+  (v2, after review R-O6) — see the subsection below; still BLOCKED** on the owner's
+  consolidated photo/label packet (`W17_OWNER_PHOTO_LABEL_INTAKE.md`): bench PSU identity and
+  minimum settable limit (DR2-3, packet item 1); UBEC make/model and BEC#2's set voltage
+  (DR2-4, packet item 2); the S1/S2 ramp ceiling (DR2-6, packet item 3) and S7/S8 ramp
+  ceiling (DR2-10, packet item 5). **The constant-current duration criterion is RULED
+  2026-09-06 (DR2-11):** see "Starting current limits" below. No amperage is stated on this
+  card, and **no figure in the subsection below is a bench-PSU setting** — they are 5 V
+  rail-side allowances.
 
 ### Starting current limits (O-6 derivation, 2026-09-06)
 
@@ -86,16 +98,21 @@ its §6.2.1) belongs in never-exceed, never in P(N) — while a figure that **is
 rated maximum draw (the same module's §1.3 "Power Supply DC 5.0V±0.25V @1800mA (Max)") belongs
 in P(N), however large it looks.
 
-**Inrush is NOT covered by M-PEAK, and the criterion is BLOCKED.** Every connect pulls the
+**Inrush is NOT covered by M-PEAK, and the duration criterion is RULED 2026-09-06 (DR2-11);
+the inrush MAGNITUDE stays uncited/BLOCKED — do not conflate the two.** Every connect pulls the
 supply into constant current briefly. On the **7.4 V** side that is the **UBEC's input
 capacitance and soft-start** — **C1 (Rail B) and C2 (strip input) are 5 V-side capacitors,
-downstream of the UBECs, and are not what the supply sees**. "Momentarily" is not a
-criterion: at a low starting limit the supply can hold the rail down so the UBEC never
+downstream of the UBECs, and are not what the supply sees**. "Momentarily" is not by itself a
+discriminator: at a low starting limit the supply can hold the rail down so the UBEC never
 completes soft-start, which presents exactly as the "the supply **sits** in constant-current"
-fault. **The duration criterion is an owner ruling (Q9), in the shape "constant current
-persisting longer than N after a connect, or constant current that has not cleared by the
-time the rail reaches nominal, is a STOP."** Until it is ruled, treat any constant-current
-event you cannot explain as a STOP.
+fault. **The duration criterion, owner ruling verbatim (DR2-11):** "Continuous PSU
+constant-current operation lasting more than 500 ms after connection = STOP." Also, verbatim:
+"smell / abnormal heat / smoke / unexpected sound / visual anomaly = IMMEDIATE STOP; brief
+inrush alone does not authorize raising current; CC trip never automatically advances the
+staircase; diagnose and justify before increasing the limit; record actual observed CC
+duration." **Important: 500 ms is a STOP threshold, not a permission — CC shorter than 500 ms
+is NOT thereby "allowed" and does not authorize raising the limit.** Record the actual
+observed CC duration at every connect.
 
 **The chaining rule:** the limit applies to everything present, so
 `L(N) = max( R(N-1), SUM of P(k) for k < N ) + P(N)`, where `R(N-1)` is the settled total
@@ -123,16 +140,16 @@ documented band is **5–6 V** (`D8_BENCH_BRINGUP.md`:55; this card's sibling
 
 | Substep | Added-load allowance P(N) — **5 V side** | Absolute limit L(N) — **pack side** | Never-exceed — **5 V side, NOT a PSU setting** | Status |
 |---|---|---|---|---|
-| S0 PDB alone | divider 37 kΩ → **0.20 mA at 7.4 V** (0.23 mA at 8.4 V) — **this one row is genuinely pack-side**; UBEC quiescent and ESC standby absent | — | PSU's own limits (unknown) | **BLOCKED** — needs the PSU's minimum settable limit |
-| S1 + ESP32 #1/#2 idle | — | — | Rail A output **5 A** — and the rail's rating is **not** a ramp ceiling for two D1-mini boards | **BLOCKED** — MH-ET LIVE publishes no datasheet; the WROOM-32 module datasheet is not the board. A ramp needs the ceiling Q4 asks for |
-| S2 + RP1 | — | — | Rail A output **5 A** — same objection as S1 | **BLOCKED** — RadioMaster's own page gives 5 V and no current figure. A ramp needs the ceiling Q4 asks for |
-| S3 + WS2812 strip @ cap **180** | **560 mA** — **emitter-model** upper bound (code's integer form 540 mA); **excludes each pixel's controller quiescent draw, which Worldsemi does not publish** — carry it as an unquantified adder | — | compile budget **900 mA**; Rail A output **5 A** | **P(N) DERIVED (emitter model)**, L(N) **BLOCKED** |
-| S3 + WS2812 strip @ shipped **110** | **188 mA** — same emitter-model caveat (code's integer form 180 mA) | — | as above | **P(N) DERIVED (emitter model)**, L(N) **BLOCKED** |
+| S0 PDB alone | divider 37 kΩ → **0.20 mA at 7.4 V** (0.23 mA at 8.4 V) — **this one row is genuinely pack-side**; UBEC quiescent absent, **ESC standby absent by DR2-5 separation** | — | PSU's own limits (unknown) | **BLOCKED — DR2-3, photo packet item 1** — needs the PSU's minimum settable limit |
+| S1 + ESP32 #1/#2 idle | — | — | Rail A output **5 A** — and the rail's rating is **not** a ramp ceiling for two D1-mini boards | **BLOCKED — DR2-6, photo packet item 3** — MH-ET LIVE publishes no datasheet; the WROOM-32 module datasheet is not the board. Once the onboard regulator marking is read, derive the ceiling from the actual regulator manufacturer's data |
+| S2 + RP1 | — | — | Rail A output **5 A** — same objection as S1 | **BLOCKED — DR2-6, photo packet item 3** — RadioMaster's own page gives 5 V and no current figure; no regulator to read on RP1 itself. Derivation after item 3's MH-ET identification will say what, if anything, bounds S2 — no number is ruled |
+| S3 + WS2812 strip @ ceiling **180** — **DR2-13 RULED 2026-09-06: this is the upper operating ceiling the bench MAY raise to, only under the DR2-13 conditions below; it is NOT the shipped value** | **560 mA** — **emitter-model** upper bound (code's integer form 540 mA); **excludes each pixel's controller quiescent draw, which Worldsemi does not publish** — carry it as an unquantified adder | — | compile budget **900 mA**; Rail A output **5 A** | **P(N) DERIVED (emitter model)**, L(N) **BLOCKED** |
+| S3 + WS2812 strip @ shipped **110** — **DR2-13 RULED 2026-09-06: this is the operating row — KEEP shipped `maxBrightness = 110`; no firmware-change branch now** | **188 mA** — same emitter-model caveat (code's integer form 180 mA) | — | as above | **P(N) DERIVED (emitter model)**, L(N) **BLOCKED** |
 | S4 + MAX98357A + speaker | quiescent **3.35 mA max**; **≥ 640 mA whenever driven** (energy conservation on 3.2 W into 4 Ω at 5 V — no efficiency figure needed) | — | amp **ILIM 2.8 A**; Rail A output **5 A** | **BLOCKED** for a settable point value — shipped `sound.volume` unrecorded; the only cited efficiency is at 8 Ω, not the 4 Ω speaker. **Both bounds DERIVED** |
 | S5 + camera / Wi-Fi | Wi-Fi **1800 mA** — the module's own §1.3 rated maximum supply current, which stands until the RF mode is named (Q5); §3.3's largest per-use-case peak, 1510 mA, is one RF-test case and not an envelope. Camera term absent | — | module requires the rail to **deliver ≥ 1800 mA peak** (its §6.2.1) — a supply-capability requirement, not a limit to set; Rail A output **5 A** | **BLOCKED** — no figure for the OpenIPC SSC338Q at 5 V |
-| S6 + blower | — | — | Rail B output **5 A** | **BLOCKED** — the BOM names an "ACP2006-class" part, not a part number |
-| S7 + one MG90S | — | — | Rail B output **5 A** — not a ramp ceiling for one micro servo | **BLOCKED** — generic part; TowerPro's own page publishes no current figure and quotes 4.8 V operating, below Rail B's band. A ramp needs the ceiling Q8 asks for |
-| S8 + remaining MG90S | — | — | Rail B output **5 A** | **BLOCKED** — as S7 |
+| S6 + blower | — | — | Rail B output **5 A** | **BLOCKED — DR2-9, photo packet item 4** — the BOM names an "ACP2006-class" part, not a part number |
+| S7 + one MG90S | — | — | Rail B output **5 A** — not a ramp ceiling for one micro servo | **BLOCKED — DR2-10, photo packet item 5** — generic part; TowerPro's own page publishes no current figure and quotes 4.8 V operating, below Rail B's band. Do not use a generic internet MG90S value as if it describes the fitted servo — the smallest specific question is the branding/label on the fitted servos' cases and, if kept, the listing/packaging they came from |
+| S8 + remaining MG90S | — | — | Rail B output **5 A** | **BLOCKED — as S7 (DR2-10, photo packet item 5)** |
 | S9 DS3235SG holding centre (T3) | **5 mA** (datasheet idle-at-stopped; identical in all three voltage columns) | — | servo **stall 2.1 A at 6 V** (1.9 A at 5 V, 2.3 A at 7.4 V — select from the recorded BEC#2 voltage); Rail B output **5 A** | **P(N) DERIVED**, L(N) **BLOCKED** |
 | S9 DS3235SG full-lock sweep, linkage OFF (T4) | — (no running-current figure exists; the datasheet gives only idle and stall) | — | **2.1 A at 6 V** (1.9 A at 5 V, 2.3 A at 7.4 V — select from the recorded BEC#2 voltage) — this is the number C1 exists for | **ceiling DERIVED**, expected draw **BLOCKED** |
 | **B3.1** full L/R sweep **with the linkage fitted** | — (a loaded sweep is neither idle nor stall) | — | **inherits the S9 sweep ceiling at the rail's set voltage** — a bind drives the servo toward stall under real mechanical load | **ceiling INHERITED**, expected draw **BLOCKED** |
@@ -176,26 +193,47 @@ claiming the DS3235SG stalls at 3.9 A — that figure is **uncited and states no
 while the manufacturer's own datasheet gives 1.9 / 2.1 / 2.3 A at 5 / 6 / 7.4 V. Family
 figures are refused, not discounted.
 
-**Owner decisions this subsection is waiting on — all ten of them** (Q1–Q9 and Q10′ of the
-derivation report's §5; none is answered, and none may be filled in from a family figure):
+**Owner decisions this subsection was waiting on — status as of Decision Round 2, 2026-09-06
+evening** (Q1–Q9 and Q10′ of the derivation report's §5; none may be filled in from a family
+figure):
 
-1. **Q1** — the bench PSU's identity and its minimum settable current limit.
-2. **Q2** — the UBEC's make/model **and BEC#2's set output voltage** (5 V or 6 V).
-3. **Q3** — whether the first energisation uses the PSU rather than the pack, and whether the
-   ESC feed can be separated for S0–S9 (an A2 gate S6 topology change — re-run A2 rows
-   P2/P4/P5 before and after, and record it).
-4. **Q4** — the S1/S2 ramp ceiling (after the no-power look at the MH-ET regulator marking).
-5. **Q5** — the RF power/mode the BL-M8812EU2 will actually run at. Until it is named, S5
-   carries the module's own §1.3 rated maximum, 1800 mA.
-6. **Q6** — the shipped `sound.volume`, and whether the speaker is confirmed 4 Ω.
-7. **Q7** — the blower's actual part number (the BOM names a class, not a part).
-8. **Q8** — the S7/S8 ramp ceiling.
-9. **Q9** — the constant-current duration criterion for a connect.
-10. **Q10′ — the Wi-Fi heatsink decision**, which gates **this very card**: the fitted heatsink
+1. **Q1 — DR2-3 BLOCKED, photo/label packet item 1.** The bench PSU's identity and its minimum
+   settable current limit. Do not infer PSU model/current capability.
+2. **Q2 — DR2-4 BLOCKED, photo/label packet item 2.** The UBEC's make/model **and BEC#2's set
+   output voltage** (5 V or 6 V). Do not infer from product family.
+3. **Q3 — DR2-5 RATIFIED 2026-09-06.** First energisation is **bench-PSU-first**, with the
+   ESC feed **physically separated for S0–S9** (an A2 gate S6 topology change — re-run A2 rows
+   P2/P4/P5 before and after, and record it). "Do not energize propulsion merely because
+   logic-side first-power work is active. No execution is authorized yet."
+4. **Q4 — DR2-6 BLOCKED, photo/label packet item 3.** The S1/S2 ramp ceiling. Do not infer the
+   regulator from board family — once the MH-ET board's onboard regulator marking is
+   identified, derive the ceiling from the actual regulator manufacturer's data and exact
+   topology. S2 (RP1) has no regulator to read; derivation after item 3 will say what, if
+   anything, bounds it — no number is ruled for S2 either.
+5. **Q5 — DR2-7, derivation from canonical config in progress this session (Director).** The
+   RF power/mode the BL-M8812EU2 will actually run at. Until it is named, S5 carries the
+   module's own §1.3 rated maximum, 1800 mA.
+6. **Q6 — DR2-8, derivation from canonical config in progress this session (Director).** The
+   shipped `sound.volume`, and whether the speaker is confirmed 4 Ω.
+7. **Q7 — DR2-9 BLOCKED, photo/label packet item 4.** The blower's actual part number (the
+   BOM names a class, not a part).
+8. **Q8 — DR2-10 BLOCKED, photo/label packet item 5.** The S7/S8 ramp ceiling. Do not use a
+   generic internet MG90S value as if it describes the fitted servo; the smallest specific
+   question is the branding/label on the fitted servos' cases and, if kept, the
+   listing/packaging they came from.
+9. **Q9 — DR2-11 RULED 2026-09-06.** The constant-current duration criterion for a connect:
+   "continuous PSU constant-current operation lasting more than 500 ms after connection =
+   STOP." See "Starting current limits" above; 500 ms is a STOP threshold, not a permission —
+   CC shorter than 500 ms does not thereby authorize raising the limit.
+10. **Q10′ — DR2-14 RULED 2026-09-06 — the Wi-Fi heatsink decision**, which gates **this very card**: the fitted heatsink
     is 28×28×3 mm against the module datasheet's *"≧ 32*32mm"* recommendation, and the
     project's own rule is *"heatsink **fitted before first power-on**"*
     (`learning-manual/05_control_firmware_documentation_explained.md`:362), which is what this
-    card is.
+    card is. Owner ruling, verbatim: "do not deliberately ship below the module manufacturer's
+    recommendation. Plan to source a ≥ 32×32 mm heatsink if mechanical clearance permits. A
+    somewhat larger part is acceptable/preferred if it fits without creating mechanical, RF or
+    serviceability problems. Still perform the planned thermal validation at first power."
+    Procurement state update is the Director's, not this card's.
 
 See `bench-gates/tools/first_power_current_limits.md` row T11 and
 `_handoff/2026-09-06_O6_derivation_report.md` §5.
@@ -356,6 +394,8 @@ bench-gates/tools/crsf_sniff.py --port /dev/tty.usbserial-YYYY --baud 420000 \
   `guardFaults()` count.
 - The `bench_capture.sh` `meta.txt` naming the **exact firmware commit** each observation was made
   against — an observation that cannot name its code is not evidence.
+- **DR2-11 RULED 2026-09-06:** the actual observed constant-current duration at **every**
+  connect, recorded even when it is well under the 500 ms STOP threshold.
 
 ## PASS/FAIL criteria (objective numbers)
 
@@ -397,6 +437,12 @@ bench-gates/tools/crsf_sniff.py --port /dev/tty.usbserial-YYYY --baud 420000 \
 - **Any time:** the supply sits in constant-current, anything is warm to the touch, or a UBEC
   ticks — power off first, diagnose second
   (`bench-gates/tools/first_power_current_limits.md`).
+- **Any connect — DR2-11 RULED 2026-09-06:** continuous PSU constant-current operation lasting
+  more than **500 ms** after connection = STOP. Also: smell / abnormal heat / smoke /
+  unexpected sound / visual anomaly = **IMMEDIATE STOP**. Brief inrush alone does not
+  authorize raising current. A CC trip **never automatically advances the staircase** —
+  diagnose and justify before increasing the limit. Record the actual observed CC duration at
+  every connect.
 
 ## Rollback
 
@@ -430,6 +476,7 @@ bench-gates/evidence/BG-03/<UTC-stamp>/
   B3_actuators.md                # per-actuator results, reconnect order as executed
   B4.3_battery_plausibility.md   # mV produced by each fault, vs the 4000-9000 mV band
   B4.4_hall_rates.md             # entries/100 ms plain and pull-up-lifted, guardFaults()
+  cc_duration_log.md             # DR2-11: observed CC duration at every connect, vs the 500 ms STOP
   deviations.md
 ```
 
@@ -464,10 +511,13 @@ bench-gates/evidence/BG-03/<UTC-stamp>/
   POLICY itself is RULED (2026-09-05, D-4 O-6)** — see Required equipment, above. The
   per-substep starting amperage was **derived offline (2026-09-06, v2 after review R-O6)** —
   see "Starting current limits (O-6 derivation, 2026-09-06)" above and
-  `_handoff/2026-09-06_O6_derivation_report.md` — and **every substep remains BLOCKED** on
-  owner Decision Round 2 (bench PSU identity and minimum settable limit; UBEC make/model and
-  BEC#2's set voltage; the S1/S2 and S7/S8 ramp ceilings; the constant-current duration
-  criterion for a connect).
+  `_handoff/2026-09-06_O6_derivation_report.md` — and **every substep remains BLOCKED**, now
+  on the owner's consolidated photo/label packet (`W17_OWNER_PHOTO_LABEL_INTAKE.md`): bench PSU
+  identity and minimum settable limit (DR2-3, packet item 1); UBEC make/model and BEC#2's set
+  voltage (DR2-4, packet item 2); the S1/S2 ramp ceiling (DR2-6, packet item 3) and the S7/S8
+  ramp ceiling (DR2-10, packet item 5). **DR2-5 (PSU-first / ESC separation) and DR2-11
+  (constant-current duration criterion, RULED at 500 ms) are no longer open** — see Required
+  equipment and "Starting current limits", above.
 - The **ESC's own neutral/range calibration** is its manual's business, not the firmware's
   (D8:215-216).
 
