@@ -1,3 +1,5 @@
+> **UPDATED 2026-09-07 morning after the DR4 grant was EXECUTED and CONSUMED** (landing record `W17_OFFLINE_READINESS.md` §1d): everything §1 lists as unpushed is now ON ITS TRUNK — workspace main **0d39a2c**, control-fw main **98ec2ef**, 3d-codex main **88c9a61**; §2's grant is consumed and no branch is awaiting a grant; all session worktrees are removed (branches kept). Read §0's expected trunks as ws 0d39a2c · cf 98ec2ef · 3d 88c9a61 (sl 7220c08 · GS 809976c · iPhone 7aaf2cf · mapper aa7fb7d unchanged). Owner instruction with the grant: **no further autonomous review wave; wait for the photo/label packet** (consume it per `bench-gates/tools/O6_V3_PACKET_BRIEF.md`) and for the DR3-3 instrument answer (an owner inventory fact — assume no probe until then). Everything else below stands.
+
 # NEW_SESSION_HANDOFF — W17 OFFLINE READINESS / BENCH PREPARATION (r4, written 2026-09-06 night by the Fable Director session 82158128)
 
 Boot without chat history. Read in this order: (1) workspace `CLAUDE.md` (safety 1–7, one session per tree); (2) this file; (3) `W17_OFFLINE_READINESS.md`
